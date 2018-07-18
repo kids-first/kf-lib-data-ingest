@@ -1,0 +1,43 @@
+
+### Dataset Ingest Config ###
+
+# The list of entities that will be loaded into the target service
+target_service_entities:
+    - 'investigator'
+    - 'study'
+    #- 'study_file' - not ready
+    #- 'family' - don't have any
+    - 'participant'
+    # - 'family_relationship' - dont have any
+    # - 'diagnosis' - dont have any
+    - 'phenotype'
+    - 'outcome'
+    - 'biospecimen'
+    - 'sequencing_experiment'
+    - 'genomic_file'
+
+# All extract config paths are relative to the directory this file is in
+extract_config_dir: 'test_extract_configs'
+
+study:
+    kf_id: 'SD_MEOWMEOW'
+    external_id: 'phs0001999'
+    short_name: 'Cat Study'
+    name: 'The long study of cats'
+    authority: 'dbgap'
+    version: 'v2.p1'
+    release_status: 'Pending'
+    category: 'Cancer'
+    attribution: 'some link'
+
+investigators:
+    -
+        kf_id: <INV KF ID>
+        name: 'John Smith'
+        institution: 'Sky University'
+        external_id: 'JS'
+    -
+        kf_id: <INV KF ID>
+        name: 'Jane Doe'
+        institution: 'Sun University'
+        external_id: 'JD'
