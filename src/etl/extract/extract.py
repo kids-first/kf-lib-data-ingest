@@ -2,7 +2,7 @@
 from common.errors import InvalidIngestStageParameters
 from common.stage import IngestStage
 from etl.configuration.extract_config import ExtractConfig
-
+from etl.common.file_retriever import FileRetriever
 
 class Extractor(IngestStage):
 
@@ -30,8 +30,14 @@ class Extractor(IngestStage):
         pass  # TODO
 
     def _run(self, *args, **kwargs):
-        # Do fetch
-        # Read file(s)
-        # Pull raw subdata from file
-        # Do operations to produce table from subdata columns
-        pass  # TODO
+        # TODO
+        for extract_config in self.extract_configs:
+            # use file retriever to do fetch
+            # read file
+            # Do operations to produce table from subdata columns
+        # return dictionary of all dataframes keyed by extract config paths
+        pass
+
+    def _read_file(self, file_path, read_method=None, **kwargs):
+        # TODO returns (partial?)contents of the file as a dataframe
+        pass
