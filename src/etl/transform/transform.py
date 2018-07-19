@@ -1,13 +1,13 @@
 """
 Module for transforming source data DataFrames to the standard model.
 """
-from src.etl.common.errors import InvalidIngestStageParameters
-from src.etl.common.stage import IngestStage
+from common.errors import InvalidIngestStageParameters
+from common.stage import IngestStage
 
 
 class Transformer(IngestStage):
-    def __init__(self, study_config_filepath):
-        super().__init__(study_config_filepath)
+    def __init__(self, dataset_ingest_config_filepath):
+        super().__init__(dataset_ingest_config_filepath)
 
     def _validate_run_parameters(*args, **kwargs):
         # Should raise a InvalidIngestStageParameters if any
@@ -25,8 +25,6 @@ class Transformer(IngestStage):
         # previously produced at the end of stage run
         pass  # TODO
 
-
-class ConceptGraphTransformer(Transformer):
     def _run(self, *args, **kwargs):
         # convert the input dataframes into unified form
         pass  # TODO

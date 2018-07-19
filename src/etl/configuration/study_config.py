@@ -1,7 +1,7 @@
-from src.etl.configuration.base_config import YamlConfig
+from etl.configuration.base_config import YamlConfig
 
 
-class StudyConfig(YamlConfig):
+class DatasetIngestConfig(YamlConfig):
     # TODO
 
     def __init__(self, *args, **kwargs):

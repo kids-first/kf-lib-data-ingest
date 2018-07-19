@@ -3,16 +3,23 @@ Module for loading the transform output into the dataservice.
 """
 from abc import abstractmethod
 
-from src.etl.common.errors import InvalidIngestStageParameters
-from src.etl.configuration.base_config import YamlConfig
-from src.etl.common.stage import IngestStage
+from common.errors import InvalidIngestStageParameters
+from common.stage import IngestStage
+from etl.configuration.base_config import YamlConfig
+
+# TODO
+# REMEMBER THIS!
+# Translate identifiers of entities to kf ids and attach them as foreign
+# keys.
+# Cache the return from every load.
+# Load according to the dataservice api endpoints.
 
 
 class Loader(IngestStage):
     def __init__(
-        self, target_url, use_async, study_config_path, target_schema_path
+        self, target_url, use_async, dataset_ingest_config_path, target_schema_path
     ):
-        super().__init__(study_config_path)
+        super().__init__(dataset_ingest_config_path)
         # use study config to get the set of entities we want to load for the
         # study
         self.target_schema = YamlConfig(target_schema_path).contents
@@ -50,12 +57,3 @@ class Loader(IngestStage):
     def _load(self, thing):
         # TODO: put the thing into the server (does the sending)
         pass
-
-
-class KidsFirstDataserviceLoader(Loader):
-    # TODO
-    # Translate identifiers of entities to kf ids and attach them as foreign
-    # keys.
-    # Cache the return from every load.
-    # Load according to the dataservice api endpoints.
-    pass

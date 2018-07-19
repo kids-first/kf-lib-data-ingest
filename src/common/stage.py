@@ -3,13 +3,14 @@ from abc import (
     abstractmethod
 )
 
-from src.etl.configuration.study_config import StudyConfig
+from etl.configuration.dataset_ingest_config import DatasetIngestConfig
 
 
 class IngestStage(ABC):
 
-    def __init__(self, study_config_path):
-        self.study_config = StudyConfig(study_config_path)
+    def __init__(self, dataset_ingest_config_path):
+        self.dataset_ingest_config = DatasetIngestConfig(
+            dataset_ingest_config_path)
 
     @abstractmethod
     def _run(self, *args, **kwargs):
@@ -35,7 +36,8 @@ class IngestStage(ABC):
 
     def _construct_output_filepath(self):
         # Construct the filepath of the output using the study's config
-        # directory which is basename of self.study_config.config_filepath
+        # directory which is basename of
+        # self.dataset_ingest_config.config_filepath
         # Store in
         # <study config dir path>/output_cache/<ingest stage class name>
         pass

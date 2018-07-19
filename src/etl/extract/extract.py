@@ -1,16 +1,17 @@
 
-from src.etl.common.errors import InvalidIngestStageParameters
-from src.etl.configuration.extract_config import ExtractConfig
-from src.etl.common.stage import IngestStage
+from common.errors import InvalidIngestStageParameters
+from common.stage import IngestStage
+from etl.configuration.extract_config import ExtractConfig
 
 
-class Extracter(IngestStage):
+class Extractor(IngestStage):
 
-    def __init__(self, study_config_filepath):
-        super().__init__(study_config_filepath)
-        self.extract_configs = [ExtractConfig(config_filepath)
-                                for config_filepath
-                                in self.study_config.extract_config_paths]
+    def __init__(self, dataset_ingest_config_filepath):
+        super().__init__(dataset_ingest_config_filepath)
+        self.extract_configs = [
+            ExtractConfig(config_filepath)
+            for config_filepath
+            in self.dataset_ingest_config.extract_config_paths]
 
     def _validate_run_parameters(*args, **kwargs):
         # Should raise a InvalidIngestStageParameters if any
@@ -28,7 +29,7 @@ class Extracter(IngestStage):
         # previously produced at the end of stage run
         pass  # TODO
 
-    def _run(self):
+    def _run(self, *args, **kwargs):
         # Do fetch
         # Read file(s)
         # Pull raw subdata from file
