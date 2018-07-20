@@ -1,5 +1,5 @@
 import os
-from jsonschema import validate
+import jsonschema
 from jsonschema.exceptions import ValidationError
 from abc import (
     ABC,
@@ -16,6 +16,8 @@ class AbstractConfig(ABC):
 
     def __init__(self, filepath, **kwargs):
         self.config_filepath = filepath
+        if not os.path.isfile(filepath):
+            raise FileNotFoundError('File {} not found'.format(filepath))
         self.contents = self._read_file(filepath)
         self._validate(**kwargs)
 
@@ -25,7 +27,7 @@ class AbstractConfig(ABC):
         pass
 
     @abstractmethod
-    def _validate(self, **kwargs):
+    def _validate(self, *args, **kwargs):
         """ Should raise appropriate exception on failed validation """
         pass
 
@@ -33,15 +35,11 @@ class AbstractConfig(ABC):
 class YamlConfig(AbstractConfig):
 
     def _read_file(self, filepath):
-        if not os.path.isfile(filepath):
-            raise FileNotFoundError('Yaml config file {} not found'
-                                    .format(filepath))
         return read_yaml(filepath)
 
-    def _validate(self, schema=None):
-        if not schema:
-            raise Exception('Cannot validate yaml file! No schema provided')
-        validate(self.config_filepath, schema)
+    def _validate(self, schema_path=None):
+        schema = read_yaml(schema_path)
+        jsonschema.validate(self.contents, schema)
 
 
 class PyModuleConfig(AbstractConfig):

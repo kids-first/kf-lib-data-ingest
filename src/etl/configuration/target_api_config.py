@@ -2,7 +2,7 @@
 from etl.configuration.base_config import PyModuleConfig
 
 
-class ExtractConfig(PyModuleConfig):
+class TargetAPIConfig(PyModuleConfig):
 
     def __init__(self, filepath):
         super().__init__(filepath)
@@ -15,4 +15,5 @@ class ExtractConfig(PyModuleConfig):
     def _deserialize(self):
         # TODO
         # Add other attributes later after config design is complete
-        self.source_data_url = self.contents.source_data_url
+
+        self.target_model_schema = self.contents.target_model_schema

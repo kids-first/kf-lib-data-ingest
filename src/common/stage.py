@@ -3,21 +3,14 @@ from abc import (
     abstractmethod
 )
 
-from etl.configuration.dataset_ingest_config import DatasetIngestConfig
-
 
 class IngestStage(ABC):
-
-    def __init__(self, dataset_ingest_config_path):
-        self.dataset_ingest_config = DatasetIngestConfig(
-            dataset_ingest_config_path)
-
     @abstractmethod
     def _run(self, *args, **kwargs):
         pass
 
     @abstractmethod
-    def _validate_run_parameters(*args, **kwargs):
+    def _validate_run_parameters(self, *args, **kwargs):
         # Subclasses should raise a InvalidIngestStageParameters if any
         # parameters are missing.
         pass
@@ -60,6 +53,6 @@ class IngestStage(ABC):
         output = self._run(*args, **kwargs)
 
         # Write output of stage to disk
-        self._write_output(output)
+        # self._write_output(output)
 
         return output

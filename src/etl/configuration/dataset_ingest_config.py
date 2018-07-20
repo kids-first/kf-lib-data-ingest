@@ -9,6 +9,14 @@ from config import (
 class DatasetIngestConfig(YamlConfig):
     # TODO
 
+    # Removal/Exclusion list
+    # We periodically get messages from investigators saying that we should
+    # remove/exclude certain items from the dataservice.
+    # ( e.g. https://github.com/kids-first/kf-study-imports/issues/75#issuecomment-405245066 )
+    # We should be able to store a list of either external IDs and
+    # their types or KFIDs of things to delete from the dataservice if already
+    # there and to prevent from loading subsequently.
+
     def __init__(self, config_path):
         # Is config path a dir or file
         if os.path.isdir(config_path):
@@ -17,7 +25,7 @@ class DatasetIngestConfig(YamlConfig):
                 config_path,
                 DATASET_INGEST_CONFIG_DEFAULT_FILENAME)
 
-        super().__init__(config_path, schema=DATA_INGEST_SCHEMA_PATH)
+        super().__init__(config_path, schema_path=DATA_INGEST_SCHEMA_PATH)
         self._deserialize()
 
     def _deserialize(self):

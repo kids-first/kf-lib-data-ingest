@@ -19,10 +19,10 @@ properties:
                 description: "The Kids First ID of the study"
                 type: "string"
         required:
-            - kd_id
-    investigator:
+            - kf_id
+    investigators:
         description: "The attributes defining an investigator in the Kids First data model"
-        type: "object"
+        type: "array"
         properties:
             kf_id:
                 description: "The Kids First ID of the investigator"
@@ -35,4 +35,4 @@ required:
     - target_service_entities
     - extract_config_dir
     - study
-    - investigator
+    - investigators

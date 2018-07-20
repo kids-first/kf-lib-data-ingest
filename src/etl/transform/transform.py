@@ -5,15 +5,10 @@ from common.errors import InvalidIngestStageParameters
 from common.stage import IngestStage
 
 
-class Transformer(IngestStage):
-    def __init__(self, dataset_ingest_config_filepath):
-        super().__init__(dataset_ingest_config_filepath)
-
-    def _validate_run_parameters(*args, **kwargs):
-        # Should raise a InvalidIngestStageParameters if any
-        # parameters are missing.
-        # TODO
-        raise InvalidIngestStageParameters
+class TransformStage(IngestStage):
+    def __init__(self):
+        # TODO we dont know what this takes yet
+        pass
 
     def _serialize_output(self, output):
         # An ingest stage is responsible for serializing the data that is
@@ -25,6 +20,21 @@ class Transformer(IngestStage):
         # previously produced at the end of stage run
         pass  # TODO
 
-    def _run(self, *args, **kwargs):
+    def _validate_run_parameters(self, df_dict):
+        # Should raise a InvalidIngestStageParameters if any
+        # parameters are missing.
+        # TODO
+        # Check that df_dict contains non-empty dataframes keyed by the
+        # extract config filepath
+        # Each dataframe should have columns mapped to the standard model
+        # concepts and properties
+        pass
+
+    def _run(self, df_dict):
+        # TODO
+        standard_model = None
         # convert the input dataframes into unified form
-        pass  # TODO
+        for key, df in df_dict.items():
+            # do stuff
+            pass
+        return standard_model

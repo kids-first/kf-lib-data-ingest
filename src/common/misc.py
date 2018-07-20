@@ -8,9 +8,6 @@ def import_module_from_file(filepath):
     """
     Import a Python module given a filepath
     """
-    if not os.path.isfile(filepath):
-        raise FileNotFoundError('File {} does not exist'.format(filepath))
-
     module_name = os.path.basename(filepath).split(".")[0]
     spec = importlib.util.spec_from_file_location(module_name, filepath)
     imported_module = importlib.util.module_from_spec(spec)
