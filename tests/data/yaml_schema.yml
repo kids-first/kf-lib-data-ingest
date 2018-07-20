@@ -1,0 +1,23 @@
+$schema: "http://json-schema.org/draft-04/schema#"
+
+title: "Test schema"
+description: "Schema for testing yaml validation"
+type: "object"
+
+properties:
+    params:
+        description: "params"
+        type: "object"
+        properties:
+            first:
+                description: "first"
+                type: "string"
+            second:
+                description: "second"
+                type: "string"
+        required:
+            - first
+            - second
+
+required:
+    - params
