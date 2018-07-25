@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-04/schema#"
+
+title: "Dataset Ingest Config"
+description: "Schema for dataset ingestion configuration yaml"
+type: "object"
+
+properties:
+    target_service_entities:
+        description: "The list of entities that will be loaded into the target service in the loading stage."
+        type: "array"
+    extract_config_dir:
+        description: "The directory storing the extract configuration python modules."
+        type: "string"
+    study:
+        description: "The attributes defining a study in the Kids First data model"
+        type: "object"
+        properties:
+            kf_id:
+                description: "The Kids First ID of the study"
+                type: "string"
+        required:
+            - kf_id
+    investigators:
+        description: "The attributes defining an investigator in the Kids First data model"
+        type: "array"
+        properties:
+            kf_id:
+                description: "The Kids First ID of the investigator"
+                type: "string"
+
+        required:
+            - kf_id
+
+required:
+    - target_service_entities
+    - extract_config_dir
+    - study
+    - investigators
