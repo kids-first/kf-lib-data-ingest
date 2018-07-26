@@ -15,6 +15,7 @@ def s3_save(s3_url, dest_obj, auth="saml"):
     s3 = boto3.session.Session(profile_name=auth).resource("s3")
     s3.Object(bucket, key).download_fileobj(dest_obj)
 
+
 def web_save(url, dest_obj, auth=None):
     """
     Get a file from a web server.
@@ -23,6 +24,7 @@ def web_save(url, dest_obj, auth=None):
         for chunk in response.iter_content(chunk_size=8192):
             if chunk:
                 dest_obj.write(chunk)
+
 
 def file_save(path, dest_obj, auth=None):
     """
