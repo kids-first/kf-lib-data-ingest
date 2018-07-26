@@ -1,0 +1,9 @@
+click==6.7
+jsonschema==2.6.0
+-e git+git@github.com:kids-first/kf-lib-data-ingest.git@c5aac563d7414499e9f328f18fd362854c7cb311#egg=kf_lib_data_ingest
+numpy==1.15.0
+pandas==0.23.3
+python-dateutil==2.7.3
+pytz==2018.5
+PyYAML==3.13
+six==1.11.0
