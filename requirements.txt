@@ -1,0 +1,8 @@
+click==6.7
+jsonschema==2.6.0
+numpy==1.15.0
+pandas==0.23.3
+python-dateutil==2.7.3
+pytz==2018.5
+PyYAML==3.13
+six==1.11.0

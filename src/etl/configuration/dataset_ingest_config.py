@@ -12,7 +12,8 @@ class DatasetIngestConfig(YamlConfig):
     # Removal/Exclusion list
     # We periodically get messages from investigators saying that we should
     # remove/exclude certain items from the dataservice.
-    # ( e.g. https://github.com/kids-first/kf-study-imports/issues/75#issuecomment-405245066 )
+    # ( e.g. https://github.com/kids-first/kf-study-imports/
+    # issues/75#issuecomment-405245066 )
     # We should be able to store a list of either external IDs and
     # their types or KFIDs of things to delete from the dataservice if already
     # there and to prevent from loading subsequently.

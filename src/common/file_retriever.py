@@ -25,9 +25,5 @@ class FileRetriever(object):
         client = FileRetriever._clients.get(key)()
         if client is None:
             raise LookupError("No client found for protocol: " + key)
-        pass # TODO use client to download file and then return it
+        pass  # TODO use client to download file and then return it
         # return the file or contents or whatever
-
-
-
-
