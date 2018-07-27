@@ -7,6 +7,7 @@ from common.stage import IngestStage
 
 class TransformStage(IngestStage):
     def __init__(self):
+        super().__init__()
         # TODO we dont know what this takes yet
         pass
 

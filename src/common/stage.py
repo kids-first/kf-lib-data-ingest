@@ -1,3 +1,7 @@
+import time
+import logging
+from functools import wraps
+
 from abc import (
     ABC,
     abstractmethod
@@ -5,6 +9,10 @@ from abc import (
 
 
 class IngestStage(ABC):
+
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
+
     @abstractmethod
     def _run(self, *args, **kwargs):
         pass
@@ -45,6 +53,38 @@ class IngestStage(ABC):
         # TODO
         # Write serialized output to file
 
+    def log_run(func):
+        """
+        Decorator to log the ingest stage's run
+
+        Log begin, end and time elapsed
+        """
+        @wraps(func)
+        def wrapper(instance, *args, **kwargs):
+            logger = instance.logger
+
+            # Get the inges stage name
+            stage_name = instance.__class__.__name__
+
+            # Log start run
+            logger.info('BEGIN {}'.format(stage_name))
+
+            # Run the stage
+            start = time.time()
+            r = func(instance, *args, **kwargs)
+            end = time.time()
+
+            # Log end run
+            delta_sec = end - start
+            time_string = (
+                "\n\tTime elapsed: \n\tSec: {}\n\tMin: {}\n\tHours: {}".format(
+                    delta_sec, delta_sec / 60, delta_sec / 60 / 60))
+            logger.info('END {}. {}'.format(stage_name, time_string))
+
+            return r
+        return wrapper
+
+    @log_run
     def run(self, *args, **kwargs):
         # Validate run parameters
         self._validate_run_parameters(*args, **kwargs)

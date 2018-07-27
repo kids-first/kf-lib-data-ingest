@@ -2,7 +2,9 @@ import os
 from etl.configuration.base_config import YamlConfig
 from config import (
     DATASET_INGEST_CONFIG_DEFAULT_FILENAME,
-    DATA_INGEST_SCHEMA_PATH
+    DATA_INGEST_SCHEMA_PATH,
+    DEFAULT_LOG_LEVEL,
+    DEFAULT_LOG_OVERWRITE_OPT
 )
 
 
@@ -35,6 +37,49 @@ class DatasetIngestConfig(YamlConfig):
         super().__init__(config_path, schema_path=DATA_INGEST_SCHEMA_PATH)
         self._deserialize()
 
+    def _set_log_params(self):
+        """
+        Set log parameters
+        """
+
+        def _default_log_dir():
+            """
+            Create default log directory
+            """
+            config_dir = os.path.abspath(
+                os.path.dirname(self.config_filepath))
+            log_dir = os.path.join(config_dir, 'logs')
+            if not os.path.isdir(log_dir):
+                os.mkdir(log_dir)
+            return log_dir
+
+        def _get_log_level(log_level_str):
+            import logging
+            return getattr(logging, log_level_str.upper())
+
+        # Log params with defaults
+        log_params = {
+            'log_dir': _default_log_dir,
+            'log_level': DEFAULT_LOG_LEVEL,
+            'overwrite_log': DEFAULT_LOG_OVERWRITE_OPT
+        }
+
+        # Set values
+        for param, default_value in log_params.items():
+            # User supplied log param through config
+            if ('logging' in self.contents and
+                    (param in self.contents['logging'])):
+                value = self.contents['logging'][param]
+                if param == 'log_level':
+                    value = _get_log_level(value)
+                setattr(self, param, value)
+            # Set default
+            else:
+                if callable(default_value):
+                    setattr(self, param, default_value())
+                else:
+                    setattr(self, param, default_value)
+
     def _deserialize(self):
         """
         Deserialize the dictionary of parameters to attributes of the
@@ -55,13 +100,8 @@ class DatasetIngestConfig(YamlConfig):
                                      for filename in os.listdir(
                                      self.extract_config_dir)
                                      if filename.endswith('.py')]
-        # Log params
-        for param in ['log_dir', 'log_level', 'overwrite_log']:
-            if ('logging' in self.contents and
-                    (param in self.contents['logging'])):
-                setattr(self, param, self.contents['logging'][param])
-            else:
-                setattr(self, param, None)
+        # Log Params
+        self._set_log_params()
 
         # Study parameters
         self.study = self.contents.get('study')
