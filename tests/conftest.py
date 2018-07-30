@@ -26,7 +26,7 @@ def make_ingest_pipeline(config_filepath=None):
     if not config_filepath:
         data_ingest_config_path = os.path.join(TEST_DATA_DIR,
                                                'test_study',
-                                               'data_ingest_config.yml')
+                                               'dataset_ingest_config.yml')
 
     p = DataIngestPipeline(data_ingest_config_path)
 

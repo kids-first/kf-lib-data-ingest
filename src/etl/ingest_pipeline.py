@@ -40,7 +40,7 @@ class DataIngestPipeline(object):
         self._setup_logging(self.data_ingest_config)
         self.logger = logging.getLogger(__name__)
 
-        # Log the start of the run
+        # Log the start of the run with ingesttion parameters
         import inspect
         frame = inspect.currentframe()
         args, _, _, values = inspect.getargvalues(frame)
@@ -51,7 +51,7 @@ class DataIngestPipeline(object):
         self.logger.info(run_msg)
 
         # Top level exception handler
-        # Catch exception, log it, and reraise
+        # Catch exception, log it, and exit
         try:
             self._run(target_api_config_path, use_async, target_url)
         except Exception as e:
