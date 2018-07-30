@@ -1,5 +1,4 @@
 import os
-import pytest
 
 from conftest import TEST_DATA_DIR
 from etl.ingest_pipeline import DataIngestPipeline
