@@ -20,6 +20,7 @@ class DatasetIngestConfig(YamlConfig):
 
     def __init__(self, config_path):
         # Is config path a dir or file
+        config_path = os.path.abspath(os.path.expanduser(config_path))
         if os.path.isdir(config_path):
             # If dir, create default config file path
             config_path = os.path.join(
