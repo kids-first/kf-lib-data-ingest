@@ -27,7 +27,7 @@ TBD
 ```
 4. Install kf-lib-data-ingest
 ```
-> pip install .
+> pip install -e .
 ```
 
 ### Run
