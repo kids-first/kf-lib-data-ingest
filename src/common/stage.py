@@ -53,7 +53,7 @@ class IngestStage(ABC):
         # TODO
         # Write serialized output to file
 
-    def log_run(func):
+    def _log_run(func):
         """
         Decorator to log the ingest stage's run
 
@@ -76,15 +76,16 @@ class IngestStage(ABC):
 
             # Log end run
             delta_sec = end - start
-            time_string = (
-                "\n\tTime elapsed: \n\tSec: {}\n\tMin: {}\n\tHours: {}".format(
-                    delta_sec, delta_sec / 60, delta_sec / 60 / 60))
+            min, sec = divmod(delta_sec, 60)
+            hour, min = divmod(min, 60)
+            time_string = ("Time elapsed: Sec: {} Min: {} Hours: {}"
+                           .format(sec, min, hour))
             logger.info('END {}. {}'.format(stage_name, time_string))
 
             return r
         return wrapper
 
-    @log_run
+    @_log_run
     def run(self, *args, **kwargs):
         # Validate run parameters
         self._validate_run_parameters(*args, **kwargs)

@@ -1,4 +1,6 @@
 import os
+import logging
+
 from etl.configuration.base_config import YamlConfig
 from config import (
     DATASET_INGEST_CONFIG_DEFAULT_FILENAME,
@@ -24,7 +26,7 @@ class DatasetIngestConfig(YamlConfig):
         """
         Construct a DatasetIngestConfig object from a config file
 
-        :params config_filepath: Path to the data ingest config file
+        :param config_filepath: Path to the data ingest config file
         """
         # Is config path a dir or file
         config_path = os.path.abspath(os.path.expanduser(config_path))
@@ -54,7 +56,6 @@ class DatasetIngestConfig(YamlConfig):
             return log_dir
 
         def _get_log_level(log_level_str):
-            import logging
             return getattr(logging, log_level_str.upper())
 
         # Log params with defaults

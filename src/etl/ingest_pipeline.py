@@ -1,14 +1,14 @@
+import inspect
 import logging
 from collections import OrderedDict
 
 from etl.configuration.dataset_ingest_config import DatasetIngestConfig
+from etl.configuration.log import setup_logger
 from etl.extract.extract import ExtractStage
 from etl.transform.transform import TransformStage
 from etl.load.load import LoadStage
-from config import (
-    DEFAULT_TARGET_URL,
-    setup_logger
-)
+from config import DEFAULT_TARGET_URL
+
 
 # TODO
 # Allow a run argument that contains the desired stages to run
@@ -22,7 +22,7 @@ class DataIngestPipeline(object):
         """
         Setup data ingest pipeline. Create the config object and setup logging
 
-        :params dataset_ingest_config_path: Path to config file containing all
+        :param dataset_ingest_config_path: Path to config file containing all
         parameters for data ingest.
         """
         self.data_ingest_config = DatasetIngestConfig(
@@ -37,11 +37,10 @@ class DataIngestPipeline(object):
         See _run method for param description
         """
         # Create logger
-        self._setup_logging(self.data_ingest_config)
+        self._get_log_params(self.data_ingest_config)
         self.logger = logging.getLogger(__name__)
 
-        # Log the start of the run with ingesttion parameters
-        import inspect
+        # Log the start of the run with ingestion parameters
         frame = inspect.currentframe()
         args, _, _, values = inspect.getargvalues(frame)
         param_string = '\n\t'.join(['{} = {}'.format(arg, values[arg])
@@ -51,7 +50,7 @@ class DataIngestPipeline(object):
         self.logger.info(run_msg)
 
         # Top level exception handler
-        # Catch exception, log it, and exit
+        # Catch exception, log it to file and console, and exit
         try:
             self._run(target_api_config_path, use_async, target_url)
         except Exception as e:
@@ -61,11 +60,11 @@ class DataIngestPipeline(object):
         # Log the end of the run
         self.logger.info('END data ingestion')
 
-    def _setup_logging(self, data_ingest_config):
+    def _get_log_params(self, data_ingest_config):
         """
-        Setup logging
+        Get log params from data_ingest_config
 
-        :params data_ingest_config a DatasetIngestConfig object containing
+        :param data_ingest_config a DatasetIngestConfig object containing
         log parameters
         """
         # Get log dir
@@ -83,10 +82,10 @@ class DataIngestPipeline(object):
         """
         Runs the ingest pipeline
 
-        :params target_api_config_path: Path to the target api config file
-        :params use_async: Boolean specifies whether to do ingest
+        :param target_api_config_path: Path to the target api config file
+        :param use_async: Boolean specifies whether to do ingest
         asynchronously or synchronously
-        :params target_url: URL of the target API, into which data will be
+        :param target_url: URL of the target API, into which data will be
         loaded. Use default if none is supplied
         """
         # Create an ordered dict of all ingest stages and their parameters

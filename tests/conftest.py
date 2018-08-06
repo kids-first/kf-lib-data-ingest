@@ -9,7 +9,7 @@ TEST_DATA_DIR = os.path.join(TEST_ROOT_DIR, 'data')
 
 def delete_logs(log_dir):
     """
-    Delete log dir
+    Delete contents of log dir
     """
     for filename in os.listdir(log_dir):
         file_path = os.path.join(log_dir, filename)
@@ -30,7 +30,7 @@ def make_ingest_pipeline(config_filepath=None):
 
     p = DataIngestPipeline(data_ingest_config_path)
 
-    # Clean up log dir
+    # Delete any existing log files
     delete_logs(p.data_ingest_config.log_dir)
 
     return p
@@ -46,6 +46,6 @@ def ingest_pipeline():
     yield p
 
     # Teardown
-    # Remove log directory
+    # Delete the entire log directory
     if os.path.exists(p.data_ingest_config.log_dir):
         shutil.rmtree(p.data_ingest_config.log_dir)
