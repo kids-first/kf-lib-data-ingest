@@ -19,8 +19,7 @@ class LoadStage(IngestStage):
     def __init__(
         self, target_api_config_path, target_url, use_async, entities_to_load
     ):
-        # use study config to get the set of entities we want to load for the
-        # study
+        super().__init__()
         self.target_api_config = TargetAPIConfig(target_api_config_path)
         self.entities_to_load = entities_to_load
         self.target_url = target_url

@@ -8,6 +8,7 @@ from etl.configuration.extract_config import ExtractConfig
 class ExtractStage(IngestStage):
 
     def __init__(self, extract_config_paths):
+        super().__init__()
         self.extract_configs = [ExtractConfig(config_filepath)
                                 for config_filepath
                                 in extract_config_paths]
