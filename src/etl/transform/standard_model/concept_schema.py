@@ -5,8 +5,8 @@ class CONCEPT:
 
     class INVESTIGATOR:
         ID = 'INVESTIGATOR|ID'
-        NAME = 'INVESTIGATOR_NAME'
-        INSTITUTION = 'INVESTIGATOR_INSTITUTION'
+        NAME = 'INVESTIGATOR|NAME'
+        INSTITUTION = 'INVESTIGATOR|INSTITUTION'
 
     class STUDY:
         KF_ID = 'STUDY|KF_ID'
@@ -123,10 +123,6 @@ concept_set = {CONCEPT.FAMILY,
                }
 
 
-class ConceptSchemaValidationError(Exception):
-    pass
-
-
 def _create_identifiers():
     """
     Build the set of identifying concept properties.
@@ -134,18 +130,14 @@ def _create_identifiers():
     - All CONCEPT.<>.ID properties are identifiers
     - Some concepts have additional identifying properties
     """
-    # Add all ID properties of each concept
     identifiers = {}
     for concept in concept_set:
-        identifiers.setdefault(concept.__name__, set())
-        identifiers[concept.__name__].add(str(concept.ID))
+        identifiers[concept] = {concept.ID}
 
     # Add other misc identifiers
-    misc = [(CONCEPT.GENOMIC_FILE, CONCEPT.GENOMIC_FILE.FILE_PATH),
-            (CONCEPT.SEQUENCING, CONCEPT.SEQUENCING.LIBRARY_NAME),
-            (CONCEPT.BIOSPECIMEN, CONCEPT.BIOSPECIMEN.ALIQUOT_ID)]
-    for tup in misc:
-        identifiers[tup[0].__name__].add(str(tup[1]))
+    identifiers[CONCEPT.GENOMIC_FILE].add(CONCEPT.GENOMIC_FILE.FILE_PATH)
+    identifiers[CONCEPT.SEQUENCING].add(CONCEPT.SEQUENCING.LIBRARY_NAME)
+    identifiers[CONCEPT.BIOSPECIMEN].add(CONCEPT.BIOSPECIMEN.ALIQUOT_ID)
 
     return identifiers
 
@@ -153,42 +145,11 @@ def _create_identifiers():
 identifiers = _create_identifiers()
 
 
-def validate_concept_string(concept_property_string):
-    """
-    Given a delimited concept property string check whether the property
-    exists in the defined hierarchy of standard concepts and properties.
-
-    :param concept_property_string: a string like: SEQUENCING_CENTER|NAME
-    """
-    hierarchy = concept_property_string.split(DELIMITER)
-    if hierarchy[0] == CONCEPT.__name__:
-        hierarchy = hierarchy[1:]
-    prev = CONCEPT
-    for node in hierarchy:
-        try:
-            prev = getattr(prev, node.strip().upper())
-        except AttributeError:
-            raise ConceptSchemaValidationError(
-                '{} does not exist in standard concepts'
-                .format(concept_property_string))
-    return True
-
-
 def is_identifier(concept_property_string):
     """
     Given a delimited concept property string check whether the property
     is an identifying property for this concept.
-
-    :param concept_property_string: a string like: PARTICIPANT|ID
+     :param concept_property_string: a string like: PARTICIPANT|ID
     """
-    # Raise exception if the concept property does not exist
-    validate_concept_string(concept_property_string)
 
-    # Construct the set of all identifier properties
-    identifier_strings = {
-        value
-        for concept, set_of_values in identifiers.items()
-        for value in set_of_values
-    }
-
-    return (concept_property_string in identifier_strings)
+    return concept_property_string in set().union(*identifiers.values())
