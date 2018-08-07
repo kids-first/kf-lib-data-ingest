@@ -76,22 +76,18 @@ class ConceptPropertyGraph(object):
         """
         Initialize a networkx directed graph and concept index
 
-        The concept index stores a dict of sets of node keys, keyed by concept.
+        The concept index stores a dict of dicts of node, first keyed by
+        concept and then keyed by node key
 
-        Attributes:
-            graph is a networkx.DiGraph or directed graph object
-            concept_index is a dict of ConceptPropertyNode keys, keyed by
-            concept.
-
-                Example:
-                    self.concept_index = {
-                        CONCEPT.PARTICIPANT: {
-                            PARTICIPANT|ID|P1,
-                            PARTICIPANT|ID|P2,
-                            ...
-                        },
-                        ...
-                    }
+        Example:
+            self.concept_index = {
+                CONCEPT.PARTICIPANT: {
+                    PARTICIPANT|ID|P1: ConceptPropertyNode,
+                    PARTICIPANT|ID|P2: ConceptPropertyNode,
+                    ...
+                },
+                ...
+            }
 
         """
         self.graph = nx.DiGraph()
@@ -103,7 +99,7 @@ class ConceptPropertyGraph(object):
     def add_node(self, concept_property, value, **kwargs):
         """
         Construct a ConceptPropertyNode and add it to the graph and
-        concept_index.
+        concept_index if it is an identifier node
 
         :param concept_property: a string referring to a standard concept
         in defined in standard_model.concept_schema.CONCEPT
@@ -116,12 +112,14 @@ class ConceptPropertyGraph(object):
         success = self._add_node(node)
         if success:
             # Initialize concept index if empty
-            self.concept_index.setdefault(node.concept, set())
+            self.concept_index.setdefault(node.concept, {})
 
-            # Add node to concept index
-            self.concept_index[node.concept].add(node.key)
-
-        return node
+            # Add node to concept index, if identifier
+            if node.is_identifier:
+                self.concept_index[node.concept][node.key] = node
+            return node
+        else:
+            return None
 
     def get_node(self, node_key):
         """
@@ -146,9 +144,7 @@ class ConceptPropertyGraph(object):
         :param nodes: a list of identifier ConceptPropertyNodes
         """
         for node1, node2 in iterate_pairwise(nodes):
-            if not nx.algorithms.shortest_paths.generic.has_path(self.graph,
-                                                                 node1,
-                                                                 node2):
+            if not nx.has_path(self.graph, node1.key, node2.key):
                 self._add_edge(node1, node2, bidirectional=True)
 
     def connect_property_node(self, property_node, id_nodes):
@@ -176,14 +172,18 @@ class ConceptPropertyGraph(object):
         :param bidirectional: A boolean specifying whether to add edge in both
         directions.
         """
+        # Add nodes if not exist
+        self._add_node(node1)
+        self._add_node(node2)
+
         # Check if edge exists
         if not self._edge_exists(node1, node2, bidirectional=bidirectional):
             # Add edge from node1 to node2
-            self.graph._add_edge(node1.key, node2.key)
+            self.graph.add_edge(node1.key, node2.key)
 
             # Add edge from node2 to node1
             if bidirectional:
-                self.graph._add_edge(node2.key, node1.key)
+                self.graph.add_edge(node2.key, node1.key)
 
     def _edge_exists(self, node1, node2, bidirectional=False):
         """
@@ -194,11 +194,11 @@ class ConceptPropertyGraph(object):
         :param directed: A boolean specifying to check for edges in both
         directions.
         """
-        edge1_exists = self.graph.edges.get((node1, node2))
+        edge1_exists = self.graph.has_edge(node1.key, node2.key)
         if not bidirectional:
             return edge1_exists
         else:
-            edge2_exists = self.graph.edges.get((node2, node1))
+            edge2_exists = self.graph.has_edge(node2.key, node1.key)
             return (edge1_exists and edge2_exists)
 
     def _add_node(self, node):
@@ -232,7 +232,7 @@ class ConceptPropertyGraph(object):
         :param node: a ConceptPropertyNode
         """
         success = False
-        if node.key not in self.graph:
+        if not self.graph.has_node(node.key):
             self.graph.add_node(node.key, **{'object': node})
             success = True
 
