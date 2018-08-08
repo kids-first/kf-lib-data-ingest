@@ -1,50 +1,55 @@
 import networkx as nx
 
-from etl.transform.standard_model import concept_schema
+from etl.transform.standard_model.concept_schema import (
+    DELIMITER,
+    is_identifier
+)
 from common.misc import iterate_pairwise
 
 
 class ConceptPropertyGraph(object):
     """
-    A directed graph representing the source data in a standrd form.
+    A directed graph representing the source data in a standard form.
 
-    The ConceptPropertyGraph implements this graph and is
-    a wrapper around networkx.DiGraph().
+    The ConceptPropertyGraph is a wrapper around networkx.DiGraph.
 
     Nodes
     *************
     ConceptPropertyGraph contains ConceptPropertyNodes, each of which represent
-    a single cell from a source data table.
+    a single mapped cell from a source data table.
 
-    The ConceptPropertyNode contains the standard concept that the cell's
-    column was mapped to, the standard concept property that the cell's column
-    was mapped to, and the value of the cell.
+    At a minimum, the ConceptPropertyNode contains the standard concept and
+    concept property that the cell's column was mapped to and the value of the
+    cell.
 
-    These 3 things, create the ConceptPropertyNode's key which may uniquely
-    identify the node in the graph. (Example key: PARTICIPANT|RACE|White)
+    These 3 things create the ConceptPropertyNode's key which is a
+    delimited string that uniquely identifies the node in the graph.
+
+        Example key: PARTICIPANT|RACE|White
 
     There are 2 types of ConceptPropertyNodes:
         - identifier nodes
-        - non-identifier nodes
+        - non-identifier nodes or property nodes
 
     An identifier node can uniquely identify a concept instance. The criteria
-    to be an identifier is that the node must have a standard concept property
+    for an identifier is that the node must have a standard concept property
     which is in the set of identifier concept properties defined in the concept
-    schema. Non-identifier nodes are self-explanatory.
+    schema. Non-identifier or property nodes are simply nodes which do not
+    meet the identifier criteria.
 
     Edges
     *************
     All nodes which came from cells in the same row of a source data table,
-    are considered to be directly related and must have their relationships
+    are considered to be directly related and will have their relationships
     represented in the graph by edges.
 
-        - Each identifier node in a row is connected to every non-identifier
-         node, via 1 way edges starting from itself and ending at the
-         non-identifier nodes.
+        - Each identifier node in a row will be connected to every
+         non-identifier node in the row, via 1 way edges starting from itself
+         and ending at the non-identifier nodes.
 
          - For every pair of identifier nodes within a row, a bi-directional
-          edge is created, if and only if, a path in the graph does not already
-          exist between the two nodes.
+          edge is created between the nodes in the pair, if and only if,
+          a path in the graph does not already exist between the two nodes.
 
     Example
     *************
@@ -74,16 +79,16 @@ class ConceptPropertyGraph(object):
 
     def __init__(self):
         """
-        Initialize a networkx directed graph and concept index
+        Initialize a networkx directed graph and the concept index dict
 
-        The concept index stores a dict of dicts of node, first keyed by
-        concept and then keyed by node key
+        The concept index stores a dict of dicts of ConceptPropertyNodes,
+        first keyed by concept and then keyed by ConceptPropertyNode.key
 
         Example:
             self.concept_index = {
                 CONCEPT.PARTICIPANT: {
-                    PARTICIPANT|ID|P1: ConceptPropertyNode,
-                    PARTICIPANT|ID|P2: ConceptPropertyNode,
+                    PARTICIPANT|ID|P1: <ConceptPropertyNode instance>,
+                    PARTICIPANT|ID|P2: <ConceptPropertyNode instance>,
                     ...
                 },
                 ...
@@ -96,30 +101,32 @@ class ConceptPropertyGraph(object):
     def find_property_node(self, start_key, goal_key, restrictions):
         pass
 
-    def add_node(self, concept_property, value, **kwargs):
+    def add_or_get_node(self, concept_property, value, **kwargs):
         """
-        Construct a ConceptPropertyNode and add it to the graph and
-        concept_index if it is an identifier node
+        Construct, add a ConceptPropertyNode to the graph or get existing node.
+
+        Add the node to the concept_index if it is an identifier node
 
         :param concept_property: a string referring to a standard concept
         in defined in standard_model.concept_schema.CONCEPT
         :param value: a string containing the value of the concept property
         :returns node: the constructed ConceptPropertyNode
         """
+        # Create node
         node = ConceptPropertyNode(concept_property,
                                    value,
                                    **kwargs)
-        success = self._add_node(node)
-        if success:
-            # Initialize concept index if empty
-            self.concept_index.setdefault(node.concept, {})
+        # Add node to internal networkx graph
+        node = self._add_or_get_node(node)
 
-            # Add node to concept index, if identifier
-            if node.is_identifier:
-                self.concept_index[node.concept][node.key] = node
-            return node
-        else:
-            return None
+        # Initialize concept index if empty
+        self.concept_index.setdefault(node.concept, {})
+
+        # Add node to concept index, if identifier
+        if node.is_identifier:
+            self.concept_index[node.concept][node.key] = node
+
+        return node
 
     def get_node(self, node_key):
         """
@@ -127,10 +134,10 @@ class ConceptPropertyGraph(object):
 
         :param node_key: The key of a ConceptPropertyNode
         """
-        # Get networkx node in graph
+        # Get node from the internal networkx graph
         nx_node = self.graph.node.get(node_key)
 
-        # Get ConceptPropertyNode from networkx node's key, value pairs
+        # Get ConceptPropertyNode from networkx node's attribute dict
         if nx_node:
             return nx_node.get('object')
         else:
@@ -138,8 +145,11 @@ class ConceptPropertyGraph(object):
 
     def connect_id_nodes(self, nodes):
         """
-        For all node pairs, create a bidirectional edge between the nodes,
-        if and only if there does not already exist a path between the nodes.
+        Connect identifier nodes via edges
+
+        For all node pairs, create a bidirectional edge between nodes in a
+        pair, if and only if there does not already exist a path between the
+        nodes.
 
         :param nodes: a list of identifier ConceptPropertyNodes
         """
@@ -151,7 +161,7 @@ class ConceptPropertyGraph(object):
         """
         Create directed edges from each id node to the property node.
 
-        For each edge, create it starting from the identifier node
+        For each edge, create the edge starting from the identifier node
         and ending at the property node.
 
         :param property_node: a non-identifier ConceptPropertyNode
@@ -164,6 +174,7 @@ class ConceptPropertyGraph(object):
         """
         Add an un/directed edge to the graph if it does not already exist.
 
+        If bidirectional=False, add edge from node1 to node2
         If bidirectional=True, add edge from node1 to node2 and add edge from
         node2 to node1.
 
@@ -172,22 +183,25 @@ class ConceptPropertyGraph(object):
         :param bidirectional: A boolean specifying whether to add edge in both
         directions.
         """
-        # Add nodes if not exist
-        self._add_node(node1)
-        self._add_node(node2)
+        # Add nodes if not exist or get existing nodes
+        self._add_or_get_node(node1)
+        self._add_or_get_node(node2)
 
         # Check if edge exists
         if not self._edge_exists(node1, node2, bidirectional=bidirectional):
             # Add edge from node1 to node2
             self.graph.add_edge(node1.key, node2.key)
-
             # Add edge from node2 to node1
             if bidirectional:
                 self.graph.add_edge(node2.key, node1.key)
 
     def _edge_exists(self, node1, node2, bidirectional=False):
         """
-        Check whether an edge exists in the graph.
+        Check whether an un/directed edge exists in the graph.
+
+        If bidirectional=False, check if edge from node1 to node2 exists
+        If bidirectional=True, check if edge from node1 to node2 exists and
+        check if edge from node2 to node1 exists
 
         :param node1: a ConceptPropertyNode
         :param node2: a ConceptPropertyNode
@@ -201,54 +215,59 @@ class ConceptPropertyGraph(object):
             edge2_exists = self.graph.has_edge(node2.key, node1.key)
             return (edge1_exists and edge2_exists)
 
-    def _add_node(self, node):
+    def _add_or_get_node(self, node):
         """
-        Add the contents of the ConceptPropertyNode to the networkx.DiGraph
-        graph. Return whether operation was successful.
+        Add node to internal networkx graph or get node if it exists.
 
-        Nodes in a networkx graph may be strings, ints, or any hashable object.
+        Nodes in a networkx graph may be strings, ints, or hashable objects
         A networkx node may also have a dict of key, value pairs associated
         with it.
 
-        Here we use the ConceptPropertyNode.key to identify the node in the
-        networkx graph, and we store the ConceptPropertyNode instance
-        in a dict with just one key, value pair:
+        Here we use the ConceptPropertyNode.key as the node in the
+        networkx graph. The key also identifies the node in the graph.
+        We also store the ConceptPropertyNode instance in the node's attributes
+        dict:
 
-            {object: ConceptPropertyNode instance}
+            {'object': ConceptPropertyNode instance}
 
         This is useful so that we can enforce an interface on the
-        nodes in the networkx graph and calling code may get attributes of the
-        node by simply referenceing the ConceptPropertyNode attributes.
+        nodes in the networkx graph, and calling code may get attributes of the
+        node by simply referencing the ConceptPropertyNode attributes.
 
         Essentially, we want this:
             node = self.graph[PARTICIPANT|ID|P1].get('object')
-            node.key
-            node.row
+            print(node.key)
+            print(node.row)
+
         instead of this:
             node = self.graph[PARTICIPANT|ID|P1]
-            node.get('key')
-            node.get('row')
+            print(node.get('key'))
+            print(node.get('row'))
 
         :param node: a ConceptPropertyNode
         """
-        success = False
+        # Add node if it does not exist
         if not self.graph.has_node(node.key):
             self.graph.add_node(node.key, **{'object': node})
-            success = True
+            ret = node
+        # Return existing node if it exists
+        else:
+            ret = self.get_node(node.key)
 
-        return success
+        return ret
 
 
 class ConceptPropertyNode(object):
     """
-    A ConceptPropertyNode represents a cell from a source data table.
+    A ConceptPropertyNode represents a mapped cell (mapped column name and cell
+    value) from a source data table.
     """
 
     def __init__(self, concept_property, value, **kwargs):
         """
-        A ConceptPropertyNode represents a cell from a source data table.
-        It must be constructed with the standard concept and property that the
-        cell's column was mapped to, and the value of the cell.
+        A ConceptPropertyNode represents a mapped cell from a source data
+        table. Construction requires the standard concept and property
+        that the cell's column name was mapped to, and the value of the cell.
 
         :param concept_property: a serialized concept property from
         standard_model.concept_schema. This will be a string.
@@ -263,26 +282,36 @@ class ConceptPropertyNode(object):
         :param col: an optional parameter. This is the numeric column index in
         the source data file from which the node originated.
 
-        Constructed Attributes
+        Derived Attributes
         *************************
         key - A ConceptPropertyNode is uniquely identified in the graph using
         its node key, which is constructed from the concept_property and value.
-        Keys look like this: BIOSPECIMEN|TISSUE_TYPE|Normal. The key delimiter
-        is defined in the concept schema.
 
-        is_identifier - A ConceptPropertyNode node is an identifier node if
+            Keys look like this: BIOSPECIMEN|TISSUE_TYPE|Normal.
+            The key delimiter is defined in the concept schema.
+
+        is_identifier - A ConceptPropertyNode is an identifier node if
         its property is in the set of identifiers defined in concept schema.
         An identifier node is able to uniquely identify concept instances that
-        share the same concept. For example the ConceptPropertyNode node with
-        key: PARTICIPANT|ID|P1, identifies a Participant concept instance
-        with the ID P1.
+        share the same concept. For example the ConceptPropertyNode with
+        key: PARTICIPANT|ID|P1, identifies a PARTICIPANT concept instance
+        with the ID, P1.
 
-        uid - Another unique identifier of
+        uid - Another unique identifier of the node. The uid is constructed
+        using the url of the extract config file, the url of the source data
+        file, numeric row index, and numeric column index of the node's
+        source data table.
+
+        A uid looks like this:
+
+                /path/extract_config.py|/path/source_data_file.py|0|5
+
+        The uid string delimiter is defined in the concept schema.
 
         """
         # Key parameters
-        self.concept = concept_property.split(concept_schema.DELIMITER)[0]
-        self.property = concept_property.split(concept_schema.DELIMITER)[1]
+        self.concept = DELIMITER.join(concept_property.split(DELIMITER)[0:2])
+        self.property = concept_property.split(DELIMITER)[2]
         self.value = str(value)
         self.key = self._create_key()
 
@@ -290,8 +319,8 @@ class ConceptPropertyNode(object):
         self.is_identifier = self._set_is_identifier()
 
         # Uid parameters
-        self.source_url = kwargs.get('source_url', '')
         self.extract_config_url = kwargs.get('extract_config_url', '')
+        self.source_url = kwargs.get('source_url', '')
         self.row = str(kwargs.get('row', ''))
         self.col = str(kwargs.get('col', ''))
         self.uid = self._create_uid()
@@ -301,39 +330,30 @@ class ConceptPropertyNode(object):
         Set is_identifier if the ConceptPropertyNode's property is in the set
         of defined concept identifiers.
         """
-        s = concept_schema.DELIMITER.join([self.concept, self.property])
-        return concept_schema.is_identifier(s)
+        s = DELIMITER.join([self.concept, self.property])
+        return is_identifier(s)
 
     def _create_key(self):
         """
         Create the key used to identify the node by concept, property and value
         """
-        concept_property = concept_schema.DELIMITER.join([self.concept,
-                                                          self.property])
+        concept_property = DELIMITER.join([self.concept,
+                                           self.property])
 
-        return concept_schema.DELIMITER.join([concept_property, self.value])
+        return DELIMITER.join([concept_property, self.value])
 
     def _create_uid(self):
         """
-        Create the ID used to identify the node by its position in a table
-        and the URL of the extract config which produced that table.
+        Create a unique identifier for the node using location attributes
+
+        Use the extract config file URL, source data file URL,
+        source data table row index, and the source data table column index.
         """
-        if self.extract_config_url and self.row and self.col:
-            return concept_schema.DELIMITER.join([self.extract_config_url,
-                                                  self.row,
-                                                  self.col])
+        if (self.extract_config_url and
+                self.source_url and self.row and self.col):
+            return DELIMITER.join([self.extract_config_url,
+                                   self.source_url,
+                                   self.row,
+                                   self.col])
         else:
             return None
-
-
-if __name__ == '__main__':
-    G = ConceptPropertyGraph()
-    f1 = G.add_node('FAMILY|ID', 'F1')
-    p1 = G.add_node('PARTICIPANT|ID', 'P1')
-    b1 = G.add_node('BIOSPECIMEN|ID', 'B1')
-    tt_normal = G.add_node('BIOSPECIMEN|TISSUE_TYPE', 'NORMAL')
-
-    G.connect_id_nodes([f1, b1, p1])
-
-    print(G.graph.nodes)
-    print(G.graph.edges)

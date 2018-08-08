@@ -1,4 +1,3 @@
-import pandas as pd
 import pytest
 
 from etl.transform.standard_model.graph import (
@@ -24,7 +23,7 @@ def test_construct_node():
     # Check node identifier
     assert node.is_identifier
     # Check uid
-    assert node.uid == None
+    assert node.uid is None
 
     # Construct non-identifier node
     concept_prop_str = str(CONCEPT.PARTICIPANT.IS_PROBAND)
@@ -39,31 +38,34 @@ def test_node_uid():
     concept_prop_str = str(CONCEPT.PARTICIPANT.ID)
     value = 'P1'
     extract_config_url = '/extract_config_1.py'
+    source_url = '/datafile.csv'
     r = 0
     c = 0
     node = ConceptPropertyNode(concept_prop_str, value,
                                extract_config_url=extract_config_url,
+                               source_url=source_url,
                                row=r,
                                col=c)
     # Check uid
     assert node.uid == '|'.join([extract_config_url,
+                                 source_url,
                                  str(r),
                                  str(c)])
 
 
 def test_add_and_get_node(property_graph):
     """
-    Test add and get node on ConceptPropertyGraph
+    Test adding and getting nodes from ConceptPropertyGraph
     """
     # Add property node
     concept_prop_str = str(CONCEPT.PARTICIPANT.IS_PROBAND)
     value = False
-    node = property_graph.add_node(concept_prop_str, value)
+    node = property_graph.add_or_get_node(concept_prop_str, value)
 
     # Check property node is in graph
     assert node.key in property_graph.graph.nodes
 
-    # Check properpty node is in not in concept index since its not an
+    # Check properpty node is not in concept index since its not an
     # identifier
     concept_instances = property_graph.concept_index[node.concept]
     assert node.key not in concept_instances
@@ -74,17 +76,17 @@ def test_add_and_get_node(property_graph):
     # Add identifier node
     concept_prop_str = str(CONCEPT.PARTICIPANT.ID)
     value = 'P1'
-    node = property_graph.add_node(concept_prop_str, value)
+    node = property_graph.add_or_get_node(concept_prop_str, value)
 
     # Check node is in concept index since it is an identifier
     assert node.key in concept_instances
     assert isinstance(concept_instances.get(node.key), ConceptPropertyNode)
 
     # Test that you cannot add a node if it already exists
-    result = property_graph.add_node(concept_prop_str, value, row=5, col=5)
-    assert result is None
-    assert property_graph.get_node(node.key).row != 5
-    assert property_graph.get_node(node.key).col != 5
+    result = property_graph.add_or_get_node(concept_prop_str, value,
+                                            row=5, col=5)
+    assert result.row != 5
+    assert result.col != 5
 
 
 def test_add_edge_and_exists(property_graph):
@@ -122,9 +124,9 @@ def test_connect_id_nodes(property_graph):
     """
 
     # Create id nodes
-    p1 = property_graph.add_node(str(CONCEPT.PARTICIPANT.ID), 'P1')
-    b1 = property_graph.add_node(str(CONCEPT.BIOSPECIMEN.ID), 'B1')
-    g1 = property_graph.add_node(str(CONCEPT.GENOMIC_FILE.ID), 'GF1')
+    p1 = property_graph.add_or_get_node(str(CONCEPT.PARTICIPANT.ID), 'P1')
+    b1 = property_graph.add_or_get_node(str(CONCEPT.BIOSPECIMEN.ID), 'B1')
+    g1 = property_graph.add_or_get_node(str(CONCEPT.GENOMIC_FILE.ID), 'GF1')
     id_nodes = [p1, b1, g1]
 
     # Connect id nodes
@@ -146,13 +148,13 @@ def test_connect_property_nodes(property_graph):
     Test connect_id_nodes and connect_property_node
     """
     # Create property node
-    tissue_type = property_graph.add_node(
+    tissue_type = property_graph.add_or_get_node(
         str(CONCEPT.BIOSPECIMEN.TISSUE_TYPE),
         'Normal')
 
     # Create id nodes
-    p1 = property_graph.add_node(str(CONCEPT.PARTICIPANT.ID), 'P1')
-    b1 = property_graph.add_node(str(CONCEPT.BIOSPECIMEN.ID), 'B1')
+    p1 = property_graph.add_or_get_node(str(CONCEPT.PARTICIPANT.ID), 'P1')
+    b1 = property_graph.add_or_get_node(str(CONCEPT.BIOSPECIMEN.ID), 'B1')
     id_nodes = [p1, b1]
 
     # Connect property nodes
