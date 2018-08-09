@@ -4,123 +4,199 @@ DELIMITER = '|'
 class CONCEPT:
 
     class INVESTIGATOR:
-        ID = 'INVESTIGATOR|ID'
-        NAME = 'INVESTIGATOR|NAME'
-        INSTITUTION = 'INVESTIGATOR|INSTITUTION'
+        ID = None
+        NAME = None
+        INSTITUTION = None
 
     class STUDY:
-        KF_ID = 'STUDY|KF_ID'
-        ID = 'STUDY|ID'
-        AUTHORITY = 'STUDY|AUTHORITY'
-        VERSION = 'STUDY|VERSION'
-        NAME = 'STUDY|NAME'
-        SHORT_NAME = 'STUDY|SHORT_NAME'
-        ATTRIBUTION = 'STUDY|ATTRIBUTION'
-        RELEASE_STATUS = 'STUDY|RELEASE_STATUS'
-        CATEGORY = 'STUDY|CATEGORY'
+        KF_ID = None
+        ID = None
+        AUTHORITY = None
+        VERSION = None
+        NAME = None
+        SHORT_NAME = None
+        ATTRIBUTION = None
+        RELEASE_STATUS = None
+        CATEGORY = None
 
     class FAMILY:
-        ID = 'FAMILY|ID'
+        ID = None
 
     class PARTICIPANT:
-        ID = 'PARTICIPANT|ID'
-        FAMILY = 'PARTICIPANT|FAMILY'
-        IS_PROBAND = 'PARTICIPANT|IS_PROBAND'
-        FATHER_ID = 'PARTICIPANT|FATHER_ID'
-        MOTHER_ID = 'PARTICIPANT|MOTHER_ID'
-        GENDER = 'PARTICIPANT|GENDER'
-        ETHNICITY = 'PARTICIPANT|ETHNICITY'
-        RACE = 'PARTICIPANT|RACE'
-        CONSENT_TYPE = 'PARTICIPANT|CONSENT_TYPE'
+        ID = None
+        FAMILY = None
+        IS_PROBAND = None
+        FATHER_ID = None
+        MOTHER_ID = None
+        GENDER = None
+        ETHNICITY = None
+        RACE = None
+        CONSENT_TYPE = None
 
     class OUTCOME:
-        ID = 'OUTCOME|ID'
-        VITAL_STATUS = 'OUTCOME|VITAL_STATUS'
-        EVENT_AGE = 'OUTCOME|EVENT_AGE'
-        RELATED = 'OUTCOME|RELATED'
+        ID = None
+        VITAL_STATUS = None
+        EVENT_AGE = None
+        RELATED = None
 
     class DIAGNOSIS:
-        ID = 'DIAGNOSIS|ID'
-        NAME = 'DIAGNOSIS|NAME'
-        TUMOR_LOCATION = 'DIAGNOSIS|TUMOR_LOCATION'
-        UBERON_TUMOR_LOCATION_ID = 'DIAGNOSIS|UBERON_TUMOR_LOCATION_ID'
-        EVENT_AGE = 'DIAGNOSIS|EVENT_AGE'
-        MONDO_ID = 'DIAGNOSIS|MONDO_ID'
-        NCIT_ID = 'DIAGNOSIS|NCIT_ID'
-        ICD_ID = 'DIAGNOSIS|ICD_ID'
+        ID = None
+        NAME = None
+        TUMOR_LOCATION = None
+        UBERON_TUMOR_LOCATION_ID = None
+        EVENT_AGE = None
+        MONDO_ID = None
+        NCIT_ID = None
+        ICD_ID = None
 
     class PHENOTYPE:
-        ID = 'PHENOTYPE|ID'
-        NAME = 'PHENOTYPE|NAME'
-        HPO_ID = 'PHENOTYPE|HPO_ID'
-        SNOMED_ID = 'PHENOTYPE|SNOMED_ID'
-        OBSERVED = 'PHENOTYPE|OBSERVED'
-        EVENT_AGE = 'PHENOTYPE|EVENT_AGE'
+        ID = None
+        NAME = None
+        HPO_ID = None
+        SNOMED_ID = None
+        OBSERVED = None
+        EVENT_AGE = None
 
     class BIOSPECIMEN:
-        KF_ID = 'BIOSPECIMEN|KF_ID'
-        ID = 'BIOSPECIMEN|ID'
-        ALIQUOT_ID = 'BIOSPECIMEN|ALIQUOT_ID'
-        TISSUE_TYPE = 'BIOSPECIMEN|TISSUE_TYPE'
-        NCIT_TISSUE_TYPE_ID = 'BIOSPECIMEN|NCIT_TISSUE_TYPE_ID'
-        ANATOMY_SITE = 'BIOSPECIMEN|ANATOMY_SITE'
-        NCIT_ANATOMY_SITE_ID = 'BIOSPECIMEN|NCIT_ANATOMY_SITE_ID'
-        UBERON_ANATOMY_SITE_ID = 'BIOSPECIMEN|UBERON_ANATOMY_SITE_ID'
-        TUMOR_DESCRIPTOR = 'BIOSPECIMEN|TUMOR_DESCRIPTOR'
-        COMPOSITION = 'BIOSPECIMEN|COMPOSITION'
-        EVENT_AGE = 'BIOSPECIMEN|EVENT_AGE'
-        SPATIAL_DESCRIPTOR = 'BIOSPECIMEN|SPATIAL_DESCRIPTOR'
-        SHIPMENT_ORIGIN = 'BIOSPECIMEN|SHIPMENT_ORIGIN'
-        SHIPMENT_DATE = 'BIOSPECIMEN|SHIPMENT_DATE'
-        ANALYTE = 'BIOSPECIMEN|ANALYTE'
-        CONCENTRATION_MG_PER_ML = 'BIOSPECIMEN|CONCENTRATION_MG_PER_ML'
-        VOLUME_ML = 'BIOSPECIMEN|VOLUME_ML'
+        KF_ID = None
+        ID = None
+        ALIQUOT_ID = None
+        TISSUE_TYPE = None
+        NCIT_TISSUE_TYPE_ID = None
+        ANATOMY_SITE = None
+        NCIT_ANATOMY_SITE_ID = None
+        UBERON_ANATOMY_SITE_ID = None
+        TUMOR_DESCRIPTOR = None
+        COMPOSITION = None
+        EVENT_AGE = None
+        SPATIAL_DESCRIPTOR = None
+        SHIPMENT_ORIGIN = None
+        SHIPMENT_DATE = None
+        ANALYTE = None
+        CONCENTRATION_MG_PER_ML = None
+        VOLUME_ML = None
 
     class GENOMIC_FILE:
-        KF_ID = 'GENOMIC_FILE|KF_ID'
-        ETAG = 'GENOMIC_FILE|ETAG'
-        SIZE = 'GENOMIC_FILE|SIZE'
-        ID = 'GENOMIC_FILE|ID'
-        FILE_NAME = 'GENOMIC_FILE|NAME'
-        FILE_PATH = 'GENOMIC_FILE|PATH'
-        HARMONIZED = 'GENOMIC_FILE|HARMONIZED'
-        CAVATICA_OUTPUT_FILE = 'GENOMIC_FILE|CAVATICA_OUTPUT_FILE'
+        KF_ID = None
+        ETAG = None
+        SIZE = None
+        ID = None
+        FILE_NAME = None
+        FILE_PATH = None
+        HARMONIZED = None
+        CAVATICA_OUTPUT_FILE = None
 
     class MULTI_SPECIMEN_GENOMIC_FILE(GENOMIC_FILE):
-        ID = 'MULTI_SPECIMEN_GENOMIC_FILE|ID'
+        ID = None
 
     class SEQUENCING:
-        ID = 'SEQUENCING|ID'
-        DATE = 'SEQUENCING|DATE'
-        STRATEGY = 'SEQUENCING|STRATEGY'
-        PAIRED_END = 'SEQUENCING|IS_PAIRED_END'
-        LIBRARY_NAME = 'SEQUENCING|LIBRARY_NAME'
-        LIBRARY_STRAND = 'SEQUENCING|LIBRARY_STRAND'
-        PLATFORM = 'SEQUENCING|PLATFORM'
-        INSTRUMENT = 'SEQUENCING|INSTRUMENT'
-        INSERT_SIZE = 'SEQUENCING|INSERT_SIZE'
-        REFERENCE_GENOME = 'SEQUENCING|REFERENCE_GENOME'
-        MAX_INSERT_SIZE = 'SEQUENCING|MAX_INSERT_SIZE'
-        MEAN_INSERT_SIZE = 'SEQUENCING|MEAN_INSERT_SIZE'
-        MEAN_DEPTH = 'SEQUENCING|MEAN_DEPTH'
-        TOTAL_READS = 'SEQUENCING|TOTAL_READS'
-        MEAN_READ_LENGTH = 'SEQUENCING|MEAN_READ_LENGTH'
+        ID = None
+        DATE = None
+        STRATEGY = None
+        PAIRED_END = None
+        LIBRARY_NAME = None
+        LIBRARY_STRAND = None
+        PLATFORM = None
+        INSTRUMENT = None
+        INSERT_SIZE = None
+        REFERENCE_GENOME = None
+        MAX_INSERT_SIZE = None
+        MEAN_INSERT_SIZE = None
+        MEAN_DEPTH = None
+        TOTAL_READS = None
+        MEAN_READ_LENGTH = None
 
         class CENTER:
-            NAME = 'SEQUENCING_CENTER|NAME'
-            KF_ID = 'SEQUENCING_CENTER|KF_ID'
+            NAME = None
+            KF_ID = None
 
 
-concept_set = {CONCEPT.FAMILY,
-               CONCEPT.SEQUENCING,
-               CONCEPT.PARTICIPANT,
-               CONCEPT.BIOSPECIMEN,
-               CONCEPT.DIAGNOSIS,
-               CONCEPT.PHENOTYPE,
-               CONCEPT.DIAGNOSIS,
-               CONCEPT.OUTCOME,
-               CONCEPT.GENOMIC_FILE
-               }
+def compile_schema():
+    """
+    "Compile" the concept schema
+
+    Populate every concept class attribute with a string that represents
+    a path in the concept class hierarchy to reach that attribute.
+
+    Store all the concept property strings in a set for later reference and
+    validation.
+
+    This approach eliminates the need to manually assign concept class
+    attributes to a string.
+    """
+
+    property_path = []
+    property_paths = set()
+    _set_cls_attrs(CONCEPT, None, property_path, property_paths)
+
+    return property_paths
+
+
+def _set_cls_attrs(node, prev_node, property_path, property_paths):
+    """
+    Recursive method to traverse a class hierarchy and set class attributes
+    equal to a string which represents a path in the hierarchy to reach the
+    attribute.
+
+    For example, after running the method on this class definition:
+        class A:
+            class B:
+                ID = None
+                class C:
+                    ID = None
+            AGE = None
+
+    The values of the attributes would be equal to this:
+        A.AGE = "A.AGE"
+        A.B.ID = "A.B.ID"
+        A.B.C.ID = "A.B.C.ID"
+    """
+    # Process a class or child node
+    if callable(node):
+        # Add class name to property path
+        property_path.append(str(node.__name__))
+        # Iterate over class attrs
+        for attr_name, value in vars(node).items():
+            if not attr_name.startswith('__'):
+                # Recurse
+                if callable(value):
+                    _set_cls_attrs(value, node,
+                                   property_path,
+                                   property_paths)
+                else:
+                    _set_cls_attrs(attr_name, node,
+                                   property_path,
+                                   property_paths)
+    # Process leaf nodes
+    else:
+        # Add attribute to property path
+        property_path.append(node)
+        # Create property string
+        property_path_str = DELIMITER.join(property_path)
+        # Set attribute on class to equal the property path string
+        setattr(prev_node, node, property_path_str)
+        # Add property string to list of property path strings
+        property_paths.add(property_path_str)
+
+    property_path.pop()
+
+
+# Set the concept class attributes with their serialized property strings
+# Create a set of the serialized concept property strings
+concept_property_set = compile_schema()
+
+# Create a set of standard concepts
+concept_set = {
+    CONCEPT.FAMILY,
+    CONCEPT.SEQUENCING,
+    CONCEPT.PARTICIPANT,
+    CONCEPT.BIOSPECIMEN,
+    CONCEPT.DIAGNOSIS,
+    CONCEPT.PHENOTYPE,
+    CONCEPT.DIAGNOSIS,
+    CONCEPT.OUTCOME,
+    CONCEPT.GENOMIC_FILE
+}
 
 
 def _create_identifiers():
@@ -142,6 +218,7 @@ def _create_identifiers():
     return identifiers
 
 
+# Create the set of identifier concept properties
 identifiers = _create_identifiers()
 
 
