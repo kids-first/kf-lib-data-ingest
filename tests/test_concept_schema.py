@@ -26,13 +26,16 @@ def test_set_cls_attrs():
     Test method _set_cls_attrs
     """
     # Create a class hierarchy
-    class A:
+    class Mixin(object):
+        COMMON = None
+
+    class A(Mixin):
         ID = None
 
         def hello():
             print('hey')
 
-        class B:
+        class B(Mixin):
             ID = None
 
             class C:
@@ -48,8 +51,10 @@ def test_set_cls_attrs():
 
     # Check that every class attribute is assigned to its appropriate path str
     test_params = {
+        A.COMMON: 'A|COMMON',
         A.ID: 'A|ID',
         A.B.ID: 'A|B|ID',
+        A.B.COMMON: 'A|B|COMMON',
         A.B.C.ID: 'A|B|C|ID',
         A.B.C.NAME: 'A|B|C|NAME'
     }

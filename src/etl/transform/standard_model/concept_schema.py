@@ -1,15 +1,20 @@
+import inspect
+
 DELIMITER = '|'
+
+
+class PropertyMixin(object):
+    ID = None
+    TARGET_SERVICE_ID = None
 
 
 class CONCEPT:
 
-    class INVESTIGATOR:
-        ID = None
+    class INVESTIGATOR(PropertyMixin):
         NAME = None
         INSTITUTION = None
 
-    class STUDY:
-        ID = None
+    class STUDY(PropertyMixin):
         AUTHORITY = None
         VERSION = None
         NAME = None
@@ -18,11 +23,10 @@ class CONCEPT:
         RELEASE_STATUS = None
         CATEGORY = None
 
-    class FAMILY:
-        ID = None
+    class FAMILY(PropertyMixin):
+        pass
 
-    class PARTICIPANT:
-        ID = None
+    class PARTICIPANT(PropertyMixin):
         FAMILY = None
         IS_PROBAND = None
         FATHER_ID = None
@@ -32,34 +36,28 @@ class CONCEPT:
         RACE = None
         CONSENT_TYPE = None
 
-    class OUTCOME:
-        ID = None
+    class OUTCOME(PropertyMixin):
         VITAL_STATUS = None
         EVENT_AGE_DAYS = None
-        DISEASE_RELATED = None
+        RELATED = None
 
-    class DIAGNOSIS:
-        ID = None
+    class DIAGNOSIS(PropertyMixin):
         NAME = None
         TUMOR_LOCATION = None
-        SPATIAL_DESCRIPTOR = None
-        CATEGORY = None
         UBERON_TUMOR_LOCATION_ID = None
         EVENT_AGE_DAYS = None
         MONDO_ID = None
         NCIT_ID = None
         ICD_ID = None
 
-    class PHENOTYPE:
-        ID = None
+    class PHENOTYPE(PropertyMixin):
         NAME = None
         HPO_ID = None
         SNOMED_ID = None
         OBSERVED = None
         EVENT_AGE_DAYS = None
 
-    class BIOSPECIMEN:
-        ID = None
+    class BIOSPECIMEN(PropertyMixin):
         ALIQUOT_ID = None
         TISSUE_TYPE = None
         NCIT_TISSUE_TYPE_ID = None
@@ -76,27 +74,26 @@ class CONCEPT:
         CONCENTRATION_MG_PER_ML = None
         VOLUME_ML = None
 
-    class GENOMIC_FILE:
+    class GENOMIC_FILE(PropertyMixin):
         ETAG = None
         SIZE = None
-        ID = None
+        DATA_TYPE = None
         FILE_NAME = None
         FILE_PATH = None
+        AVAILABILITY = None
         HARMONIZED = None
         CAVATICA_OUTPUT_FILE = None
 
     class MULTI_SPECIMEN_GENOMIC_FILE(GENOMIC_FILE):
-        ID = None
+        pass
 
-    class READ_GROUP:
-        ID = None
+    class READ_GROUP(PropertyMixin):
         PAIRED_END = None
         FLOW_CELL = None
         LANE_NUMBER = None
         QUALITY_SCALE = None
 
-    class SEQUENCING:
-        ID = None
+    class SEQUENCING(PropertyMixin):
         DATE = None
         STRATEGY = None
         PAIRED_END = None
@@ -112,7 +109,7 @@ class CONCEPT:
         TOTAL_READS = None
         MEAN_READ_LENGTH = None
 
-        class CENTER:
+        class CENTER(PropertyMixin):
             NAME = None
 
 
@@ -135,6 +132,20 @@ def compile_schema():
     _set_cls_attrs(CONCEPT, None, property_path, property_paths)
 
     return property_paths
+
+
+def _get_cls_attrs(cls):
+    """
+    Get class attributes including inherited attributes
+    """
+    # Get non function attributes
+    attributes = inspect.getmembers(cls, lambda x: not(inspect.isroutine(x)))
+
+    # Get non-hidden attrs
+    attributes = [a for a in attributes
+                  if not(a[0].startswith('__') and
+                         a[0].endswith('__'))]
+    return dict(attributes)
 
 
 def _set_cls_attrs(node, prev_node, property_path, property_paths):
@@ -161,17 +172,16 @@ def _set_cls_attrs(node, prev_node, property_path, property_paths):
         # Add class name to property path
         property_path.append(str(node.__name__))
         # Iterate over class attrs
-        for attr_name, value in vars(node).items():
-            if not attr_name.startswith('__'):
-                # Recurse
-                if callable(value):
-                    _set_cls_attrs(value, node,
-                                   property_path,
-                                   property_paths)
-                else:
-                    _set_cls_attrs(attr_name, node,
-                                   property_path,
-                                   property_paths)
+        for attr_name, value in _get_cls_attrs(node).items():
+            # Recurse
+            if callable(value):
+                _set_cls_attrs(value, node,
+                               property_path,
+                               property_paths)
+            else:
+                _set_cls_attrs(attr_name, node,
+                               property_path,
+                               property_paths)
     # Process leaf nodes
     else:
         # Add attribute to property path
