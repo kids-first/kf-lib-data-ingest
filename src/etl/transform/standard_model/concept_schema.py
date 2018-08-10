@@ -4,6 +4,7 @@ DELIMITER = '|'
 
 
 class PropertyMixin(object):
+    _CONCEPT_NAME = None
     ID = None
     TARGET_SERVICE_ID = None
 
@@ -38,11 +39,13 @@ class CONCEPT:
     class OUTCOME(PropertyMixin):
         VITAL_STATUS = None
         EVENT_AGE_DAYS = None
-        RELATED = None
+        DISEASE_RELATED = None
 
     class DIAGNOSIS(PropertyMixin):
         NAME = None
         TUMOR_LOCATION = None
+        SPATIAL_DESCRIPTOR = None
+        CATEGORY = None
         UBERON_TUMOR_LOCATION_ID = None
         EVENT_AGE_DAYS = None
         MONDO_ID = None
@@ -183,12 +186,18 @@ def _set_cls_attrs(node, prev_node, property_path, property_paths):
                                property_paths)
     # Process leaf nodes
     else:
+        # Create current path str
+        concept_name_str = DELIMITER.join(property_path)
         # Add attribute to property path
         property_path.append(node)
         # Create property string
         property_path_str = DELIMITER.join(property_path)
-        # Set attribute on class to equal the property path string
-        setattr(prev_node, node, property_path_str)
+        # Set attribute on class to equal the property path string OR
+        # The concept name path string if the attribute is _CONCEPT_NAME
+        if node == '_CONCEPT_NAME':
+            setattr(prev_node, node, concept_name_str)
+        else:
+            setattr(prev_node, node, property_path_str)
         # Add property string to list of property path strings
         property_paths.add(property_path_str)
 
