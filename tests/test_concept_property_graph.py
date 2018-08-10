@@ -67,8 +67,12 @@ def test_add_and_get_node(property_graph):
 
     # Check properpty node is not in concept index since its not an
     # identifier
-    concept_instances = property_graph.concept_index[node.concept]
+    concept_instances = property_graph.id_index[node.concept]
     assert node.key not in concept_instances
+
+    # Check property node is in property index
+    assert node.concept_property_pair in property_graph.property_index
+    assert node in (property_graph.property_index[node.concept_property_pair])
 
     # Test get property node
     assert property_graph.get_node(node.key) == node

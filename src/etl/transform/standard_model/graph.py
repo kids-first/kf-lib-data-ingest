@@ -79,13 +79,14 @@ class ConceptPropertyGraph(object):
 
     def __init__(self):
         """
-        Initialize a networkx directed graph and the concept index dict
+        Initialize a networkx directed graph and the indices
 
-        The concept index stores a dict of dicts of ConceptPropertyNodes,
-        first keyed by concept and then keyed by ConceptPropertyNode.key
+        The indentifier index stores a dict of dicts of identifier
+        ConceptPropertyNodes, first keyed by concept and then keyed by
+        ConceptPropertyNode.key
 
         Example:
-            self.concept_index = {
+            self.id_index = {
                 CONCEPT.PARTICIPANT: {
                     PARTICIPANT|ID|P1: <ConceptPropertyNode instance>,
                     PARTICIPANT|ID|P2: <ConceptPropertyNode instance>,
@@ -94,9 +95,27 @@ class ConceptPropertyGraph(object):
                 ...
             }
 
+        The property index stores a dict of sets of property
+        ConceptPropertyNodes, keyed by concept property. This will be used by
+        standard model during transformation when searching the graph for
+        properties.
+
+        Example:
+            self.property_index = {
+                CONCEPT.PARTICIPANT.IS_PROBAND: {
+                    CONCEPT|PARTICIPANT|IS_PROBAND|True,
+                    CONCEPT|PARTICIPANT|IS_PROBAND|False,
+                },
+                CONCEPT.DIAGNOSIS.MONDO_ID: {
+                    CONCEPT|DIAGNOSIS|MONDO_ID|MONDO_5
+                },
+                ...
+            }
+
         """
         self.graph = nx.DiGraph()
-        self.concept_index = {}
+        self.id_index = {}
+        self.property_index = {}
 
     def find_property_node(self, start_key, goal_key, restrictions):
         pass
@@ -105,7 +124,7 @@ class ConceptPropertyGraph(object):
         """
         Construct, add a ConceptPropertyNode to the graph or get existing node.
 
-        Add the node to the concept_index if it is an identifier node
+        Add the node to the id_index if it is an identifier node
 
         :param concept_property: a string referring to a standard concept
         in defined in standard_model.concept_schema.CONCEPT
@@ -119,12 +138,16 @@ class ConceptPropertyGraph(object):
         # Add node to internal networkx graph
         node = self._add_or_get_node(node)
 
-        # Initialize concept index if empty
-        self.concept_index.setdefault(node.concept, {})
+        # Initialize indices if empty
+        self.id_index.setdefault(node.concept, {})
+        self.property_index.setdefault(node.concept_property_pair, set())
 
-        # Add node to concept index, if identifier
+        # Add node to indentifier index, if identifier
         if node.is_identifier:
-            self.concept_index[node.concept][node.key] = node
+            self.id_index[node.concept][node.key] = node
+        # Add node to property index, if not identifier
+        else:
+            self.property_index[node.concept_property_pair].add(node)
 
         return node
 
@@ -312,6 +335,7 @@ class ConceptPropertyNode(object):
         # Key parameters
         self.concept = DELIMITER.join(concept_property.split(DELIMITER)[0:2])
         self.property = concept_property.split(DELIMITER)[2]
+        self.concept_property_pair = concept_property
         self.value = str(value)
         self.key = self._create_key()
 
@@ -330,17 +354,14 @@ class ConceptPropertyNode(object):
         Set is_identifier if the ConceptPropertyNode's property is in the set
         of defined concept identifiers.
         """
-        s = DELIMITER.join([self.concept, self.property])
-        return is_identifier(s)
+        return is_identifier(self.concept_property_pair)
 
     def _create_key(self):
         """
         Create the key used to identify the node by concept, property and value
         """
-        concept_property = DELIMITER.join([self.concept,
-                                           self.property])
 
-        return DELIMITER.join([concept_property, self.value])
+        return DELIMITER.join([self.concept_property_pair, self.value])
 
     def _create_uid(self):
         """
