@@ -9,7 +9,6 @@ class CONCEPT:
         INSTITUTION = None
 
     class STUDY:
-        KF_ID = None
         ID = None
         AUTHORITY = None
         VERSION = None
@@ -36,15 +35,17 @@ class CONCEPT:
     class OUTCOME:
         ID = None
         VITAL_STATUS = None
-        EVENT_AGE = None
-        RELATED = None
+        EVENT_AGE_DAYS = None
+        DISEASE_RELATED = None
 
     class DIAGNOSIS:
         ID = None
         NAME = None
         TUMOR_LOCATION = None
+        SPATIAL_DESCRIPTOR = None
+        CATEGORY = None
         UBERON_TUMOR_LOCATION_ID = None
-        EVENT_AGE = None
+        EVENT_AGE_DAYS = None
         MONDO_ID = None
         NCIT_ID = None
         ICD_ID = None
@@ -55,10 +56,9 @@ class CONCEPT:
         HPO_ID = None
         SNOMED_ID = None
         OBSERVED = None
-        EVENT_AGE = None
+        EVENT_AGE_DAYS = None
 
     class BIOSPECIMEN:
-        KF_ID = None
         ID = None
         ALIQUOT_ID = None
         TISSUE_TYPE = None
@@ -68,7 +68,7 @@ class CONCEPT:
         UBERON_ANATOMY_SITE_ID = None
         TUMOR_DESCRIPTOR = None
         COMPOSITION = None
-        EVENT_AGE = None
+        EVENT_AGE_DAYS = None
         SPATIAL_DESCRIPTOR = None
         SHIPMENT_ORIGIN = None
         SHIPMENT_DATE = None
@@ -77,7 +77,6 @@ class CONCEPT:
         VOLUME_ML = None
 
     class GENOMIC_FILE:
-        KF_ID = None
         ETAG = None
         SIZE = None
         ID = None
@@ -88,6 +87,13 @@ class CONCEPT:
 
     class MULTI_SPECIMEN_GENOMIC_FILE(GENOMIC_FILE):
         ID = None
+
+    class READ_GROUP:
+        ID = None
+        PAIRED_END = None
+        FLOW_CELL = None
+        LANE_NUMBER = None
+        QUALITY_SCALE = None
 
     class SEQUENCING:
         ID = None
@@ -108,7 +114,6 @@ class CONCEPT:
 
         class CENTER:
             NAME = None
-            KF_ID = None
 
 
 def compile_schema():
@@ -195,7 +200,8 @@ concept_set = {
     CONCEPT.PHENOTYPE,
     CONCEPT.DIAGNOSIS,
     CONCEPT.OUTCOME,
-    CONCEPT.GENOMIC_FILE
+    CONCEPT.GENOMIC_FILE,
+    CONCEPT.READ_GROUP
 }
 
 
