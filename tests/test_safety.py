@@ -6,7 +6,12 @@ import pandas
 import pytest
 from common.safety import type_assert, function
 
-# values and the type of value that they are
+# Values and the type of value that they are.
+# Don't put something with unidirectional overlap in here, because it will
+# require changing the test functions.
+#
+# (int, callable) is one example, since anything that matches `function` will
+# also match `callable`, which is not what this table is intended to test.
 type_exemplars = [
     (5, int),
     (5.1, float),
@@ -24,7 +29,7 @@ type_exemplars = [
     (pandas.Series(), pandas.Series),
     ({5: 5}, dict),
     ([5, 5], list),
-    ({5, 5}, set),
+    ({5, 6}, set),
     ((5, 5), tuple)
 ]
 
@@ -34,7 +39,6 @@ def test_single_good_single_bad_type_checking():
     Test all combinations of values and types in type_exemplars and make sure
     that TypeError is raised if the val is not matched with its approved type.
     """
-    # single good / single bad checks
     for k, v in type_exemplars:
         for _, w in type_exemplars:
             if v is w:
@@ -68,3 +72,20 @@ def test_complex_good_type_checking():
         for l, w in type_exemplars:
             to_compare.append(w)
         type_assert(str(k), k, *to_compare)
+
+
+def test_callable_type_checking():
+    """
+    Test functionality of `function` vs `callable` arguments.
+
+    Don't put something like (int, callable) into the type_exemplars list,
+    because functions are also callable and then handling that makes the other
+    test functions more ugly.
+    """
+    type_assert(str(int), int, callable)
+
+    with pytest.raises(TypeError):
+        type_assert(str(int), int, function)
+
+    with pytest.raises(TypeError):
+        type_assert(str(int), int, int)

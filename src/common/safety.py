@@ -25,7 +25,7 @@ def type_check(val, *safe_types):
     types = []
     val_type = type(val)
     for t in safe_types:
-        if inspect.isfunction(t) or inspect.isbuiltin(t):
+        if t in {function, callable}:
             if t(val):
                 return True
         elif t in _basic_types:
