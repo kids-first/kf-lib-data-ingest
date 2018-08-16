@@ -21,7 +21,11 @@ type_exemplars = [
     (1.0, float),
     (None, None),
     (pandas.DataFrame(), pandas.DataFrame),
-    (pandas.Series(), pandas.Series)
+    (pandas.Series(), pandas.Series),
+    ({5: 5}, dict),
+    ([5, 5], list),
+    ({5, 5}, set),
+    ((5, 5), tuple)
 ]
 
 
