@@ -102,11 +102,20 @@ class FileRetriever(object):
         self._files = {}
 
     def _split_protocol(self, url):
+        """
+        Split file url string into protocol and path.
+
+        Expected format is always <protocol>://<path to file>, even for local
+        files.
+
+        :param url: URL of local or remote file
+        :type url: string
+        """
         split_url = url.split(_PROTOCOL_SEP, 1)
         if len(split_url) == 2:
             return split_url[0], split_url[1]
         else:
-            return "file", split_url[0]
+            return None, None
 
     def get(self, url, auth=None):
         """
@@ -123,11 +132,9 @@ class FileRetriever(object):
         protocol, path = self._split_protocol(url)
         if protocol not in FileRetriever._getters:
             raise LookupError(
-                f"Retrieving URL: {url}\n"
+                f"Retrieving URL: {url}"
                 f"No client found for protocol: {protocol}"
             )
-
-        print("Getting", url)
 
         # TODO: Either remove this try wrapper or remove this message.
         # I think there may be a better way to handle exceptional cleanup. -Avi
