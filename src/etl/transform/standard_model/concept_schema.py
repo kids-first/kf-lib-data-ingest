@@ -27,7 +27,6 @@ class CONCEPT:
         pass
 
     class PARTICIPANT(PropertyMixin):
-        FAMILY = None
         IS_PROBAND = None
         FATHER_ID = None
         MOTHER_ID = None
@@ -162,10 +161,10 @@ def _set_cls_attrs(node, prev_node, property_path, property_paths):
                     ID = None
             AGE = None
 
-    The values of the attributes would be equal to this:
-        A.AGE = "A.AGE"
-        A.B.ID = "A.B.ID"
-        A.B.C.ID = "A.B.C.ID"
+    Given a delimiter set to '|', the values of the attributes would be:
+        A.AGE = "A|AGE"
+        A.B.ID = "A|B|ID"
+        A.B.C.ID = "A|B|C|ID"
     """
     # Process a class or child node
     if callable(node):
