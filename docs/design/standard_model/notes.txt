@@ -28,9 +28,8 @@ For ID Nodes:
     - Yes - do nothing
     - No - Create an undirected edge from A to B
 For property nodes:
-    If the concept for this property exists in the row, attach it there
-    else attach it to its nearest child concept (?)
-    ** This requires us to enforce relationships on standard model
+    If the concept for this property exists in the row, attach it to each of
+    the ID nodes.
 
 -- Searching Properties --
 -- Schema --
