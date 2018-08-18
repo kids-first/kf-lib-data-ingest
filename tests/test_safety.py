@@ -4,7 +4,25 @@ Tests for src/common/safety.py
 
 import pandas
 import pytest
-from common.safety import type_assert, function
+from common.safety import type_assert, function, _name_of_arg_at_caller
+
+
+def test__name_of_arg_at_caller():
+    def test_func(a):
+        return _name_of_arg_at_caller(0)
+
+    with pytest.raises(ValueError):
+        test_func(1)
+
+    with pytest.raises(ValueError):
+        test_func(lambda x: x)
+
+    with pytest.raises(ValueError):
+        test_func([])
+
+    test_var = 5
+    assert test_func(test_var) == 'test_var'
+
 
 # Values and the type of value that they are.
 # Don't put something with unidirectional overlap in here, because it will
@@ -42,10 +60,10 @@ def test_single_good_single_bad_type_checking():
     for k, v in type_exemplars:
         for _, w in type_exemplars:
             if v is w:
-                type_assert(str(k), k, v)
+                type_assert(k, v)
             else:
                 with pytest.raises(TypeError):
-                    type_assert(str(k), k, w)
+                    type_assert(k, w)
 
 
 def test_complex_bad_type_checking():
@@ -59,7 +77,7 @@ def test_complex_bad_type_checking():
             if v is not w:
                 to_compare.append(w)
         with pytest.raises(TypeError):
-            type_assert(str(k), k, *to_compare)
+            type_assert(k, *to_compare)
 
 
 def test_complex_good_type_checking():
@@ -71,7 +89,7 @@ def test_complex_good_type_checking():
         to_compare = []
         for l, w in type_exemplars:
             to_compare.append(w)
-        type_assert(str(k), k, *to_compare)
+        type_assert(k, *to_compare)
 
 
 def test_callable_type_checking():
@@ -82,10 +100,10 @@ def test_callable_type_checking():
     because functions are also callable and then handling that makes the other
     test functions more ugly.
     """
-    type_assert(str(int), int, callable)
+    type_assert(int, callable)
 
     with pytest.raises(TypeError):
-        type_assert(str(int), int, function)
+        type_assert(int, function)
 
     with pytest.raises(TypeError):
-        type_assert(str(int), int, int)
+        type_assert(int, int)
