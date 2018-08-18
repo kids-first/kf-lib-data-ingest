@@ -53,6 +53,12 @@ type_exemplars = [
 ]
 
 
+def test_unwitting_user():
+    type_assert(5, int)  # Why are they asking?!
+    with pytest.raises(ValueError):
+        type_assert(5, float)  # Why are they asking?!
+
+
 def test_single_good_single_bad_type_checking():
     """
     Test all combinations of values and types in type_exemplars and make sure

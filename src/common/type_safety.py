@@ -124,8 +124,8 @@ def type_assert(val, *safe_types):
         type_assert(my_val, int, float)  # my_val must be int or float
 
     :raises: TypeError if type_check(val, safe_types) returns False
-    :raises: ValueError if you call type_assert with an explicit value and not
-        a variable as the first argument.
+    :raises: ValueError if val is not one of the declared safe types and
+        you call type_assert with val as an explicit value and not a variable.
     """
     assert safe_types
     if not type_check(val, *safe_types):
