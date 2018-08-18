@@ -1,5 +1,5 @@
-import inspect
 import ast
+import inspect
 
 
 def _ast_object_name(obj):

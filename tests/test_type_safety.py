@@ -4,7 +4,8 @@ Tests for src/common/safety.py
 
 import pandas
 import pytest
-from common.safety import type_assert, function, _name_of_arg_at_caller
+
+from common.type_safety import _name_of_arg_at_caller, function, type_assert
 
 
 def test__name_of_arg_at_caller():
