@@ -26,11 +26,6 @@ def test__name_of_arg_at_caller():
 
 
 # Values and the type of value that they are.
-# Don't put something with unidirectional overlap in here, because it will
-# require changing the test functions.
-#
-# (int, callable) is one example, since anything that matches `function` will
-# also match `callable`, which is not what this table is intended to test.
 type_exemplars = [
     (5, int),
     (5.1, float),
@@ -49,7 +44,8 @@ type_exemplars = [
     ({5: 5}, dict),
     ([5, 5], list),
     ({5, 6}, set),
-    ((5, 5), tuple)
+    ((5, 5), tuple),
+    (int, callable)
 ]
 
 
@@ -59,6 +55,12 @@ def test_unwitting_user():
         type_assert(5, float)  # Why are they asking?!
 
 
+# Special care is needed for the tests to cover the fact that functions are
+# callable but not vice versa.
+def _func_call(v, w):
+    return (v is function) and (w is callable)
+
+
 def test_single_good_single_bad_type_checking():
     """
     Test all combinations of values and types in type_exemplars and make sure
@@ -66,7 +68,7 @@ def test_single_good_single_bad_type_checking():
     """
     for k, v in type_exemplars:
         for _, w in type_exemplars:
-            if v is w:
+            if (v is w) or _func_call(v, w):
                 type_assert(k, v)
             else:
                 with pytest.raises(TypeError):
@@ -81,7 +83,7 @@ def test_complex_bad_type_checking():
     for k, v in type_exemplars:
         to_compare = []
         for l, w in type_exemplars:
-            if v is not w:
+            if (v is not w) and not _func_call(v, w):
                 to_compare.append(w)
         with pytest.raises(TypeError):
             type_assert(k, *to_compare)
@@ -102,15 +104,11 @@ def test_complex_good_type_checking():
 def test_callable_type_checking():
     """
     Test functionality of `function` vs `callable` arguments.
-
-    Don't put something like (int, callable) into the type_exemplars list,
-    because functions are also callable and then handling that makes the other
-    test functions more ugly.
     """
+    type_assert(lambda x: x, callable)
+    type_assert(lambda x: x, function)
+
     type_assert(int, callable)
 
     with pytest.raises(TypeError):
         type_assert(int, function)
-
-    with pytest.raises(TypeError):
-        type_assert(int, int)
