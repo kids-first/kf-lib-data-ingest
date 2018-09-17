@@ -131,10 +131,11 @@ def type_assert(val, *safe_types):
     if not type_check(val, *safe_types):
         caller = inspect.stack()[1]
         name = _name_of_arg_at_caller(0)
+
         type_names = tuple(
             [t.__name__ if hasattr(t, "__name__") else t for t in safe_types]
         )
         raise TypeError(
-            "{}:{} requires {} to be one of {}"
-            .format(caller.filename, caller.function, name, type_names)
+            "{}:{}:{} requires {} to be one of {}"
+            .format(caller.filename, caller.lineno, caller.function, name, type_names)
         )
