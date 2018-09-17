@@ -112,3 +112,11 @@ def test_callable_type_checking():
 
     with pytest.raises(TypeError):
         type_assert(int, function)
+
+
+# test checking outside of a function (yes this matters)
+foo = 5
+type_assert(foo, int)
+with pytest.raises(TypeError):
+    type_assert(foo, float)
+
