@@ -35,35 +35,58 @@ def _varname_from_ast_node(ast_node, arg_name, arg_index):
 
 def _name_of_arg_at_caller(which_arg=0):
     """
-    Find where the requesting function is called and see what variable name was
-    passed in for its nth argument. If the nth argument was not a variable,
-    raises a ValueError.
+    Returns the _name_ of the variable that was passed in as the nth argument
+    to the function that called this.
+
+    Find where the requesting function is called and see what variable _name_
+    was passed in for its nth argument when _it_ was called. If the nth
+    argument was not a variable, raises a ValueError.
+
+    This seems to be pretty tricky to do so I've commented verbosely.
+
+    example:
+        def my_test_func(a, b, c):
+            return _name_of_arg_at_caller(1)
+
+        a_var, b_var, c_var = 1, 2, 3
+        my_test_func(a_var, b_var, c_var)  # should return the string "b_var"
     """
+    # Build the AST for the source file that contains the call in question
+    # (this parent's parent) and then find the AST node where the call occurred
+    # and then look at its calling arguments.
+
     # stack frame of this function
     this_frame = inspect.currentframe()
 
-    # frame of the function that wants to know
+    # frame of the function that's asking (parent frame of this)
     asking_frame = inspect.getouterframes(this_frame)[1].frame
     asking_name = asking_frame.f_code.co_name
 
-    # name of the asking function's nth argument
+    # name of the asking function's nth argument as seen from the inside
+    # (we want to get to it from the outside)
     which_arg_name = list(asking_frame.f_locals)[which_arg]
 
-    # frame where the function that wants to know was called
+    # frame where the asking function was called (parent of the parent frame)
+    # (this is where the key function call occurs)
     calling_frame = inspect.getouterframes(asking_frame)[1]
 
-    # Find the AST node where the call occured and then look at its calling
-    # arguments.
-
-    # First build the AST for the file that contains the calling frame first,
-    # then the line number specified for the call is equal to or greater than
-    # the line where the function call begins (this handles function calls that
+    # The line number specified for the call is equal to or greater than the
+    # line where the function call begins (this handles function calls that
     # span multiple lines), so find the last AST node whose lineno is not
     # greater than the lineno in the calling frame.
+
+    # line where the function call begins
     call_line = inspect.getframeinfo(calling_frame[0]).lineno
+
+    # inspect.findsource will raise OSError('could not get source code') if
+    # you're trying to call _name_of_arg_at_caller from a bare interactive
+    # shell with no code file. But if you're in a bare interactive shell with
+    # no code file then you should already know the answer and shouldn't be
+    # calling this function!
     file_src = inspect.findsource(calling_frame[0])[0]
     ast_nodes = ast.parse(''.join(file_src))
 
+    # finding the right AST node
     call_node = None
     all_call_nodes = iter(
         n for n in ast.walk(ast_nodes) if isinstance(n, ast.Call)
@@ -137,5 +160,6 @@ def type_assert(val, *safe_types):
         )
         raise TypeError(
             "{}:{}:{} requires {} to be one of {}"
-            .format(caller.filename, caller.lineno, caller.function, name, type_names)
+            .format(caller.filename, caller.lineno, caller.function, name,
+                    type_names)
         )

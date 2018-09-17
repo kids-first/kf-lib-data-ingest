@@ -119,4 +119,3 @@ foo = 5
 type_assert(foo, int)
 with pytest.raises(TypeError):
     type_assert(foo, float)
-
