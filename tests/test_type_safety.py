@@ -5,7 +5,8 @@ Tests for src/common/safety.py
 import pandas
 import pytest
 
-from common.type_safety import _name_of_arg_at_caller, function, type_assert
+from common.type_safety import (__UNNAMED_OBJECT, _name_of_arg_at_caller,
+                                assert_safe_type, function)
 
 
 def test__name_of_arg_at_caller():
@@ -49,10 +50,14 @@ type_exemplars = [
 ]
 
 
-def test_unwitting_user():
-    type_assert(5, int)  # Why are they asking?!
-    with pytest.raises(ValueError):
-        type_assert(5, float)  # Why are they asking?!
+def test_silly_user():
+    assert_safe_type(5, int)  # Why are they asking?!
+    with pytest.raises(TypeError):
+        try:
+            assert_safe_type(5, float)  # Why are they asking?!
+        except TypeError as e:
+            assert __UNNAMED_OBJECT in str(e)
+            raise
 
 
 # Special care is needed for the tests to cover the fact that functions are
@@ -69,10 +74,10 @@ def test_single_good_single_bad_type_checking():
     for k, v in type_exemplars:
         for _, w in type_exemplars:
             if (v is w) or _func_call(v, w):
-                type_assert(k, v)
+                assert_safe_type(k, v)
             else:
                 with pytest.raises(TypeError):
-                    type_assert(k, w)
+                    assert_safe_type(k, w)
 
 
 def test_complex_bad_type_checking():
@@ -86,7 +91,7 @@ def test_complex_bad_type_checking():
             if (v is not w) and not _func_call(v, w):
                 to_compare.append(w)
         with pytest.raises(TypeError):
-            type_assert(k, *to_compare)
+            assert_safe_type(k, *to_compare)
 
 
 def test_complex_good_type_checking():
@@ -98,20 +103,20 @@ def test_complex_good_type_checking():
         to_compare = []
         for l, w in type_exemplars:
             to_compare.append(w)
-        type_assert(k, *to_compare)
+        assert_safe_type(k, *to_compare)
 
 
 def test_callable_type_checking():
     """
     Test functionality of `function` vs `callable` arguments.
     """
-    type_assert(lambda x: x, callable)
-    type_assert(lambda x: x, function)
+    assert_safe_type(lambda x: x, callable)
+    assert_safe_type(lambda x: x, function)
 
-    type_assert(int, callable)
+    assert_safe_type(int, callable)
 
     with pytest.raises(TypeError):
-        type_assert(int, function)
+        assert_safe_type(int, function)
 
 
 def test_name_in_error_message():
@@ -119,14 +124,14 @@ def test_name_in_error_message():
     pockle = 5
     with pytest.raises(TypeError):
         try:
-            type_assert(pickle, bool)
+            assert_safe_type(pickle, bool)
         except Exception as e:
             assert 'pickle' in e
             raise
 
     with pytest.raises(TypeError):
         try:
-            type_assert(pockle, bool)
+            assert_safe_type(pockle, bool)
         except Exception as e:
             assert 'pockle' in e
             raise
@@ -134,6 +139,6 @@ def test_name_in_error_message():
 
 # test checking outside of a function (yes this matters)
 foo = 5
-type_assert(foo, int)
+assert_safe_type(foo, int)
 with pytest.raises(TypeError):
-    type_assert(foo, float)
+    assert_safe_type(foo, float)

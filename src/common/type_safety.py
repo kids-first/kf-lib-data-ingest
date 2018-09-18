@@ -2,6 +2,11 @@ import ast
 import inspect
 
 
+__UNNAMED_OBJECT = 'unnamed object of type'
+
+
+# This function supports finding the _name_ of the first argument passed to
+# assert_safe_type.
 def _ast_object_name(obj):
     """
     Checks if obj has a name and returns it, and otherwise raises ValueError.
@@ -9,15 +14,18 @@ def _ast_object_name(obj):
     if not isinstance(obj, ast.Name):
         # unnamed values (5, "foo", etc.) obviously have no name
         raise ValueError(
-            'object of type <{}> is not named'.format(type(obj).__name__)
+            __UNNAMED_OBJECT + ' <{}>'.format(type(obj).__name__)
         )
     return obj.id
 
 
+# This function supports finding the _name_ of the first argument passed to
+# assert_safe_type.
 def _varname_from_ast_node(ast_node, arg_name, arg_index):
     """
     Find the calling argument name from the ast node that has the call. If the
-    argument was not a variable, raises a ValueError.
+    argument was not a variable, raises a ValueError declaring that the object
+    is unnamed.
     """
     calling_arg_name = None
 
@@ -33,6 +41,8 @@ def _varname_from_ast_node(ast_node, arg_name, arg_index):
     return calling_arg_name
 
 
+# This function supports finding the _name_ of the first argument passed to
+# assert_safe_type.
 def _name_of_arg_at_caller(which_arg=0):
     """
     Returns the _name_ of the variable that was passed in as the nth argument
@@ -51,6 +61,11 @@ def _name_of_arg_at_caller(which_arg=0):
         a_var, b_var, c_var = 1, 2, 3
         my_test_func(a_var, b_var, c_var)  # should return the string "b_var"
     """
+    # When you pass an argument to a function, only the value goes through to
+    # the next stack frame, not the name of the variable that contained the
+    # value. But we want the name of the variable, so lets try to recover it by
+    # reconstructing the code from the line where the call was made.
+
     # Build the AST for the source file that contains the call in question
     # (this parent's parent) and then find the AST node where the call occurred
     # and then look at its calling arguments.
@@ -104,7 +119,7 @@ def _name_of_arg_at_caller(which_arg=0):
 
 def function(x):
     """
-    Lets you use `function` as a type in type_check and type_assert.
+    Lets you use `function` as a type in safe_type_check and assert_safe_type.
     """
     return inspect.isfunction(x) or inspect.isbuiltin(x)
 
@@ -112,11 +127,12 @@ def function(x):
 _basic_types = {int, float, bool, str, bytes}
 
 
-def type_check(val, *safe_types):
+def safe_type_check(val, *safe_types):
     """
     Check if val is one of the declared safe types.
     Calling Example:
-        type_check(my_val, int, float)  # checks if my_val is an int or float
+        # checks if my_val stores an int or float
+        safe_type_check(my_val, int, float)
 
     :param val: some value
     :param *args: type classes or truthy-returning functions
@@ -139,27 +155,28 @@ def type_check(val, *safe_types):
     return isinstance(val, tuple(types))
 
 
-def type_assert(val, *safe_types):
+def assert_safe_type(val, *safe_types):
     """
     Raise an exception if val is not one of the declared safe types.
     Calling Example:
-        type_assert(my_func, function)  # my_func must be a function
-        type_assert(my_val, int, float)  # my_val must be int or float
+        assert_safe_type(my_func, function)  # my_func must be a function
+        assert_safe_type(my_val, int, float)  # my_val must be int or float
 
-    :raises: TypeError if type_check(val, safe_types) returns False
-    :raises: ValueError if val is not one of the declared safe types and
-        you call type_assert with val as an explicit value and not a variable.
+    :raises: TypeError if safe_type_check(val, safe_types) returns False
     """
     assert safe_types
-    if not type_check(val, *safe_types):
+    if not safe_type_check(val, *safe_types):
         caller = inspect.stack()[1]
-        name = _name_of_arg_at_caller(0)
+        try:
+            name = _name_of_arg_at_caller(0)
+        except ValueError as e:
+            name = str(e)
 
         type_names = tuple(
-            [t.__name__ if hasattr(t, "__name__") else t for t in safe_types]
+            [t.__name__ if hasattr(t, '__name__') else t for t in safe_types]
         )
         raise TypeError(
-            "{}:{}:{} requires {} to be one of {}"
+            '{}:{}:{} requires {} to be one of {}'
             .format(caller.filename, caller.lineno, caller.function, name,
                     type_names)
         )
