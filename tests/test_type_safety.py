@@ -114,6 +114,24 @@ def test_callable_type_checking():
         type_assert(int, function)
 
 
+def test_name_in_error_message():
+    pickle = 5
+    pockle = 5
+    with pytest.raises(TypeError):
+        try:
+            type_assert(pickle, bool)
+        except Exception as e:
+            assert 'pickle' in e
+            raise
+
+    with pytest.raises(TypeError):
+        try:
+            type_assert(pockle, bool)
+        except Exception as e:
+            assert 'pockle' in e
+            raise
+
+
 # test checking outside of a function (yes this matters)
 foo = 5
 type_assert(foo, int)
