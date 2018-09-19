@@ -4,6 +4,17 @@
 
 # Target Model Schema
 target_model_schema = {}
+
+# RELATIONSHIPS = {
+#     CONCEPT.FAMILY: {CONCEPT.PARTICIPANT},
+#     CONCEPT.PARTICIPANT: {CONCEPT.BIOSPECIMEN,
+#                           CONCEPT.DIAGNOSIS,
+#                           CONCEPT.PHENOTYPE,
+#                           CONCEPT.OUTCOME},
+#     CONCEPT.BIOSPECIMEN: {CONCEPT.GENOMIC_FILE},
+#     CONCEPT.SEQUENCING: {CONCEPT.GENOMIC_FILE}
+# }
+
 # Contains the mapping of standard model to target model (dataservice)
 # Include concept to entity mapping, property to property mapping
 
