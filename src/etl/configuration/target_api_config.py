@@ -16,10 +16,10 @@ class TargetAPIConfig(PyModuleConfig):
     def _validate(self):
         # TODO - Come back to validation later.
         # Leave actual validation blank for now because we need to figure out
-        # what should go in target API config first. The best way to do that is to
-        # make a sample kids first API config, write the actual transformation code
-        # and try ou the sample config. Too difficult to design this config without
-        # knowing exactly how we want to use it.
+        # what should go in target API config first. The best way to do that is
+        # to make a sample kids first API config, write the actual
+        # transformation code and try ou the sample config. Too difficult to
+        # design this config without knowing exactly how we want to use it.
         pass
 
     def tbd_validate(self):

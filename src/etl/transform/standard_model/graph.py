@@ -291,7 +291,7 @@ class ConceptNode(object):
         :param concept_attribute: a serialized concept attribute from
         standard_model.concept_schema. This will be a string.
         :param value: the value of the concept attribute
-        :param source_file_url: an optional parameter. This is the location of the
+        :param source_file_url: an optional parameter. This is the location of
         the source data file from which the node originated.
         :param extract_config_url: an optional parameter. This is the location
         of the extract config file that references the source data file, from

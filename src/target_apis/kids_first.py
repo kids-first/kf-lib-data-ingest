@@ -30,7 +30,8 @@ These required attributes must be dicts.
 
         {
             'id': {
-                <target concept identifier property>: <standard concept attribute>
+                <target concept identifier property>:
+                    <standard concept attribute>
             },
             'properties': {
                 '<target concept property>': <standard concept attribute>,
