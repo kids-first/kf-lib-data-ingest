@@ -2,7 +2,9 @@ import networkx as nx
 
 from etl.transform.standard_model.concept_schema import (
     DELIMITER,
-    is_identifier
+    is_identifier,
+    concept_from,
+    concept_attr_from
 )
 from common.misc import iterate_pairwise
 
@@ -280,7 +282,7 @@ class ConceptNode(object):
     """
 
     def __init__(self, concept_attribute, value, extract_config_url='',
-                 source_url='', row='', col=''):
+                 source_file_url='', row='', col=''):
         """
         A ConceptNode represents a mapped cell from a source data
         table. Construction requires the standard concept and attribute
@@ -289,7 +291,7 @@ class ConceptNode(object):
         :param concept_attribute: a serialized concept attribute from
         standard_model.concept_schema. This will be a string.
         :param value: the value of the concept attribute
-        :param source_url: an optional parameter. This is the location of the
+        :param source_file_url: an optional parameter. This is the location of the
         the source data file from which the node originated.
         :param extract_config_url: an optional parameter. This is the location
         of the extract config file that references the source data file, from
@@ -327,8 +329,8 @@ class ConceptNode(object):
 
         """
         # Key parameters
-        self.concept = DELIMITER.join(concept_attribute.split(DELIMITER)[0:-1])
-        self.attribute = concept_attribute.split(DELIMITER)[-1]
+        self.concept = concept_from(concept_attribute)
+        self.attribute = concept_attr_from(concept_attribute)
         self.concept_attribute_pair = concept_attribute
         self.value = str(value)
         self.key = self._create_key()
@@ -338,7 +340,7 @@ class ConceptNode(object):
 
         # Uid parameters
         self.extract_config_url = extract_config_url
-        self.source_url = source_url
+        self.source_file_url = source_file_url
         self.row = str(row)
         self.col = str(col)
         self.uid = self._create_uid()
@@ -366,9 +368,9 @@ class ConceptNode(object):
         source data table row index, and the source data table column index.
         """
         if (self.extract_config_url and
-                self.source_url and self.row and self.col):
+                self.source_file_url and self.row and self.col):
             return DELIMITER.join([self.extract_config_url,
-                                   self.source_url,
+                                   self.source_file_url,
                                    self.row,
                                    self.col])
         else:

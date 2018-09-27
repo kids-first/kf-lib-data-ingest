@@ -254,3 +254,17 @@ def is_identifier(concept_property_string):
     """
 
     return concept_property_string in set().union(*identifiers.values())
+
+
+def concept_from(concept_attribute_str):
+    """
+    Extract the concept from the concept attribute string
+    """
+    return DELIMITER.join(concept_attribute_str.split(DELIMITER)[0:-1])
+
+
+def concept_attr_from(concept_attribute_str):
+    """
+    Extract the concept attribute from the concept attribute string
+    """
+    return concept_attribute_str.split(DELIMITER)[-1]
