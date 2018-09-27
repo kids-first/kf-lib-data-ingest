@@ -12,7 +12,7 @@ Example:
 When transforming into target model, we will have a schema which defines and
 enforces relationships between concepts. If child concept is connected to more
 than one parent concept, this is invalid.
-BIOSPECIMEN is connected to more than one[PARTICIPANT, PARTICIPANT-predecessors]
+BIOSPECIMEN is connected to more than one[PARTICIPANT, PARTICIPANT-ancestors]
 This should not be allowed and should raise an exception (maybe)
 
 -- Identifier Properties --
@@ -54,7 +54,7 @@ When searching for a property, P of concept C1:
 Do BFS in search for P:
     For neighbor in all neighbors of C1:
         Evaluate whether to add neighbor to list of nodes to traverse:
-            Is neighbor a predecessor of C1 and is there a restriction for it?
+            Is neighbor a ancestor of C1 and is there a restriction for it?
                 No - it is valid
                 Yes - check whether it is valid
                     If neighbor is connected to any other nodes in the set
@@ -65,7 +65,7 @@ Example:
 Search for property PARTICIPANT.AGE.30 of participant P1.
 Do BFS in search of PARTICIPANT.AGE.30:
     For neighbor in all neighbors of P1:
-        Is neighbor concept any of participant's predecessor concepts [Family]:
+        Is neighbor concept any of participant's ancestor concepts [Family]:
             No - it is valid
             Yes - check whether it is valid
                 If neighbor (i.e. Family) is connected to any other nodes
