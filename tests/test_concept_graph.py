@@ -38,17 +38,17 @@ def test_node_uid():
     concept_prop_str = CONCEPT.PARTICIPANT.ID
     value = 'P1'
     extract_config_url = '/extract_config_1.py'
-    source_url = '/datafile.csv'
+    source_file_url = '/datafile.csv'
     r = 0
     c = 0
     node = ConceptNode(concept_prop_str, value,
                        extract_config_url=extract_config_url,
-                       source_url=source_url,
+                       source_file_url=source_file_url,
                        row=r,
                        col=c)
     # Check uid
     assert node.uid == '|'.join([extract_config_url,
-                                 source_url,
+                                 source_file_url,
                                  str(r),
                                  str(c)])
 

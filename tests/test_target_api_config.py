@@ -11,7 +11,7 @@ KIDS_FIRST_CONFIG = os.path.join(os.path.dirname(TEST_ROOT_DIR), 'src',
 # TODO - Come back to this later after validation code has been finalized.
 
 
-def test_missing_req_attrs(tmpdir, config_file_content):
+def test_missing_req_attrs(tmpdir):
     # p = tmpdir.mkdir("configs").join("test_config.py")
     # p.write("content")
     pass
