@@ -77,7 +77,7 @@ class ConceptGraph(object):
 
     """
 
-    def __init__(self):
+    def __init__(self, logger=None):
         """
         Initialize a networkx directed graph and the indices
 
@@ -117,9 +117,14 @@ class ConceptGraph(object):
         self.id_index = {}
         self. attribute_index = {}
 
-    def find_attribute_node(self, start_key, goal_key, restrictions):
-        # TODO
-        pass
+        # Standalone mode
+        if not logger:
+            import logging
+            self.logger = logging.getLogger(__name__)
+
+        # Called from standard_model.populate
+        else:
+            self.logger = logger
 
     def add_or_get_node(self, concept_attribute, value, **kwargs):
         """
@@ -189,6 +194,172 @@ class ConceptGraph(object):
         """
         for node in id_nodes:
             self._add_edge(node, attribute_node)
+
+    def find_attribute_value(self, start_node, concept_attribute_str,
+                             relation_graph):
+        """
+        Given a concept attribute, and a starting concept node,
+        search the concept graph for the value of the concept attribute.
+
+        Use breadth first search to traverse the graph. Do not pass thru
+        certain nodes that are "invalid", as governed by the relation_graph.
+        See _is_neighbor_valid for more details on what constitutes validity.
+
+        :param start_node: A ConceptNode and the starting point for search
+        :param concept_attribute_str: A string containing the concept attribute
+         (i.e. CONCEPT|PARTICIPANT|RACE) for which we must find the value.
+        :param relation_graph: a networkx.DiGraph containing the rules for
+        traversing the graph when searching for the concept attribute value.
+        """
+        # A starting node that does not exist in graph
+        if not self.graph.has_node(start_node.key):
+            raise ValueError(f'ConceptNode {start_node.key} not found! '
+                             'Cannot continue find operation.')
+
+        # Does graph contain any concept attributes of the type
+        # concept_attr_str?
+        if is_identifier(concept_attribute_str):
+            exists = (self.id_index.get(concept_from(concept_attribute_str))
+                      is not None)
+        else:
+            exists = concept_attribute_str in self.attribute_index
+
+        if not exists:
+            print(f'Value not found for {concept_attribute_str} '
+                  f'since there are 0 {concept_attribute_str} '
+                  'nodes in the concept graph!')
+            return None
+
+        # -- Search the graph for the concept attribute value --
+        # Init data structures
+        # Keep track of nodes visited
+        visited = set([start_node.key])
+        # Keep track of nodes to process
+        queue = [start_node]
+
+        # Check directly connected neighbor nodes before searching graph
+        # Value for a given concept attribute is likely to be directly
+        # connected to its concept ID node since attributes for a particular
+        # concept are typically in the same table as the concept IDs.
+        for node_key in nx.neighbors(self.graph, start_node.key):
+            neighbor = self.get_node(node_key)
+            if neighbor.concept_attribute_pair == concept_attribute_str:
+                return neighbor.value
+
+        # Start breadth first search
+        while queue:
+            current = queue.pop(0)
+
+            # Found the node with the value for this concept attr
+            if current.concept_attribute_pair == concept_attribute_str:
+                return current.value
+
+            # Not found - keep searching neighbors
+            for node_key in nx.neighbors(self.graph, current.key):
+                neighbor = self.get_node(node_key)
+                # Add neighbor to list if it hasn't been searched and
+                # it is valid
+                neighbor_valid = self._is_neighbor_valid(
+                    concept_from(concept_attribute_str),
+                    neighbor,
+                    relation_graph)
+                if (neighbor.key not in visited) and neighbor_valid:
+                    queue.append(neighbor)
+                    visited.add(neighbor.key)
+
+        # Searched the entire graph and we did not find the value for
+        # concept_attr_str
+        print(f'Could not find a value for {concept_attribute_str}'
+              ' in the concept graph.')
+        return None
+
+    def _is_neighbor_valid(self, node_concept, neighbor, relation_graph):
+        """
+        Helper method for find_attribute_value. Determines whether or a
+        neighbor node is valid for traversal during search.
+
+        Given the standard concept of a node N in the concept graph, and a
+        neighbor of N, determine whether the neighbor node is allowed to
+        be added to the list of nodes to search.
+
+        Validity
+        *********
+        A neighbor is valid if it's concept is not an ancestor concept of
+        node_concept. Ancestory is defined in relation_graph, which stores
+        the hierarchical relationships between concepts.
+
+            Example 1 - Is neighbor valid given:
+                - node_concept = participant
+                - neighbor node = biospecimen B1
+                - relation_graph: {
+                    family: {participant},
+                    participant: {biospecimen},
+                }
+                Yes, since B1's concept, biospecimen, is a not an ancestor of
+                concept participant
+
+        If a neighbor's concept IS an ancestor concept of node_concept, then
+        a second check is needed to determine if the neighbor is valid.
+        A neighbor with an ancestor concept, wrt node_concept, is valid if
+        it is not connected to any nodes whose concept is node_concept or
+        whose concept is any of node_concept's descendants.
+
+            Example 2 - Is neighbor valid given:
+                - node_concept = participant
+                - neighbor node = family F1
+                - relation_graph: {
+                    family: {participant},
+                    participant: {biospecimen},
+                }
+            Maybe - F1's concept, family, is an ancestor of concept
+            participant. For F1 to be valid, it cannot be connected to
+            any other participant concepts or descendants of participant,
+            such as biospecimen. If F1 is connected to more than one
+            participant, and we allow traversal through F1 when
+            searching for a particular participant attribute value,
+            then we may find the value but for the wrong participant.
+
+        :param node_concept: A string containing a standard concept of a node N
+        :param neighbor: A ConceptNode that is one of N's neighbors
+        :param relation_graph: A networkx.DiGraph governing how the graph can
+        be traversed when searching for a concept attribute value.
+        """
+        # Ancestor concepts of node_concept
+        ancestors = [ancestor
+                     for ancestor in nx.ancestors(relation_graph,
+                                                  node_concept)]
+
+        # Valid - the neighbor is not in the set of ancestors
+        if neighbor.concept not in set(ancestors):
+            return True
+
+        # Check if the neighbor is connected to other nodes with the same
+        # concept as node_concept or if it is connected to nodes
+        # with a concept that is one of the descendant concepts of node_concept
+        descendants = [descendant
+                       for descendant in nx.descendants(relation_graph,
+                                                        node_concept)]
+        restrictions = set(descendants + [node_concept])
+
+        # Start the breadth first search
+        visited = set([neighbor.key])
+        queue = [neighbor]
+
+        while queue:
+            current = queue.pop(0)
+            # Is this a restricted concept?
+            if current.concept in restrictions:
+                return False
+
+            # Add neighbor nodes if they haven't been visited and
+            # they are identifier nodes. No need to look at non-identifier
+            # nodes
+            for node_key in nx.neighbors(self.graph, current.key):
+                node = self.get_node(node_key)
+                if (node.key not in visited) and node.is_identifier:
+                    queue.append(node)
+                    visited.add(node.key)
+        return True
 
     def _add_edge(self, node1, node2, bidirectional=False):
         """

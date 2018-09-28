@@ -1,6 +1,9 @@
 from copy import deepcopy
 
-from etl.transform.standard_model.graph import ConceptGraph, ConceptNode
+import pandas as pd
+
+from etl.transform.standard_model.graph import ConceptGraph
+from etl.transform.standard_model.concept_schema import concept_from
 
 
 class StandardModel(object):
@@ -9,7 +12,7 @@ class StandardModel(object):
         self.concept_graph = None
         self.logger = None
 
-    def transform(self, target_api_config, target_concepts_to_transform):
+    def transform(self, target_api_config, target_concepts_to_transform=None):
         """
         Transform the data in the standard model into a form defined by the
         target_api_config.
@@ -25,6 +28,11 @@ class StandardModel(object):
         target concept names. Only target concepts in this list will be
         extracted from the standard model.
         """
+        # Use whole concept set if concepts not supplied
+        if not target_concepts_to_transform:
+            target_concepts_to_transform = (target_api_config
+                                            .concept_schemas.keys())
+
         # Output
         transformed_data = {}
         # The schemas of the target concepts
@@ -68,7 +76,7 @@ class StandardModel(object):
 
         # Get the standard concept mapped to this target concept
         standard_concept_id_str = list(schema['id'].values())[0]
-        standard_concept = ConceptNode(standard_concept_id_str, '').concept
+        standard_concept = concept_from(standard_concept_id_str)
 
         # Get the ID nodes for this standard concept from the concept graph
         id_nodes = self.concept_graph.id_index.get(standard_concept)
@@ -92,7 +100,7 @@ class StandardModel(object):
 
         return output
 
-    def build(self, df_dict, logger=None):
+    def populate(self, df_dict, logger=None):
         """
         Iterate over DataFrames and insert each cell as a node in the
         concept attribute graph. Then create edges between nodes.
@@ -109,7 +117,7 @@ class StandardModel(object):
             self.logger = logger
 
         # Create an empty concept graph
-        self.concept_graph = ConceptGraph()
+        self.concept_graph = ConceptGraph(logger=logger)
 
         # Insert nodes into concept attribute graph
         # For each DataFrame
@@ -126,6 +134,9 @@ class StandardModel(object):
                         'row': r,
                         'col': c
                     }
+                    # Do not add null nodes to the graph
+                    if pd.isnull(row[col]):
+                        continue
                     # Add node to graph
                     node = self.concept_graph.add_or_get_node(col, row[col],
                                                               **props)
