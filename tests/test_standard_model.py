@@ -18,7 +18,8 @@ def data_df_dict():
     Create an input data dict to populate the standard model.
 
     This data is somewhat simple so that we can easily visualize it and test
-    specific parts of standard_model.graph.find_attribute_value
+    specific parts of standard_model.graph.find_attribute_value and
+    standard_model.populate.
 
     TODO - include a more complex multi-table dataset to more thoroughly test
     """
@@ -93,6 +94,18 @@ def random_data_df_dict():
     return df_dict
 
 
+@pytest.fixture(scope='function')
+def random_model(random_data_df_dict):
+    """
+    Create and populate the standard model with some random data
+    """
+    # Standard model
+    model = StandardModel()
+    model.populate(random_data_df_dict)
+
+    return model
+
+
 def test_populate_model(data_df_dict):
     """
     Test populating the concept graph in the standard model
@@ -128,14 +141,14 @@ def test_populate_model(data_df_dict):
                     assert 'subject_sample' in node.uid
 
 
-def test_transform_all(target_api_config, model):
+def test_transform_all(target_api_config, random_model):
     """
     Test transformation when a list of target_concepts isn't supplied
     """
     # Test transform all concepts
     # Output should only include the concepts for which there is data
-    data = model.transform(target_api_config,
-                           target_concepts_to_transform=None)
+    data = random_model.transform(target_api_config,
+                                  target_concepts_to_transform=None)
     all_target_concepts = target_api_config.concept_schemas.keys()
     target_concepts_w_data = ['family', 'participant', 'biospecimen']
     for target_concept, output in data.items():
@@ -148,14 +161,14 @@ def test_transform_all(target_api_config, model):
     assert len(all_target_concepts) == len(data.keys())
 
 
-def test_transform(target_api_config, model):
+def test_transform(target_api_config, random_model):
     """
     Test transformation from the standard model to a target model
     """
     # Transform to target model
     target_concepts = ['family', 'participant', 'biospecimen', 'mammals',
                        'phenotype']
-    data = model.transform(target_api_config, target_concepts)
+    data = random_model.transform(target_api_config, target_concepts)
 
     # Output should only contain instances of valid target concept types
     # (the ones we supplied that exist in target api config)
@@ -172,10 +185,18 @@ def test_transform(target_api_config, model):
 
         # Check counts
         expected_count = 0
-        nodes = model.concept_graph.id_index.get(standard_concept)
+        nodes = random_model.concept_graph.id_index.get(standard_concept)
         if nodes:
             expected_count = len(nodes)
         assert expected_count == len(instances)
+
+        # Check content
+        for instance in instances:
+            assert instance['id']['kf_id']
+            if target_concept == 'participant':
+                assert instance['properties']['race'] is not None
+            if target_concept == 'biospecimen':
+                assert instance['properties']['composition'] is not None
 
     # There should be 0 phenotypes since we have no phenotype data
     assert 0 == len(data['phenotype'])

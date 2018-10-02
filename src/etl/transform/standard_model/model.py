@@ -80,24 +80,55 @@ class StandardModel(object):
         standard_concept = concept_from(standard_concept_id_str)
 
         # Get the ID nodes for this standard concept from the concept graph
-        id_nodes = self.concept_graph.id_index.get(standard_concept)
-        if not id_nodes:
+        id_node_keys = self.concept_graph.id_index.get(standard_concept)
+        if not id_node_keys:
             self.logger.warning(
                 f'The concept graph does not contain any '
                 f'"{standard_concept}" ID nodes in the graph! '
                 f'Nothing to transform for "{standard_concept}"')
             return concept_instances
 
-        for id_node in id_nodes:
-            output = self._build_concept_instance(id_node, schema,
+        for node_key in id_node_keys:
+            output = self._build_concept_instance(node_key, schema,
                                                   relation_graph)
             concept_instances.append(output)
 
         return concept_instances
 
-    def _build_concept_instance(self, id_node, schema, relation_graph):
-        # TODO
+    def _build_concept_instance(self, id_node_key, schema, relation_graph):
+        """
+        Build an instance of the target model concept defined by schema
+
+        :param id_node_key: a ConceptNode.key string containing the ID of
+        the target concept instance in the concept graph
+        :param schema: a dict containing the property schema for the
+        target concept
+        :param relation_graph: a networkx.DiGraph containing target concept
+        hierarchical relations
+        """
+        # Make copy of schema
         output = deepcopy(schema)
+
+        # Get ConceptNode
+        id_node = self.concept_graph.get_node(id_node_key)
+        # Fill in id
+        for key, concept_attr in output.get('id').items():
+            output['id'][key] = id_node.value
+
+        # Find values for properties
+        for key, concept_attr in output.get('properties').items():
+            value = self.concept_graph.find_attribute_value(id_node,
+                                                            concept_attr,
+                                                            relation_graph)
+            output['properties'][key] = value
+
+        # Find values for links
+        links = output.get('links', {})
+        for key, concept_attr in links.items():
+            value = self.concept_graph.find_attribute_value(id_node,
+                                                            concept_attr,
+                                                            relation_graph)
+            output['links'][key] = value
 
         return output
 
@@ -157,4 +188,40 @@ class StandardModel(object):
 
 
 if __name__ == '__main__':
-    pass
+    from pprint import pprint
+    import random
+    from etl.transform.standard_model.concept_schema import CONCEPT
+    from etl.configuration.target_api_config import TargetAPIConfig
+    from common.constants import *
+    KIDS_FIRST_CONFIG = ('/Users/singhn4/Projects/kids_first/'
+                         'kf-lib-data-ingest/src/target_apis/kids_first.py')
+
+    # Data
+    n_participants = 10
+    family_id_pool = [f'F{i}' for i in range(n_participants // 3)]
+    races = [RACE.WHITE, RACE.ASIAN, RACE.BLACK]
+    compositions = [SPECIMEN.COMPOSITION.TISSUE, SPECIMEN.COMPOSITION.BLOOD]
+    data_dict = {CONCEPT.FAMILY.ID: [random.choice(family_id_pool)
+                                     for i in range(n_participants)],
+                 CONCEPT.PARTICIPANT.ID: [f'P{i}'
+                                          for i in range(n_participants)],
+                 CONCEPT.BIOSPECIMEN.ID: [f'B{i}'
+                                          for i in range(n_participants)],
+                 CONCEPT.PARTICIPANT.RACE: [random.choice(races)
+                                            for i in range(n_participants)],
+                 CONCEPT.BIOSPECIMEN.COMPOSITION:
+                 [random.choice(compositions)
+                  for i in range(n_participants)]}
+    df = pd.DataFrame(data_dict)
+    df_dict = {f's3://bucket/key/clinical.csv':
+               (f'file:///study/configs/clinical.py', df)}
+
+    # Config
+    conf = TargetAPIConfig(KIDS_FIRST_CONFIG)
+
+    # Model
+    model = StandardModel()
+    model.populate(df_dict)
+    td = model.transform(conf, ['participant', 'family', 'biospecimen'])
+
+    pprint(td)
