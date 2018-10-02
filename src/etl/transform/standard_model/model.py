@@ -4,6 +4,7 @@ import pandas as pd
 
 from etl.transform.standard_model.graph import ConceptGraph
 from etl.transform.standard_model.concept_schema import concept_from
+from etl.configuration.log import create_default_logger
 
 
 class StandardModel(object):
@@ -109,8 +110,7 @@ class StandardModel(object):
         """
         # If we're in stand alone mode (testing)
         if not logger:
-            import logging
-            self.logger = logging.getLogger(__name__)
+            self.logger = create_default_logger(__name__)
 
         # If this is called from transform stage
         else:

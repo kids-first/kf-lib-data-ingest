@@ -7,6 +7,8 @@ from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
     concept_attr_from
 )
 from kf_lib_data_ingest.common.misc import iterate_pairwise
+from common.misc import iterate_pairwise
+from etl.configuration.log import create_default_logger
 
 
 class ConceptGraph(object):
@@ -119,9 +121,7 @@ class ConceptGraph(object):
 
         # Standalone mode
         if not logger:
-            import logging
-            self.logger = logging.getLogger(__name__)
-
+            self.logger = create_default_logger(__name__)
         # Called from standard_model.populate
         else:
             self.logger = logger
