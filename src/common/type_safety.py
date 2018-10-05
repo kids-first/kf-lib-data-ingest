@@ -12,10 +12,13 @@ def _ast_object_name(obj):
     Checks if obj has a name and returns it, and otherwise raises ValueError.
     """
     if not isinstance(obj, ast.Name):
-        # unnamed values (5, "foo", etc.) obviously have no name
-        raise ValueError(
-            __UNNAMED_OBJECT + ' <{}>'.format(type(obj).__name__)
-        )
+        if isinstance(obj, ast.Attribute):
+            return _ast_object_name(obj.value) + "." + obj.attr
+        else:
+            # unnamed values (5, "foo", etc.) obviously have no name
+            raise ValueError(
+                __UNNAMED_OBJECT + ' <{}>'.format(type(obj).__name__)
+            )
     return obj.id
 
 

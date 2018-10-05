@@ -126,14 +126,54 @@ def test_name_in_error_message():
         try:
             assert_safe_type(pickle, bool)
         except Exception as e:
-            assert 'pickle' in e
+            assert 'pickle' in str(e)
             raise
 
     with pytest.raises(TypeError):
         try:
             assert_safe_type(pockle, bool)
         except Exception as e:
-            assert 'pockle' in e
+            assert 'pockle' in str(e)
+            raise
+
+
+def test_attribute_type_checking():
+    class foo:
+        class bar:
+            baz = 5
+        qux = "5"
+
+        def test_self(self):
+            assert_safe_type(self.bar.baz, int)
+            with pytest.raises(TypeError):
+                try:
+                    assert_safe_type(self.bar.baz, str)
+                except Exception as e:
+                    assert 'self.bar.baz' in str(e)
+                    raise
+
+    assert_safe_type(foo.bar.baz, int)
+    assert_safe_type(foo.qux, str)
+    assert_safe_type(foo.bar, object)
+    foo().test_self()
+
+    with pytest.raises(TypeError):
+        try:
+            assert_safe_type(foo.bar, str)
+        except Exception as e:
+            assert 'foo.bar' in str(e)
+            raise
+    with pytest.raises(TypeError):
+        try:
+            assert_safe_type(foo.bar.baz, str)
+        except Exception as e:
+            assert 'foo.bar.baz' in str(e)
+            raise
+    with pytest.raises(TypeError):
+        try:
+            assert_safe_type(foo.qux, int)
+        except Exception as e:
+            assert 'foo.qux' in str(e)
             raise
 
 
