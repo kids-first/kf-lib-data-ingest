@@ -3,6 +3,7 @@ import inspect
 
 
 __UNNAMED_OBJECT = 'unnamed object of type'
+__ALL_SIGNIFIER = 'all items in '
 
 
 # This function supports finding the _name_ of the first argument passed to
@@ -13,9 +14,20 @@ def _ast_object_name(obj):
     """
     if not isinstance(obj, ast.Name):
         if isinstance(obj, ast.Attribute):
-            return _ast_object_name(obj.value) + "." + obj.attr
+            return _ast_object_name(obj.value) + '.' + obj.attr
+        elif isinstance(obj, ast.Call):
+            call = _ast_object_name(obj.func)
+            arguments = []
+            if hasattr(obj, 'keywords'):
+                arguments = [
+                    str(ast.literal_eval(a)) for a in obj.args
+                ] + [
+                    kob.arg + '=' + str(ast.literal_eval(kob.value))
+                    for kob in obj.keywords
+                ]
+            return call + '(' + ', '.join(arguments) + ')'
         else:
-            # unnamed values (5, "foo", etc.) obviously have no name
+            # unnamed values (5, 'foo', etc.) obviously have no name
             raise ValueError(
                 __UNNAMED_OBJECT + ' <{}>'.format(type(obj).__name__)
             )
@@ -46,7 +58,7 @@ def _varname_from_ast_node(ast_node, arg_name, arg_index):
 
 # This function supports finding the _name_ of the first argument passed to
 # assert_safe_type.
-def _name_of_arg_at_caller(which_arg=0):
+def _name_of_arg_at_caller(which_arg=0, frames_higher=1):
     """
     Returns the _name_ of the variable that was passed in as the nth argument
     to the function that called this.
@@ -77,7 +89,7 @@ def _name_of_arg_at_caller(which_arg=0):
     this_frame = inspect.currentframe()
 
     # frame of the function that's asking (parent frame of this)
-    asking_frame = inspect.getouterframes(this_frame)[1].frame
+    asking_frame = inspect.getouterframes(this_frame)[frames_higher].frame
     asking_name = asking_frame.f_code.co_name
 
     # name of the asking function's nth argument as seen from the inside
@@ -158,6 +170,26 @@ def safe_type_check(val, *safe_types):
     return isinstance(val, tuple(types))
 
 
+def _raise_error(safe_types, is_container=False):
+    caller = inspect.stack()[2]
+    try:
+        name = _name_of_arg_at_caller(0, 2)
+    except ValueError as e:
+        name = str(e)
+
+    type_names = [
+        t.__name__ if hasattr(t, '__name__') else t for t in safe_types
+    ]
+
+    if is_container:
+        name = __ALL_SIGNIFIER + name
+    raise TypeError(
+        '{}:{}:{} requires {} to be one of these types: {}'
+        .format(caller.filename, caller.lineno, caller.function, name,
+                type_names)
+    )
+
+
 def assert_safe_type(val, *safe_types):
     """
     Raise an exception if val is not one of the declared safe types.
@@ -169,17 +201,21 @@ def assert_safe_type(val, *safe_types):
     """
     assert safe_types
     if not safe_type_check(val, *safe_types):
-        caller = inspect.stack()[1]
-        try:
-            name = _name_of_arg_at_caller(0)
-        except ValueError as e:
-            name = str(e)
+        _raise_error(safe_types)
 
-        type_names = tuple(
-            [t.__name__ if hasattr(t, '__name__') else t for t in safe_types]
-        )
-        raise TypeError(
-            '{}:{}:{} requires {} to be one of {}'
-            .format(caller.filename, caller.lineno, caller.function, name,
-                    type_names)
-        )
+
+def assert_all_safe_type(val_list, *safe_types):
+    """
+    Raise an exception if any of the members of val_list are not one of the
+    declared safe types.
+    Calling Example:
+        # my_dict must have only str keys
+        assert_all_safe_type(my_dict.keys(), str)
+
+    :raises: TypeError if safe_type_check(val, safe_types) returns False for
+        any of the members.
+    """
+    assert safe_types
+    for val in val_list:
+        if not safe_type_check(val, *safe_types):
+            _raise_error(safe_types, True)
