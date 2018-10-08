@@ -4,7 +4,10 @@ from etl.transform.standard_model.graph import (
     ConceptNode,
     ConceptGraph
 )
-from etl.transform.standard_model.concept_schema import CONCEPT
+from etl.transform.standard_model.concept_schema import (
+    CONCEPT,
+    DELIMITER
+)
 
 
 @pytest.fixture
@@ -47,10 +50,10 @@ def test_node_uid():
                        row=r,
                        col=c)
     # Check uid
-    assert node.uid == '|'.join([extract_config_url,
-                                 source_file_url,
-                                 str(r),
-                                 str(c)])
+    assert node.uid == DELIMITER.join([extract_config_url,
+                                       source_file_url,
+                                       str(r),
+                                       str(c)])
 
 
 def test_add_and_get_node(concept_graph):

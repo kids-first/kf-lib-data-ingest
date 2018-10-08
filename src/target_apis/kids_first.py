@@ -1,81 +1,18 @@
-from etl.transform.standard_model.concept_schema import CONCEPT
-
 """
 Configuration module specifying how a target model maps to the standard model
-This module is used by the transform stage to populate instances of target
-model concepts (i.e. participants, diagnoses, etc) with data from the standard
-model before those instances are loaded into the target service
-(i.e. Kids First data service).
 
-This module must have the following required attributes:
+This module is translated into an
+etl.configuration.target_api_config.TargetAPIConfig object which is used by the
+ingest transform stage to populate instances of target model concepts
+(i.e. participants, diagnoses, etc) with data from the standard model before
+those instances are loaded into the target service (i.e Kids First Dataservice)
 
-    - target_concepts
-    - relationships
-    - endpoints
-
-These required attributes must be dicts.
-
-    - target_concepts
-        A dict of dicts. Each inner dict is a target concept dict, which
-        contains mappings of target concept properties to standard concept
-        attributes.
-
-        A target concept dict has the following schema:
-
-            Required Keys:
-                - id
-                - properties
-            Optional Keys:
-                - links
-
-        {
-            'id': {
-                <target concept identifier property>:
-                    <standard concept attribute>
-            },
-            'properties': {
-                '<target concept property>': <standard concept attribute>,
-                ...
-            },
-            links: {
-                <target concept property>: <standard concept>
-            }
-        }
-
-        It may seem unecessary to separate the mappings into
-        'id', 'properties', and 'links', but this is important because the
-        mappings in 'id' and 'links' are treated differently than those in
-        'properties'. The value in a key, value pair under 'id' or 'links',
-        during the transform stage, will be looked up in the standard model,
-        and then during the load stage be translated into a target model ID.
-        A value in a key, value pair under 'properties', during the transform
-        stage, will be looked up in the standard model and then kept as is
-        during the load stage.
-
-        For example, after transformation and before loading, the 'id' dict
-        could be:
-
-            'id': {
-                'kf_id': CONCEPT|PARTICIPANT|ID|P1
-            }
-        And during the loading stage the 'id' dict will be translated into:
-            'id': {
-                'kf_id': PT_00001111
-            }
-
-    - relationships
-        A dict of sets which represents an adjacency list. The adjacency list
-        codifies the parent-child relationships between target concepts. A
-        key in the relationships dict should be a string containing a parent
-        target concept, and the values should be a set of child target
-        concepts.
-
-    - endpoints
-        A dict of key value pairs where the key should be a target concept
-        and the value should be an endpoint in the target service to perform
-        create, read, update, and delete operations for that target concept.
-
+See etl.configuration.target_api_config docstring for more details on
+requirements for format and content.
 """
+
+from etl.transform.standard_model.concept_schema import CONCEPT
+
 
 target_concepts = {
     'investigator': {
@@ -105,7 +42,7 @@ target_concepts = {
             'data_access_authority': CONCEPT.STUDY.AUTHORITY,
             'release_status': CONCEPT.STUDY.RELEASE_STATUS,
             'attribution': CONCEPT.STUDY.ATTRIBUTION,
-            'CATEGORY': CONCEPT.STUDY.CATEGORY
+            'category': CONCEPT.STUDY.CATEGORY
         }
     },
     'family': {
@@ -215,7 +152,7 @@ target_concepts = {
     },
     'genomic_file': {
         'id': {
-            'kf_id': 'hey'
+            'kf_id': CONCEPT.GENOMIC_FILE.ID
         },
         'links': {
             'sequencing_experiment': CONCEPT.SEQUENCING.ID
