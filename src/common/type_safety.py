@@ -73,7 +73,7 @@ def _name_of_arg_at_caller(which_arg=0, frames_higher=1):
 
     example:
         def my_test_func(a, b, c):
-            return _name_of_arg_at_caller(1)
+            return _name_of_arg_at_caller(which_arg=1)
 
         a_var, b_var, c_var = 1, 2, 3
         my_test_func(a_var, b_var, c_var)  # should return the string "b_var"
@@ -175,7 +175,7 @@ def safe_type_check(val, *safe_types):
 def _raise_error(safe_types, is_container=False):
     caller = inspect.stack()[2]
     try:
-        name = _name_of_arg_at_caller(0, 2)
+        name = _name_of_arg_at_caller(which_arg=0, frames_higher=2)
     except ValueError as e:
         name = str(e)
 
