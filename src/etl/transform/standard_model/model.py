@@ -188,40 +188,4 @@ class StandardModel(object):
 
 
 if __name__ == '__main__':
-    from pprint import pprint
-    import random
-    from etl.transform.standard_model.concept_schema import CONCEPT
-    from etl.configuration.target_api_config import TargetAPIConfig
-    from common.constants import *
-    KIDS_FIRST_CONFIG = ('/Users/singhn4/Projects/kids_first/'
-                         'kf-lib-data-ingest/src/target_apis/kids_first.py')
-
-    # Data
-    n_participants = 10
-    family_id_pool = [f'F{i}' for i in range(n_participants // 3)]
-    races = [RACE.WHITE, RACE.ASIAN, RACE.BLACK]
-    compositions = [SPECIMEN.COMPOSITION.TISSUE, SPECIMEN.COMPOSITION.BLOOD]
-    data_dict = {CONCEPT.FAMILY.ID: [random.choice(family_id_pool)
-                                     for i in range(n_participants)],
-                 CONCEPT.PARTICIPANT.ID: [f'P{i}'
-                                          for i in range(n_participants)],
-                 CONCEPT.BIOSPECIMEN.ID: [f'B{i}'
-                                          for i in range(n_participants)],
-                 CONCEPT.PARTICIPANT.RACE: [random.choice(races)
-                                            for i in range(n_participants)],
-                 CONCEPT.BIOSPECIMEN.COMPOSITION:
-                 [random.choice(compositions)
-                  for i in range(n_participants)]}
-    df = pd.DataFrame(data_dict)
-    df_dict = {f's3://bucket/key/clinical.csv':
-               (f'file:///study/configs/clinical.py', df)}
-
-    # Config
-    conf = TargetAPIConfig(KIDS_FIRST_CONFIG)
-
-    # Model
-    model = StandardModel()
-    model.populate(df_dict)
-    td = model.transform(conf, ['participant', 'family', 'biospecimen'])
-
-    pprint(td)
+    pass

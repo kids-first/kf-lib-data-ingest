@@ -1,6 +1,7 @@
 import networkx as nx
 
-from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
+from common.misc import write_json
+from etl.transform.standard_model.concept_schema import (
     DELIMITER,
     is_identifier,
     concept_from,
@@ -444,6 +445,76 @@ class ConceptGraph(object):
             ret = self.get_node(node.key)
 
         return ret
+
+    def export_to_file(self, filepath='./concept_graph.json'):
+        """
+        Serialize the concept graph and write to a JSON file so that it can
+        later be loaded into a neo4j graph database for better
+        visualization/debugging.
+
+        Loading of the graph is done by utilities.neo4j_util.Neo4jGraph.
+
+        Content follows this format:
+        {
+            'nodes': {
+                'node_id_here': {
+                    'label': 'standard concept here',
+                    'attributes': {
+                        'attribute name': 'value of concept attribute',
+                        'is_identifier': True/False
+                        ...
+                    }
+                }
+            },
+            'edges': [
+                {
+                    'label': 'has_property' or 'connected_to',
+                    'attributes': {
+
+                    },
+                    'source': 'node1 id here',
+                    'target': 'node1 id here'
+                }
+            ]
+        }
+
+        :param graph: a networkx.DiGraph containing the standard concept graph
+        :param filepath: the path to the file where the output will be written
+        """
+        output = {'nodes': {}, 'edges': []}
+        # Nodes
+        for key, node_attrs in self.graph.nodes.items():
+            concept_node = node_attrs['object']
+            output['nodes'][key] = {
+                'attributes': {
+                    'name': key,
+                    'concept': concept_node.concept,
+                    'attribute': concept_attr_from(
+                        concept_node.concept_attribute_pair),
+                    'value': concept_node.value,
+                    'is_identifier': concept_node.is_identifier
+                }
+            }
+
+        # Edges
+        for edge in self.graph.edges:
+            source = edge[0]
+            target = edge[1]
+            concept_node = self.graph.nodes[target]['object']
+            if concept_node.is_identifier:
+                label = 'connected_to'
+            else:
+                label = 'has_property'
+            output['edges'].append(
+                {
+                    'label': label,
+                    'source': source,
+                    'target': target
+                }
+            )
+
+        # Write output to file
+        write_json(output, filepath)
 
 
 class ConceptNode(object):
