@@ -10,7 +10,9 @@ __ALL_SIGNIFIER = 'all items in '
 # assert_safe_type.
 def _ast_object_name(obj):
     """
-    Checks if obj has a name and returns it, and otherwise raises ValueError.
+    If obj has a name, returns it.
+    If obj is a call, recurse into it and note the call chain (with arguments).
+    Otherwise raises ValueError indicating that the object has no identifier.
     """
     if not isinstance(obj, ast.Name):
         if isinstance(obj, ast.Attribute):
