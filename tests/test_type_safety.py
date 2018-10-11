@@ -5,8 +5,9 @@ Tests for src/common/safety.py
 import pandas
 import pytest
 
-from common.type_safety import (__UNNAMED_OBJECT, _name_of_arg_at_caller,
-                                assert_safe_type, function)
+from common.type_safety import (__UNNAMED_OBJECT, __ALL_SIGNIFIER, _name_of_arg_at_caller,
+                                assert_all_safe_type, assert_safe_type,
+                                function)
 
 
 def test__name_of_arg_at_caller():
@@ -120,20 +121,148 @@ def test_callable_type_checking():
 
 
 def test_name_in_error_message():
+    """
+    Make sure that the variable name makes it into the message.
+    """
     pickle = 5
     pockle = 5
     with pytest.raises(TypeError):
         try:
             assert_safe_type(pickle, bool)
-        except Exception as e:
-            assert 'pickle' in e
+        except TypeError as e:
+            assert 'pickle' in str(e)
             raise
 
     with pytest.raises(TypeError):
         try:
             assert_safe_type(pockle, bool)
-        except Exception as e:
-            assert 'pockle' in e
+        except TypeError as e:
+            assert 'pockle' in str(e)
+            raise
+
+
+def test_attribute_type_checking():
+    """
+    Not just variables, but object member attributes too.
+    """
+    class foo:
+        class bar:
+            baz = 5
+        qux = "5"
+
+        def test_self(self):
+            assert_safe_type(self.bar.baz, int)
+            with pytest.raises(TypeError):
+                try:
+                    assert_safe_type(self.bar.baz, str)
+                except TypeError as e:
+                    assert 'self.bar.baz' in str(e)
+                    raise
+
+    assert_safe_type(foo.bar.baz, int)
+    assert_safe_type(foo.qux, str)
+    assert_safe_type(foo.bar, object)
+    foo().test_self()
+
+    with pytest.raises(TypeError):
+        try:
+            assert_safe_type(foo.bar, str)
+        except TypeError as e:
+            assert 'foo.bar' in str(e)
+            raise
+    with pytest.raises(TypeError):
+        try:
+            assert_safe_type(foo.bar.baz, str)
+        except TypeError as e:
+            assert 'foo.bar.baz' in str(e)
+            raise
+    with pytest.raises(TypeError):
+        try:
+            assert_safe_type(foo.qux, int)
+        except TypeError as e:
+            assert 'foo.qux' in str(e)
+            raise
+
+
+def test_direct_list_values():
+    """
+    assert_all_safe_type checks every value in the given iterable.
+    This function tests direct iterables (not returned by a call).
+    """
+    my_list = [1, 2, 3, 4]
+    assert_all_safe_type(my_list, int)
+    for my_list in [
+        [1, 2, 3, 4],
+        [1, 2.0, 3.0, 4.0],
+        [1.0, 2.0, 3.0, 4]
+    ]:
+        with pytest.raises(TypeError):
+            try:
+                assert_all_safe_type(my_list, float)
+            except TypeError as e:
+                assert __ALL_SIGNIFIER in str(e)
+                assert __UNNAMED_OBJECT not in str(e)
+                raise
+    assert_all_safe_type([1.0, 2.0, 3.0, 4.0], float)
+    with pytest.raises(TypeError):
+        try:
+            assert_all_safe_type([1.0, 2.0, 3.0, 4.0], int)
+        except TypeError as e:
+            assert __ALL_SIGNIFIER in str(e)
+            assert __UNNAMED_OBJECT in str(e)
+            raise
+    assert_all_safe_type({'a': 1, 'b': 2, 'c': 3}, str)
+    with pytest.raises(TypeError):
+        try:
+            assert_all_safe_type({'a': 1, 'b': 2, 'c': 3}, int)
+        except TypeError as e:
+            assert __ALL_SIGNIFIER in str(e)
+            assert __UNNAMED_OBJECT in str(e)
+            raise
+
+
+class test_obj:
+    def __init__(self, arg):
+        self.arg = arg
+
+    def foo(self, arg):
+        return arg
+
+
+def test_call_values():
+    """
+    Test pulling values indirectly from function calls
+    """
+    assert_safe_type(test_obj(1).foo(arg=5), int)
+    with pytest.raises(TypeError):
+        try:
+            assert_safe_type(test_obj(1).foo(arg=5), float)
+        except TypeError as e:
+            assert 'test_obj(1).foo(arg=5)' in str(e)
+            raise
+
+
+def test_call_list_values():
+    """
+    assert_all_safe_type checks every value in the given iterable.
+    This function tests iterables returned by a call.
+    """
+    my_dict = {'a': 1, 'b': 2, 'c': 3}
+    assert_all_safe_type(my_dict.keys(), str)
+    assert_all_safe_type(my_dict.values(), int)
+    with pytest.raises(TypeError):
+        try:
+            assert_all_safe_type(my_dict.values(), float)
+        except TypeError as e:
+            assert __ALL_SIGNIFIER in str(e)
+            assert 'my_dict.values()' in str(e)
+            raise
+    with pytest.raises(TypeError):
+        try:
+            assert_all_safe_type(my_dict.keys(), bool)
+        except TypeError as e:
+            assert __ALL_SIGNIFIER in str(e)
+            assert 'my_dict.keys()' in str(e)
             raise
 
 
@@ -141,4 +270,17 @@ def test_name_in_error_message():
 foo = 5
 assert_safe_type(foo, int)
 with pytest.raises(TypeError):
-    assert_safe_type(foo, float)
+    try:
+        assert_safe_type(foo, float)
+    except TypeError as e:
+        assert 'foo' in str(e)
+        raise
+
+assert_all_safe_type([1.0, 2.0, 3.0, 4.0], float)
+with pytest.raises(TypeError):
+    try:
+        assert_all_safe_type([1.0, 2.0, 3.0, 4.0], int)
+    except TypeError as e:
+        assert __ALL_SIGNIFIER in str(e)
+        assert __UNNAMED_OBJECT in str(e)
+        raise

@@ -3,19 +3,36 @@ import inspect
 
 
 __UNNAMED_OBJECT = 'unnamed object of type'
+__ALL_SIGNIFIER = 'all items in '
 
 
 # This function supports finding the _name_ of the first argument passed to
 # assert_safe_type.
 def _ast_object_name(obj):
     """
-    Checks if obj has a name and returns it, and otherwise raises ValueError.
+    If obj has a name, returns it.
+    If obj is a call, recurse into it and note the call chain (with arguments).
+    Otherwise raises ValueError indicating that the object has no identifier.
     """
     if not isinstance(obj, ast.Name):
-        # unnamed values (5, "foo", etc.) obviously have no name
-        raise ValueError(
-            __UNNAMED_OBJECT + ' <{}>'.format(type(obj).__name__)
-        )
+        if isinstance(obj, ast.Attribute):
+            return _ast_object_name(obj.value) + '.' + obj.attr
+        elif isinstance(obj, ast.Call):
+            call = _ast_object_name(obj.func)
+            arguments = []
+            if hasattr(obj, 'keywords'):
+                arguments = [
+                    str(ast.literal_eval(a)) for a in obj.args
+                ] + [
+                    kob.arg + '=' + str(ast.literal_eval(kob.value))
+                    for kob in obj.keywords
+                ]
+            return call + '(' + ', '.join(arguments) + ')'
+        else:
+            # unnamed values (5, 'foo', etc.) obviously have no name
+            raise ValueError(
+                __UNNAMED_OBJECT + ' <{}>'.format(type(obj).__name__)
+            )
     return obj.id
 
 
@@ -43,7 +60,7 @@ def _varname_from_ast_node(ast_node, arg_name, arg_index):
 
 # This function supports finding the _name_ of the first argument passed to
 # assert_safe_type.
-def _name_of_arg_at_caller(which_arg=0):
+def _name_of_arg_at_caller(which_arg=0, frames_higher=1):
     """
     Returns the _name_ of the variable that was passed in as the nth argument
     to the function that called this.
@@ -56,7 +73,7 @@ def _name_of_arg_at_caller(which_arg=0):
 
     example:
         def my_test_func(a, b, c):
-            return _name_of_arg_at_caller(1)
+            return _name_of_arg_at_caller(which_arg=1)
 
         a_var, b_var, c_var = 1, 2, 3
         my_test_func(a_var, b_var, c_var)  # should return the string "b_var"
@@ -74,7 +91,7 @@ def _name_of_arg_at_caller(which_arg=0):
     this_frame = inspect.currentframe()
 
     # frame of the function that's asking (parent frame of this)
-    asking_frame = inspect.getouterframes(this_frame)[1].frame
+    asking_frame = inspect.getouterframes(this_frame)[frames_higher].frame
     asking_name = asking_frame.f_code.co_name
 
     # name of the asking function's nth argument as seen from the inside
@@ -135,8 +152,8 @@ def safe_type_check(val, *safe_types):
         safe_type_check(my_val, int, float)
 
     :param val: some value
-    :param *args: type classes or truthy-returning functions
-                  e.g. int, str, callable
+    :param *safe_types: type classes or truthy-returning functions
+        e.g. int, str, callable
     :returns: True/False depending on whether val is a safe type
     """
     types = []
@@ -155,6 +172,48 @@ def safe_type_check(val, *safe_types):
     return isinstance(val, tuple(types))
 
 
+def _raise_error(safe_types, is_container=False):
+    """
+    Raise a fancy error message that contains details like
+    where the assert request happened and what was being tested.
+
+    :param safe_types: a list of type classes or truthy-returning functions
+        e.g. int, str, callable
+    :param is_container: should the error message indicate that we've done an
+        all()-style test?
+
+    :raises: always raises TypeError with a fancy message inside
+    """
+    # Placement Note:
+    # Aspects of this implementation will not work if moved elsewhere. Because
+    # we are walking the stack and inspecting files to find what variables are
+    # named where, this function needs to know e.g. that it is two calls away
+    # from the place where the tested variable name exists. (A function calls
+    # assert_safe_type which calls this function, and we need to get back to
+    # the actual code of that first function to see what the variable that it
+    # tested was called.)
+
+    # For the relevance of the number 2, see Placement Note above
+    caller = inspect.stack()[2]
+    try:
+        # For the relevance of the number 2, see Placement Note above
+        name = _name_of_arg_at_caller(which_arg=0, frames_higher=2)
+    except ValueError as e:
+        name = str(e)
+
+    type_names = [
+        t.__name__ if hasattr(t, '__name__') else t for t in safe_types
+    ]
+
+    if is_container:
+        name = __ALL_SIGNIFIER + name
+    raise TypeError(
+        '{}:{}:{} requires {} to be one of these types: {}'
+        .format(caller.filename, caller.lineno, caller.function, name,
+                type_names)
+    )
+
+
 def assert_safe_type(val, *safe_types):
     """
     Raise an exception if val is not one of the declared safe types.
@@ -162,21 +221,31 @@ def assert_safe_type(val, *safe_types):
         assert_safe_type(my_func, function)  # my_func must be a function
         assert_safe_type(my_val, int, float)  # my_val must be int or float
 
+    :param val: some value
+    :param *safe_types: type classes or truthy-returning functions
+        e.g. int, str, callable
     :raises: TypeError if safe_type_check(val, safe_types) returns False
     """
     assert safe_types
     if not safe_type_check(val, *safe_types):
-        caller = inspect.stack()[1]
-        try:
-            name = _name_of_arg_at_caller(0)
-        except ValueError as e:
-            name = str(e)
+        _raise_error(safe_types)
 
-        type_names = tuple(
-            [t.__name__ if hasattr(t, '__name__') else t for t in safe_types]
-        )
-        raise TypeError(
-            '{}:{}:{} requires {} to be one of {}'
-            .format(caller.filename, caller.lineno, caller.function, name,
-                    type_names)
-        )
+
+def assert_all_safe_type(val_list, *safe_types):
+    """
+    Raise an exception if any of the members of val_list are not one of the
+    declared safe types.
+    Calling Example:
+        # my_dict must have only str keys
+        assert_all_safe_type(my_dict.keys(), str)
+
+    :param val_list: some iterable
+    :param *safe_types: type classes or truthy-returning functions
+        e.g. int, str, callable
+    :raises: TypeError if safe_type_check(val, safe_types) returns False for
+        any val in val_list.
+    """
+    assert safe_types
+    for val in val_list:
+        if not safe_type_check(val, *safe_types):
+            _raise_error(safe_types, is_container=True)
