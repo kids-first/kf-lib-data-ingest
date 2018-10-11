@@ -1,0 +1,73 @@
+
+-- Ambiguous Data --
+When transforming into target model, we will have a schema which defines and
+enforces relationships between concepts.
+An attribute of a child concept is attached to a parent concept
+Example:
+- Participant P1 has biospecimen B1, B2
+- Property BIOSPECIMEN.TISSUE_TYPE.Blood is attached to P1
+
+
+-- Invalid Data --
+When transforming into target model, we will have a schema which defines and
+enforces relationships between concepts. If child concept is connected to more
+than one parent concept, this is invalid.
+BIOSPECIMEN is connected to more than one[PARTICIPANT, PARTICIPANT-predecessors]
+This should not be allowed and should raise an exception (maybe)
+
+-- Identifier Properties --
+When transforming into target model, we will have a schema which defines and
+enforces relationships between concepts.
+Any child concept can unambiguously identify a parent concept
+
+-- Building Edges --
+For ID Nodes:
+    Collect ID nodes in a row
+    Iterate over ID nodes pairwise
+    Check graph - does a path exist from A to B already?
+    - Yes - do nothing
+    - No - Create an undirected edge from A to B
+For property nodes:
+    If the concept for this property exists in the row, attach it to each of
+    the ID nodes.
+
+-- Searching Properties --
+-- Schema --
+    FAMILY
+    -- PARTICIPANT
+        -- BIOSPECIMEN
+            -- GENOMIC_FILE
+        -- DIAGNOSIS
+        -- PHENOTYPE
+        -- OUTCOME
+
+    SEQUENCING_EXPERIMENT
+    -- GENOMIC_FILE
+
+-- Restrictions --
+- We need to know which concept connections could create undesirable
+connections.
+Example: Family can connect 1 or more participants and/or participant
+child concepts.
+
+When searching for a property, P of concept C1:
+Do BFS in search for P:
+    For neighbor in all neighbors of C1:
+        Evaluate whether to add neighbor to list of nodes to traverse:
+            Is neighbor a predecessor of C1 and is there a restriction for it?
+                No - it is valid
+                Yes - check whether it is valid
+                    If neighbor is connected to any other nodes in the set
+                    [C, C-descendants (children)] the neighbor is invalid
+                    else the neighbor is valid
+
+Example:
+Search for property PARTICIPANT.AGE.30 of participant P1.
+Do BFS in search of PARTICIPANT.AGE.30:
+    For neighbor in all neighbors of P1:
+        Is neighbor concept any of participant's predecessor concepts [Family]:
+            No - it is valid
+            Yes - check whether it is valid
+                If neighbor (i.e. Family) is connected to any other nodes
+                in the set [P, P-descendants (children)] the neighbor is invalid
+                else the neighbor is valid
