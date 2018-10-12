@@ -9,11 +9,16 @@ the standard model before those instances are loaded into the target service
 
 This module must have the following required attributes:
 
+    - target_service_entity_id
     - target_concepts
     - relationships
-    - endpoints
 
-These required attributes must be dicts.
+All but the first of these required attributes must be dicts.
+
+    - target_service_entity_id
+    A string containing the name of the unique identifier atttribute a
+    target entity. This would likely be a primary key in the target service
+    and the attribute used in CRUD operations for this entity.
 
     - target_concepts
         A dict of dicts. Each inner dict is a target concept dict, which
@@ -23,63 +28,65 @@ These required attributes must be dicts.
         A target concept dict has the following schema:
 
             Required Keys:
-                - id
+                - standard_concept
                 - properties
+                - endpoint
+
             Optional Keys:
                 - links
 
         {
-            'id': {
-                <target concept identifier property>:
-                    <standard concept attribute>
-            },
+            'standard_concept': <reference to the standard concept class>,
             'properties': {
                 '<target concept property>': <standard concept attribute>,
                 ...
             },
             links: {
-                <target concept property>: <standard concept>
-            }
+                <target concept property>: <standard concept id attribute>
+            },
+            endpoint: <string containing CRUD endpoint for target concept>
         }
 
         It may seem unecessary to separate the mappings into
-        'id', 'properties', and 'links', but this is important because the
-        mappings in 'id' and 'links' are treated differently than those in
-        'properties'. The value in a key, value pair under 'id' or 'links',
+        'properties', and 'links', but this is important because the
+        mappings in 'links' are treated differently than those in
+        'properties'. The value in a key, value pair under 'links',
         during the transform stage, will be looked up in the standard model,
         and then during the load stage be translated into a target model ID.
         A value in a key, value pair under 'properties', during the transform
         stage, will be looked up in the standard model and then kept as is
         during the load stage.
 
-        For example, after transformation and before loading, the 'id' dict
+        For example, after transformation and before loading, the 'links' dict
         could be:
 
-            'id': {
-                'kf_id': CONCEPT|PARTICIPANT|ID|P1
+            'links': {
+                'participant_id': CONCEPT|PARTICIPANT|ID|P1
             }
-        And during the loading stage the 'id' dict will be translated into:
-            'id': {
-                'kf_id': PT_00001111
+        And during the loading stage the 'links' dict will be translated into:
+            'links': {
+                'participant_id': PT_00001111
             }
 
     - relationships
-        A dict of sets which represents an adjacency list. The adjacency list
-        codifies the parent-child relationships between target concepts. A
-        key in the relationships dict should be a string containing a parent
-        target concept, and the values should be a set of child target
-        concepts.
-
-    - endpoints
-        A dict of key value pairs where the key should be a target concept
-        and the value should be an endpoint in the target service to perform
-        create, read, update, and delete operations for that target concept.
+        A dict of sets which must represent a directed acyclic graph in the
+        form of an adjacency list. The relationships graph codifies the
+        parent-child relationships between target concepts. A key in the
+        relationships dict should be a string containing a parent target
+        concept, and the values should be a set of child target concepts.
 """
 
 import networkx as nx
 
 from etl.configuration.base_config import PyModuleConfig
-from etl.transform.standard_model.concept_schema import concept_property_set
+from etl.transform.standard_model.concept_schema import (
+    concept_property_set,
+    concept_set
+)
+from common.type_safety import (
+    assert_safe_type,
+    assert_all_safe_type
+)
 
 
 class TargetAPIConfig(PyModuleConfig):
@@ -89,118 +96,176 @@ class TargetAPIConfig(PyModuleConfig):
         Import python module, validate it, and populate instance attributes
         """
         super().__init__(filepath)
-        self._deserialize()
-
-    def tbd_validate(self):
-        # TODO - Come back to validation later.
-        # Leave actual validation blank for now because we need to figure out
-        # what should go in target API config first. The best way to do that is
-        # to make a sample kids first API config, write the actual
-        # transformation code and try ou the sample config. Too difficult to
-        # design this config without knowing exactly how we want to use it.
-        pass
+        self.concept_schemas = self.contents.target_concepts
+        self.relationship_graph = self._build_relationship_graph(
+            self.contents.relationships)
 
     def _validate(self):
         """
         Validate that the target API config Python module has all required
         attributes and valid content
         """
-        required = {'target_concepts', 'relationships', 'endpoints'}
-        for attr in required:
-            # Check for existence of required attributes in config module
-            try:
-                config_item = getattr(self.contents, attr)
-            except AttributeError as e:
-                raise AttributeError(f'Attribute `{attr}` is one of the '
-                                     f' required attributes in all target API '
-                                     ' config modules')
-
-            # Each required attribute should be a dict
-            if not isinstance(config_item, dict):
-                raise TypeError(f'{attr} must be of type dict')
-
-        # Validate content of required attributes in module
+        self._validate_required_attrs()
         self._validate_target_concepts()
-        self._validate_endpoints()
         self._validate_relationships()
+
+    def _validate_required_attrs(self):
+        """
+        Check that all module level required attributes are present and are
+        of the correct form
+        """
+        # Check that all module required attributes are present
+        required_dict_attrs = ['target_concepts', 'relationships']
+        required = required_dict_attrs + ['target_service_entity_id']
+        for attr in required:
+            if not hasattr(self.contents, attr):
+                raise AttributeError(
+                    f'TargetAPIConfig validation failed! Missing '
+                    f'one of the required keys: {attr}')
+
+        # Check that required attributes that are supposed to be dicts
+        # are actually dicts
+        required_dicts = [getattr(self.contents, attr)
+                          for attr in required_dict_attrs]
+        assert_all_safe_type(required_dicts, dict)
+
+        # Check that target_service_entity_id is a str
+        assert_safe_type(self.contents.target_service_entity_id, str)
 
     def _validate_target_concepts(self):
         """
         Validate target concept dicts in target_concepts
+
+        Check the format and content of each dict
+        """
+        # Check that all required keys are present
+        self._validate_required_keys()
+
+        # Check that all mapped concepts are all valid standard concepts
+        self._validate_mapped_standard_concepts()
+
+        # Check concept attribute mappings
+        self._validate_target_concept_attr_mappings()
+
+        # Check that all endpoints are strings
+        self._validate_endpoints()
+
+    def _validate_required_keys(self):
+        """
+        Check that every target concept dict has the required keys
         """
         target_concepts = self.contents.target_concepts
-        required_keys = {'id', 'properties'}
+
+        required_keys = {'standard_concept', 'properties', 'endpoint'}
         for target_concept, target_concept_dict in target_concepts.items():
-            # Are all required keys present
             for required_key in required_keys:
-                if required_key not in set(target_concept_dict.keys()):
-                    raise KeyError('Every target concept dict must '
-                                   'have the required keys: '
-                                   f'{required_keys}')
-                # Validate 'id' mapping
-                if required_key == 'id':
-                    # There can only be 1 id mapping
-                    id_mapping_count = len(target_concept_dict
-                                           .get(required_key).keys())
-                    if id_mapping_count > 1:
-                        raise ValueError(
-                            "A target concept mapping can only have 1 "
-                            f"mapping for 'id'! {target_concept} has "
-                            "{id_mapping_count} mappings.")
+                if required_key not in target_concept_dict.keys():
+                    raise KeyError(
+                        'TargetAPIConfig validation failed! Missing one of '
+                        f'target concept dict required keys: {required_key}')
 
-            # Keys of mappings must be strings
-            # Values must be valid standard concept attributes or None
-            keys = set(list(required_keys) + ['links'])
-            for k in keys:
-                # Target concept mappings
-                prop_value_pairs = target_concept_dict.get(k)
-                if not prop_value_pairs:
+    def _validate_mapped_standard_concepts(self):
+        """
+        Check that all mapped concepts are valid, existing standard concepts
+        """
+        mapped_concepts = [target_concept_dict.get('standard_concept')
+                           for target_concept_dict
+                           in self.contents.target_concepts.values()
+                           ]
+        for mapped_concept in mapped_concepts:
+            if mapped_concept not in concept_set:
+                raise ValueError(
+                    'TargetAPIConfig validation failed! The mapped '
+                    f'standard concept: {mapped_concept} does not exist in '
+                    'the standard concept set!')
+
+    def _validate_target_concept_attr_mappings(self):
+        """
+        Validate target concept attribute mappings
+
+        All target concept attributes must be strings
+        All mapped concept attributes must be valid standard concept attributes
+        """
+        target_concepts = self.contents.target_concepts
+        keys = {'properties', 'links'}
+        for target_concept, target_concept_dict in target_concepts.items():
+            for key, attr_mappings in target_concept_dict.items():
+                if key not in keys:
                     continue
-                for prop, value in prop_value_pairs.items():
-                    # Mapping key validation
-                    if not isinstance(prop, str):
-                        raise KeyError(
-                            'All mappings must have string type keys.'
-                            f'Target model concept property: {prop} in '
-                            f'{target_concept}.{k} is not of type string.')
 
-                    # Mapping value validation
-                    if value is None:
+                # Check attribute mappings
+                for target_attr, mapped_attr in attr_mappings.items():
+                    # Are all target concept attrs strings
+                    try:
+                        assert_safe_type(target_attr, str)
+                    except TypeError as e:
+                        raise Exception(
+                            f'TargetAPIAll validation failed! All '
+                            'target concept attributes must be strings!'
+                        ) from e
+
+                    # Are all mapped concept attributes valid
+                    # standard concept attrs?
+                    if mapped_attr is None:
                         continue
-                    value = str(value)
-                    if value not in concept_property_set:
+                    mapped_attr = str(mapped_attr)
+                    if mapped_attr not in concept_property_set:
                         raise ValueError(
-                            f'Invalid value mapping: '
-                            f'{target_concept}.{k}.{prop} = {value}. '
-                            f'Standard concept attribute {value} does not '
-                            'exist.'
-                        )
+                            'TargetAPIConfig validation failed! '
+                            'all target concept attributes must be mapped to '
+                            'an existing standard concept attribute. Mapped '
+                            f'attribute {mapped_attr} for target attr '
+                            f'{target_concept}.{target_attr} does not exist')
 
     def _validate_endpoints(self):
         """
-        Validate endpoints dict
+        Check that all endpoints are of type str
         """
-        # All values in endpoints should be strings
-        endpoints = self.contents.endpoints
-        values_are_strs = all([isinstance(v, str)
-                               for v in endpoints.values()])
-        if not values_are_strs:
-            raise ValueError("All values in 'endpoints' dict must be "
-                             "strings.")
+        endpoints = [target_concept_dict.get('endpoint')
+                     for target_concept_dict
+                     in self.contents.target_concepts.values()]
+        try:
+            assert_all_safe_type(endpoints, str)
+        except TypeError as e:
+            raise Exception(
+                'TargetAPIConfig validation failed! All values in "endpoints" '
+                'dict must be strings.') from e
 
     def _validate_relationships(self):
         """
         Validate relationships dict
+
+        Values of keys should be sets and the graph which the relationships
+        dict contains must be a directed acyclic graph.
         """
-        # All values in relationships should be sets
         relationships = self.contents.relationships
-        values_are_sets = all([isinstance(v, set)
-                               for v in relationships.values()])
-        if not values_are_sets:
-            raise ValueError("All values in 'relationships' dict must "
-                             "be sets.")
+
+        # All keys and values in sets should be existing standard concepts
+        for parent_concept, child_concepts in relationships.items():
+            if parent_concept not in concept_set:
+                raise ValueError(
+                    'TargetAPIConfig validation failed! Keys in '
+                    'relationships dict must be one of the standard '
+                    'concepts. {parent_concept} is not a standard concept.')
+
+            for child_concept in child_concepts:
+                if child_concept not in concept_set:
+                    raise ValueError(
+                        'TargetAPIConfig validation failed! Set values in '
+                        'relationships dict must be one of the standard '
+                        'concepts. {child_concept} is not a standard concept.')
+
+        # All values in relationships should be sets
+        try:
+            assert_all_safe_type(relationships.values(), set)
+        except TypeError as e:
+            raise Exception(
+                'TargetAPIConfig validation failed! All values in '
+                'relationships dict must be sets.') from e
 
         # Check for cycles
+        # It's weird that find_cycle raises an exception if no cycle is found,
+        # oh well
         rg = self._build_relationship_graph(relationships)
         edges = None
         try:
@@ -211,21 +276,9 @@ class TargetAPIConfig(PyModuleConfig):
         # A cycle was found
         else:
             raise ValueError(
-                f'Invalid `relationships` graph! `relationships` graph '
-                'MUST be a directed acyclic graph. The cycle: {edges} was '
-                'detected in the graph.')
-
-    def _deserialize(self):
-        """
-        Populate attributes of the TargetAPIConfig class from the target API
-        config Python module
-
-        The 'relationships' dict will be stored networkX directed graph.
-        """
-        self.concept_schemas = self.contents.target_concepts
-        self.relationship_graph = self._build_relationship_graph(
-            self.contents.relationships)
-        self.endpoint_map = self.contents.endpoints
+                'TargetAPIConfig validation failed! Invalid `relationships` '
+                'graph! `relationships` MUST be a directed acyclic graph. '
+                f'The cycle: {edges} was detected in the graph.')
 
     def _build_relationship_graph(self, relationships):
         """

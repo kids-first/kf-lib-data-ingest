@@ -13,29 +13,25 @@ requirements for format and content.
 
 from etl.transform.standard_model.concept_schema import CONCEPT
 
+target_service_entity_id = 'kf_id'
 
 target_concepts = {
     'investigator': {
-        'id': {
-            'kf_id': CONCEPT.INVESTIGATOR.ID
-        },
+        'standard_concept': CONCEPT.INVESTIGATOR,
         'properties': {
             'external_id': CONCEPT.INVESTIGATOR.ID,
-            'kf_id': CONCEPT.INVESTIGATOR.TARGET_SERVICE_ID,
             'name': CONCEPT.INVESTIGATOR.NAME,
             'institution': CONCEPT.INVESTIGATOR.INSTITUTION
-        }
+        },
+        'endpoint': '/investigators'
     },
     'study': {
-        'id': {
-            'kf_id': CONCEPT.STUDY.ID
-        },
+        'standard_concept': CONCEPT.STUDY,
         'links': {
             'investigator_id': CONCEPT.INVESTIGATOR.ID,
         },
         'properties': {
             'external_id': CONCEPT.STUDY.ID,
-            'kf_id': CONCEPT.STUDY.TARGET_SERVICE_ID,
             'name': CONCEPT.STUDY.NAME,
             'short_name': CONCEPT.STUDY.SHORT_NAME,
             'version': CONCEPT.STUDY.VERSION,
@@ -43,20 +39,18 @@ target_concepts = {
             'release_status': CONCEPT.STUDY.RELEASE_STATUS,
             'attribution': CONCEPT.STUDY.ATTRIBUTION,
             'category': CONCEPT.STUDY.CATEGORY
-        }
+        },
+        'endpoint': '/studies'
     },
     'family': {
-        'id': {
-            'kf_id': CONCEPT.FAMILY.ID
-        },
+        'standard_concept': CONCEPT.FAMILY,
         'properties': {
             'external_id': CONCEPT.FAMILY.ID
-        }
+        },
+        'endpoint': '/families'
     },
     'participant': {
-        'id': {
-            'kf_id': CONCEPT.PARTICIPANT.ID
-        },
+        'standard_concept': CONCEPT.PARTICIPANT,
         'links': {
             'family_id': CONCEPT.FAMILY.ID,
             'study_id': CONCEPT.STUDY.ID
@@ -67,12 +61,11 @@ target_concepts = {
             "ethnicity": CONCEPT.PARTICIPANT.ETHNICITY,
             "gender": CONCEPT.PARTICIPANT.GENDER,
             "race": CONCEPT.PARTICIPANT.RACE
-        }
+        },
+        'endpoint': '/participants'
     },
     'diagnosis': {
-        'id': {
-            'kf_id': CONCEPT.DIAGNOSIS.ID
-        },
+        'standard_concept': CONCEPT.DIAGNOSIS,
         'links': {
             'participant_id': CONCEPT.PARTICIPANT.ID
         },
@@ -88,12 +81,11 @@ target_concepts = {
             "ncit_id_diagnosis": CONCEPT.DIAGNOSIS.NCIT_ID,
             "spatial_descriptor": CONCEPT.DIAGNOSIS.SPATIAL_DESCRIPTOR,
             "diagnosis_category": CONCEPT.DIAGNOSIS.CATEGORY,
-        }
+        },
+        'endpoint': '/diagnoses'
     },
     'phenotype': {
-        'id': {
-            'kf_id': CONCEPT.PHENOTYPE.ID
-        },
+        'standard_concept': CONCEPT.PHENOTYPE,
         'links': {
             'participant_id': CONCEPT.PARTICIPANT.ID
         },
@@ -104,12 +96,11 @@ target_concepts = {
             "hpo_id_phenotype": CONCEPT.PHENOTYPE.HPO_ID,
             "snomed_id_phenotype": CONCEPT.PHENOTYPE.SNOMED_ID,
             "observed": CONCEPT.PHENOTYPE.OBSERVED,
-        }
+        },
+        'endpoint': '/phenotypes'
     },
     'outcome': {
-        'id': {
-            'kf_id': CONCEPT.OUTCOME.ID
-        },
+        'standard_concept': CONCEPT.OUTCOME,
         'links': {
             'participant_id': CONCEPT.PARTICIPANT.ID
         },
@@ -118,12 +109,11 @@ target_concepts = {
             "age_at_event_days": CONCEPT.OUTCOME.EVENT_AGE_DAYS,
             "vital_status": CONCEPT.OUTCOME.VITAL_STATUS,
             "disease_related": CONCEPT.OUTCOME.DISEASE_RELATED,
-        }
+        },
+        'endpoint': '/outcomes'
     },
     'biospecimen': {
-        'id': {
-            'kf_id': CONCEPT.BIOSPECIMEN.ID
-        },
+        'standard_concept': CONCEPT.BIOSPECIMEN,
         'links': {
             'sequencing_center_id': CONCEPT.SEQUENCING.CENTER.ID,
             'participant_id': CONCEPT.PARTICIPANT.ID
@@ -148,12 +138,11 @@ target_concepts = {
             "concentration_mg_per_ml":
             CONCEPT.BIOSPECIMEN.CONCENTRATION_MG_PER_ML,
             "volume_ml": CONCEPT.BIOSPECIMEN.VOLUME_ML,
-        }
+        },
+        'endpoint': '/biospecimens'
     },
     'genomic_file': {
-        'id': {
-            'kf_id': CONCEPT.GENOMIC_FILE.ID
-        },
+        'standard_concept': CONCEPT.GENOMIC_FILE,
         'links': {
             'sequencing_experiment': CONCEPT.SEQUENCING.ID
         },
@@ -171,12 +160,11 @@ target_concepts = {
             "urls": CONCEPT.GENOMIC_FILE.ID,
             "acl": CONCEPT.GENOMIC_FILE.ID,
             "reference_genome": CONCEPT.GENOMIC_FILE.ID
-        }
+        },
+        'endpoint': '/genomic-files'
     },
     'read_group': {
-        'id': {
-            'kf_id': CONCEPT.READ_GROUP.ID
-        },
+        'standard_concept': CONCEPT.READ_GROUP,
         'links': {
             'genomic_file': CONCEPT.GENOMIC_FILE.ID
         },
@@ -185,12 +173,11 @@ target_concepts = {
             "flow_cell": CONCEPT.READ_GROUP.FLOW_CELL,
             "lane_number": CONCEPT.READ_GROUP.LANE_NUMBER,
             "quality_scale": CONCEPT.READ_GROUP.QUALITY_SCALE
-        }
+        },
+        'endpoint': '/read-groups'
     },
     'sequencing_experiment': {
-        'id': {
-            'kf_id': CONCEPT.SEQUENCING.ID
-        },
+        'standard_concept': CONCEPT.SEQUENCING,
         'links': {
             'sequencing_center_id': CONCEPT.SEQUENCING.CENTER.ID
         },
@@ -208,7 +195,16 @@ target_concepts = {
             "mean_depth": CONCEPT.SEQUENCING.MEAN_DEPTH,
             "total_reads": CONCEPT.SEQUENCING.TOTAL_READS,
             "mean_read_length": CONCEPT.SEQUENCING.MEAN_READ_LENGTH
-        }
+        },
+        'endpoint': '/sequencing-experiments'
+    },
+    'sequencing_center': {
+        'standard_concept': CONCEPT.SEQUENCING.CENTER,
+        'properties': {
+            "external_id": CONCEPT.SEQUENCING.CENTER.ID,
+            "NAME": CONCEPT.SEQUENCING.CENTER.NAME
+        },
+        'endpoint': '/sequencing-centers'
     }
 }
 
@@ -226,26 +222,4 @@ relationships = {
         CONCEPT.BIOSPECIMEN,
         CONCEPT.SEQUENCING
     }
-}
-
-# Transport configuration parameters
-# Kids First entities to endpoint mapping
-endpoints = {
-    'study': '/studies',
-    'investigator': '/investigators',
-    'study_file': '/study-files',
-    'family': '/families',
-    'family_relationship': '/family-relationships',
-    'cavatica_app': '/cavatica-apps',
-    'sequencing_center': '/sequencing-centers',
-    'participant': '/participants',
-    'diagnosis': '/diagnoses',
-    'phenotype': '/phenotypes',
-    'outcome': '/outcomes',
-    'biospecimen': '/biospecimens',
-    'genomic_file': '/genomic-files',
-    'read_group': '/read-groups',
-    'sequencing_experiment': '/sequencing-experiments',
-    'cavatica_fask': '/cavatica-tasks',
-    'cavatica_task_genomic_file': '/cavatica-task-genomic-files'
 }

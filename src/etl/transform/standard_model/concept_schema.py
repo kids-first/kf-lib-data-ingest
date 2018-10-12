@@ -210,8 +210,11 @@ concept_property_set = compile_schema()
 
 # Create a set of standard concepts
 concept_set = {
+    CONCEPT.STUDY,
+    CONCEPT.INVESTIGATOR,
     CONCEPT.FAMILY,
     CONCEPT.SEQUENCING,
+    CONCEPT.SEQUENCING.CENTER,
     CONCEPT.PARTICIPANT,
     CONCEPT.BIOSPECIMEN,
     CONCEPT.DIAGNOSIS,
