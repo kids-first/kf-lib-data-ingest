@@ -240,6 +240,14 @@ class TargetAPIConfig(PyModuleConfig):
         """
         relationships = self.contents.relationships
 
+        # All values in relationships should be sets
+        try:
+            assert_all_safe_type(relationships.values(), set)
+        except TypeError as e:
+            raise Exception(
+                'TargetAPIConfig validation failed! All values in '
+                'relationships dict must be sets.') from e
+
         # All keys and values in sets should be existing standard concepts
         for parent_concept, child_concepts in relationships.items():
             if parent_concept not in concept_set:
@@ -254,14 +262,6 @@ class TargetAPIConfig(PyModuleConfig):
                         'TargetAPIConfig validation failed! Set values in '
                         'relationships dict must be one of the standard '
                         'concepts. {child_concept} is not a standard concept.')
-
-        # All values in relationships should be sets
-        try:
-            assert_all_safe_type(relationships.values(), set)
-        except TypeError as e:
-            raise Exception(
-                'TargetAPIConfig validation failed! All values in '
-                'relationships dict must be sets.') from e
 
         # Check for cycles
         # It's weird that find_cycle raises an exception if no cycle is found,
