@@ -8,9 +8,15 @@ from etl.configuration.log import create_default_logger
 
 class StandardModel(object):
 
-    def __init__(self):
+    def __init__(self, logger=None):
+        # If we're in stand alone mode (testing)
+        if not logger:
+            self.logger = create_default_logger(__name__)
+        # If this is called from transform stage
+        else:
+            self.logger = logger
+
         self.concept_graph = None
-        self.logger = None
 
     def transform(self, target_api_config, target_concepts_to_transform=None):
         """
@@ -142,14 +148,6 @@ class StandardModel(object):
 
         :param df_dict: a dict of Pandas DataFrames keyed by source URL
         """
-        # If we're in stand alone mode (testing)
-        if not logger:
-            self.logger = create_default_logger(__name__)
-
-        # If this is called from transform stage
-        else:
-            self.logger = logger
-
         # Create an empty concept graph
         self.concept_graph = ConceptGraph(logger=logger)
 
