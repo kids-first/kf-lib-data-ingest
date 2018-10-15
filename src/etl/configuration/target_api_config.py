@@ -16,14 +16,14 @@ This module must have the following required attributes:
 All but the first of these required attributes must be dicts.
 
     - target_service_entity_id
-    A string containing the name of the unique identifier atttribute a
-    target entity. This would likely be a primary key in the target service
-    and the attribute used in CRUD operations for this entity.
+      A string containing the name of the unique identifier atttribute a
+      target entity. This would likely be a primary key in the target service
+      and the attribute used in CRUD operations for this entity.
 
     - target_concepts
-        A dict of dicts. Each inner dict is a target concept dict, which
-        contains mappings of target concept properties to standard concept
-        attributes.
+      A dict of dicts. Each inner dict is a target concept dict, which
+      contains mappings of target concept properties to standard concept
+      attributes.
 
         A target concept dict has the following schema:
 
@@ -36,26 +36,60 @@ All but the first of these required attributes must be dicts.
                 - links
 
         {
-            'standard_concept': <reference to the standard concept class>,
-            'properties': {
-                '<target concept property>': <standard concept attribute>,
-                ...
+            'standard_concept':
+                type: etl.transform.standard_model.concept_schema.CONCEPT
+                example: CONCEPT.PARTICIPANT
+                description: the standard concept that this target concept
+                maps to.
+
+            'properties':
+                type: dict
+
+                    key: a string containing the target concept property
+                    value: a standard concept attribute from
+                    etl.transform.standard_model.concept_schema
+
+                example:
+                {
+                    'external_id': CONCEPT.PARTICIPANT.ID,
+                    'race': CONCEPT.PARTICIPANT.RACE
+                }
+                description: the target concept property mappings to standard
+                concept attributes
             },
-            links: {
-                <target concept property>: <standard concept id attribute>
-            },
-            endpoint: <string containing CRUD endpoint for target concept>
+            links:
+                type: dict
+
+                    key: a string containing the target concept property
+                    value: a standard concept ID attribute from
+                    etl.transform.standard_model.concept_schema
+
+                example:
+                {
+                    'family_id': CONCEPT.FAMILY.ID
+                }
+                description: ID properties which map to standard concept ID
+                attributes. These represent foreign keys in the target
+                model.
+            ,
+            'endpoint':
+                type: string
+                example: '/participants'
+                description: the CRUD endpoint for the concept in the target
+                service
         }
 
         It may seem unecessary to separate the mappings into
         'properties', and 'links', but this is important because the
         mappings in 'links' are treated differently than those in
-        'properties'. The value in a key, value pair under 'links',
-        during the transform stage, will be looked up in the standard model,
-        and then during the load stage be translated into a target model ID.
-        A value in a key, value pair under 'properties', during the transform
-        stage, will be looked up in the standard model and then kept as is
-        during the load stage.
+        'properties'.
+
+        The value in a key, value pair under 'links', during the transform
+        stage, will be looked up in the standard model, and then during the
+        load stage be translated into a target model ID. A value in a key,
+        value pair under 'properties', during the transform stage, will be
+        looked up in the standard model and then kept as is during the load
+        stage.
 
         For example, after transformation and before loading, the 'links' dict
         could be:
@@ -64,16 +98,17 @@ All but the first of these required attributes must be dicts.
                 'participant_id': CONCEPT|PARTICIPANT|ID|P1
             }
         And during the loading stage the 'links' dict will be translated into:
+
             'links': {
                 'participant_id': PT_00001111
             }
 
     - relationships
-        A dict of sets which must represent a directed acyclic graph in the
-        form of an adjacency list. The relationships graph codifies the
-        parent-child relationships between target concepts. A key in the
-        relationships dict should be a string containing a parent target
-        concept, and the values should be a set of child target concepts.
+      A dict of sets which must represent a directed acyclic graph in the
+      form of an adjacency list. The relationships graph codifies the
+      parent-child relationships between target concepts. A key in the
+      relationships dict should be a string containing a parent target
+      concept, and the values should be a set of child target concepts.
 """
 
 import networkx as nx
@@ -102,8 +137,8 @@ class TargetAPIConfig(PyModuleConfig):
 
     def _validate(self):
         """
-        Validate that the target API config Python module has all required
-        attributes and valid content
+        Validate that the target API config Python module has all the
+        required content with the right types
         """
         self._validate_required_attrs()
         self._validate_target_concepts()
@@ -114,7 +149,6 @@ class TargetAPIConfig(PyModuleConfig):
         Check that all module level required attributes are present and are
         of the correct form
         """
-        # Check that all module required attributes are present
         required_dict_attrs = ['target_concepts', 'relationships']
         required = required_dict_attrs + ['target_service_entity_id']
         for attr in required:
@@ -129,14 +163,14 @@ class TargetAPIConfig(PyModuleConfig):
                           for attr in required_dict_attrs]
         assert_all_safe_type(required_dicts, dict)
 
-        # Check that target_service_entity_id is a str
+        # Check that target_service_entity_id is a string
         assert_safe_type(self.contents.target_service_entity_id, str)
 
     def _validate_target_concepts(self):
         """
         Validate target concept dicts in target_concepts
 
-        Check the format and content of each dict
+        Check the format and content of each dict.
         """
         # Check that all required keys are present
         self._validate_required_keys()
@@ -144,7 +178,7 @@ class TargetAPIConfig(PyModuleConfig):
         # Check that all mapped concepts are all valid standard concepts
         self._validate_mapped_standard_concepts()
 
-        # Check concept attribute mappings
+        # Check that all properties are mapped to valid standard concept attrs
         self._validate_target_concept_attr_mappings()
 
         # Check that all endpoints are strings
@@ -152,7 +186,10 @@ class TargetAPIConfig(PyModuleConfig):
 
     def _validate_required_keys(self):
         """
-        Check that every target concept dict has the required keys
+        Check that every target concept dict has the required keys:
+            - standard_concept
+            - properties
+            - endpoint
         """
         target_concepts = self.contents.target_concepts
 
@@ -166,7 +203,11 @@ class TargetAPIConfig(PyModuleConfig):
 
     def _validate_mapped_standard_concepts(self):
         """
-        Check that all mapped concepts are valid, existing standard concepts
+        Check that each target dict has a valid mapping for
+        standard_concept.
+
+        The mapped value must be an existing standard concept
+        in etl.transform.standard_model.concept_schema
         """
         mapped_concepts = [target_concept_dict.get('standard_concept')
                            for target_concept_dict
@@ -184,18 +225,20 @@ class TargetAPIConfig(PyModuleConfig):
         Validate target concept attribute mappings
 
         All target concept attributes must be strings
-        All mapped concept attributes must be valid standard concept attributes
+        All mapped values must be valid standard concept attributes in
+        etl.transform.standard_model.concept_schema
         """
         target_concepts = self.contents.target_concepts
         keys = {'properties', 'links'}
+
+        # For each target_concept_dict
         for target_concept, target_concept_dict in target_concepts.items():
             for key, attr_mappings in target_concept_dict.items():
                 if key not in keys:
                     continue
 
-                # Check attribute mappings
                 for target_attr, mapped_attr in attr_mappings.items():
-                    # Are all target concept attrs strings
+                    # Are all keys of 'properties' and 'links' strings
                     try:
                         assert_safe_type(target_attr, str)
                     except TypeError as e:
@@ -204,8 +247,7 @@ class TargetAPIConfig(PyModuleConfig):
                             'target concept attributes must be strings!'
                         ) from e
 
-                    # Are all mapped concept attributes valid
-                    # standard concept attrs?
+                    # Are all mapped values valid standard concept attributes?
                     if mapped_attr is None:
                         continue
                     mapped_attr = str(mapped_attr)
@@ -219,7 +261,7 @@ class TargetAPIConfig(PyModuleConfig):
 
     def _validate_endpoints(self):
         """
-        Check that all endpoints are of type str
+        Check that all endpoints are strings
         """
         endpoints = [target_concept_dict.get('endpoint')
                      for target_concept_dict
@@ -235,8 +277,10 @@ class TargetAPIConfig(PyModuleConfig):
         """
         Validate relationships dict
 
-        Values of keys should be sets and the graph which the relationships
-        dict contains must be a directed acyclic graph.
+        Keys should be existing standard concepts
+        Values should be sets containing existing standard concepts
+        The relationships dict is an adjacency list which represents a directed
+        acyclic graph. There should be no cycles in the graph.
         """
         relationships = self.contents.relationships
 
@@ -282,12 +326,13 @@ class TargetAPIConfig(PyModuleConfig):
 
     def _build_relationship_graph(self, relationships):
         """
-        Build a networkX directed graph from the relationships dict which
-        represents an adjacency list.
+        Build a networkX directed graph (DiGraph) from the relationships dict
+        which is in the form of an adjacency list.
 
         This graph codifies the parent-child relationships among target model
-        concepts. It is later used in the transform stage when searching
-        the concept graph for the value of a target concept attribute.
+        concepts. It is later used in the transform stage as a set of
+        restrictions when searching the concept graph for the value of a
+        target concept attribute.
         """
         graph = nx.DiGraph()
 
