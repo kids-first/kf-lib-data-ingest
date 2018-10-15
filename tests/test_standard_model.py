@@ -151,6 +151,7 @@ def test_transform_all(target_api_config, random_model):
                                   target_concepts_to_transform=None)
     all_target_concepts = target_api_config.concept_schemas.keys()
     target_concepts_w_data = ['family', 'participant', 'biospecimen']
+
     for target_concept, output in data.items():
         if target_concept in target_concepts_w_data:
             assert len(output) > 0
@@ -180,8 +181,7 @@ def test_transform(target_api_config, random_model):
     for target_concept, instances in data.items():
         # Get standard concept this target concept maps to
         schema = target_api_config.concept_schemas[target_concept]
-        standard_concept_id_str = list(schema['id'].values())[0]
-        standard_concept = ConceptNode(standard_concept_id_str, '').concept
+        standard_concept = schema['standard_concept']._CONCEPT_NAME
 
         # Check counts
         expected_count = 0
@@ -192,7 +192,7 @@ def test_transform(target_api_config, random_model):
 
         # Check content
         for instance in instances:
-            assert instance['id']['kf_id']
+            assert instance['id']
             if target_concept == 'participant':
                 assert instance['properties']['race'] is not None
             if target_concept == 'biospecimen':
@@ -210,15 +210,15 @@ def test_transform(target_api_config, random_model):
 
                              # Participant, Family F1
                              (CONCEPT.PARTICIPANT._CONCEPT_NAME,
-                                 f'{CONCEPT.FAMILY.ID}{DELIMITER}F1', False),
+                              f'{CONCEPT.FAMILY.ID}{DELIMITER}F1', False),
 
                              # Participant, Biospecimen B1
                              (CONCEPT.PARTICIPANT._CONCEPT_NAME,
-                                 f'{CONCEPT.BIOSPECIMEN.ID}{DELIMITER}B1', True),
+                              f'{CONCEPT.BIOSPECIMEN.ID}{DELIMITER}B1', True),
 
                              # Participant, Biospecimen B2
                              (CONCEPT.PARTICIPANT._CONCEPT_NAME,
-                                 f'{CONCEPT.BIOSPECIMEN.ID}{DELIMITER}B1', True)
+                              f'{CONCEPT.BIOSPECIMEN.ID}{DELIMITER}B1', True)
 
                          ]
                          )
@@ -329,6 +329,3 @@ def test_general_find(target_api_config, random_data_df_dict):
             for link in links.get(concept, []):
                 value = g.find_attribute_value(node, link, rg)
                 assert value == row[link]
-
-# TODO - test the relation graph - what if a node doesn't exist and you
-# try to get its ancestors and descendants in _is_neighbor_valid

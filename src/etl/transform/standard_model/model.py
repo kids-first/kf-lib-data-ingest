@@ -3,7 +3,6 @@ from copy import deepcopy
 import pandas as pd
 
 from etl.transform.standard_model.graph import ConceptGraph
-from etl.transform.standard_model.concept_schema import concept_from
 from etl.configuration.log import create_default_logger
 
 
@@ -76,20 +75,19 @@ class StandardModel(object):
         concept_instances = []
 
         # Get the standard concept mapped to this target concept
-        standard_concept_id_str = list(schema['id'].values())[0]
-        standard_concept = concept_from(standard_concept_id_str)
+        standard_concept_str = schema['standard_concept']._CONCEPT_NAME
 
         # Get the ID nodes for this standard concept from the concept graph
-        id_node_keys = self.concept_graph.id_index.get(standard_concept)
+        id_node_keys = self.concept_graph.id_index.get(standard_concept_str)
         if not id_node_keys:
             self.logger.warning(
                 f'The concept graph does not contain any '
-                f'"{standard_concept}" ID nodes in the graph! '
-                f'Nothing to transform for "{standard_concept}"')
+                f'"{standard_concept_str}" ID nodes in the graph! '
+                f'Nothing to transform for "{standard_concept_str}"')
             return concept_instances
 
-        for node_key in id_node_keys:
-            output = self._build_concept_instance(node_key, schema,
+        for id_node_key in id_node_keys:
+            output = self._build_concept_instance(id_node_key, schema,
                                                   relation_graph)
             concept_instances.append(output)
 
@@ -112,8 +110,7 @@ class StandardModel(object):
         # Get ConceptNode
         id_node = self.concept_graph.get_node(id_node_key)
         # Fill in id
-        for key, concept_attr in output.get('id').items():
-            output['id'][key] = id_node.value
+        output['id'] = id_node.value
 
         # Find values for properties
         for key, concept_attr in output.get('properties').items():
