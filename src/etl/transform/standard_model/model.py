@@ -19,22 +19,22 @@ class StandardModel(object):
 
         Output the transformed data in a dict where a key is the target
         concept name and the corresponding value is a list of dicts
-        representing the target concept instances.
+        each of which represent a target concept instance.
 
         :param target_api_config: A TargetAPIConfig object containing all
-        necessary configuration (defined target concept schemas,
-        concept relations, etc.) needed to perform the transformation.
+        necessary configuration (target concept schemas, concept relations,
+        etc.) needed to perform the transformation.
         :param target_concepts_to_transform: List of strings containing
-        target concept names. Only target concepts in this list will be
-        extracted from the standard model.
+        target concept names. Transformation will only occur for thse target
+        concepts.
         """
-        # Use whole concept set if concepts not supplied
+        transformed_data = {}
+
+        # Use whole concept set if target concepts are not supplied
         if not target_concepts_to_transform:
             target_concepts_to_transform = (target_api_config
                                             .concept_schemas.keys())
 
-        # Output
-        transformed_data = {}
         # The schemas of the target concepts
         schemas = target_api_config.concept_schemas
         # The networkx graph containing how target concepts are related
@@ -42,7 +42,7 @@ class StandardModel(object):
 
         # For each supplied target concept
         for target_concept in target_concepts_to_transform:
-            # Supplied target concept not found in target api config
+            # Not found in target api config
             if target_concept not in schemas:
                 fp = target_api_config.config_filepath
                 self.logger.warning(
@@ -86,6 +86,7 @@ class StandardModel(object):
                 f'Nothing to transform for "{standard_concept_str}"')
             return concept_instances
 
+        # Build a target concept instance for each id
         for id_node_key in id_node_keys:
             output = self._build_concept_instance(id_node_key, schema,
                                                   relation_graph)
@@ -97,6 +98,10 @@ class StandardModel(object):
         """
         Build an instance of the target model concept defined by schema
 
+        To do this, make a copy of the target concept schema. Then for each
+        property in the target concept schema, try to find the value for that
+        property in the concept graph.
+
         :param id_node_key: a ConceptNode.key string containing the ID of
         the target concept instance in the concept graph
         :param schema: a dict containing the property schema for the
@@ -107,9 +112,10 @@ class StandardModel(object):
         # Make copy of schema
         output = deepcopy(schema)
 
-        # Get ConceptNode
+        # Get ConceptNode from concept graph given the node's ID
         id_node = self.concept_graph.get_node(id_node_key)
-        # Fill in id
+
+        # Fill in the mapped id value
         output['id'] = id_node.value
 
         # Find values for properties
