@@ -1,6 +1,6 @@
 import ast
 import inspect
-
+import types
 
 __UNNAMED_OBJECT = 'unnamed object of type'
 __ALL_SIGNIFIER = 'all items in '
@@ -217,11 +217,15 @@ def _raise_error(safe_types, is_container=False):
 
     if is_container:
         name = __ALL_SIGNIFIER + name
+
+    new_tb = types.TracebackType(
+        None, caller.frame, caller.frame.f_lasti, caller.frame.f_lineno
+    )
     raise TypeError(
         '{}:{}:{} requires {} to be one of these types: {}'
         .format(caller.filename, caller.lineno, caller.function, name,
                 type_names)
-    )
+    ).with_traceback(new_tb)
 
 
 def assert_safe_type(val, *safe_types):
