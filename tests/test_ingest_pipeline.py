@@ -12,7 +12,7 @@ def test_ingest_cmd_missing_required_args():
     """
     Test ingest CLI when required arguments are missing
 
-    Req args: 
+    Required args:
         Path to dataset_ingest_config.yml or dir containing the file
     """
     runner = CliRunner()
@@ -24,7 +24,7 @@ def test_ingest_cmd_missing_required_args():
 
 def test_ingest():
     """
-    Test ingest runs successfully with correct params
+    Test that ingest runs successfully with correct params
     """
     path = os.path.join(TEST_DATA_DIR,
                         'test_study', 'dataset_ingest_config.yml')
