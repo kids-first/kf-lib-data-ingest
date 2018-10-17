@@ -15,7 +15,8 @@ def cli():
     """
     A CLI utility for ingesting study data into the Kids First ecosystem.
 
-    This method not need to be implemented. cli is the root group that all commands will implicitly be part of
+    This method not need to be implemented. cli is the root group that all
+    subcommands will implicitly be part of
     """
     pass
 
