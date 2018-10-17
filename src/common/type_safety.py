@@ -172,6 +172,16 @@ def safe_type_check(val, *safe_types):
     return isinstance(val, tuple(types))
 
 
+def all_safe_type_check(val_list, *safe_types):
+    """
+    Like safe_type_check but for multiple values in a list.
+    """
+    for val in val_list:
+        if not safe_type_check(val, *safe_types):
+            return False
+    return True
+
+
 def _raise_error(safe_types, is_container=False):
     """
     Raise a fancy error message that contains details like
@@ -246,6 +256,5 @@ def assert_all_safe_type(val_list, *safe_types):
         any val in val_list.
     """
     assert safe_types
-    for val in val_list:
-        if not safe_type_check(val, *safe_types):
-            _raise_error(safe_types, is_container=True)
+    if not all_safe_type_check(val_list, *safe_types):
+        _raise_error(safe_types, is_container=True)
