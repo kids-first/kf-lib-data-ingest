@@ -1,12 +1,10 @@
 import os
+
 import pytest
-from jsonschema.exceptions import ValidationError
 
 from conftest import TEST_DATA_DIR
-from etl.configuration.base_config import (
-    AbstractConfig,
-    YamlConfig
-)
+from etl.configuration.base_config import (AbstractConfig,
+                                           ConfigValidationError, YamlConfig)
 
 
 def test_config_abs_cls():
@@ -41,8 +39,12 @@ def test_yaml_config():
     schema_path = os.path.join(TEST_DATA_DIR, 'yaml_schema.yml')
     config_path = os.path.join(TEST_DATA_DIR, 'invalid_yaml_config.yml')
 
-    with pytest.raises(ValidationError):
-        YamlConfig(config_path, schema_path=schema_path)
+    with pytest.raises(ConfigValidationError):
+        try:
+            YamlConfig(config_path, schema_path=schema_path)
+        except ConfigValidationError as e:
+            assert config_path in str(e)
+            raise
 
     config_path = os.path.join(TEST_DATA_DIR, 'valid_yaml_config.yml')
     YamlConfig(config_path, schema_path=schema_path)
