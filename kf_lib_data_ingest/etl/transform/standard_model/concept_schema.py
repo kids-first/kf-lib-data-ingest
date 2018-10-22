@@ -1,4 +1,4 @@
-import inspect
+from common.misc import get_cls_attrs
 
 DELIMITER = '|'
 
@@ -139,20 +139,6 @@ def compile_schema():
     return property_paths
 
 
-def _get_cls_attrs(cls):
-    """
-    Get class attributes including inherited attributes
-    """
-    # Get non function attributes
-    attributes = inspect.getmembers(cls, lambda x: not(inspect.isroutine(x)))
-
-    # Get non-hidden attrs
-    attributes = [a for a in attributes
-                  if not(a[0].startswith('__') and
-                         a[0].endswith('__'))]
-    return dict(attributes)
-
-
 def _set_cls_attrs(node, prev_node, property_path, property_paths):
     """
     Recursive method to traverse a class hierarchy and set class attributes
@@ -177,7 +163,7 @@ def _set_cls_attrs(node, prev_node, property_path, property_paths):
         # Add class name to property path
         property_path.append(str(node.__name__))
         # Iterate over class attrs
-        for attr_name, value in _get_cls_attrs(node).items():
+        for attr_name, value in get_cls_attrs(node).items():
             # Recurse
             if callable(value):
                 _set_cls_attrs(value, node,
