@@ -4,6 +4,7 @@ import random
 import pytest
 
 from conftest import TEST_ROOT_DIR
+from etl.configuration.base_config import ConfigValidationError
 from etl.configuration.target_api_config import TargetAPIConfig
 from etl.transform.standard_model.concept_schema import CONCEPT
 KIDS_FIRST_CONFIG = os.path.join(os.path.dirname(TEST_ROOT_DIR), 'src',
@@ -38,7 +39,6 @@ def test_missing_req_attrs(kids_first_config, test_attr):
 
     with pytest.raises(AttributeError) as e:
         kids_first_config._validate_required_attrs()
-        assert 'TargetAPIConfig validation failed' in str(e)
         assert 'Missing one of the required keys' in str(e)
 
 
@@ -135,7 +135,7 @@ def test_mapped_target_concept_attr(kids_first_config):
     properties[5] = CONCEPT.STUDY.ID
 
     # Test
-    with pytest.raises(Exception) as e:
+    with pytest.raises(TypeError) as e:
         kids_first_config._validate_target_concept_attr_mappings()
         assert 'All target concept attributes must be strings' in str(e)
 
@@ -152,8 +152,8 @@ def test_endpoints(kids_first_config):
     target_concepts[target_concept]['endpoint'] = 5
 
     # Test
-    with pytest.raises(Exception) as e:
-        kids_first_config._validate_target_concept_attr_mappings()
+    with pytest.raises(TypeError) as e:
+        kids_first_config._validate_endpoints()
         assert 'All values in "endpoints" dict must be strings' in str(e)
 
 
@@ -168,7 +168,7 @@ def test_relationships_types_and_values(kids_first_config):
     _saved = relationships[parent_concept]
 
     relationships[parent_concept] = 'bar'
-    with pytest.raises(Exception) as e:
+    with pytest.raises(TypeError) as e:
         kids_first_config._validate_relationships()
         assert 'All values in relationships dict must be sets.' in str(e)
     # Reset
@@ -185,7 +185,7 @@ def test_relationships_types_and_values(kids_first_config):
 
     # Test non-standard_concept set member
     relationships[parent_concept] = {'baz'}
-    with pytest.raises(Exception) as e:
+    with pytest.raises(ValueError) as e:
         kids_first_config._validate_relationships()
         assert ('Set values in relationships dict must be one of the standard '
                 'concepts.') in str(e)

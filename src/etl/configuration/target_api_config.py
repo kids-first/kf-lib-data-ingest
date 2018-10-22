@@ -95,12 +95,12 @@ All but the first of these required attributes must be dicts.
         could be:
 
             'links': {
-                'participant_id': CONCEPT|PARTICIPANT|ID|P1
+                'participant_id': 'CONCEPT|PARTICIPANT|ID|P1'
             }
         And during the loading stage the 'links' dict will be translated into:
 
             'links': {
-                'participant_id': PT_00001111
+                'participant_id': 'PT_00001111'
             }
 
     - relationships
@@ -154,8 +154,7 @@ class TargetAPIConfig(PyModuleConfig):
         for attr in required:
             if not hasattr(self.contents, attr):
                 raise AttributeError(
-                    f'TargetAPIConfig validation failed! Missing '
-                    f'one of the required keys: {attr}')
+                    f'Missing one of the required keys: {attr}')
 
         # Check that required attributes that are supposed to be dicts
         # are actually dicts
@@ -198,7 +197,7 @@ class TargetAPIConfig(PyModuleConfig):
             for required_key in required_keys:
                 if required_key not in target_concept_dict.keys():
                     raise KeyError(
-                        'TargetAPIConfig validation failed! Missing one of '
+                        f'Dict for {target_concept} is missing one of '
                         f'target concept dict required keys: {required_key}')
 
     def _validate_mapped_standard_concepts(self):
@@ -216,9 +215,8 @@ class TargetAPIConfig(PyModuleConfig):
         for mapped_concept in mapped_concepts:
             if mapped_concept not in concept_set:
                 raise ValueError(
-                    'TargetAPIConfig validation failed! The mapped '
-                    f'standard concept: {mapped_concept} does not exist in '
-                    'the standard concept set!')
+                    f'The mapped standard concept: {mapped_concept} does not '
+                    'exist in the standard concept set!')
 
     def _validate_target_concept_attr_mappings(self):
         """
@@ -237,24 +235,19 @@ class TargetAPIConfig(PyModuleConfig):
                 if key not in keys:
                     continue
 
-                for target_attr, mapped_attr in attr_mappings.items():
-                    # Are all keys of 'properties' and 'links' strings
-                    try:
-                        assert_safe_type(target_attr, str)
-                    except TypeError as e:
-                        raise Exception(
-                            f'TargetAPIAll validation failed! All '
-                            'target concept attributes must be strings!'
-                        ) from e
+                # Are all keys of 'properties' and 'links' strings
+                assert_all_safe_type(attr_mappings.keys(), str)
 
-                    # Are all mapped values valid standard concept attributes?
+                # Are all mapped values valid standard concept attributes?
+                for target_attr, mapped_attr in attr_mappings.items():
                     if mapped_attr is None:
                         continue
+
                     mapped_attr = str(mapped_attr)
                     if mapped_attr not in concept_property_set:
                         raise ValueError(
-                            'TargetAPIConfig validation failed! '
-                            'all target concept attributes must be mapped to '
+                            f'Error in dict for {target_concept} '
+                            'All target concept attributes must be mapped to '
                             'an existing standard concept attribute. Mapped '
                             f'attribute {mapped_attr} for target attr '
                             f'{target_concept}.{target_attr} does not exist')
@@ -266,12 +259,8 @@ class TargetAPIConfig(PyModuleConfig):
         endpoints = [target_concept_dict.get('endpoint')
                      for target_concept_dict
                      in self.contents.target_concepts.values()]
-        try:
-            assert_all_safe_type(endpoints, str)
-        except TypeError as e:
-            raise Exception(
-                'TargetAPIConfig validation failed! All values in "endpoints" '
-                'dict must be strings.') from e
+
+        assert_all_safe_type(endpoints, str)
 
     def _validate_relationships(self):
         """
@@ -285,27 +274,21 @@ class TargetAPIConfig(PyModuleConfig):
         relationships = self.contents.relationships
 
         # All values in relationships should be sets
-        try:
-            assert_all_safe_type(relationships.values(), set)
-        except TypeError as e:
-            raise Exception(
-                'TargetAPIConfig validation failed! All values in '
-                'relationships dict must be sets.') from e
+        assert_all_safe_type(relationships.values(), set)
 
         # All keys and values in sets should be existing standard concepts
         for parent_concept, child_concepts in relationships.items():
             if parent_concept not in concept_set:
                 raise ValueError(
-                    'TargetAPIConfig validation failed! Keys in '
-                    'relationships dict must be one of the standard '
-                    'concepts. {parent_concept} is not a standard concept.')
+                    'Keys in relationships dict must be one of the standard '
+                    f'concepts. {parent_concept} is not a standard concept.')
 
             for child_concept in child_concepts:
                 if child_concept not in concept_set:
                     raise ValueError(
-                        'TargetAPIConfig validation failed! Set values in '
-                        'relationships dict must be one of the standard '
-                        'concepts. {child_concept} is not a standard concept.')
+                        'Set values in relationships dict must be one of the '
+                        f'standard concepts. {child_concept} is not a standard'
+                        ' concept.')
 
         # Check for cycles
         # It's weird that find_cycle raises an exception if no cycle is found,
@@ -320,9 +303,9 @@ class TargetAPIConfig(PyModuleConfig):
         # A cycle was found
         else:
             raise ValueError(
-                'TargetAPIConfig validation failed! Invalid `relationships` '
-                'graph! `relationships` MUST be a directed acyclic graph. '
-                f'The cycle: {edges} was detected in the graph.')
+                'Invalid `relationships` graph! `relationships` MUST be a '
+                f'directed acyclic graph. The cycle: {edges} was detected in '
+                'the graph.')
 
     def _build_relationship_graph(self, relationships):
         """
