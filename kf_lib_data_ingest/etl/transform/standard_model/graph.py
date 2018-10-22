@@ -1,3 +1,5 @@
+from collections import deque
+
 import networkx as nx
 
 from common.misc import write_json
@@ -237,7 +239,7 @@ class ConceptGraph(object):
         # Keep track of nodes visited
         visited = set([start_node.key])
         # Keep track of nodes to process
-        queue = [start_node]
+        queue = deque([start_node])
 
         # Check directly connected concept ID nodes before searching graph
         # Value for a given concept attribute is likely to be directly
@@ -250,7 +252,7 @@ class ConceptGraph(object):
 
         # Start breadth first search
         while queue:
-            current = queue.pop(0)
+            current = queue.popleft()
 
             # Found the node with the value for this concept attr
             if current.concept_attribute_pair == concept_attribute_str:
@@ -286,8 +288,8 @@ class ConceptGraph(object):
 
         Validity
         *********
-        A neighbor is valid if it's concept is not an ancestor concept of
-        node_concept. Ancestory is defined in relation_graph, which stores
+        A neighbor is valid if its concept is not an ancestor concept of
+        node_concept. Ancestry is defined in relation_graph, which stores
         the hierarchical relationships between concepts.
 
             Example 1 - Is neighbor valid, given:
@@ -335,29 +337,24 @@ class ConceptGraph(object):
         :param relation_graph: A networkx.DiGraph governing how the graph can
         be traversed when searching for the value of a concept attribute.
         """
-        # Ancestor concepts of node_concept
-        ancestors = [ancestor for ancestor
-                     in nx.ancestors(relation_graph, node_concept)]
 
         # Valid - the neighbor is not in the set of ancestors
-        if neighbor.concept not in set(ancestors):
+        if neighbor.concept not in nx.ancestors(relation_graph, node_concept):
             return True
 
         # Check if the neighbor is connected to other nodes with the same
         # concept as node_concept or if it is connected to nodes
         # with a concept that is one of the descendant concepts of node_concept
-        descendants = [descendant for descendant
-                       in nx.descendants(relation_graph, node_concept)]
-
-        restrictions = set(descendants + [node_concept])
+        descendants = nx.descendants(relation_graph, node_concept)
+        restrictions = descendants | {node_concept}
 
         # Start the breadth first search
         visited = set([neighbor.key])
-        queue = [neighbor]
+        queue = deque([neighbor])
 
         while queue:
             # Is this a restricted concept?
-            current = queue.pop(0)
+            current = queue.popleft()
             if current.concept in restrictions:
                 return False
 

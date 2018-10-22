@@ -186,7 +186,3 @@ class StandardModel(object):
                     self.concept_graph.connect_attribute_node(
                         prop_node, id_nodes
                     )
-
-
-if __name__ == '__main__':
-    pass

@@ -84,19 +84,16 @@ def plotly_concept_graph(G, file_name='concept_graph', notebook_mode=False):
 
     # Generate iplot
     fig = go.Figure(data=[edge_trace, node_trace],
-                    layout=go.Layout(
-        title='<br>Concept Graph',
-        titlefont=dict(size=16),
-        showlegend=False,
-        hovermode='closest',
-        margin=dict(b=20, l=5, r=5, t=40),
-        xaxis=dict(showgrid=False, zeroline=False,
-                   showticklabels=False),
-        yaxis=dict(showgrid=False, zeroline=False,
-                   showticklabels=False),
-        annotations=arrow_annotations
-    )
-    )
+                    layout=go.Layout(title='<br>Concept Graph',
+                                     titlefont=dict(size=16),
+                                     showlegend=False,
+                                     hovermode='closest',
+                                     margin=dict(b=20, l=5, r=5, t=40),
+                                     xaxis=dict(showgrid=False, zeroline=False,
+                                                showticklabels=False),
+                                     yaxis=dict(showgrid=False, zeroline=False,
+                                                showticklabels=False),
+                                     annotations=arrow_annotations))
 
     if notebook_mode:
         plotly.offline.iplot(fig, filename=file_name)

@@ -46,10 +46,8 @@ class TransformStage(IngestStage):
         follows the format outlined above.
         """
         try:
-            # Check that df_dict is a dict
+            # Check types
             assert_safe_type(data_dict, dict)
-
-            # Check that keys are strings
             assert_all_safe_type(data_dict.keys(), str)
 
             # Check that values are tuples of (string, DataFrames)

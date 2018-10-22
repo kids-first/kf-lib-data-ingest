@@ -54,7 +54,7 @@ When searching for a property, P of concept C1:
 Do BFS in search for P:
     For neighbor in all neighbors of C1:
         Evaluate whether to add neighbor to list of nodes to traverse:
-            Is neighbor a ancestor of C1 and is there a restriction for it?
+            Is neighbor an ancestor of C1 and is there a restriction for it?
                 No - it is valid
                 Yes - check whether it is valid
                     If neighbor is connected to any other nodes in the set
