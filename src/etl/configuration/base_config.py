@@ -1,6 +1,5 @@
 import os
 import jsonschema
-from jsonschema.exceptions import ValidationError
 from abc import (
     ABC,
     abstractmethod
@@ -12,6 +11,10 @@ from common.misc import (
 )
 
 
+class ConfigValidationError(Exception):
+    pass
+
+
 class AbstractConfig(ABC):
 
     def __init__(self, filepath, **kwargs):
@@ -19,7 +22,12 @@ class AbstractConfig(ABC):
         if not os.path.isfile(filepath):
             raise FileNotFoundError('File {} not found'.format(filepath))
         self.contents = self._read_file(filepath)
-        self._validate(**kwargs)
+        try:
+            self._validate(**kwargs)
+        except Exception as e:
+            raise ConfigValidationError(
+                f'{self.config_filepath} failed validation'
+            ) from e
 
     @abstractmethod
     def _read_file(self, filepath):
