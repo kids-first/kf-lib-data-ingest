@@ -1,6 +1,7 @@
 Kids First Data Ingest Libraries
 ==============================
 
+
 The Kids First Data Ingest Libraries include both an ingestion library and CLI. The library is composed of a set of components that standardize the transformation and ingestion of datasets into target services. A CLI is provided for users of the ingestion pipeline. Users will run ingestions for Kids First studies into the Kids First Dataservice, which is the only supported target service at this point.
 
 ## Getting Started - Users
@@ -32,9 +33,9 @@ TBD
 
 ### Run
 ```
-> ./src/main.py /path/to/dataset_ingest_config.yml
+> kidsfirst ingest /path/to/dataset_ingest_config.yml
 ```
-Run ./src/main.py -h to see all command line argument descriptions.
+Run kidsfirst -h to see all commands and descriptions.
 
 ### Test
 ```
