@@ -1,15 +1,16 @@
+import json
 from collections import deque
 
 import networkx as nx
 
-from common.misc import write_json
 from etl.transform.standard_model.concept_schema import (
     DELIMITER,
     is_identifier,
     concept_from,
-    concept_attr_from
+    concept_attr_from,
 )
-from kf_lib_data_ingest.common.misc import iterate_pairwise
+
+from common.misc import get_cls_attrs
 from common.misc import iterate_pairwise
 from etl.configuration.log import create_default_logger
 
@@ -452,76 +453,6 @@ class ConceptGraph(object):
 
         return ret
 
-    def export_to_file(self, filepath='./concept_graph.json'):
-        """
-        Serialize the concept graph and write to a JSON file so that it can
-        later be loaded into a neo4j graph database for better
-        visualization/debugging.
-
-        Loading of the graph is done by utilities.neo4j_util.Neo4jGraph.
-
-        Content follows this format:
-        {
-            'nodes': {
-                'node_id_here': {
-                    'label': 'standard concept here',
-                    'attributes': {
-                        'attribute name': 'value of concept attribute',
-                        'is_identifier': True/False
-                        ...
-                    }
-                }
-            },
-            'edges': [
-                {
-                    'label': 'has_property' or 'connected_to',
-                    'attributes': {
-
-                    },
-                    'source': 'node1 id here',
-                    'target': 'node1 id here'
-                }
-            ]
-        }
-
-        :param graph: a networkx.DiGraph containing the standard concept graph
-        :param filepath: the path to the file where the output will be written
-        """
-        output = {'nodes': {}, 'edges': []}
-        # Nodes
-        for key, node_attrs in self.graph.nodes.items():
-            concept_node = node_attrs['object']
-            output['nodes'][key] = {
-                'attributes': {
-                    'name': key,
-                    'concept': concept_node.concept,
-                    'attribute': concept_attr_from(
-                        concept_node.concept_attribute_pair),
-                    'value': concept_node.value,
-                    'is_identifier': concept_node.is_identifier
-                }
-            }
-
-        # Edges
-        for edge in self.graph.edges:
-            source = edge[0]
-            target = edge[1]
-            concept_node = self.graph.nodes[target]['object']
-            if concept_node.is_identifier:
-                label = 'connected_to'
-            else:
-                label = 'has_property'
-            output['edges'].append(
-                {
-                    'label': label,
-                    'source': source,
-                    'target': target
-                }
-            )
-
-        # Write output to file
-        write_json(output, filepath)
-
 
 class ConceptNode(object):
     """
@@ -593,6 +524,43 @@ class ConceptNode(object):
         self.col = str(col)
         self.uid = self._create_uid()
 
+    @classmethod
+    def to_dict(cls, concept_node):
+        """
+        Create a dict where keys are ConceptNode attributes and values are
+        attribute values.
+
+        :param concept_node: the ConceptNode to serialize
+        """
+        return get_cls_attrs(concept_node)
+
+    @classmethod
+    def from_dict(cls, node_dict):
+        """
+        Create an instance of ConceptNode from a dict containing ConceptNode
+        class attributes.
+
+        :param node_dict: dict with where keys must be attributes of
+        ConceptNode
+        """
+        required = {'concept_attribute_pair', 'value'}
+        for req in required:
+            if req not in node_dict:
+                raise KeyError(f'ConceptNode.from_dict requires: {required}')
+
+        n = ConceptNode(node_dict.get('concept_attribute_pair'),
+                        node_dict.get('value'))
+        for key, value in node_dict.items():
+            if key in required:
+                continue
+
+            if hasattr(n, key):
+                setattr(n, key, value)
+            else:
+                raise AttributeError(f'{key} is not an attribute of '
+                                     'ConceptNode.')
+        return n
+
     def _set_is_identifier(self):
         """
         Set is_identifier if the ConceptNode's attribute is in the set
@@ -623,3 +591,61 @@ class ConceptNode(object):
                                    self.col])
         else:
             return None
+
+
+def export_to_gml(concept_graph, filepath='./concept_graph.gml'):
+    """
+    Serialize the concept graph and write to a GML file.
+
+    GML content follows this format:
+        graph [
+          directed 1
+          node [
+            id 0
+            label "CONCEPT|FAMILY|ID|F1"
+            object "{JSON string representing ConceptNode attributes
+                    and values}"
+          ]
+          ..
+          edge [
+            source 0
+            target 1
+          ]
+          ...
+        ]
+
+    :param graph: a networkx.DiGraph containing the standard concept graph
+    :param filepath: the path to the file where the output will be written
+    """
+
+    def serialize(concept_node):
+        """
+        Helper to serialize ConceptNodes in nx graph
+        """
+        if isinstance(concept_node, ConceptNode):
+            n = ConceptNode.to_dict(concept_node)
+            return json.dumps(n)
+        else:
+            return concept_node
+
+    nx.write_gml(concept_graph.graph, filepath, stringizer=serialize)
+
+
+def import_from_gml(filepath='./concept_graph.gml'):
+    """
+    Read in GML file and create a networkx.DiGraph that represents a
+    ConceptGraph
+
+    :param filepath: the path to the GML file
+    """
+
+    def deserialize(node_obj_dict_str):
+        """
+        Helper to deserialize the attribute value string into
+        a ConceptNode
+        """
+        d = json.loads(node_obj_dict_str)
+        node_obj_dict = ConceptNode.from_dict(d)
+        return node_obj_dict
+
+    return nx.read_gml(filepath, destringizer=deserialize)

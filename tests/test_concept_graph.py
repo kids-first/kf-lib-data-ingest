@@ -6,8 +6,9 @@ from kf_lib_data_ingest.etl.transform.standard_model.graph import (
 )
 from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
     CONCEPT,
-    DELIMITER
+    DELIMITER,
 )
+from common.misc import get_cls_attrs
 
 
 @pytest.fixture
@@ -176,3 +177,34 @@ def test_connect_attribute_nodes(concept_graph):
     assert concept_graph.graph.in_degree(tissue_type.key) == 2
     for node in id_nodes:
         assert concept_graph._edge_exists(node, tissue_type)
+
+
+def test_to_from_dict():
+    """
+    Test ConceptNode.to_dict and ConceptNode.from_dict
+    """
+
+    # Test ConceptNode.to_dict
+    n = ConceptNode(CONCEPT.PARTICIPANT.ID, 'P1')
+    node_dict = ConceptNode.to_dict(n)
+    for key, value in node_dict.items():
+        assert getattr(n, key) == value
+
+    # Test ConceptNode.from_dict
+    n_ = ConceptNode.from_dict(node_dict)
+    for attr in get_cls_attrs(n_):
+        assert attr in node_dict
+        assert getattr(n_, attr) == node_dict[attr]
+
+    # Key is a non-existent attr on ConceptNode
+    node_dict['somekey'] = 'foo'
+    with pytest.raises(AttributeError) as e:
+        ConceptNode.from_dict(node_dict)
+        assert 'concept_attribute_pair' in str(e)
+
+    # Missing required key
+    node_dict.pop('somekey')
+    node_dict.pop('concept_attribute_pair')
+    with pytest.raises(KeyError) as e:
+        ConceptNode.from_dict(node_dict)
+        assert 'concept_attribute_pair' in str(e)

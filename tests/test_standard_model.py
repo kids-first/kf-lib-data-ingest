@@ -1,3 +1,5 @@
+import os
+
 import pytest
 import pandas as pd
 
@@ -9,7 +11,11 @@ from etl.transform.standard_model.concept_schema import (
     is_identifier
 )
 from etl.transform.standard_model.model import StandardModel
-from etl.transform.standard_model.graph import ConceptNode
+from etl.transform.standard_model.graph import (
+    ConceptNode,
+    export_to_gml,
+    import_from_gml
+)
 
 
 @pytest.fixture(scope='function')
@@ -56,6 +62,13 @@ def model(data_df_dict):
     # Standard model
     model = StandardModel()
     model.populate(data_df_dict)
+
+    # Export concept graph to gml file
+    from etl.transform.standard_model.graph import export_to_gml
+    from conftest import TEST_DATA_DIR
+
+    export_to_gml(model.concept_graph, os.path.join(TEST_DATA_DIR,
+                                                    'test_graph.gml'))
 
     return model
 
@@ -329,3 +342,23 @@ def test_general_find(target_api_config, random_data_df_dict):
             for link in links.get(concept, []):
                 value = g.find_attribute_value(node, link, rg)
                 assert value == row[link]
+
+
+def test_gml_import_export(tmpdir_factory, model):
+    """
+    Test etl.transform.standard_model.graph.export_to_gml and
+    etl.transform.standard_model.graph.import_from_gml
+    """
+    fn = tmpdir_factory.mktemp("data").join("graph.gml")
+    export_to_gml(model.concept_graph, str(fn))
+
+    assert os.path.isfile(fn)
+
+    imported_graph = import_from_gml(str(fn))
+
+    for node_key in model.concept_graph.graph.nodes:
+        orig_node = model.concept_graph.graph.node.get(node_key)
+        node = imported_graph.node.get(node_key)
+        assert node
+        assert (ConceptNode.to_dict(node['object']) ==
+                ConceptNode.to_dict(orig_node['object']))
