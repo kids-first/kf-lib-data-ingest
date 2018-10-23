@@ -25,14 +25,12 @@ class DataIngestPipeline(object):
         self.dataset_ingest_config = DatasetIngestConfig(
             dataset_ingest_config_path)
 
-        self.operations = {
-            'ingest': self.ingest,
-            'extract': self.extract,
-            'transform': self.transform,
-            'load': self.load
-        }
+        stages = OrderedDict()
+        stages[ExtractStage.operation] = self.extract
+        stages[TransformStage.operation] = self.transform
+        stages[LoadStage.operation] = self.load
 
-    def run(self, operation, *op_args, **op_kwargs):
+    def run(self, operation_str, *op_args, **op_kwargs):
         """
         Entry point for data ingestion. Run ingestion in the top level
         exception handler so that exceptions are logged.
@@ -55,7 +53,10 @@ class DataIngestPipeline(object):
         # Top level exception handler
         # Catch exception, log it to file and console, and exit
         try:
-            operation = self.operations.get(operation)
+            if operation_str == 'ingest':
+                operation = self.ingest
+            else:
+                operation = self.stages.get(operation_str)
             operation(*op_args, **op_kwargs)
         except Exception as e:
             logging.exception(e)
@@ -112,7 +113,14 @@ class DataIngestPipeline(object):
     # TODO Rename the serialize/deserialize stage methods to read/write
 
     def extract(self, *args, **kwargs):
-        pass
+        # Run extract
+        extract_config_paths = self.dataset_ingest_config.extract_config_paths
+        stage = ExtractStage(extract_config_paths)
+        output = stage.run()
+
+        overwrite = kwargs.get('overwrite')
+        output_dir = kwargs.get('output_dir')
+        stage.write_output(output, overwrite, output_dir)
 
     def transform(self, *args, **kwargs):
         pass

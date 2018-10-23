@@ -7,14 +7,25 @@ from abc import (
     abstractmethod
 )
 
+from common.type_safety import assert_safe_type
+
 
 class IngestStage(ABC):
 
+    operation = None
+
     def __init__(self):
         self.logger = logging.getLogger(__name__)
+        IngestStage.operation = self._operation()
+        assert_safe_type(IngestStage.operation, str)
 
     @abstractmethod
     def _run(self, *args, **kwargs):
+        pass
+
+    @abstractmethod
+    def _operation(self):
+        # Return the stage's operation
         pass
 
     @abstractmethod
@@ -35,23 +46,13 @@ class IngestStage(ABC):
         # previously produced at the end of stage run
         pass  # TODO
 
-    def _construct_output_filepath(self):
+    def default_output_dir(self):
         # Construct the filepath of the output using the study's config
         # directory which is basename of
         # self.dataset_ingest_config.config_filepath
         # Store in
         # <study config dir path>/output_cache/<ingest stage class name>
         pass
-
-    def _read_output(self):
-        filepath = self._construct_output_filepath()
-        pass  # TODO
-
-    def _write_output(self, output):
-        filepath = self._construct_output_filepath()
-        serialized = self._serialize_output(output)
-        # TODO
-        # Write serialized output to file
 
     def _log_run(func):
         """

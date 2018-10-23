@@ -4,6 +4,8 @@ from common.stage import IngestStage
 from common.file_retriever import FileRetriever
 from etl.configuration.extract_config import ExtractConfig
 
+from config import EXTRACT_OP
+
 
 class ExtractStage(IngestStage):
 
@@ -13,15 +15,18 @@ class ExtractStage(IngestStage):
                                 for config_filepath
                                 in extract_config_paths]
 
-    def _serialize_output(self, output):
-        # An ingest stage is responsible for serializing the data that is
-        # produced at the end of stage run
+    def write_output(self, output):
+        # An ingest stage is responsible for writing out the data that it
+        # produces via its run method
         pass  # TODO
 
-    def _deserialize_output(self, filepath):
-        # An ingest stage is responsible for deserializing the data that it
-        # previously produced at the end of stage run
+    def read_output(self, filepath):
+        # An ingest stage is responsible for reading the data it wrote out from
+        # its run method
         pass  # TODO
+
+    def _operation(self):
+        return EXTRACT_OP
 
     def _validate_run_parameters(self):
         # Extract stage does not expect any args so we can pass validation

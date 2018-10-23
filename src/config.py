@@ -17,3 +17,8 @@ TARGET_SERVICE_CONFIG_PATH = os.path.join(ROOT_DIR,
 DEFAULT_LOG_FILENAME = 'ingest.log'
 DEFAULT_LOG_LEVEL = logging.INFO
 DEFAULT_LOG_OVERWRITE_OPT = False
+
+INGEST_OP = 'ingest'
+EXTRACT_OP = 'extract'
+TRANSFORM_OP = 'transform'
+LOAD_OP = 'load'

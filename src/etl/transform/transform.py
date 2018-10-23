@@ -3,6 +3,7 @@ Module for transforming source data DataFrames to the standard model.
 """
 from common.errors import InvalidIngestStageParameters
 from common.stage import IngestStage
+from config import TRANSFORM_OP
 
 
 class TransformStage(IngestStage):
@@ -11,15 +12,18 @@ class TransformStage(IngestStage):
         # TODO we dont know what this takes yet
         pass
 
-    def _serialize_output(self, output):
-        # An ingest stage is responsible for serializing the data that is
-        # produced at the end of stage run
+    def write_output(self, output):
+        # An ingest stage is responsible for writing out the data that it
+        # produces via its run method
         pass  # TODO
 
-    def _deserialize_output(self, filepath):
-        # An ingest stage is responsible for deserializing the data that it
-        # previously produced at the end of stage run
+    def read_output(self, filepath):
+        # An ingest stage is responsible for reading the data it wrote out from
+        # its run method
         pass  # TODO
+
+    def _operation(self):
+        return TRANSFORM_OP
 
     def _validate_run_parameters(self, df_dict):
         # Should raise a InvalidIngestStageParameters if any
