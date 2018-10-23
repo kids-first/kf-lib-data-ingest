@@ -26,14 +26,14 @@ def make_ingest_pipeline(config_filepath=None):
     # Create ingest pipeline
     from etl.ingest_pipeline import DataIngestPipeline
     if not config_filepath:
-        data_ingest_config_path = os.path.join(TEST_DATA_DIR,
-                                               'test_study',
-                                               'dataset_ingest_config.yml')
+        dataset_ingest_config_path = os.path.join(TEST_DATA_DIR,
+                                                  'test_study',
+                                                  'dataset_ingest_config.yml')
 
-    p = DataIngestPipeline(data_ingest_config_path)
+    p = DataIngestPipeline(dataset_ingest_config_path)
 
     # Delete any existing log files
-    delete_logs(p.data_ingest_config.log_dir)
+    delete_logs(p.dataset_ingest_config.log_dir)
 
     return p
 
@@ -49,8 +49,8 @@ def ingest_pipeline():
 
     # Teardown
     # Delete the entire log directory
-    if os.path.exists(p.data_ingest_config.log_dir):
-        shutil.rmtree(p.data_ingest_config.log_dir)
+    if os.path.exists(p.dataset_ingest_config.log_dir):
+        shutil.rmtree(p.dataset_ingest_config.log_dir)
 
 
 @pytest.fixture(scope='function')

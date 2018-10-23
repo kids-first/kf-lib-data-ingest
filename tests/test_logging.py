@@ -24,10 +24,10 @@ def test_defaults(ingest_pipeline):
     """
 
     # Test that default log params were set on config
-    log_dir = ingest_pipeline.data_ingest_config.log_dir
+    log_dir = ingest_pipeline.dataset_ingest_config.log_dir
     assert log_dir == default_log_dir
-    assert ingest_pipeline.data_ingest_config.log_level == DEFAULT_LOG_LEVEL
-    assert (ingest_pipeline.data_ingest_config.overwrite_log ==
+    assert ingest_pipeline.dataset_ingest_config.log_level == DEFAULT_LOG_LEVEL
+    assert (ingest_pipeline.dataset_ingest_config.overwrite_log ==
             DEFAULT_LOG_OVERWRITE_OPT)
 
     # Test that ingest.log was not created but ingest-{datetime}.log
@@ -50,9 +50,9 @@ def test_log_dir(ingest_pipeline):
     log_dir = os.path.join(TEST_ROOT_DIR, 'mylogs')
     os.mkdir(log_dir)
     # Update data ingest config
-    ingest_pipeline.data_ingest_config.contents['logging'] = {
+    ingest_pipeline.dataset_ingest_config.contents['logging'] = {
         'log_dir': log_dir}
-    ingest_pipeline.data_ingest_config._set_log_params()
+    ingest_pipeline.dataset_ingest_config._set_log_params()
     # Run and generate logs
     ingest_pipeline.run(target_api_config_path)
 
@@ -66,11 +66,11 @@ def test_overwrite_log(ingest_pipeline):
     """
 
     # Update data ingest config
-    ingest_pipeline.data_ingest_config.contents['logging'] = {
+    ingest_pipeline.dataset_ingest_config.contents['logging'] = {
         'overwrite_log': True}
-    ingest_pipeline.data_ingest_config._set_log_params()
+    ingest_pipeline.dataset_ingest_config._set_log_params()
 
-    log_dir = ingest_pipeline.data_ingest_config.log_dir
+    log_dir = ingest_pipeline.dataset_ingest_config.log_dir
     assert len(os.listdir(log_dir)) == 0
 
     # Run and generate logs
@@ -91,17 +91,17 @@ def test_log_level(ingest_pipeline):
     Test that configuration of logging level works
     """
     # Update data ingest config
-    ingest_pipeline.data_ingest_config.contents['logging'] = {
+    ingest_pipeline.dataset_ingest_config.contents['logging'] = {
         'log_level': 'warning',
         'overwrite_log': True
     }
-    ingest_pipeline.data_ingest_config._set_log_params()
+    ingest_pipeline.dataset_ingest_config._set_log_params()
 
     # Run and generate log
     ingest_pipeline.run(target_api_config_path)
 
     # Check log content
-    log_filepath = os.path.join(ingest_pipeline.data_ingest_config.log_dir,
+    log_filepath = os.path.join(ingest_pipeline.dataset_ingest_config.log_dir,
                                 DEFAULT_LOG_FILENAME)
     with open(log_filepath, 'r') as logfile:
         for line in logfile.readlines():
@@ -123,16 +123,16 @@ def test_log_exceptions(ingest_pipeline):
             raise Exception('An exception occurred during ingestion!')
 
     # Create pipeline instance
-    p = NewPipeline(ingest_pipeline.data_ingest_config.config_filepath)
-    p.data_ingest_config.contents['logging'] = {
+    p = NewPipeline(ingest_pipeline.dataset_ingest_config.config_filepath)
+    p.dataset_ingest_config.contents['logging'] = {
         'overwrite_log': True
     }
-    ingest_pipeline.data_ingest_config._set_log_params()
+    ingest_pipeline.dataset_ingest_config._set_log_params()
 
     # Exception is thrown and log should include exception
     with pytest.raises(Exception):
         p.run(target_api_config_path)
-        log_filepath = os.path.join(p.data_ingest_config.log_dir,
+        log_filepath = os.path.join(p.dataset_ingest_config.log_dir,
                                     DEFAULT_LOG_FILENAME)
 
         with open(log_filepath, 'r') as logfile:

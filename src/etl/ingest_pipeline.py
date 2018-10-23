@@ -25,7 +25,7 @@ class DataIngestPipeline(object):
         :param dataset_ingest_config_path: Path to config file containing all
         parameters for data ingest.
         """
-        self.data_ingest_config = DatasetIngestConfig(
+        self.dataset_ingest_config = DatasetIngestConfig(
             dataset_ingest_config_path)
 
     def run(self, target_api_config_path, use_async=False,
@@ -37,7 +37,7 @@ class DataIngestPipeline(object):
         See _run method for param description
         """
         # Create logger
-        self._get_log_params(self.data_ingest_config)
+        self._get_log_params(self.dataset_ingest_config)
         self.logger = logging.getLogger(__name__)
 
         # Log the start of the run with ingestion parameters
@@ -60,18 +60,18 @@ class DataIngestPipeline(object):
         # Log the end of the run
         self.logger.info('END data ingestion')
 
-    def _get_log_params(self, data_ingest_config):
+    def _get_log_params(self, dataset_ingest_config):
         """
-        Get log params from data_ingest_config
+        Get log params from dataset_ingest_config
 
-        :param data_ingest_config a DatasetIngestConfig object containing
+        :param dataset_ingest_config a DatasetIngestConfig object containing
         log parameters
         """
         # Get log dir
-        log_dir = data_ingest_config.log_dir
+        log_dir = dataset_ingest_config.log_dir
 
         # Get optional log params
-        opt_log_params = {param: getattr(data_ingest_config, param)
+        opt_log_params = {param: getattr(dataset_ingest_config, param)
                           for param in ['overwrite_log', 'log_level']}
 
         # Setup logger
@@ -91,13 +91,13 @@ class DataIngestPipeline(object):
         # Create an ordered dict of all ingest stages and their parameters
         self.stage_dict = OrderedDict()
         self.stage_dict['e'] = (ExtractStage,
-                                self.data_ingest_config.extract_config_paths)
+                                self.dataset_ingest_config.extract_config_paths)
         self.stage_dict['t'] = (TransformStage, )
 
         self.stage_dict['l'] = (
             LoadStage, target_api_config_path,
             target_url, use_async,
-            self.data_ingest_config.target_service_entities)
+            self.dataset_ingest_config.target_service_entities)
 
         # Iterate over stages and execute them
         output = None
