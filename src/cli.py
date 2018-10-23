@@ -107,8 +107,9 @@ def ingest(dataset_ingest_config_path, target_url, use_async):
         or a path to a directory which contains a file called
         'dataset_ingest_config_path.yml'
     """
-    _run_pipeline(dataset_ingest_config_path,
-                  current_frame=inspect.currentframe())
+    op_args = [TARGET_API_CONFIG_PATH]
+    op_kwargs = _kwargs_from_frame(inspect.currentframe())
+    _run_pipeline('ingest', dataset_ingest_config_path, *op_args, **op_kwargs)
 
 
 @click.command()
@@ -127,7 +128,8 @@ def extract(dataset_ingest_config_path, output_dir, overwrite):
         or a path to a directory which contains a file called
         'dataset_ingest_config_path.yml'
     """
-    pass
+    op_kwargs = _kwargs_from_frame(inspect.currentframe())
+    _run_pipeline('extract', dataset_ingest_config_path, **op_kwargs)
 
 
 @click.command()
@@ -147,7 +149,10 @@ def transform(dataset_ingest_config_path, input_dir, output_dir, overwrite):
         or a path to a directory which contains a file called
         'dataset_ingest_config_path.yml'
     """
-    pass
+    op_args = [TARGET_API_CONFIG_PATH]
+    op_kwargs = _kwargs_from_frame(inspect.currentframe())
+    _run_pipeline('transform', dataset_ingest_config_path,
+                  *op_args, **op_kwargs)
 
 
 @click.command()
@@ -169,21 +174,30 @@ def load(dataset_ingest_config_path, input_dir, output_dir, overwrite):
         or a path to a directory which contains a file called
         'dataset_ingest_config_path.yml'
     """
-    pass
+    op_args = [TARGET_API_CONFIG_PATH]
+    op_kwargs = _kwargs_from_frame(inspect.currentframe())
+    _run_pipeline('load', dataset_ingest_config_path, *op_args, **op_kwargs)
 
 
-def _run_pipeline(dataset_ingest_config_path, current_frame):
+def _kwargs_from_frame(current_frame, start_arg_pos=1):
+    args, _, _, values = inspect.getargvalues(current_frame)
+    kwargs = {arg: values[arg] for arg in args[start_arg_pos:]}
+
+    return kwargs
+
+
+def _run_pipeline(operation, dataset_ingest_config_path,
+                  *op_args, **op_kwargs):
     """
     Helper method to setup and run data ingest pipeline
-    """
-    args, _, _, values = inspect.getargvalues(current_frame)
-    kwargs = {arg: values[arg] for arg in args[1:]}
 
+    Keyword args are extracted from current_frame
+    """
     # Construct ingest pipeline
     p = DataIngestPipeline(dataset_ingest_config_path)
 
     # Run ingest
-    p.run(TARGET_API_CONFIG_PATH, **kwargs)
+    p.run(operation, *op_args, **op_kwargs)
 
 
 # Add subcommands to the cli group

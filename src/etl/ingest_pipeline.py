@@ -10,10 +10,7 @@ from etl.load.load import LoadStage
 from config import DEFAULT_TARGET_URL
 
 
-# TODO
-# Allow a run argument that contains the desired stages to run
-# 'et' or 'tl', etc. If the full pipeline is not specified, then we
-# must check for cached stage output
+from pprint import pprint
 
 
 class DataIngestPipeline(object):
@@ -28,8 +25,14 @@ class DataIngestPipeline(object):
         self.dataset_ingest_config = DatasetIngestConfig(
             dataset_ingest_config_path)
 
-    def run(self, target_api_config_path, use_async=False,
-            target_url=DEFAULT_TARGET_URL):
+        self.operations = {
+            'ingest': self.ingest,
+            'extract': self.extract,
+            'transform': self.transform,
+            'load': self.load
+        }
+
+    def run(self, operation, *op_args, **op_kwargs):
         """
         Entry point for data ingestion. Run ingestion in the top level
         exception handler so that exceptions are logged.
@@ -37,7 +40,7 @@ class DataIngestPipeline(object):
         See _run method for param description
         """
         # Create logger
-        self._get_log_params(self.dataset_ingest_config)
+        self._get_log_params()
         self.logger = logging.getLogger(__name__)
 
         # Log the start of the run with ingestion parameters
@@ -45,14 +48,15 @@ class DataIngestPipeline(object):
         args, _, _, values = inspect.getargvalues(frame)
         param_string = '\n\t'.join(['{} = {}'.format(arg, values[arg])
                                     for arg in args[1:]])
-        run_msg = ('BEGIN data ingestion.\n\t-- Ingestion params --\n\t{}'
+        run_msg = ('BEGIN data ingestion.\n\t-- Run params --\n\t{}'
                    .format(param_string))
         self.logger.info(run_msg)
 
         # Top level exception handler
         # Catch exception, log it to file and console, and exit
         try:
-            self._run(target_api_config_path, use_async, target_url)
+            operation = self.operations.get(operation)
+            operation(*op_args, **op_kwargs)
         except Exception as e:
             logging.exception(e)
             exit(1)
@@ -60,7 +64,7 @@ class DataIngestPipeline(object):
         # Log the end of the run
         self.logger.info('END data ingestion')
 
-    def _get_log_params(self, dataset_ingest_config):
+    def _get_log_params(self):
         """
         Get log params from dataset_ingest_config
 
@@ -68,17 +72,17 @@ class DataIngestPipeline(object):
         log parameters
         """
         # Get log dir
-        log_dir = dataset_ingest_config.log_dir
+        log_dir = self.dataset_ingest_config.log_dir
 
         # Get optional log params
-        opt_log_params = {param: getattr(dataset_ingest_config, param)
+        opt_log_params = {param: getattr(self.dataset_ingest_config, param)
                           for param in ['overwrite_log', 'log_level']}
 
         # Setup logger
         setup_logger(log_dir, **opt_log_params)
 
-    def _run(self, target_api_config_path, use_async=False,
-             target_url=DEFAULT_TARGET_URL):
+    def ingest(self, target_api_config_path, use_async=False,
+               target_url=DEFAULT_TARGET_URL):
         """
         Runs the ingest pipeline
 
@@ -88,24 +92,30 @@ class DataIngestPipeline(object):
         :param target_url: URL of the target API, into which data will be
         loaded. Use default if none is supplied
         """
-        # Create an ordered dict of all ingest stages and their parameters
-        self.stage_dict = OrderedDict()
-        self.stage_dict['e'] = (ExtractStage,
-                                self.dataset_ingest_config.extract_config_paths)
-        self.stage_dict['t'] = (TransformStage, )
+        extract_config_paths = self.dataset_ingest_config.extract_config_paths
+        output = ExtractStage(extract_config_paths).run()
 
-        self.stage_dict['l'] = (
-            LoadStage, target_api_config_path,
-            target_url, use_async,
-            self.dataset_ingest_config.target_service_entities)
+        output = TransformStage().run(output)
 
-        # Iterate over stages and execute them
-        output = None
-        for key, params in self.stage_dict.items():
-            # Instantiate an instance of the ingest stage
-            stage = params[0](*(params[1:]))
-            # First stage is always extract
-            if key == 'e':
-                output = stage.run()
-            else:
-                output = stage.run(output)
+        entities = self.dataset_ingest_config.target_service_entities
+        output = LoadStage(target_api_config_path, target_url,
+                           use_async, entities).run(output)
+
+    # TODO each of these methods should prob be responsible for creating
+    # stage, then reading the input, and running the stage
+
+    # TODO Replace *args, and **kwargs with actual params
+
+    # TODO May have to change some CLI opts to args, need to make sure
+    # required CLI args match stage args, and opts match kwargs
+
+    # TODO Rename the serialize/deserialize stage methods to read/write
+
+    def extract(self, *args, **kwargs):
+        pass
+
+    def transform(self, *args, **kwargs):
+        pass
+
+    def load(self, *args, **kwargs):
+        pass
