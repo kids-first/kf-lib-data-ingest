@@ -8,7 +8,7 @@ from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
     CONCEPT,
     DELIMITER,
 )
-from common.misc import get_cls_attrs
+from common.misc import obj_attrs_to_dict
 
 
 @pytest.fixture
@@ -192,7 +192,7 @@ def test_to_from_dict():
 
     # Test ConceptNode.from_dict
     n_ = ConceptNode.from_dict(node_dict)
-    for attr in get_cls_attrs(n_):
+    for attr in obj_attrs_to_dict(n_):
         assert attr in node_dict
         assert getattr(n_, attr) == node_dict[attr]
 

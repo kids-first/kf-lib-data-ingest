@@ -77,9 +77,9 @@ def intsafe_str(val):
     return val
 
 
-def get_cls_attrs(cls):
+def obj_attrs_to_dict(cls):
     """
-    Get class attributes including inherited attributes
+    Create a dict of obj attributes and values, including inherited attrs
     """
     # Get non function attributes
     attributes = inspect.getmembers(cls, lambda x: not(inspect.isroutine(x)))

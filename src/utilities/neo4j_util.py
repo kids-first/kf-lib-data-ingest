@@ -6,8 +6,8 @@ A standalone CLI utility to load a serialized ConceptGraph into a
 Neo4j graph database for the purpose of deeper debugging and visualization of
 the standard concept graph.
 
-Loader expects a JSON file that was written by
-standard_model.concept_graph.export_to_file.
+Loader expects a GML file that was written by
+etl.transform.standard_model.graph.export_to_gml.
 
 * Requires a Neo4j server to be running.
 
@@ -29,17 +29,19 @@ from py2neo.data import (
     Subgraph
 )
 
-from common.misc import (
-    read_json
+from etl.transform.standard_model.graph import (
+    ConceptNode,
+    import_from_gml
 )
 from etl.transform.standard_model.concept_schema import (
-    DELIMITER as CONCEPT_DELIMITER
+    DELIMITER as CONCEPT_DELIMITER,
+    concept_attr_from
 )
 
 NEO4J_DELIMITER = '_'
 
 
-class Neo4jGraphLoader(object):
+class Neo4jConceptGraphLoader(object):
     def __init__(self, uri=None, username=None, password=None):
         """
         Create a neo4j Graph obj which manages the connection to the
@@ -52,10 +54,10 @@ class Neo4jGraphLoader(object):
         """
         self.graph = Graph(uri, auth=(username, password))
 
-    def load(self, filepath):
+    def load_gml(self, filepath):
         """
-        Create a neo4j graph given a JSON file that was created by
-        standard_model.concept_graph.export_to_file.
+        Create a neo4j graph given a GML file that was created by
+        etl.transform.standard_model.ConceptGraph.export_to_gml.
 
         This operation is idempotent. The existing neo4j graph will be deleted
         and a new one will be created to replace the deleted one. All nodes
@@ -68,25 +70,25 @@ class Neo4jGraphLoader(object):
         self.graph.delete_all()
         assert len(self.graph.nodes) == 0
 
-        # Read data in
-        data = read_json(filepath)
+        # Read data into a networkx.DiGraph containing a ConceptGraph
+        nx_concept_graph = import_from_gml(filepath)
 
         # Begin transaction
         tx = self.graph.begin()
 
         # For each edge
+        self.neo4j_nodes = {}
         g = None
-        for edge in data['edges']:
+        for edge in nx_concept_graph.edges():
             # Create first neo4j Node if it doesn't exist
-            key = edge['source']
-            n1 = self._create_or_get_node(key, data)
+            source_concept_node = nx_concept_graph.node[edge[0]]['object']
+            n1 = self._create_or_get_node(source_concept_node)
 
             # Create second neo4j node if it doesn't exist
-            key = edge['target']
-            n2 = self._create_or_get_node(key, data)
+            target_concept_node = nx_concept_graph.node[edge[1]]['object']
+            n2 = self._create_or_get_node(target_concept_node)
 
-            # Create neo4j edge
-            r = Relationship(n1, edge['label'], n2)
+            r = self._create_edge(n1, n2)
 
             # Create neo4j subgraph if it doesn't exist
             if not g:
@@ -100,7 +102,18 @@ class Neo4jGraphLoader(object):
         tx.create(g)
         tx.commit()
 
-    def _create_or_get_node(self, node_key, data):
+    def _create_edge(self, source_node, target_node):
+        """
+        Helper method to create a Neo4j edge from two neo4j concept nodes
+        """
+        if target_node.get('is_identifier'):
+            label = 'connected_to'
+        else:
+            label = 'has_property'
+
+        return Relationship(source_node, label, target_node)
+
+    def _create_or_get_node(self, concept_node):
         """
         Helper method for Neo4jGraphLoader.load
 
@@ -108,25 +121,34 @@ class Neo4jGraphLoader(object):
         the data for all the nodes and edges to be inserted into the neo4j
         graph. If it exists, return a reference to the Node obj instead.
 
-        :param node_key: the string key of the node in the data dict
-        :param data: a dict containing the serialized ConceptGraph
+        :param concept_node: A ConceptNode
         """
-        node = data['nodes'][node_key]
-        n = node.get('obj')
-        if not n:
-            label = node['attributes']['concept']
+        neo4j_node = self.neo4j_nodes.get(concept_node.key)
+
+        if not neo4j_node:
+            # Neo4j node attributes
+            attr_dict = ConceptNode.to_dict(concept_node)
+            pair = attr_dict.pop('concept_attribute_pair')
+            key = attr_dict.pop('key')
+            attr_dict['name'] = key
+            attr_dict['attribute'] = concept_attr_from(pair)
+
+            # Neo4j node label
+            label = concept_node.concept
+
             # For some reason neo4j does only accepts an underscore as a
             # delimiter for node or relationship labels.
-            n = Node(label.replace(CONCEPT_DELIMITER, NEO4J_DELIMITER),
-                     **node['attributes'])
-            node['obj'] = n
-        return n
+            neo4j_node = Node(label.replace(CONCEPT_DELIMITER,
+                                            NEO4J_DELIMITER), **attr_dict)
+            self.neo4j_nodes[concept_node.key] = neo4j_node
+
+        return neo4j_node
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("filepath",
-                        help='Path to the JSON file containing the serialized '
+                        help='Path to the GML file containing the serialized '
                         'ConceptGraph')
 
     parser.add_argument("--host", type=str,
@@ -152,5 +174,5 @@ if __name__ == '__main__':
     if args.host and args.port:
         uri = f'bolt://{args.host}:{args.port}'
 
-    neo4j = Neo4jGraphLoader(uri=uri, username=uname, password=pword)
-    neo4j.load(args.filepath)
+    neo4j = Neo4jConceptGraphLoader(uri=uri, username=uname, password=pword)
+    neo4j.load_gml(args.filepath)

@@ -9,8 +9,7 @@ from etl.transform.standard_model.concept_schema import (
     concept_from,
     concept_attr_from,
 )
-
-from common.misc import get_cls_attrs
+from common.misc import obj_attrs_to_dict
 from common.misc import iterate_pairwise
 from etl.configuration.log import create_default_logger
 
@@ -532,7 +531,7 @@ class ConceptNode(object):
 
         :param concept_node: the ConceptNode to serialize
         """
-        return get_cls_attrs(concept_node)
+        return obj_attrs_to_dict(concept_node)
 
     @classmethod
     def from_dict(cls, node_dict):

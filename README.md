@@ -32,6 +32,16 @@ kidsfirst ingest /path/to/dataset_ingest_config.yml
 Run kidsfirst -h to see all commands and descriptions.
 
 ### Debug
+During the development of a study ingest, a user will likely need
+to go through an iterative process of tweaking the extract configs, running
+ingest up until the load stage, and inspecting the transformed data which
+will be in the form of the standard concept graph. In order to thoroughly debug
+or inspect the graph, the developer will need a rich way to visualize and query
+the data in the graph.
+
+To accomplish this, the concept graph may be loaded into a Neo4j graph database,
+where it can then be visualized and queried through Neo4j's built-in browser
+application.
 
 #### Setup Neo4j graph database using Docker
 1. To start a new neo4j docker container named `graph-db` do:
@@ -48,11 +58,11 @@ docker container stop graph-db
 #### Load a concept graph into the graph database
 Run the neo4j loader utility.
 
-The utility expects a JSON file that was written by `etl.transform.standard_model.graph.ConceptGraph`'s `export_to_file`
-method. As of 10/8/2018, the ingest pipeline does not yet have a clean and isolated way to run the transform stage by itself and optionally export the concept graph to file. For now, a previously generated test concept graph can be used for demonstration purposes.
+The utility expects a GML file that was written by `etl.transform.standard_model.graph`'s `export_to_gml`
+method. As of 10/23/2018, the ingest pipeline does not yet have a clean and isolated way to run the transform stage by itself and optionally export the concept graph to file. For now, a previously generated test concept graph can be used for demonstration purposes.
 
 ```
-./src/utilities/neo4j_util.py ./test/data/concept_graph.json
+./src/utilities/neo4j_util.py ./test/data/test_graph.gml
 ```
 
 #### Query and visualize the graph

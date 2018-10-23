@@ -1,4 +1,4 @@
-from common.misc import get_cls_attrs
+from common.misc import obj_attrs_to_dict
 
 DELIMITER = '|'
 
@@ -163,7 +163,7 @@ def _set_cls_attrs(node, prev_node, property_path, property_paths):
         # Add class name to property path
         property_path.append(str(node.__name__))
         # Iterate over class attrs
-        for attr_name, value in get_cls_attrs(node).items():
+        for attr_name, value in obj_attrs_to_dict(node).items():
             # Recurse
             if callable(value):
                 _set_cls_attrs(value, node,
