@@ -5,6 +5,8 @@ import pytest
 
 TEST_ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 TEST_DATA_DIR = os.path.join(TEST_ROOT_DIR, 'data')
+KIDS_FIRST_CONFIG = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                 'src', 'target_apis', 'kids_first.py')
 
 
 def delete_logs(log_dir):
@@ -49,3 +51,9 @@ def ingest_pipeline():
     # Delete the entire log directory
     if os.path.exists(p.data_ingest_config.log_dir):
         shutil.rmtree(p.data_ingest_config.log_dir)
+
+
+@pytest.fixture(scope='function')
+def target_api_config():
+    from etl.configuration.target_api_config import TargetAPIConfig
+    return TargetAPIConfig(KIDS_FIRST_CONFIG)

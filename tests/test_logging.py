@@ -10,11 +10,11 @@ from config import (
 )
 from conftest import (
     TEST_ROOT_DIR,
-    TEST_DATA_DIR
+    TEST_DATA_DIR,
+    KIDS_FIRST_CONFIG
 )
 
-target_api_config_path = os.path.join(TEST_DATA_DIR,
-                                      'test_api_config.py')
+target_api_config_path = KIDS_FIRST_CONFIG
 default_log_dir = os.path.join(TEST_DATA_DIR, 'test_study', 'logs')
 
 
