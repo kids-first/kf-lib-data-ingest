@@ -9,24 +9,27 @@ from config import EXTRACT_OP
 
 class ExtractStage(IngestStage):
 
+    operation = EXTRACT_OP
+
     def __init__(self, extract_config_paths):
         super().__init__()
         self.extract_configs = [ExtractConfig(config_filepath)
                                 for config_filepath
                                 in extract_config_paths]
 
-    def write_output(self, output):
-        # An ingest stage is responsible for writing out the data that it
-        # produces via its run method
-        pass  # TODO
+    def write_output(self, output, output_dir, overwrite):
+        # TODO
+        # Write output files. If overwrite=True then write out files without
+        # timestamp appended to name. If overwrite=False, write out files
+        # with timestamp appended to name
+        pass
 
-    def read_output(self, filepath):
-        # An ingest stage is responsible for reading the data it wrote out from
-        # its run method
-        pass  # TODO
-
-    def _operation(self):
-        return EXTRACT_OP
+    @classmethod
+    def read_output(cls, output_dir):
+        # TODO
+        # Read output files and construct objects that would have been output
+        # by the _run method
+        pass
 
     def _validate_run_parameters(self):
         # Extract stage does not expect any args so we can pass validation
@@ -45,7 +48,3 @@ class ExtractStage(IngestStage):
 
         # return dictionary of all dataframes keyed by extract config paths
         return output
-
-    def _read_file(self, file_path, read_method=None, **kwargs):
-        # TODO returns (partial?)contents of the file as a dataframe
-        pass

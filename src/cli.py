@@ -19,7 +19,7 @@ from config import (
 ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 TARGET_API_CONFIG_PATH = os.path.join(ROOT_DIR, 'target_apis', 'kids_first.py')
 
-# Params needed to construct common click.options across different cmnds
+# Params needed to construct common CLI options across different cmnds
 DATASET_INGEST_CONFIG_PARAMS = {
     'args': ['dataset_ingest_config_path'],
     'kwargs': {
@@ -162,10 +162,8 @@ def transform(dataset_ingest_config_path, input_dir, output_dir,
         or a path to a directory which contains a file called
         'dataset_ingest_config_path.yml'
     """
-    op_args = [TARGET_API_CONFIG_PATH]
     op_kwargs = kwargs_from_frame(inspect.currentframe())
-    _run_pipeline(TRANSFORM_OP, dataset_ingest_config_path,
-                  *op_args, **op_kwargs)
+    _run_pipeline(TRANSFORM_OP, dataset_ingest_config_path, **op_kwargs)
 
 
 @click.command()
@@ -176,7 +174,8 @@ def transform(dataset_ingest_config_path, input_dir, output_dir,
 @click.option(*TARGET_URL_PARAMS['args'], **TARGET_URL_PARAMS['kwargs'])
 @click.argument(*DATASET_INGEST_CONFIG_PARAMS['args'],
                 **DATASET_INGEST_CONFIG_PARAMS['kwargs'])
-def load(dataset_ingest_config_path, input_dir, output_dir, overwrite_output):
+def load(dataset_ingest_config_path, target_url, use_async,
+         input_dir, output_dir, overwrite_output):
     """
     Run the load stage of the Kids First data ingest pipeline.
 

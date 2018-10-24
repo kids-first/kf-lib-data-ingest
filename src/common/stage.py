@@ -7,8 +7,6 @@ from abc import (
     abstractmethod
 )
 
-from common.type_safety import assert_safe_type
-
 
 class IngestStage(ABC):
 
@@ -16,42 +14,28 @@ class IngestStage(ABC):
 
     def __init__(self):
         self.logger = logging.getLogger(__name__)
-        IngestStage.operation = self._operation()
-        assert_safe_type(IngestStage.operation, str)
+
+    @abstractmethod
+    def write_output(self, output, output_dir, overwrite):
+        # TODO An ingest stage is responsible for writing out the data that it
+        # produces via its run method
+        pass
+
+    @classmethod
+    @abstractmethod
+    def read_output(self, output_dir):
+        # TODO An ingest stage is responsible for reading the data it wrote out
+        # from its run method
+        pass
 
     @abstractmethod
     def _run(self, *args, **kwargs):
         pass
 
     @abstractmethod
-    def _operation(self):
-        # Return the stage's operation
-        pass
-
-    @abstractmethod
     def _validate_run_parameters(self, *args, **kwargs):
         # Subclasses should raise a InvalidIngestStageParameters if any
         # parameters are missing.
-        pass
-
-    @abstractmethod
-    def _serialize_output(self, output):
-        # An ingest stage is responsible for serializing the data that is
-        # produced at the end of stage run
-        pass  # TODO
-
-    @abstractmethod
-    def _deserialize_output(self, filepath):
-        # An ingest stage is responsible for deserializing the data that it
-        # previously produced at the end of stage run
-        pass  # TODO
-
-    def default_output_dir(self):
-        # Construct the filepath of the output using the study's config
-        # directory which is basename of
-        # self.dataset_ingest_config.config_filepath
-        # Store in
-        # <study config dir path>/output_cache/<ingest stage class name>
         pass
 
     def _log_run(func):

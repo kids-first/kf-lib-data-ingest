@@ -16,7 +16,7 @@ TARGET_SERVICE_CONFIG_PATH = os.path.join(ROOT_DIR,
                                           'kids_first.py')
 DEFAULT_LOG_FILENAME = 'ingest.log'
 DEFAULT_LOG_LEVEL = logging.INFO
-DEFAULT_LOG_OVERWRITE_OPT = False
+DEFAULT_LOG_OVERWRITE_OPT = True
 
 INGEST_OP = 'ingest'
 EXTRACT_OP = 'extract'

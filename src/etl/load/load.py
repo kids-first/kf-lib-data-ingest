@@ -17,6 +17,8 @@ from config import LOAD_OP
 
 
 class LoadStage(IngestStage):
+    operation = LOAD_OP
+
     def __init__(
         self, target_api_config_path, target_url, use_async, entities_to_load
     ):
@@ -26,18 +28,19 @@ class LoadStage(IngestStage):
         self.target_url = target_url
         self.use_async = use_async
 
-    def write_output(self, output):
-        # An ingest stage is responsible for writing out the data that it
-        # produces via its run method
-        pass  # TODO
+    def write_output(self, output, output_dir, overwrite):
+        # TODO
+        # Write output files. If overwrite=True then write out files without
+        # timestamp appended to name. If overwrite=False, write out files
+        # with timestamp appended to name
+        pass
 
-    def read_output(self, filepath):
-        # An ingest stage is responsible for reading the data it wrote out from
-        # its run method
-        pass  # TODO
-
-    def _operation(self):
-        return LOAD_OP
+    @classmethod
+    def read_output(cls, output_dir):
+        # TODO
+        # Read output files and construct objects that would have been output
+        # by the _run method
+        pass
 
     def _adapt(self, standard_model):
         entity = {}
