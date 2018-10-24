@@ -1,13 +1,12 @@
-import datetime
 import logging
 import os
-import time
 
 from config import (
     DEFAULT_LOG_OVERWRITE_OPT,
     DEFAULT_LOG_LEVEL,
     DEFAULT_LOG_FILENAME
 )
+from common.misc import timestamp
 
 
 def setup_logger(log_dir, overwrite_log=DEFAULT_LOG_OVERWRITE_OPT,
@@ -29,7 +28,7 @@ def setup_logger(log_dir, overwrite_log=DEFAULT_LOG_OVERWRITE_OPT,
 
     # Create a new log file named with a timestamp
     if not overwrite_log:
-        filename = 'ingest-{}.log'.format(_timestamp())
+        filename = 'ingest-{}.log'.format(timestamp())
 
     log_filepath = os.path.join(log_dir, filename)
 
@@ -53,21 +52,3 @@ def setup_logger(log_dir, overwrite_log=DEFAULT_LOG_OVERWRITE_OPT,
     root.addHandler(consoleHandler)
 
     return log_filepath
-
-
-def _timestamp():
-    """
-    Helper to create an ISO 8601 formatted string that represents local time
-    and includes the timezone info.
-    """
-    # Calculate the offset taking into account daylight saving time
-    # https://stackoverflow.com/questions/2150739/iso-time-iso-8601-in-python
-    if time.localtime().tm_isdst:
-        utc_offset_sec = time.altzone
-    else:
-        utc_offset_sec = time.timezone
-    utc_offset = datetime.timedelta(seconds=-utc_offset_sec)
-    t = datetime.datetime.now().replace(
-        tzinfo=datetime.timezone(offset=utc_offset)).isoformat()
-
-    return str(t)
