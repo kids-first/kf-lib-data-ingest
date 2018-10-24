@@ -1,5 +1,7 @@
+import os
 import inspect
 import logging
+from pathlib import Path
 from collections import OrderedDict
 
 from common.misc import kwargs_from_frame
@@ -37,8 +39,8 @@ class DataIngestPipeline(object):
         Execute the operation in top level exception handler so that all
         exceptions are logged.
 
-        :param operation_str: a string containing the operation to invoke
-        (i.e ingest, extract, transform, load)
+        :param operation_str: a string containing the stage operation to invoke
+        (i.e ingest, extract, transform, load). Defined by each stage class.
         :param op_args: the positional arguments expected by the <operation>
         method
         :param op_kwargs: the keyword arguments expected by the <operation>
@@ -58,6 +60,7 @@ class DataIngestPipeline(object):
             # Execute ingest or one of the ingest stages
             if operation_str == INGEST_OP:
                 operation = self.run
+            # Lookup method based on name of stage operation
             else:
                 operation = self.stages.get(operation_str)
 
@@ -73,7 +76,7 @@ class DataIngestPipeline(object):
     def run(self, target_api_config_path, target_url,
             use_async, output_dir, overwrite_output):
         """
-        Runs the ingest pipeline
+        Runs the ingest pipeline: extract, transform, load
 
         :param target_api_config_path: Path to the target api config file
         :param use_async: Boolean specifies whether to do ingest
@@ -85,44 +88,85 @@ class DataIngestPipeline(object):
         self._log_method_args(inspect.currentframe())
 
         output = self.extract(output_dir, overwrite_output)
-        output = self.transform(output_dir, overwrite_output, input=output)
-        self.load(target_api_config_path, target_url,
-                  use_async, output_dir, overwrite_output, input=output)
+
+        output = self.transform(None, output_dir, overwrite_output,
+                                input=output)
+
+        output = self.load(target_api_config_path, target_url,
+                           use_async, None, output_dir, overwrite_output,
+                           input=output)
 
     def extract(self, output_dir, overwrite_output):
-        # Run extract
+        """
+        Run extract stage only
+
+        :params output_dir: string where stage output will be written
+        :params overwrite_output: boolean that denotes whether or not to
+        overwrite previous output.
+        """
+        # Create the stage
         extract_config_paths = self.dataset_ingest_config.extract_config_paths
         stage = ExtractStage(extract_config_paths)
-        output = stage.run()
 
-        # stage.write_output(output, overwrite_output, output_dir)
+        # Run stage and write output
+        output = stage.run()
+        self._write_stage_output(stage, output, output_dir, overwrite_output)
 
         return output
 
-    def transform(self, overwrite_output, output_dir, input=None):
-        # if not input:
-        #     current_stage = self.stages.get(TransformStage.operation)
-        #     previous_stage = the one before current
-        stage = TransformStage()
-        output = stage.run(input)
+    def transform(self, input_dir, output_dir, overwrite_output, input=None):
+        """
+        Run transform stage only
 
-        # stage.write_output(output, overwrite_output, output_dir)
+        :params input_dir: string where stage input will be read from
+        :params output_dir: string where stage output will be written
+        :params overwrite_output: boolean that denotes whether or not to
+        overwrite previous output.
+        :params input: the arguments required by stage's run method. Only
+        supplied when full pipeline is run and input is not read from file.
+        """
+        # Create stage
+        stage = TransformStage()
+
+        # Input not supplied, read from disk
+        if not input:
+            input = ExtractStage.read_output(input_dir)
+
+        # Run stage and write output
+        output = stage.run(input)
+        self._write_stage_output(stage, output, output_dir, overwrite_output)
 
         return output
 
     def load(self, target_api_config_path, target_url, use_async,
-             overwrite_output, output_dir, input=None):
+             input_dir, output_dir, overwrite_output, input=None):
+        """
+        Run load stage only
+
+        :param target_api_config_path: Path to the target api config file
+        :param use_async: Boolean specifies whether to do ingest
+        asynchronously or synchronously
+        :param target_url: URL of the target API, into which data will be
+        loaded
+        :params input_dir: string where stage input will be read from
+        :params output_dir: string where stage output will be written
+        :params overwrite_output: boolean that denotes whether or not to
+        overwrite previous output.
+        :params input: the arguments required by stage's run method. Only
+        supplied when full pipeline is run and input is not read from file.
+        """
+        # Create the stage
         entities = self.dataset_ingest_config.target_service_entities
-        stage = LoadStage(target_api_config_path, target_url,
-                          use_async, entities)
+        stage = LoadStage(target_api_config_path, target_url, use_async,
+                          entities)
 
-        # if not input:
-        #     current_stage = self.stages.get(TransformStage.operation)
-        #     previous_stage = the one before current
+        # Input not supplied, read from disk
+        if not input:
+            input = TransformStage.read_output(input_dir)
 
+        # Run stage and write output
         output = stage.run(input)
-
-        # stage.write_output(output, overwrite_output, output_dir)
+        self._write_stage_output(stage, output, output_dir, overwrite_output)
 
         return output
 
@@ -158,3 +202,31 @@ class DataIngestPipeline(object):
         param_string = '\n\t'.join(['{} = {}'.format(key, value)
                                     for key, value in kwargs.items()])
         self.logger.info(f'Parameters:\n\t{param_string}')
+
+    def _write_stage_output(self, stage, output, output_dir, overwrite_output):
+        """
+        Wrapper around stage.write_output. If output_dir is None then create
+        the default output directory for the stage.
+
+        Construct default output dir path from path of dataset_ingest_config
+        Create the output dir if it does not exist:
+
+        <dir of dataset_ingest_config>/output/<stage.__class__.operation>
+
+        :param stage: An IngestStage instance
+        :param output_dir: directory where output will be written
+        :param overwrite_output: whether to overwrite existing output files
+        or create new output files
+        """
+        # If output dir not supplied, use default output dir
+        if not output_dir:
+            config_dir = os.path.dirname(
+                self.dataset_ingest_config.config_filepath)
+            output_dir = os.path.join(config_dir, 'output')
+            output_dir = os.path.join(output_dir, stage.__class__.operation)
+
+            # If default output dir does not exist, create it
+            if not os.path.isdir(output_dir):
+                Path(output_dir).mkdir(parents=True)
+
+        return stage.write_output(output, output_dir, overwrite_output)
