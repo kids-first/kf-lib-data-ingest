@@ -6,7 +6,9 @@ import pytest
 from config import (
     DEFAULT_LOG_FILENAME,
     DEFAULT_LOG_LEVEL,
-    DEFAULT_LOG_OVERWRITE_OPT
+    DEFAULT_LOG_OVERWRITE_OPT,
+    INGEST_OP,
+    DEFAULT_TARGET_URL
 )
 from conftest import (
     TEST_ROOT_DIR,
@@ -32,13 +34,13 @@ def test_defaults(ingest_pipeline):
 
     # Test that ingest.log was not created but ingest-{datetime}.log
     # was created
-    ingest_pipeline.run(target_api_config_path)
+    _invoke_pipeline(ingest_pipeline)
     log_filepath = os.path.join(default_log_dir, DEFAULT_LOG_FILENAME)
     assert os.path.isfile(log_filepath) == False
 
     # Test that new logs are created on each run
     time.sleep(1)
-    ingest_pipeline.run(target_api_config_path)
+    _invoke_pipeline(ingest_pipeline)
     assert len(os.listdir(default_log_dir)) == 2
 
 
@@ -54,7 +56,7 @@ def test_log_dir(ingest_pipeline):
         'log_dir': log_dir}
     ingest_pipeline.dataset_ingest_config._set_log_params()
     # Run and generate logs
-    ingest_pipeline.run(target_api_config_path)
+    _invoke_pipeline(ingest_pipeline)
 
     # User supplied log dir should exist
     assert len(os.listdir(log_dir)) == 1
@@ -74,7 +76,7 @@ def test_overwrite_log(ingest_pipeline):
     assert len(os.listdir(log_dir)) == 0
 
     # Run and generate logs
-    ingest_pipeline.run(target_api_config_path)
+    _invoke_pipeline(ingest_pipeline)
 
     # Check for default log file
     assert len(os.listdir(log_dir)) == 1
@@ -82,7 +84,7 @@ def test_overwrite_log(ingest_pipeline):
     assert os.path.isfile(log_filepath) == True
 
     # No new files should be created
-    ingest_pipeline.run(target_api_config_path)
+    _invoke_pipeline(ingest_pipeline)
     assert len(os.listdir(log_dir)) == 1
 
 
@@ -98,7 +100,7 @@ def test_log_level(ingest_pipeline):
     ingest_pipeline.dataset_ingest_config._set_log_params()
 
     # Run and generate log
-    ingest_pipeline.run(target_api_config_path)
+    _invoke_pipeline(ingest_pipeline)
 
     # Check log content
     log_filepath = os.path.join(ingest_pipeline.dataset_ingest_config.log_dir,
@@ -119,7 +121,7 @@ def test_log_exceptions(ingest_pipeline):
 
     class NewPipeline(DataIngestPipeline):
         # Override run method to throw exception
-        def run(self):
+        def invoke(self):
             raise Exception('An exception occurred during ingestion!')
 
     # Create pipeline instance
@@ -131,10 +133,15 @@ def test_log_exceptions(ingest_pipeline):
 
     # Exception is thrown and log should include exception
     with pytest.raises(Exception):
-        p.run(target_api_config_path)
+        p.invoke(INGEST_OP, target_api_config_path)
         log_filepath = os.path.join(p.dataset_ingest_config.log_dir,
                                     DEFAULT_LOG_FILENAME)
 
         with open(log_filepath, 'r') as logfile:
             last_line = logfile.readlines()[-1]
             assert 'Exception' in last_line
+
+
+def _invoke_pipeline(ingest_pipeline):
+    ingest_pipeline.invoke(INGEST_OP, target_api_config_path,
+                           DEFAULT_TARGET_URL, False, None, True)
