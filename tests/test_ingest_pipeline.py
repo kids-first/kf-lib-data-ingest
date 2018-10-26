@@ -12,7 +12,7 @@ def test_ingest_cmd_missing_required_args():
     """
     Test ingest CLI when required arguments are missing
 
-    Req args: 
+    Req args:
         Path to dataset_ingest_config.yml or dir containing the file
     """
     runner = CliRunner()

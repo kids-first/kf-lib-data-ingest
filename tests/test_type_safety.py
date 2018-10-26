@@ -5,9 +5,9 @@ Tests for src/common/safety.py
 import pandas
 import pytest
 
-from common.type_safety import (__UNNAMED_OBJECT, __ALL_SIGNIFIER, _name_of_arg_at_caller,
-                                assert_all_safe_type, assert_safe_type,
-                                function)
+from common.type_safety import (__ALL_SIGNIFIER, __UNNAMED_OBJECT,
+                                _name_of_arg_at_caller, assert_all_safe_type,
+                                assert_safe_type, function)
 
 
 def test__name_of_arg_at_caller():

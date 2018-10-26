@@ -57,7 +57,7 @@ def test_set_cls_attrs():
         A.B.ID: 'A' + DELIMITER + 'B' + DELIMITER + 'ID',
         A.B.COMMON: 'A' + DELIMITER + 'B' + DELIMITER + 'COMMON',
         A.B.C.ID: 'A' + DELIMITER + 'B' + DELIMITER + 'C' + DELIMITER + 'ID',
-        A.B.C.NAME: 'A' + DELIMITER + 'B' + DELIMITER + 'C' + DELIMITER + 'NAME'
+        A.B.C.NAME: 'A' + DELIMITER + 'B' + DELIMITER + 'C' + DELIMITER + 'NAME'  # noqa E501
     }
     for cls_attr, property_str in test_params.items():
         assert cls_attr == property_str

@@ -12,7 +12,7 @@ from etl.configuration.base_config import ConfigValidationError
 from etl.configuration.extract_config import ExtractConfig
 
 
-def is_multiple(a, b):
+def _is_multiple(a, b):
     if (a == 0) or (b == 0) or ((max(a, b) % min(a, b)) == 0):
         return True
     return False
@@ -42,6 +42,10 @@ class ExtractStage(IngestStage):
         pass
 
     def _run(self):
+        """
+        :returns: A dictionary of all extracted dataframes keyed by extract
+            config paths
+        """
         output = {}
         for extract_config in self.extract_configs:
             protocol, path = split_protocol(extract_config.source_data_url)
@@ -86,6 +90,12 @@ class ExtractStage(IngestStage):
         """
         Load the file using either load_func if given or according to the file
         extension otherwise. Any load_args get forwarded to the load function.
+
+        :param file_path: <protocol>://<path> for a source data file
+        :param load_func: A function used for custom loading
+        :kwargs load_args: Options passed to the loading functions
+
+        :returns: A pandas dataframe containing the requested data
         """
         f = FileRetriever().get(file_path)
         if load_func:
@@ -104,6 +114,15 @@ class ExtractStage(IngestStage):
                 )
 
     def _chain_operations(self, df_in, operations):
+        """
+        Performs the operations sequence for extracting columns of data from
+        the source data files.
+
+        :param df_in: A pandas dataframe containing all of the file data
+        :param operations: See the extract_config_format spec for the
+            the operations sequence
+        :returns: A pandas dataframe containing extracted mapped data
+        """
         out_cols = defaultdict(pandas.Series)
         max_col_length = 0
 
@@ -114,7 +133,7 @@ class ExtractStage(IngestStage):
                 res = self._chain_operations(df_in, op)
 
             for col_name, col_series in res.iteritems():
-                assert is_multiple(max_col_length, len(col_series.index))
+                assert _is_multiple(max_col_length, len(col_series.index))
                 out_cols[col_name] = out_cols[col_name].append(
                     col_series, ignore_index=True
                 )

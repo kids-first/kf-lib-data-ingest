@@ -34,7 +34,7 @@ def test_defaults(ingest_pipeline):
     # was created
     ingest_pipeline.run(target_api_config_path)
     log_filepath = os.path.join(default_log_dir, DEFAULT_LOG_FILENAME)
-    assert os.path.isfile(log_filepath) == False
+    assert os.path.isfile(log_filepath) is False
 
     # Test that new logs are created on each run
     time.sleep(1)
@@ -79,7 +79,7 @@ def test_overwrite_log(ingest_pipeline):
     # Check for default log file
     assert len(os.listdir(log_dir)) == 1
     log_filepath = os.path.join(log_dir, DEFAULT_LOG_FILENAME)
-    assert os.path.isfile(log_filepath) == True
+    assert os.path.isfile(log_filepath) is True
 
     # No new files should be created
     ingest_pipeline.run(target_api_config_path)
