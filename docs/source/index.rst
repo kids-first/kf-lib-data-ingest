@@ -18,6 +18,7 @@ Users
    install
    quickstart
    developer
+   reference/index.rst
    design/overview
 
 

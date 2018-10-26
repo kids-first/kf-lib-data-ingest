@@ -1,3 +1,11 @@
+"""
+**************
+File Retriever
+**************
+
+Primary method of retrieving source data files for ingest
+"""
+
 import shutil
 import tempfile
 from abc import ABC
