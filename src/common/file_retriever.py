@@ -7,7 +7,24 @@ import botocore
 import requests
 
 
-_PROTOCOL_SEP = "://"
+PROTOCOL_SEP = "://"
+
+
+def split_protocol(url):
+    """
+    Split file url string into protocol and path.
+
+    Expected format is always <protocol>://<path to file>, even for local
+    files.
+
+    :param url: URL of local or remote file
+    :type url: string
+    """
+    split_url = url.split(PROTOCOL_SEP, 1)
+    if len(split_url) == 2:
+        return split_url[0], split_url[1]
+    else:
+        return None, None
 
 
 def _s3_save(protocol, source_loc, dest_obj, auth="saml"):
@@ -45,7 +62,7 @@ def _web_save(protocol, source_loc, dest_obj, auth=None):
 
     :returns: None, the data goes to dest_obj
     """
-    url = protocol + _PROTOCOL_SEP + source_loc
+    url = protocol + PROTOCOL_SEP + source_loc
     with requests.get(url, auth=auth, stream=True) as response:
         for chunk in response.iter_content(chunk_size=8192):
             if chunk:
@@ -101,22 +118,6 @@ class FileRetriever(object):
             self.storage_dir = self.__tmpdir.name
         self._files = {}
 
-    def _split_protocol(self, url):
-        """
-        Split file url string into protocol and path.
-
-        Expected format is always <protocol>://<path to file>, even for local
-        files.
-
-        :param url: URL of local or remote file
-        :type url: string
-        """
-        split_url = url.split(_PROTOCOL_SEP, 1)
-        if len(split_url) == 2:
-            return split_url[0], split_url[1]
-        else:
-            return None, None
-
     def get(self, url, auth=None):
         """
         Retrieve the contents of a remote file.
@@ -129,10 +130,10 @@ class FileRetriever(object):
         :raises LookupError: url is not of one of the handled protocols
         :returns: a file-like object containing the remote file contents
         """
-        protocol, path = self._split_protocol(url)
+        protocol, path = split_protocol(url)
         if protocol not in FileRetriever._getters:
             raise LookupError(
-                f"Retrieving URL: {url}"
+                f"Retrieving URL: {url}\n"
                 f"No client found for protocol: {protocol}"
             )
 

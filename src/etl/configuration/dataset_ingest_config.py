@@ -37,7 +37,22 @@ class DatasetIngestConfig(YamlConfig):
                 DATASET_INGEST_CONFIG_DEFAULT_FILENAME)
 
         super().__init__(config_path, schema_path=DATA_INGEST_SCHEMA_PATH)
-        self._deserialize()
+
+        # Directory containing the extract config files
+        self.extract_config_dir = os.path.join(
+            os.path.dirname(self.config_filepath),
+            self.contents.get('extract_config_dir'))
+
+        self.extract_config_paths = [os.path.join(self.extract_config_dir,
+                                                  filename)
+                                     for filename in os.listdir(
+                                     self.extract_config_dir)
+                                     if filename.endswith('.py')]
+        self._set_log_params()
+        self.study = self.contents.get('study')
+        self.investigator = self.contents.get('investigator')
+        self.target_service_entities = self.contents.get(
+            'target_service_entities')
 
     def _set_log_params(self):
         """
@@ -80,32 +95,3 @@ class DatasetIngestConfig(YamlConfig):
                     setattr(self, param, default_value())
                 else:
                     setattr(self, param, default_value)
-
-    def _deserialize(self):
-        """
-        Deserialize the dictionary of parameters to attributes of the
-        DatasetIngestConfig class
-        """
-        # List of entity types that should be loaded into target service
-        self.target_service_entities = self.contents.get(
-            'target_service_entities')
-
-        # Directory containg the extract config files
-        self.extract_config_dir = os.path.join(
-            os.path.dirname(self.config_filepath),
-            self.contents.get('extract_config_dir'))
-
-        # List of extract config file paths
-        self.extract_config_paths = [os.path.join(self.extract_config_dir,
-                                                  filename)
-                                     for filename in os.listdir(
-                                     self.extract_config_dir)
-                                     if filename.endswith('.py')]
-        # Log Params
-        self._set_log_params()
-
-        # Study parameters
-        self.study = self.contents.get('study')
-
-        # Investigator parameters
-        self.investigator = self.contents.get('investigator')

@@ -22,7 +22,7 @@ operations = [
     value_map(
         in_col="participant",
         m={
-            r"PID(\d+)": lambda x: str(int(x)),  # strip PID and 0-padding
+            r"PID(\d+)": lambda x: int(x),  # strip PID and 0-padding
         },
         out_col=CONCEPT.PARTICIPANT.ID
     ),
@@ -73,7 +73,7 @@ operations = [
     ],
     [
         value_map(
-            in_col=8,  # age in hours (second)
+            in_col=9,  # age in hours (second)
             m=lambda x: int(x)/24,
             out_col=CONCEPT.PHENOTYPE.EVENT_AGE_DAYS
         ),
