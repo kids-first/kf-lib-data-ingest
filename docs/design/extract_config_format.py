@@ -58,6 +58,12 @@ operations = [
         m= # function that takes a df and returns a standard concepts df
     ),
     # ...
+    #
+    # The code will also support sub-lists of operations for when certain
+    # extracted columns need to be logically grouped together (e.g. phenotype
+    # name + age at observation), though it should, in the end, be functionally
+    # equivalent to spinning out a new extract config file for each logical
+    # group.
 ]
 
 # NOTE on value_map.m
@@ -106,6 +112,8 @@ operations = [
 
 # NOTE on alternative forms for the operations sequence
 #
+# We currently only support function wrappers and lists for operations, but...
+#
 # Instead of directly calling the function wrappers during config load, like
 #
 # [
@@ -117,8 +125,8 @@ operations = [
 #     ...
 # ]
 #
-# we can also very easily support other formats of varying descriptiveness and
-# compactness, like
+# we could also very easily support other formats of varying descriptiveness
+# and compactness, like
 #
 # [
 #     (value_map, foo, bar, qux),
@@ -136,5 +144,5 @@ operations = [
 #     ...
 # ]
 #
-# We can easily check if the container is a tuple or dict and not a function,
-# and then convert the alternate type into the wrapper function call.
+# We can easily check if the container is a tuple or dict, and then convert the
+# alternate type into the wrapper function call.
