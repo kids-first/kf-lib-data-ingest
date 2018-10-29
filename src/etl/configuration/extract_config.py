@@ -8,6 +8,7 @@ class ExtractConfig(PyModuleConfig):
         super().__init__(filepath)
         self.source_data_url = self.contents.source_data_url
         self.loading_params = self.contents.source_data_loading_parameters
+        self.loading_func = self.loading_params.pop('load_func', None)
         self.operations = self.contents.operations
 
     def _validate(self):
@@ -15,6 +16,10 @@ class ExtractConfig(PyModuleConfig):
         assert_safe_type(self.contents.source_data_loading_parameters, dict)
         assert_safe_type(self.contents.operations, list)
         assert_all_safe_type(self.contents.operations, function, list)
+        assert_safe_type(
+            self.contents.source_data_loading_parameters.get('load_func'),
+            None, function
+        )
         for op in self.contents.operations:
             if isinstance(op, list):
                 assert_all_safe_type(op, function)

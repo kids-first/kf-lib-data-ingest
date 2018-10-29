@@ -1,5 +1,7 @@
 import os
 from collections import defaultdict
+from functools import reduce
+from math import gcd
 
 import pandas
 
@@ -11,11 +13,16 @@ from common.type_safety import assert_safe_type, function
 from etl.configuration.base_config import ConfigValidationError
 from etl.configuration.extract_config import ExtractConfig
 
+is_function = function  # simple alias for clarity
 
-def _is_multiple(a, b):
-    if (a == 0) or (b == 0) or ((max(a, b) % min(a, b)) == 0):
-        return True
-    return False
+
+def lcm(number_list):
+    """
+    Returns the least common multiple from a list of numbers.
+    """
+    return reduce(
+        lambda x, y: x*y//gcd(x, y), number_list
+    )
 
 
 class ExtractStage(IngestStage):
@@ -63,17 +70,11 @@ class ExtractStage(IngestStage):
 
             data_path = protocol + PROTOCOL_SEP + path
 
-            load_args = extract_config.loading_params.copy()
-            load_func = None
-            if 'load_func' in load_args:
-                load_func = load_args['load_func']
-                del load_args['load_func']
-
-            assert_safe_type(load_func, None, function)
-
             # read contents from file
             df_in = self._source_file_to_df(
-                data_path, load_func=load_func, **load_args
+                data_path,
+                load_func=extract_config.loading_func,
+                **(extract_config.loading_params)
             ).applymap(intsafe_str)
 
             # extraction
@@ -81,7 +82,7 @@ class ExtractStage(IngestStage):
                 df_in, extract_config.operations
             )
 
-            output[extract_config.config_filepath] = df_out
+            output[extract_config.config_filepath] = (data_path, df_out)
 
         # return dictionary of all dataframes keyed by extract config paths
         return output
@@ -124,35 +125,49 @@ class ExtractStage(IngestStage):
         :returns: A pandas dataframe containing extracted mapped data
         """
         out_cols = defaultdict(pandas.Series)
-        max_col_length = 0
+        original_length = df_in.index.size
 
+        # collect columns of extracted data
         for op in operations:
-            if function(op):
+            # apply operation(s), get result
+            if is_function(op):
                 res = op(df_in)
             else:  # list
                 res = self._chain_operations(df_in, op)
 
+            # result length must be a whole multiple of the original length,
+            # otherwise we've lost rows
+            assert res.index.size % original_length == 0
+
             for col_name, col_series in res.iteritems():
-                assert _is_multiple(max_col_length, len(col_series.index))
                 out_cols[col_name] = out_cols[col_name].append(
                     col_series, ignore_index=True
                 )
-                max_col_length = max(
-                    max_col_length, len(out_cols[col_name].index)
-                )
 
+        # the output dataframe length will be the least common multiple of the
+        # extracted column lengths
+        length_lcm = lcm(list(map(len, out_cols.values())))
+
+        # Given a set of different length columns, we need to make a resulting
+        # dataframe whose length is the least common multiple of their lengths
+        # by repeating each column the right number of times.
+        #
+        # A B C                     A B C
+        # 1 1 1     will become     1 1 1
+        #   2 2                     1 2 2
+        #     3                     1 1 3
+        #                           1 2 1
+        #                           1 1 2
+        #                           1 2 3
+        #
         df_out = pandas.DataFrame()
         for col_name, col_series in out_cols.items():
-            col_len = len(col_series.index)
-            if col_len:
-                length_multiplier = max_col_length / col_len
+            if not col_series.empty:
+                length_multiplier = length_lcm / col_series.size
                 assert length_multiplier == round(length_multiplier)
-                try:
-                    df_out[col_name] = pandas.Series(
-                        list(col_series) * int(length_multiplier)
-                    )
-                except Exception as e:
-                    print(e)
-                    breakpoint()
+                # repeat the series length_multiplier times
+                df_out[col_name] = pandas.Series(
+                    list(col_series) * round(length_multiplier)
+                )
 
         return df_out
