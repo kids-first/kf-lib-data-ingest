@@ -67,6 +67,12 @@ def test_df_map():
     func = operations.df_map(lambda df: other_df)
     assert func(df).equals(other_df)
 
+    # verify that df mapping func may only return a DataFrame
+    func = operations.df_map(lambda df: None)
+    with pytest.raises(TypeError) as e:
+        func(df)
+        assert 'DataFrame' in str(e)
+
 
 def test_value_map():
     # tests passing allowed and disallowed types
@@ -75,7 +81,7 @@ def test_value_map():
         {function, dict},
         in_col='COL_A', out_col='OUT_COL'
     )
-    
+
     # verify that value_map doesn't modify the original df
     func = operations.value_map(lambda x: x, 'COL_A', 'COL_A')
     assert df is not func(df)

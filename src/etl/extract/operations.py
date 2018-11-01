@@ -32,7 +32,10 @@ def df_map(m):
 
     def df_map_func(df):
         new_df = df.copy()
-        return m(new_df)
+        res_df = m(new_df)
+        # Output of df mapping func must be a DataFrame
+        assert_safe_type(res_df, DataFrame)
+        return res_df
 
     return df_map_func
 
