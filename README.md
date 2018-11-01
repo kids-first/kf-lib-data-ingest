@@ -1,5 +1,13 @@
-Kids First Data Ingest Libraries
-==============================
+<p align="center">
+  <img src="docs/img/kf-data-ingest.png">
+</p>
+<p align="center">
+  <a href="https://github.com/kids-first/kf-lib-data-ingest/blob/master/LICENSE"><img src="https://img.shields.io/github/license/kids-first/kf-lib-data-ingest.svg?style=for-the-badge"></a>
+  <a href="https://circleci.com/gh/kids-first/kf-lib-data-ingest"><img src="https://img.shields.io/circleci/project/github/kids-first/kf-lib-data-ingest.svg?style=for-the-badge"></a>
+</p>
+
+Kids First Data Ingest Library
+================================
 
 
 The Kids First Data Ingest Libraries include both an ingestion library and CLI. The library is composed of a set of components that standardize the transformation and ingestion of datasets into target services. A CLI is provided for users of the ingestion pipeline. Users will run ingestions for Kids First studies into the Kids First Dataservice, which is the only supported target service at this point.
