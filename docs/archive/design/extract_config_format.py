@@ -33,9 +33,14 @@ operations = [
         out_col= # standard concept property for resulting column
         in_col= # column header or numeric index of column in source file
     ),
-    # column_map is just like value_map but different
+    # column_map is just like value_map but applies per whole column
     column_map(
         m= # function that takes a column and returns a column
+        out_col= # standard concept property for resulting column
+        in_col= # column header or numeric index of column in source file
+    ),
+    # keep_map is like column_map or value_map with `m=lambda x: x`
+    keep_map(
         out_col= # standard concept property for resulting column
         in_col= # column header or numeric index of column in source file
     ),
