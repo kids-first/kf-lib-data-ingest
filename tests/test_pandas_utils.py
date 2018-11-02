@@ -18,9 +18,9 @@ def test_try_pop():
 
 
 def test_get_col():
-    df = pandas.DataFrame({1: ['a', 'b', 'c'], 'COL_A': ['1', '2', '3']})
+    df = pandas.DataFrame({'COL_A': ['1', '2', '3'], 1: ['a', 'b', 'c']})
     assert pandas_utils.get_col(df, 'COL_A') is df['COL_A']
-    assert pandas_utils.get_col(df, 0) is df[1]
+    assert pandas_utils.get_col(df, 1) is df[1]
     assert pandas_utils.get_col(df, 1) is df[1]
 
 

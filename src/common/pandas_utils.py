@@ -28,7 +28,7 @@ def get_col(df, key):
     :returns: The indicated column from the dataframe, either by name or order.
     """
     if isinstance(key, int) and (key not in df.columns):
-        return df[df.columns[key]]  # the keyth column
+        return df[df.columns[key-1]]  # the keyth column
     else:
         return df[key]
 

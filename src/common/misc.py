@@ -1,8 +1,11 @@
-import os
-import json
-import yaml
 import importlib
+import json
+import os
+import re
 from itertools import tee
+
+import numpy
+import yaml
 
 
 def import_module_from_file(filepath):
@@ -40,3 +43,33 @@ def iterate_pairwise(iterable):
     a, b = tee(iterable)
     next(b, None)
     return zip(a, b)
+
+
+def intsafe_str(val):
+    """Converts numbers to str while collapsing "1.0" to "1", etc.
+    in case of wrong numeric encoding of integers in a spreadsheet.
+
+    Args:
+        val: Any basic type
+
+    Returns:
+        string: Representation of `val`
+    """
+    if isinstance(val, float) and numpy.isnan(val):
+        return None
+    val = str(val).strip()
+    # I hate PEP 515.
+    # Now we have to check that we only have digits and dots. Whyyyyyyyyyy.
+    if not re.fullmatch(r'\d*(\.\d*)?', val):
+        return val
+    if (len(val) - len(val.lstrip('0'))) > 0:
+        # leading zeroes indicate a real string
+        return val
+    try:
+        f_val = float(val)
+        i_val = int(f_val)
+        if i_val == f_val:
+            return str(i_val)
+    except Exception:
+        pass
+    return val
