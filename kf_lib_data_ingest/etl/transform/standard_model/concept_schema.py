@@ -3,6 +3,14 @@ from common.misc import obj_attrs_to_dict
 DELIMITER = '|'
 
 
+class FileMixin(object):
+    ETAG = None
+    SIZE = None
+    DATA_TYPE = None
+    FILE_NAME = None
+    FILE_PATH = None
+
+
 class PropertyMixin(object):
     _CONCEPT_NAME = None
     ID = None
@@ -24,6 +32,9 @@ class CONCEPT:
         ATTRIBUTION = None
         RELEASE_STATUS = None
         CATEGORY = None
+
+    class STUDY_FILE(PropertyMixin, FileMixin):
+        pass
 
     class FAMILY(PropertyMixin):
         pass
@@ -79,18 +90,10 @@ class CONCEPT:
         CONCENTRATION_MG_PER_ML = None
         VOLUME_ML = None
 
-    class GENOMIC_FILE(PropertyMixin):
-        ETAG = None
-        SIZE = None
-        DATA_TYPE = None
-        FILE_NAME = None
-        FILE_PATH = None
+    class GENOMIC_FILE(PropertyMixin, FileMixin):
         AVAILABILITY = None
         HARMONIZED = None
         CAVATICA_OUTPUT_FILE = None
-
-    class MULTI_SPECIMEN_GENOMIC_FILE(GENOMIC_FILE):
-        pass
 
     class READ_GROUP(PropertyMixin):
         PAIRED_END = None
@@ -116,6 +119,15 @@ class CONCEPT:
 
         class CENTER(PropertyMixin):
             NAME = None
+
+    class BIOSPECIMEN_GENOMIC_FILE(PropertyMixin):
+        pass
+
+    class BIOSPECIMEN_DIAGNOSIS(PropertyMixin):
+        pass
+
+    class READ_GROUP_GENOMIC_FILE(PropertyMixin):
+        pass
 
 
 def compile_schema():
@@ -211,7 +223,10 @@ concept_set = {
     CONCEPT.DIAGNOSIS,
     CONCEPT.OUTCOME,
     CONCEPT.GENOMIC_FILE,
-    CONCEPT.READ_GROUP
+    CONCEPT.READ_GROUP,
+    CONCEPT.BIOSPECIMEN_GENOMIC_FILE,
+    CONCEPT.BIOSPECIMEN_DIAGNOSIS,
+    CONCEPT.READ_GROUP_GENOMIC_FILE,
 }
 
 
