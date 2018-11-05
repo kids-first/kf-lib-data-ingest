@@ -85,8 +85,8 @@ Given a target concept from target_api_config:
         'institution': CONCEPT.INVESTIGATOR.INSTITUTION
     },
     'links': {
-        'foo_id': CONCEPT.FOO.ID,
-        'bar_id': CONCEPT.BAR.ID
+        'foo_id': CONCEPT.FOO.UNIQUE_KEY,
+        'bar_id': CONCEPT.BAR.UNIQUE_KEY
     }
 }
 
@@ -95,23 +95,23 @@ we will inject new keys into the target_concept dict:
 
 'target_concept': {
     'standard_concept': CONCEPT.INVESTIGATOR <-- Remove and replace w below
-    'id': CONCEPT.INVESTIGATOR.ID, <-- injected based on value of standard_concept
+    'id': CONCEPT.INVESTIGATOR.UNIQUE_KEY, <-- injected based on value of standard_concept
     'properties': {
         'id': CONCEPT.INVESTIGATOR.TARGET_SERVICE_ID <-- injected based on standard_concept
                                                             and value of target_service_entity_id
         'foo_id': CONCEPT.FOO.TARGET_SERVICE_ID <-- injected based on presence in links
         'bar_id': CONCEPT.BAR.TARGET_SERVICE_ID <-- injected based on presence in links
-        'external_id': CONCEPT.INVESTIGATOR.ID,
+        'external_id': CONCEPT.INVESTIGATOR.UNIQUE_KEY,
         'name': CONCEPT.INVESTIGATOR.NAME,
         'institution': CONCEPT.INVESTIGATOR.INSTITUTION
     },
     'links': {
-        'foo_id': CONCEPT.FOO.ID,
-        'bar_id': CONCEPT.BAR.ID
+        'foo_id': CONCEPT.FOO.UNIQUE_KEY,
+        'bar_id': CONCEPT.BAR.UNIQUE_KEY
     }
 }
 
-Now run attribute search for all attributes in 'id', 'properities', 'links' in
+Now run attribute search for all attributes in 'id', 'properties', 'links' in
 concept graph. Now we have values for all attributes/properties.
 
 During loading stage:
