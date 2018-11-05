@@ -123,3 +123,16 @@ dicts AND do an ID translation (external_id --> target service id)
 
 This process allows us to use target service ids in source data or external_ids.
 In the latter case we must do an extra step to translate to target service ids.
+
+CONCEPT INSTANCE IDENTIFIERS
+-----------------------------
+There are two problems that need to be solved:
+1. Concept instances can be uniquely identified by a single thing or combinations of things
+ - Participants can be identified by a unique identifier provided by investigator
+ - Phenotypes can be identified by a combination of the participant's unique identifier,
+ phenotype name, and participant age at time of observation.
+
+2. A single concept instance can have multiple unique identifiers that identify it within a study
+- A participant can have a social security number
+- A participant can have a unique ID in the study
+- Both of these uniquely identify the same participant in the study

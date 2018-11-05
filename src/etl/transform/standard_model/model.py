@@ -173,7 +173,7 @@ class StandardModel(object):
                 raise ValueError(
                     'Error inserting dataframe into ConceptGraph! There must '
                     'be at least 1 unique key column in the DataFrame. Source '
-                    'of error is {extract_config_url} : {source_file_url}'
+                    f'of error is {extract_config_url} : {source_file_url}'
                 )
 
             # Insert df into graph

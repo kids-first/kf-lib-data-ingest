@@ -7,8 +7,10 @@ from common.constants import *
 from etl.transform.standard_model.concept_schema import (
     CONCEPT,
     DELIMITER,
+    UNIQUE_ID_ATTR,
     concept_from,
-    is_identifier
+    is_identifier,
+    unique_key_composition
 )
 from etl.transform.standard_model.model import StandardModel
 from etl.transform.standard_model.graph import (
@@ -90,12 +92,12 @@ def random_data_df_dict():
     races = [RACE.WHITE, RACE.ASIAN, RACE.BLACK]
     compositions = [SPECIMEN.COMPOSITION.TISSUE, SPECIMEN.COMPOSITION.BLOOD]
     data_dict = {
-        CONCEPT.FAMILY.ID: [random.choice(family_id_pool)
-                            for i in range(n_participants)],
-        CONCEPT.PARTICIPANT.ID: [f'P{i}'
-                                 for i in range(n_participants)],
-        CONCEPT.BIOSPECIMEN.ID: [f'B{i}'
-                                 for i in range(n_participants)],
+        CONCEPT.FAMILY.UNIQUE_KEY: [random.choice(family_id_pool)
+                                    for i in range(n_participants)],
+        CONCEPT.PARTICIPANT.UNIQUE_KEY: [f'P{i}'
+                                         for i in range(n_participants)],
+        CONCEPT.BIOSPECIMEN.UNIQUE_KEY: [f'B{i}'
+                                         for i in range(n_participants)],
         CONCEPT.PARTICIPANT.RACE: [random.choice(races)
                                    for i in range(n_participants)],
         CONCEPT.BIOSPECIMEN.COMPOSITION: [random.choice(compositions)
@@ -145,12 +147,12 @@ def test_populate_model(data_df_dict):
                 # Pedigree file was inserted into graph first so uid of
                 # participant nodes should contain pointers to participants
                 # from the pedigree file
-                if node.key.startswith(CONCEPT.PARTICIPANT.ID):
+                if node.key.startswith(CONCEPT.PARTICIPANT.UNIQUE_KEY):
                     assert 'pedigree' in node.uid
                 # Subject sample file was inserted into graph second so uid of
                 # biospecimen nodes should contain pointers to biospecimens
                 # from the subject sample file
-                elif node.key.startswith(CONCEPT.BIOSPECIMEN.ID):
+                elif node.key.startswith(CONCEPT.BIOSPECIMEN.UNIQUE_KEY):
                     assert 'subject_sample' in node.uid
 
 
@@ -219,19 +221,23 @@ def test_transform(target_api_config, random_model):
                          [
                              # Study, Family F1
                              (CONCEPT.STUDY._CONCEPT_NAME,
-                              f'{CONCEPT.FAMILY.ID}{DELIMITER}F1', True),
+                              f'{CONCEPT.FAMILY.UNIQUE_KEY}{DELIMITER}F1',
+                              True),
 
                              # Participant, Family F1
                              (CONCEPT.PARTICIPANT._CONCEPT_NAME,
-                              f'{CONCEPT.FAMILY.ID}{DELIMITER}F1', False),
+                              f'{CONCEPT.FAMILY.UNIQUE_KEY}{DELIMITER}F1',
+                              False),
 
                              # Participant, Biospecimen B1
                              (CONCEPT.PARTICIPANT._CONCEPT_NAME,
-                              f'{CONCEPT.BIOSPECIMEN.ID}{DELIMITER}B1', True),
+                              f'{CONCEPT.BIOSPECIMEN.UNIQUE_KEY}{DELIMITER}B1',
+                              True),
 
                              # Participant, Biospecimen B2
                              (CONCEPT.PARTICIPANT._CONCEPT_NAME,
-                              f'{CONCEPT.BIOSPECIMEN.ID}{DELIMITER}B1', True)
+                              f'{CONCEPT.BIOSPECIMEN.UNIQUE_KEY}{DELIMITER}B1',
+                              True)
 
                          ]
                          )
@@ -258,15 +264,15 @@ def test_is_neighbor_valid(target_api_config, model, node_concept,
 @pytest.mark.parametrize('id_node_key,concept_attr,expected_output',
                          [
                              # Participant P1, Race
-                             (f'{CONCEPT.PARTICIPANT.ID}{DELIMITER}P1',
+                             (f'{CONCEPT.PARTICIPANT.UNIQUE_KEY}{DELIMITER}P1',
                               CONCEPT.PARTICIPANT.RACE, RACE.ASIAN),
 
                              # Participant P2, Race
-                             (f'{CONCEPT.PARTICIPANT.ID}{DELIMITER}P2',
+                             (f'{CONCEPT.PARTICIPANT.UNIQUE_KEY}{DELIMITER}P2',
                                  CONCEPT.PARTICIPANT.RACE, RACE.WHITE),
 
                              # Biospecimen B1, Tissue type
-                             (f'{CONCEPT.BIOSPECIMEN.ID}{DELIMITER}B1',
+                             (f'{CONCEPT.BIOSPECIMEN.UNIQUE_KEY}{DELIMITER}B1',
                                  CONCEPT.BIOSPECIMEN.TISSUE_TYPE, None)
                          ]
                          )
@@ -291,7 +297,7 @@ def test_find_non_existent(target_api_config, model):
     never pass in a non-existent start node. But testing for completeness...
     """
     # Create a non-existent node
-    start_node = ConceptNode(CONCEPT.PARTICIPANT.ID, 'PH1')
+    start_node = ConceptNode(CONCEPT.PARTICIPANT.UNIQUE_KEY, 'PH1')
     concept_attr = CONCEPT.PHENOTYPE.NAME
 
     g = model.concept_graph
@@ -320,8 +326,8 @@ def test_general_find(target_api_config, random_data_df_dict):
     # Run tests
     concepts = {concept_from(col) for col in df.columns}
     links = {
-        CONCEPT.PARTICIPANT._CONCEPT_NAME: {CONCEPT.FAMILY.ID},
-        CONCEPT.BIOSPECIMEN._CONCEPT_NAME: {CONCEPT.PARTICIPANT.ID}
+        CONCEPT.PARTICIPANT._CONCEPT_NAME: {CONCEPT.FAMILY.UNIQUE_KEY},
+        CONCEPT.BIOSPECIMEN._CONCEPT_NAME: {CONCEPT.PARTICIPANT.UNIQUE_KEY}
     }
     # For each concept in source table
     for concept in concepts:
@@ -331,7 +337,7 @@ def test_general_find(target_api_config, random_data_df_dict):
         # For each row in the source table
         for _, row in df.iterrows():
             # Get the node from the graph pertaining to the concept ID
-            id_col = f'{concept}{DELIMITER}ID'
+            id_col = f'{concept}{DELIMITER}UNIQUE_KEY'
             _id = row[id_col]
             node = g.get_node(f'{id_col}{DELIMITER}{_id}')
             # For each attribute of the concept instance, verify the value
@@ -362,3 +368,107 @@ def test_gml_import_export(tmpdir_factory, model):
         assert node
         assert (ConceptNode.to_dict(node['object']) ==
                 ConceptNode.to_dict(orig_node['object']))
+
+
+def test_unique_keys():
+    """
+    Test that standard unique keys are autogenerated
+
+    Most concept's unique keys are composed of just the ID attribute. These
+    are standard unique keys
+    """
+    df = pd.DataFrame([{CONCEPT.PARTICIPANT.ID: 'P1',
+                        CONCEPT.BIOSPECIMEN.ID: 'B1',
+                        CONCEPT.PARTICIPANT.RACE: RACE.WHITE},
+                       {CONCEPT.PARTICIPANT.ID: 'P1',
+                        CONCEPT.BIOSPECIMEN.ID: 'B2',
+                        CONCEPT.PARTICIPANT.RACE: RACE.WHITE},
+                       {CONCEPT.PARTICIPANT.ID: 'P2',
+                        CONCEPT.BIOSPECIMEN.ID: 'B3',
+                        CONCEPT.PARTICIPANT.RACE: RACE.ASIAN}])
+
+    # 3 Columns before
+    assert 3 == len(df.columns)
+    df = StandardModel()._add_unique_key_cols(df)
+
+    # 3 original + 2 unique key cols for the concepts
+    assert 5 == len(df.columns)
+
+    # Num of distinct concepts shouldn't change
+    concepts = set([concept_from(col) for col in df.columns])
+    assert 2 == len(concepts)
+
+    # Check values
+    for concept_name in concepts:
+        ukey_col = f'{concept_name}{DELIMITER}{UNIQUE_ID_ATTR}'
+        id_col = f'{concept_name}{DELIMITER}ID'
+        assert ukey_col in df.columns
+        assert df[id_col].equals(df[ukey_col])
+
+
+def test_compound_unique_keys():
+    """
+    Test that compound/synthetic unique keys are autogenerated.
+
+    These are non-standard unique keys for concepts that do not
+    have an ID attribute to use as a unique key. These concepts have unique
+    keys which are composed of several other concept attributes.
+    """
+    df = pd.DataFrame([{CONCEPT.PARTICIPANT.ID: 'P1',
+                        CONCEPT.BIOSPECIMEN.ID: 'B1',
+                        CONCEPT.GENOMIC_FILE.ID: 'G1'},
+                       {CONCEPT.PARTICIPANT.ID: 'P1',
+                        CONCEPT.BIOSPECIMEN.ID: 'B2',
+                        CONCEPT.GENOMIC_FILE.ID: 'G1'},
+                       {CONCEPT.PARTICIPANT.ID: 'P2',
+                        CONCEPT.BIOSPECIMEN.ID: 'B3',
+                        CONCEPT.GENOMIC_FILE.ID: 'G1'}])
+
+    # 3 columns before
+    assert 3 == len(df.columns)
+    df = StandardModel()._add_unique_key_cols(df)
+    # 3 original + 3 unique key columns + 1 for the compound concept
+    assert 7 == len(df.columns)
+    # 4 distinct concepts should exist now (1 new one is a compound concept)
+    concepts = set([concept_from(col) for col in df.columns])
+    assert 4 == len(concepts)
+
+    # Check values
+    for concept_name in concepts:
+        ukey_col = f'{concept_name}{DELIMITER}{UNIQUE_ID_ATTR}'
+        id_col = f'{concept_name}{DELIMITER}ID'
+        assert ukey_col in df.columns
+
+        if concept_name == CONCEPT.BIOSPECIMEN_GENOMIC_FILE._CONCEPT_NAME:
+            col1 = CONCEPT.BIOSPECIMEN.UNIQUE_KEY
+            col2 = CONCEPT.GENOMIC_FILE.UNIQUE_KEY
+
+            def func(row):
+                return (row[ukey_col].split(DELIMITER)[0] == row[col1] and
+                        row[ukey_col].split(DELIMITER)[1] == row[col2])
+
+            assert df.apply(lambda row: func(row), axis=1).all()
+
+        else:
+            assert df[id_col].equals(df[ukey_col])
+
+
+def test_no_key_comp_defined():
+    """
+    Test concept in concept schema does not have a unique key comp defined
+    """
+    df = pd.DataFrame([{CONCEPT.PARTICIPANT.ID: 'P1',
+                        CONCEPT.BIOSPECIMEN.ID: 'B1',
+                        CONCEPT.GENOMIC_FILE.ID: 'G1'},
+                       {CONCEPT.PARTICIPANT.ID: 'P1',
+                        CONCEPT.BIOSPECIMEN.ID: 'B2',
+                        CONCEPT.GENOMIC_FILE.ID: 'G1'},
+                       {CONCEPT.PARTICIPANT.ID: 'P2',
+                        CONCEPT.BIOSPECIMEN.ID: 'B3',
+                        CONCEPT.GENOMIC_FILE.ID: 'G1'}])
+
+    # No key composition defined for concept
+    del unique_key_composition[CONCEPT.PARTICIPANT._CONCEPT_NAME]
+    with pytest.raises(AssertionError) as e:
+        StandardModel()._add_unique_key_cols(df)
+        assert 'key composition not defined' in str(e)

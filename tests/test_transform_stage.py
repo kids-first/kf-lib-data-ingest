@@ -22,6 +22,3 @@ def test_invalid_run_parameters():
     # Bad values
     with pytest.raises(InvalidIngestStageParameters):
         stage.run({'foor': ('bar', None) for i in range(5)})
-
-    # Good keys, values
-    stage.run({'foo': ('bar', pd.DataFrame()) for i in range(5)})

@@ -17,6 +17,13 @@ operations = [
         },
         out_col=CONCEPT.BIOSPECIMEN.ALIQUOT_ID
     ),
+    value_map(
+        in_col='specimen',
+        m={
+            r'BSID(\d+)': lambda x: int(x),  # strip BSID and 0-padding
+        },
+        out_col=CONCEPT.BIOSPECIMEN.ID
+    ),
     keep_map(
         in_col='bam_file_name',
         out_col=CONCEPT.GENOMIC_FILE.FILE_NAME
