@@ -61,16 +61,16 @@ All but the first of these required attributes must be dicts.
                 type: dict
 
                     key: a string containing the target concept property
-                    value: a standard concept ID attribute from
+                    value: a standard concept UNIQUE_KEY attribute from
                     etl.transform.standard_model.concept_schema
 
                 example:
                 {
-                    'family_id': CONCEPT.FAMILY.ID
+                    'family_id': CONCEPT.FAMILY.UNIQUE_KEY
                 }
-                description: ID properties which map to standard concept ID
-                attributes. These represent foreign keys in the target
-                model.
+                description: identifiers which map to standard concept
+                UNIQUE_KEY attributes. These represent foreign keys in the
+                target model.
             ,
             'endpoint':
                 type: string
@@ -95,7 +95,7 @@ All but the first of these required attributes must be dicts.
         could be:
 
             'links': {
-                'participant_id': 'CONCEPT|PARTICIPANT|ID|P1'
+                'participant_id': 'CONCEPT|PARTICIPANT|UNIQUE_KEY|P1'
             }
         And during the loading stage the 'links' dict will be translated into:
 
