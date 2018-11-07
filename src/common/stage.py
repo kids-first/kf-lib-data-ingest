@@ -11,7 +11,7 @@ from abc import (
 class IngestStage(ABC):
 
     def __init__(self):
-        self.logger = logging.getLogger(__name__)
+        self.logger = logging.getLogger(type(self).__name__)
 
     @abstractmethod
     def _run(self, *args, **kwargs):

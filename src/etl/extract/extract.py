@@ -55,6 +55,9 @@ class ExtractStage(IngestStage):
         """
         output = {}
         for extract_config in self.extract_configs:
+            self.logger.info(
+                "Extract config: %s", extract_config.config_filepath
+            )
             protocol, path = split_protocol(extract_config.source_data_url)
             if protocol == 'file':
                 if path.startswith('.'):
