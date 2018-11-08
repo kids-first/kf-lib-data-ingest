@@ -48,6 +48,20 @@ class ExtractStage(IngestStage):
         # Extract stage does not expect any args so we can pass validation
         pass
 
+    def _log_operation(self, op):
+        """Log execution of an extract operation.
+
+        :param op: an extract operation
+        :type op: function
+        """
+        msg = f'Applying {op.__qualname__}'
+        if op.__closure__:
+            msg += ' with ' + str({
+                k: v.cell_contents for k, v
+                in zip(op.__code__.co_freevars, op.__closure__)
+            })
+        self.logger.debug(msg)
+
     def _run(self):
         """
         :returns: A dictionary of all extracted dataframes keyed by extract
@@ -134,6 +148,7 @@ class ExtractStage(IngestStage):
         for op in operations:
             # apply operation(s), get result
             if is_function(op):
+                self._log_operation(op)
                 res = op(df_in)
             else:  # list
                 res = self._chain_operations(df_in, op)

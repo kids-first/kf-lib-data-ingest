@@ -19,6 +19,9 @@ target_service_entities:
 # All extract config paths are relative to the directory this file is in
 extract_config_dir: 'extract_configs'
 
+logging:
+    log_level: 'debug'
+
 study:
     kf_id: 'SD_P445ACHV'
     external_id: 'TBD'
@@ -32,5 +35,6 @@ study:
 
 investigators:
     -
+        kf_id: 'IG_RJWQ5W0Y'
         name: 'Simeon Boyd'
         institution: 'Center for Craniofacial and Dental Genetics, University of Pittsburgh, Pittsburgh, PA, USA'
