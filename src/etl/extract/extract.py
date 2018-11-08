@@ -1,3 +1,4 @@
+import json
 import os
 from collections import defaultdict
 from functools import reduce
@@ -27,25 +28,41 @@ def lcm(number_list):
 
 class ExtractStage(IngestStage):
 
-    def __init__(self, extract_config_paths):
-        super().__init__()
+    def __init__(self, study_config_dir, extract_config_paths):
+        super().__init__(study_config_dir)
         if isinstance(extract_config_paths, list):
             self.extract_configs = [ExtractConfig(config_filepath)
                                     for config_filepath
                                     in extract_config_paths]
 
     def _serialize_output(self, output):
-        # An ingest stage is responsible for serializing the data that is
-        # produced at the end of stage run
-        pass  # TODO
+        """
+        Implements IngestStage._serialize_output
+        """
+        class IndexlessJSONEncoder(json.JSONEncoder):
+            def default(self, obj):
+                if hasattr(obj, 'to_dict'):
+                    no_index = obj.to_dict(orient='split')
+                    del no_index['index']
+                    return no_index
+                return json.JSONEncoder.default(self, obj)
 
-    def _deserialize_output(self, filepath):
-        # An ingest stage is responsible for deserializing the data that it
-        # previously produced at the end of stage run
-        pass  # TODO
+        return json.dumps(output, cls=IndexlessJSONEncoder, indent=2)
+
+    def _deserialize_output(self, serialized_output):
+        """
+        Implements IngestStage._deserialize_output
+        """
+        data = json.loads(serialized_output)
+        for k, v in data.items():
+            v[1] = pandas.DataFrame.from_records(
+                v[1]['data'],
+                columns=v[1]['columns']
+            )
+        return data
 
     def _validate_run_parameters(self):
-        # Extract stage does not expect any args so we can pass validation
+        # Extract stage does not expect any args
         pass
 
     def _log_operation(self, op):

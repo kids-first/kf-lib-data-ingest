@@ -55,7 +55,7 @@ def intsafe_str(val):
     Returns:
         string: Representation of `val`
     """
-    if isinstance(val, float) and numpy.isnan(val):
+    if val is None or (isinstance(val, float) and numpy.isnan(val)):
         return None
     val = str(val).strip()
     # I hate PEP 515.

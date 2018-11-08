@@ -1,16 +1,14 @@
-import time
 import logging
+import os
+import time
+from abc import ABC, abstractmethod
 from functools import wraps
-
-from abc import (
-    ABC,
-    abstractmethod
-)
 
 
 class IngestStage(ABC):
 
-    def __init__(self):
+    def __init__(self, study_config_dir=None):
+        self.study_config_dir = study_config_dir
         self.logger = logging.getLogger(type(self).__name__)
 
     @abstractmethod
@@ -25,33 +23,59 @@ class IngestStage(ABC):
 
     @abstractmethod
     def _serialize_output(self, output):
-        # An ingest stage is responsible for serializing the data that is
-        # produced at the end of stage run
-        pass  # TODO
+        """
+        An ingest stage is responsible for serializing the data that is
+        produced at the end of stage run.
 
-    @abstractmethod
-    def _deserialize_output(self, filepath):
-        # An ingest stage is responsible for deserializing the data that it
-        # previously produced at the end of stage run
-        pass  # TODO
-
-    def _construct_output_filepath(self):
-        # Construct the filepath of the output using the study's config
-        # directory which is basename of
-        # self.dataset_ingest_config.config_filepath
-        # Store in
-        # <study config dir path>/output_cache/<ingest stage class name>
+        :param output: some data structure that needs to be serialized
+        """
         pass
 
+    @abstractmethod
+    def _deserialize_output(self, serialized_output):
+        """
+        An ingest stage is responsible for deserializing the data that it
+        previously produced at the end of stage run
+
+        :param serialized_output: a serialized representation of all of the
+            data that this stage produces
+        :type serialized_output: string
+        :return: some data structure equal to what this stage produces
+        """
+        pass
+
+    def _construct_output_filepath(self):
+        """
+        Construct the filepath of the output.
+        Something like:
+            <study config dir path>/output_cache/<ingest stage class name>.xxx
+
+        :return: file location to put/get serialized output for this stage
+        :rtype: string
+        """
+        return os.path.join(
+            self.study_config_dir, 'output_cache',
+            type(self).__name__ + '_cache.txt'
+        ) if self.study_config_dir else None
+
     def _read_output(self):
+        """
+        Deserialize from a file.
+        """
         filepath = self._construct_output_filepath()
-        pass  # TODO
+        with open(filepath) as fp:
+            return self._deserialize_output(fp.read())
 
     def _write_output(self, output):
+        """
+        Serialize to a file.
+        """
         filepath = self._construct_output_filepath()
         serialized = self._serialize_output(output)
-        # TODO
-        # Write serialized output to file
+        if filepath and serialized:
+            os.makedirs(os.path.dirname(filepath), exist_ok=True)
+            with open(filepath, "w") as fp:
+                fp.write(serialized)
 
     def _log_run(func):
         """
@@ -94,6 +118,6 @@ class IngestStage(ABC):
         output = self._run(*args, **kwargs)
 
         # Write output of stage to disk
-        # self._write_output(output)
+        self._write_output(output)
 
         return output
