@@ -74,6 +74,17 @@ def test_df_map():
         assert 'DataFrame' in str(e)
 
 
+def test_keep_map():
+    # verify that keep_map doesn't modify the original df
+    func = operations.keep_map('COL_A', 'COL_A')
+    assert df is not func(df)
+
+    func = operations.keep_map('COL_B', 'OUT_COL')
+    assert func(bigger_df).equals(
+        pandas.DataFrame({'OUT_COL': bigger_df['COL_B']})
+    )
+
+
 def test_value_map():
     # tests passing allowed and disallowed types
     _test_map_allowed_types(
