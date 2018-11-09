@@ -107,6 +107,7 @@ class ExtractStage(IngestStage):
             # read contents from file
             df_in = self._source_file_to_df(
                 data_path,
+                after_load=extract_config.after_load,
                 load_func=extract_config.loading_func,
                 **(extract_config.loading_params)
             ).applymap(intsafe_str)
@@ -121,7 +122,9 @@ class ExtractStage(IngestStage):
         # return dictionary of all dataframes keyed by extract config paths
         return output
 
-    def _source_file_to_df(self, file_path, load_func=None, **load_args):
+    def _source_file_to_df(
+        self, file_path, after_load=None, load_func=None, **load_args
+    ):
         """
         Load the file using either load_func if given or according to the file
         extension otherwise. Any load_args get forwarded to the load function.
@@ -134,19 +137,22 @@ class ExtractStage(IngestStage):
         """
         f = FileRetriever().get(file_path)
         if load_func:
-            return load_func(file_path, **load_args)
+            df = load_func(f, **load_args)
         else:
             if file_path.endswith('.xlsx') or file_path.endswith('.xls'):
-                return read_excel_file(file_path, **load_args)
+                df = read_excel_file(f, **load_args)
             elif file_path.endswith('.tsv'):
-                return pandas.read_table(file_path, sep='\t', **load_args)
+                df = pandas.read_table(f, sep='\t', **load_args)
             elif file_path.endswith('.csv'):
-                return pandas.read_table(file_path, sep=',', **load_args)
+                df = pandas.read_table(f, sep=',', **load_args)
             else:
                 raise ConfigValidationError(
                     "Could not determine appropriate loader for data file",
                     file_path
                 )
+        if after_load:
+            return after_load(df)
+        return df
 
     def _chain_operations(self, df_in, operations):
         """
