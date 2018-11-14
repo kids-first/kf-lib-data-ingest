@@ -3,12 +3,26 @@ Kids First Data Ingest Lib Docs
 
 Overview
 ^^^^^^^^
-- Describe the purpose of the data ingest pipeline here.
-- Give general overview of the 3 stages and what happens in each
+The Kids First Data Ingest Library standardizes the transformation and
+ingestion of Kids First raw study data into target Kids First services.
 
-Users
+A CLI wraps the library and is the primary user interface for
+using the ingestion pipeline. Users will use the CLI to ingest Kids First studies
+into the Kids First Data Service which is the only supported target service at this point.
+
+Extract
+^^^^^^^
+- Overview (purpose, inputs, outputs)
+- Brief description of concept schema
+
+Transform
+^^^^^^^^^
+- Overview (purpose, inputs, outputs)
+- Brief description of concept graph
+
+Load
 ^^^^^
-- Describe the various levels of users
+- Overview (purpose, inputs, outputs)
 
 
 .. toctree::
@@ -20,13 +34,3 @@ Users
    developer
    reference/index.rst
    design/overview
-
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
