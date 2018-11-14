@@ -167,7 +167,24 @@
 <span class="kn">import</span> <span class="nn">requests</span>
 
 
-<span class="n">_PROTOCOL_SEP</span> <span class="o">=</span> <span class="s2">&quot;://&quot;</span>
+<span class="n">PROTOCOL_SEP</span> <span class="o">=</span> <span class="s2">&quot;://&quot;</span>
+
+
+<div class="viewcode-block" id="split_protocol"><a class="viewcode-back" href="../../reference/common.html#common.file_retriever.split_protocol">[docs]</a><span class="k">def</span> <span class="nf">split_protocol</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Split file url string into protocol and path.</span>
+
+<span class="sd">    Expected format is always &lt;protocol&gt;://&lt;path to file&gt;, even for local</span>
+<span class="sd">    files.</span>
+
+<span class="sd">    :param url: URL of local or remote file</span>
+<span class="sd">    :type url: string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">split_url</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">PROTOCOL_SEP</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">split_url</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">split_url</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">split_url</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span></div>
 
 
 <span class="k">def</span> <span class="nf">_s3_save</span><span class="p">(</span><span class="n">protocol</span><span class="p">,</span> <span class="n">source_loc</span><span class="p">,</span> <span class="n">dest_obj</span><span class="p">,</span> <span class="n">auth</span><span class="o">=</span><span class="s2">&quot;saml&quot;</span><span class="p">):</span>
@@ -205,7 +222,7 @@
 
 <span class="sd">    :returns: None, the data goes to dest_obj</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">url</span> <span class="o">=</span> <span class="n">protocol</span> <span class="o">+</span> <span class="n">_PROTOCOL_SEP</span> <span class="o">+</span> <span class="n">source_loc</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="n">protocol</span> <span class="o">+</span> <span class="n">PROTOCOL_SEP</span> <span class="o">+</span> <span class="n">source_loc</span>
     <span class="k">with</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">auth</span><span class="o">=</span><span class="n">auth</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">iter_content</span><span class="p">(</span><span class="n">chunk_size</span><span class="o">=</span><span class="mi">8192</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">chunk</span><span class="p">:</span>
@@ -261,22 +278,6 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">storage_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__tmpdir</span><span class="o">.</span><span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_files</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="k">def</span> <span class="nf">_split_protocol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Split file url string into protocol and path.</span>
-
-<span class="sd">        Expected format is always &lt;protocol&gt;://&lt;path to file&gt;, even for local</span>
-<span class="sd">        files.</span>
-
-<span class="sd">        :param url: URL of local or remote file</span>
-<span class="sd">        :type url: string</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">split_url</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">_PROTOCOL_SEP</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">split_url</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">split_url</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">split_url</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
-
 <div class="viewcode-block" id="FileRetriever.get"><a class="viewcode-back" href="../../reference/common.html#common.file_retriever.FileRetriever.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">auth</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Retrieve the contents of a remote file.</span>
@@ -289,10 +290,10 @@
 <span class="sd">        :raises LookupError: url is not of one of the handled protocols</span>
 <span class="sd">        :returns: a file-like object containing the remote file contents</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">protocol</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split_protocol</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">protocol</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">split_protocol</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">protocol</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">FileRetriever</span><span class="o">.</span><span class="n">_getters</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span>
-                <span class="n">f</span><span class="s2">&quot;Retrieving URL: </span><span class="si">{url}</span><span class="s2">&quot;</span>
+                <span class="n">f</span><span class="s2">&quot;Retrieving URL: </span><span class="si">{url}</span><span class="se">\n</span><span class="s2">&quot;</span>
                 <span class="n">f</span><span class="s2">&quot;No client found for protocol: </span><span class="si">{protocol}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
 

@@ -1,6 +1,7 @@
 Ingest Pipeline Design
 ======================
-Overview here
+- Overview
+- Design goals
 
 .. toctree::
    :caption: Contents

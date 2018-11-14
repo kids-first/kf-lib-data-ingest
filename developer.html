@@ -86,7 +86,12 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Developers</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Developers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#setup-development-environment">Setup Development Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-unit-tests">Run Unit Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#build-documentation">Build Documentation</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design/overview.html">Ingest Pipeline Design</a></li>
 </ul>
@@ -155,14 +160,61 @@
             
   <div class="section" id="developers">
 <h1>Developers<a class="headerlink" href="#developers" title="Permalink to this headline">¶</a></h1>
-<p>Setup development environment</p>
-<blockquote>
-<div><ul class="simple">
-<li>Setup Python virtualenv</li>
-<li>Describe Docker containers</li>
-</ul>
-</div></blockquote>
-<p>Testing</p>
+<div class="section" id="setup-development-environment">
+<h2>Setup Development Environment<a class="headerlink" href="#setup-development-environment" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic">
+<li><p class="first">Git clone the repository:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone git@github.com:kids-first/kf-lib-data-ingest.git
+</pre></div>
+</div>
+</li>
+<li><p class="first">Setup and activate virtual env:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m venv venv
+$ source venv/bin/activate
+</pre></div>
+</div>
+</li>
+<li><p class="first">Install kf-lib-data-ingest along with dependencies:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install -e .
+</pre></div>
+</div>
+</li>
+<li><p class="first">Install dev requirements:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install -r dev-requirements.txt
+</pre></div>
+</div>
+</li>
+</ol>
+</div>
+<div class="section" id="run-unit-tests">
+<h2>Run Unit Tests<a class="headerlink" href="#run-unit-tests" title="Permalink to this headline">¶</a></h2>
+<p>Use pytest to run tests:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pytest</span> <span class="n">tests</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="build-documentation">
+<h2>Build Documentation<a class="headerlink" href="#build-documentation" title="Permalink to this headline">¶</a></h2>
+<p>We currently use Sphinx for generating the API/reference documentation for the ingest library.</p>
+<p>If you would like to develop documentation follow these steps:</p>
+<ol class="arabic">
+<li><p class="first">Install the Python packages needed to build the documentation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install -r doc-requirements.txt
+</pre></div>
+</div>
+</li>
+<li><p class="first">Build the static docs site</p>
+</li>
+</ol>
+<p>After making changes to docstrings in the source code or .rst files in docs/source, you will need to rebuild the html:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd docs
+$ make html
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li>This will generate a <code class="docutils literal notranslate"><span class="pre">build</span></code> subdirectory containing the generated docs site. View the docs by opening <code class="docutils literal notranslate"><span class="pre">docs/build/html/index.html</span></code> in the browser</li>
+</ol>
+</div>
 </div>
 
 
