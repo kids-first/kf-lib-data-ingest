@@ -5,3 +5,7 @@ python3 -m venv venv
 pip install -e .
 pip install -r dev-requirements.txt
 pip install -r doc-requirements.txt
+
+cd docs
+make html
+cd -
