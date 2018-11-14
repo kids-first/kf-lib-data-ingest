@@ -158,6 +158,7 @@
 <span class="sd">Primary method of retrieving source data files for ingest</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">ABC</span>
@@ -165,7 +166,6 @@
 <span class="kn">import</span> <span class="nn">boto3</span>
 <span class="kn">import</span> <span class="nn">botocore</span>
 <span class="kn">import</span> <span class="nn">requests</span>
-
 
 <span class="n">PROTOCOL_SEP</span> <span class="o">=</span> <span class="s2">&quot;://&quot;</span>
 
@@ -268,6 +268,7 @@
 <span class="sd">        :param cleanup_at_exit: should the temp files vanish at exit</span>
 <span class="sd">        :type cleanup_at_exit: bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cleanup_at_exit</span> <span class="o">=</span> <span class="n">cleanup_at_exit</span>
         <span class="k">if</span> <span class="n">storage_dir</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__tmpdir</span> <span class="o">=</span> <span class="kc">None</span>
@@ -290,6 +291,7 @@
 <span class="sd">        :raises LookupError: url is not of one of the handled protocols</span>
 <span class="sd">        :returns: a file-like object containing the remote file contents</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Fetching </span><span class="si">%s</span><span class="s2"> using auth </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">auth</span><span class="p">)</span>
         <span class="n">protocol</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">split_protocol</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">protocol</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">FileRetriever</span><span class="o">.</span><span class="n">_getters</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span>
