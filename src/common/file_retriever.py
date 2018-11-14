@@ -6,6 +6,7 @@ File Retriever
 Primary method of retrieving source data files for ingest
 """
 
+import logging
 import shutil
 import tempfile
 from abc import ABC
@@ -13,7 +14,6 @@ from abc import ABC
 import boto3
 import botocore
 import requests
-
 
 PROTOCOL_SEP = "://"
 
@@ -116,6 +116,7 @@ class FileRetriever(object):
         :param cleanup_at_exit: should the temp files vanish at exit
         :type cleanup_at_exit: bool
         """
+        self.logger = logging.getLogger(type(self).__name__)
         self.cleanup_at_exit = cleanup_at_exit
         if storage_dir:
             self.__tmpdir = None
@@ -138,6 +139,7 @@ class FileRetriever(object):
         :raises LookupError: url is not of one of the handled protocols
         :returns: a file-like object containing the remote file contents
         """
+        self.logger.info("Fetching %s using auth %s", url, auth)
         protocol, path = split_protocol(url)
         if protocol not in FileRetriever._getters:
             raise LookupError(
