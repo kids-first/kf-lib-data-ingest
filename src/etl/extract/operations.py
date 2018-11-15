@@ -144,6 +144,18 @@ def column_map(m, in_col, out_col):
     return column_map_func
 
 
+def keep_map(in_col, out_col):
+    """
+    Shorthand for value_map or column_map with `m=lambda x: x`
+
+    :param in_col: Which column from the input dataframe to use
+    :param out_col: The standard concept column in the extract output to
+        populate
+    :returns: A function that transfers values from in_col to out_col
+    """
+    return column_map(lambda x: x, in_col, out_col)
+
+
 def melt_map(var_name, map_for_vars, value_name, map_for_values):
     """
     Wraps the melt mapping operation in a function that takes only a dataframe

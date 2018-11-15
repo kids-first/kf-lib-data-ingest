@@ -7,6 +7,7 @@ class PropertyMixin(object):
     _CONCEPT_NAME = None
     ID = None
     TARGET_SERVICE_ID = None
+    HIDDEN = None
 
 
 class CONCEPT:
@@ -31,6 +32,8 @@ class CONCEPT:
         IS_PROBAND = None
         FATHER_ID = None
         MOTHER_ID = None
+        PROBAND_ID = None
+        RELATIONSHIP_TO_PROBAND = None
         GENDER = None
         ETHNICITY = None
         RACE = None
