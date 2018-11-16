@@ -26,7 +26,8 @@ def test_extracts():
         es = ExtractStage(study_dir, extract_configs)
         df_out = es.run()
 
-        recycled_output = es._deserialize_output(es._serialize_output(df_out))
+        es._write_output(df_out)
+        recycled_output = es._read_output()
 
         for config in extract_configs:
             extracted = df_out[config][1]
