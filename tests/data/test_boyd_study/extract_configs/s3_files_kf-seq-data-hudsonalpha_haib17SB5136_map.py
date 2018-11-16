@@ -3,8 +3,8 @@ from etl.extract.operations import *
 from etl.transform.standard_model.concept_schema import CONCEPT
 
 source_data_url = (
-    'file:///Users/kelmana/Documents/kids-first/kf-study-imports/Avi/'
-    'boyd17/data/s3_files_kf-seq-data-hudsonalpha_haib17SB5136.tsv'
+    's3://kf-study-us-east-1-prd-sd-p445achv/study-files/modified/'
+    's3_files_kf-seq-data-hudsonalpha_haib17SB5136.tsv'
 )
 
 source_data_loading_parameters = {}

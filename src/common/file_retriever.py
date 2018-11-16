@@ -1,9 +1,6 @@
 """
-**************
-File Retriever
-**************
-
-Primary method of retrieving source data files for ingest
+FileRetriever is a class for downloading the contents of remote files using
+whatever mechanism is appropriate for the given protocol.
 """
 
 import logging
@@ -14,6 +11,11 @@ from abc import ABC
 import boto3
 import botocore
 import requests
+
+logging.getLogger('boto3').setLevel(logging.WARNING)
+logging.getLogger('botocore').setLevel(logging.WARNING)
+logging.getLogger('s3transfer').setLevel(logging.WARNING)
+logging.getLogger('urllib3').setLevel(logging.WARNING)
 
 PROTOCOL_SEP = "://"
 
@@ -35,7 +37,7 @@ def split_protocol(url):
         return None, None
 
 
-def _s3_save(protocol, source_loc, dest_obj, auth="saml"):
+def _s3_save(protocol, source_loc, dest_obj, auth, logger):
     """
     Get contents of a file from Amazon S3 to a local file-like object.
 
@@ -45,17 +47,31 @@ def _s3_save(protocol, source_loc, dest_obj, auth="saml"):
     :type source_loc: str
     :param dest_obj: Receives the data downloaded from the source file
     :type dest_obj: File-like object
-    :param auth: optional S3 auth profile (defaults to "saml")
+    :param auth: optional S3 auth profile (defaults to all available profiles)
     :type auth: str
 
     :returns: None, the data goes to dest_obj
     """
+    if auth is not None:
+        aws_profiles = auth
+    else:
+        aws_profiles = boto3.Session().available_profiles + [None]
+
     bucket, key = source_loc.split("/", 1)
-    s3 = boto3.session.Session(profile_name=auth).resource("s3")
-    s3.Object(bucket, key).download_fileobj(dest_obj)
+
+    for profile in aws_profiles:
+        try:
+            logger.info("Trying auth profile '%s'", profile)
+            s3 = boto3.session.Session(profile_name=profile).resource("s3")
+            s3.Object(bucket, key).download_fileobj(dest_obj)
+            return
+        except botocore.exceptions.NoCredentialsError:
+            pass
+
+    raise botocore.exceptions.NoCredentialsError()  # never got the file
 
 
-def _web_save(protocol, source_loc, dest_obj, auth=None):
+def _web_save(protocol, source_loc, dest_obj, auth, logger):
     """
     Get contents of a file from a web server to a local file-like object.
 
@@ -70,6 +86,9 @@ def _web_save(protocol, source_loc, dest_obj, auth=None):
 
     :returns: None, the data goes to dest_obj
     """
+    if auth:
+        logger.info("Trying auth '%s'", auth)
+
     url = protocol + PROTOCOL_SEP + source_loc
     with requests.get(url, auth=auth, stream=True) as response:
         for chunk in response.iter_content(chunk_size=8192):
@@ -77,7 +96,7 @@ def _web_save(protocol, source_loc, dest_obj, auth=None):
                 dest_obj.write(chunk)
 
 
-def _file_save(protocol, source_loc, dest_obj, auth=None):
+def _file_save(protocol, source_loc, dest_obj, auth, logger):
     """
     Get contents of a file from a local file path to a local file-like object.
 
@@ -139,8 +158,9 @@ class FileRetriever(object):
         :raises LookupError: url is not of one of the handled protocols
         :returns: a file-like object containing the remote file contents
         """
-        self.logger.info("Fetching %s using auth %s", url, auth)
+        self.logger.info("Fetching %s", url)
         protocol, path = split_protocol(url)
+        self.logger.info("Detected protocol '%s'", protocol)
         if protocol not in FileRetriever._getters:
             raise LookupError(
                 f"Retrieving URL: {url}\n"
@@ -160,7 +180,7 @@ class FileRetriever(object):
                 )
                 # Fetch the remote data
                 FileRetriever._getters[protocol](
-                    protocol, path, self._files[url], auth
+                    protocol, path, self._files[url], auth, self.logger
                 )
 
             self._files[url].seek(0)
