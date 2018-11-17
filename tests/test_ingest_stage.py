@@ -13,9 +13,9 @@ def test_ingest_stage_abs_cls():
     with pytest.raises(TypeError) as e:
         InvalidIngestStage()
 
-    abstract_methods = ['_deserialize_output',
-                        '_run',
-                        '_serialize_output',
+    abstract_methods = ['_run',
+                        '_write_output',
+                        '_read_output',
                         '_validate_run_parameters']
 
     for m in abstract_methods:
@@ -32,10 +32,10 @@ def test_invalid_run_parameters():
             if not foo:
                 raise InvalidIngestStageParameters
 
-        def _serialize_output(self, output):
+        def _write_output(self, output):
             pass
 
-        def _deserialize_output(self, filepath):
+        def _read_output(self):
             pass
 
     stage = ValidIngestStage()

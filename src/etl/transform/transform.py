@@ -11,12 +11,12 @@ class TransformStage(IngestStage):
         # TODO we dont know what this takes yet
         pass
 
-    def _serialize_output(self, output):
+    def _read_output(self):
         # An ingest stage is responsible for serializing the data that is
         # produced at the end of stage run
         pass  # TODO
 
-    def _deserialize_output(self, filepath):
+    def _write_output(self, output):
         # An ingest stage is responsible for deserializing the data that it
         # previously produced at the end of stage run
         pass  # TODO

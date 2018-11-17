@@ -1,14 +1,14 @@
 import inspect
 import logging
+import os
 from collections import OrderedDict
 
+from config import DEFAULT_TARGET_URL
 from etl.configuration.dataset_ingest_config import DatasetIngestConfig
 from etl.configuration.log import setup_logger
 from etl.extract.extract import ExtractStage
-from etl.transform.transform import TransformStage
 from etl.load.load import LoadStage
-from config import DEFAULT_TARGET_URL
-
+from etl.transform.transform import TransformStage
 
 # TODO
 # Allow a run argument that contains the desired stages to run
@@ -90,7 +90,13 @@ class DataIngestPipeline(object):
         """
         # Create an ordered dict of all ingest stages and their parameters
         self.stage_dict = OrderedDict()
+        extract_cache_dir = os.path.join(
+            os.path.dirname(self.data_ingest_config.config_filepath),
+            'output_cache'
+        )
+        os.makedirs(extract_cache_dir, exist_ok=True)
         self.stage_dict['e'] = (ExtractStage,
+                                extract_cache_dir,
                                 self.data_ingest_config.extract_config_paths)
         self.stage_dict['t'] = (TransformStage, )
 

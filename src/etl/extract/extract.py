@@ -1,3 +1,4 @@
+import json
 import os
 from collections import defaultdict
 from functools import reduce
@@ -26,26 +27,60 @@ def lcm(number_list):
 
 
 class ExtractStage(IngestStage):
-
-    def __init__(self, extract_config_paths):
-        super().__init__()
+    def __init__(
+        self, stage_cache_dir, extract_config_paths
+    ):
+        super().__init__(stage_cache_dir)
         if isinstance(extract_config_paths, list):
             self.extract_configs = [ExtractConfig(config_filepath)
                                     for config_filepath
                                     in extract_config_paths]
 
-    def _serialize_output(self, output):
-        # An ingest stage is responsible for serializing the data that is
-        # produced at the end of stage run
-        pass  # TODO
+    def _output_path(self):
+        """
+        Construct the filepath of the output.
+        Something like:
+            <study config dir path>/output_cache/<ingest stage class name>.xxx
 
-    def _deserialize_output(self, filepath):
-        # An ingest stage is responsible for deserializing the data that it
-        # previously produced at the end of stage run
-        pass  # TODO
+        :return: file location to put/get serialized output for this stage
+        :rtype: string
+        """
+        return os.path.join(
+            self.stage_cache_dir, type(self).__name__ + '_cache.txt'
+        )
+
+    def _write_output(self, output):
+        """
+        Implements IngestStage._write_output
+        """
+        class IndexlessJSONEncoder(json.JSONEncoder):
+            def default(self, obj):
+                if hasattr(obj, 'to_dict'):
+                    no_index = obj.to_dict(orient='split')
+                    del no_index['index']
+                    return no_index
+                return json.JSONEncoder.default(self, obj)
+
+        with open(self._output_path(), "w") as fp:
+            json.dump(output, fp, cls=IndexlessJSONEncoder, indent=2)
+
+    def _read_output(self):
+        """
+        Implements IngestStage._read_output
+        """
+        data = {}
+        with open(self._output_path()) as fp:
+            data = json.load(fp)
+
+        for k, v in data.items():
+            v[1] = pandas.DataFrame.from_records(
+                v[1]['data'],
+                columns=v[1]['columns']
+            )
+        return data
 
     def _validate_run_parameters(self):
-        # Extract stage does not expect any args so we can pass validation
+        # Extract stage does not expect any args
         pass
 
     def _log_operation(self, op):

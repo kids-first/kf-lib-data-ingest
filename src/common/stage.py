@@ -1,16 +1,14 @@
-import time
 import logging
+import os
+import time
+from abc import ABC, abstractmethod
 from functools import wraps
-
-from abc import (
-    ABC,
-    abstractmethod
-)
 
 
 class IngestStage(ABC):
 
-    def __init__(self):
+    def __init__(self, stage_cache_dir=None):
+        self.stage_cache_dir = stage_cache_dir
         self.logger = logging.getLogger(type(self).__name__)
 
     @abstractmethod
@@ -24,34 +22,27 @@ class IngestStage(ABC):
         pass
 
     @abstractmethod
-    def _serialize_output(self, output):
-        # An ingest stage is responsible for serializing the data that is
-        # produced at the end of stage run
-        pass  # TODO
+    def _write_output(self, output):
+        """
+        An ingest stage is responsible for serializing the data that is
+        produced at the end of stage run.
 
-    @abstractmethod
-    def _deserialize_output(self, filepath):
-        # An ingest stage is responsible for deserializing the data that it
-        # previously produced at the end of stage run
-        pass  # TODO
-
-    def _construct_output_filepath(self):
-        # Construct the filepath of the output using the study's config
-        # directory which is basename of
-        # self.dataset_ingest_config.config_filepath
-        # Store in
-        # <study config dir path>/output_cache/<ingest stage class name>
+        :param output: some data structure that needs to be serialized
+        """
         pass
 
+    @abstractmethod
     def _read_output(self):
-        filepath = self._construct_output_filepath()
-        pass  # TODO
+        """
+        An ingest stage is responsible for deserializing the data that it
+        previously produced at the end of stage run
 
-    def _write_output(self, output):
-        filepath = self._construct_output_filepath()
-        serialized = self._serialize_output(output)
-        # TODO
-        # Write serialized output to file
+        :param serialized_output: a serialized representation of all of the
+            data that this stage produces
+        :type serialized_output: string
+        :return: some data structure equal to what this stage produces
+        """
+        pass
 
     def _log_run(func):
         """
@@ -94,6 +85,6 @@ class IngestStage(ABC):
         output = self._run(*args, **kwargs)
 
         # Write output of stage to disk
-        # self._write_output(output)
+        self._write_output(output)
 
         return output

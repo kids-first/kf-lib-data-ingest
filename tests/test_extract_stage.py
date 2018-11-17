@@ -8,65 +8,47 @@ from conftest import TEST_DATA_DIR
 from etl.extract.extract import ExtractStage
 from etl.transform.standard_model.concept_schema import CONCEPT
 
+study_1 = os.path.join(TEST_DATA_DIR, 'test_study')
+expected_results = {
+    study_1: {
+        os.path.join(study_1, 'extract_configs', 'example1.py'):
+            os.path.join(study_1, 'extract_outputs', 'example1_output.tsv'),
 
-def _get_output_and_expected(extract_config_path, expected_output_path):
-    expected_output_path = 'file://' + expected_output_path
-    es = ExtractStage([extract_config_path])
-    df_out = es.run()
-    example = df_out[extract_config_path][1]
-    expected = es._source_file_to_df(expected_output_path)
-    return example, expected
-
-
-def _test_example_1():
-    """
-    Compare result of extracting test_study/extract_configs/example1.py against
-    expected test_study/extract_outputs/example1_output.tsv
-    """
-    example, expected = _get_output_and_expected(
-        os.path.join(
-            TEST_DATA_DIR, 'test_study', 'extract_configs',
-            'example1.py'
-        ),
-        os.path.join(
-            TEST_DATA_DIR, 'test_study', 'extract_outputs',
-            'example1_output.tsv'
-        )
-    )
-
-    # accomodate file format deficiencies
-    expected[CONCEPT.PARTICIPANT.MOTHER_ID] = expected[
-        CONCEPT.PARTICIPANT.MOTHER_ID
-    ].apply(intsafe_str)
-    expected[CONCEPT.PARTICIPANT.FATHER_ID] = expected[
-        CONCEPT.PARTICIPANT.FATHER_ID
-    ].apply(intsafe_str)
-
-    return example, expected
-
-
-def _test_example_2():
-    """
-    Compare result of extracting test_study/extract_configs/example2.py against
-    expected test_study/extract_outputs/example2_output.tsv
-    """
-    example, expected = _get_output_and_expected(
-        os.path.join(
-            TEST_DATA_DIR, 'test_study', 'extract_configs',
-            'example2.py'
-        ),
-        os.path.join(
-            TEST_DATA_DIR, 'test_study', 'extract_outputs',
-            'example2_output.tsv'
-        )
-    )
-    return example, expected
+        os.path.join(study_1, 'extract_configs', 'example2.py'):
+            os.path.join(study_1, 'extract_outputs', 'example2_output.tsv')
+    }
+}
 
 
 def test_extracts():
-    for t in [_test_example_1, _test_example_2]:
-        # get output and expected
-        example, expected = t()
-        # compare output with expected
-        example = example[expected.columns]  # realign column order
-        pandas.testing.assert_frame_equal(expected, example)
+    for study_dir, study_configs in expected_results.items():
+        extract_configs = list(study_configs.keys())
+        es = ExtractStage(study_dir, extract_configs)
+        df_out = es.run()
+
+        es._write_output(df_out)
+        recycled_output = es._read_output()
+
+        for config in extract_configs:
+            extracted = df_out[config][1]
+            expected = es._source_file_to_df(
+                "file://"+study_configs[config]
+            )
+
+            # test for same columns (might be out of order)
+            assert sorted(expected.columns) == sorted(extracted.columns)
+            expected = expected[extracted.columns]
+
+            # account for datatype mismatches induced by loading the expected
+            # result directly from a file
+            for col in expected.columns:
+                if expected[col].dtype != extracted[col].dtype:
+                    expected[col] = expected[col].apply(intsafe_str)
+
+            # test for expected equivalence
+            pandas.testing.assert_frame_equal(extracted, expected)
+
+            # test serialize/deserialize equivalence
+            pandas.testing.assert_frame_equal(
+                extracted, recycled_output[config][1]
+            )
