@@ -90,10 +90,13 @@ class DataIngestPipeline(object):
         """
         # Create an ordered dict of all ingest stages and their parameters
         self.stage_dict = OrderedDict()
+        extract_cache_dir = os.path.join(
+            os.path.dirname(self.data_ingest_config.config_filepath),
+            'output_cache'
+        )
+        os.makedirs(extract_cache_dir, exist_ok=True)
         self.stage_dict['e'] = (ExtractStage,
-                                os.path.dirname(
-                                    self.data_ingest_config.config_filepath
-                                ),
+                                extract_cache_dir,
                                 self.data_ingest_config.extract_config_paths)
         self.stage_dict['t'] = (TransformStage, )
 
