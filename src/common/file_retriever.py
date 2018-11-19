@@ -37,7 +37,7 @@ def split_protocol(url):
         return None, None
 
 
-def _s3_save(protocol, source_loc, dest_obj, auth, logger):
+def _s3_save(protocol, source_loc, dest_obj, auth=None, logger=None):
     """
     Get contents of a file from Amazon S3 to a local file-like object.
 
@@ -52,7 +52,8 @@ def _s3_save(protocol, source_loc, dest_obj, auth, logger):
 
     :returns: None, the data goes to dest_obj
     """
-    if auth is not None:
+    logger = logger or logging.getLogger(__name__)
+    if auth:
         aws_profiles = auth
     else:
         aws_profiles = boto3.Session().available_profiles + [None]
@@ -61,7 +62,7 @@ def _s3_save(protocol, source_loc, dest_obj, auth, logger):
 
     for profile in aws_profiles:
         try:
-            logger.info("Trying auth profile '%s'", profile)
+            logger.info("S3 download - Trying auth profile '%s'", profile)
             s3 = boto3.session.Session(profile_name=profile).resource("s3")
             s3.Object(bucket, key).download_fileobj(dest_obj)
             return
@@ -71,7 +72,7 @@ def _s3_save(protocol, source_loc, dest_obj, auth, logger):
     raise botocore.exceptions.NoCredentialsError()  # never got the file
 
 
-def _web_save(protocol, source_loc, dest_obj, auth, logger):
+def _web_save(protocol, source_loc, dest_obj, auth=None, logger=None):
     """
     Get contents of a file from a web server to a local file-like object.
 
@@ -86,9 +87,7 @@ def _web_save(protocol, source_loc, dest_obj, auth, logger):
 
     :returns: None, the data goes to dest_obj
     """
-    if auth:
-        logger.info("Trying auth '%s'", auth)
-
+    logger = logger or logging.getLogger(__name__)
     url = protocol + PROTOCOL_SEP + source_loc
     with requests.get(url, auth=auth, stream=True) as response:
         for chunk in response.iter_content(chunk_size=8192):
@@ -96,7 +95,7 @@ def _web_save(protocol, source_loc, dest_obj, auth, logger):
                 dest_obj.write(chunk)
 
 
-def _file_save(protocol, source_loc, dest_obj, auth, logger):
+def _file_save(protocol, source_loc, dest_obj, auth=None, logger=None):
     """
     Get contents of a file from a local file path to a local file-like object.
 
@@ -111,6 +110,7 @@ def _file_save(protocol, source_loc, dest_obj, auth, logger):
 
     :returns: None, the data goes to dest_obj
     """
+    logger = logger or logging.getLogger(__name__)
     with open(source_loc, "rb") as orig:
         shutil.copyfileobj(orig, dest_obj)
 
@@ -158,13 +158,17 @@ class FileRetriever(object):
         :raises LookupError: url is not of one of the handled protocols
         :returns: a file-like object containing the remote file contents
         """
-        self.logger.info("Fetching %s", url)
+        self.logger.info("Fetching %s with primary auth '%s'", url, auth)
         protocol, path = split_protocol(url)
-        self.logger.info("Detected protocol '%s'", protocol)
         if protocol not in FileRetriever._getters:
             raise LookupError(
                 f"Retrieving URL: {url}\n"
                 f"No client found for protocol: {protocol}"
+            )
+        else:
+            self.logger.info(
+                "Detected protocol '%s' --> Using getter %s",
+                protocol, FileRetriever._getters[protocol].__name__
             )
 
         # TODO: Either remove this try wrapper or remove this message.
@@ -180,7 +184,8 @@ class FileRetriever(object):
                 )
                 # Fetch the remote data
                 FileRetriever._getters[protocol](
-                    protocol, path, self._files[url], auth, self.logger
+                    protocol, path, self._files[url],
+                    auth=auth, logger=self.logger
                 )
 
             self._files[url].seek(0)
