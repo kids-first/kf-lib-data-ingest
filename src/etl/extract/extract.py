@@ -95,7 +95,7 @@ class ExtractStage(IngestStage):
                 k: v.cell_contents for k, v
                 in zip(op.__code__.co_freevars, op.__closure__)
             })
-        self.logger.debug(msg)
+        self.logger.info(msg)
 
     def _run(self):
         """
