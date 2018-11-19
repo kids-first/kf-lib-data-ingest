@@ -21,6 +21,10 @@ class ExtractConfig(PyModuleConfig):
             self.contents.source_data_loading_parameters.get('load_func'),
             None, function
         )
+        assert_safe_type(
+            self.contents.source_data_loading_parameters.get('do_after_load'),
+            None, function
+        )
         for op in self.contents.operations:
             if isinstance(op, list):
                 assert_all_safe_type(op, function)
