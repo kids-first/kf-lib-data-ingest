@@ -90,7 +90,6 @@
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Common</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#errors">Errors</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#file-retriever">File Retriever</a></li>
 </ul>
 </li>
 </ul>
@@ -174,9 +173,8 @@
 <dd><p>Exception raised if parameters passed to IngestStage.run fail validation</p>
 </dd></dl>
 
-<span class="target" id="module-common.file_retriever"></span><div class="section" id="file-retriever">
-<h2>File Retriever<a class="headerlink" href="#file-retriever" title="Permalink to this headline">¶</a></h2>
-<p>Primary method of retrieving source data files for ingest</p>
+<span class="target" id="module-common.file_retriever"></span><p>FileRetriever is a class for downloading the contents of remote files using
+whatever mechanism is appropriate for the given protocol.</p>
 <dl class="class">
 <dt id="common.file_retriever.FileRetriever">
 <em class="property">class </em><code class="descclassname">common.file_retriever.</code><code class="descname">FileRetriever</code><span class="sig-paren">(</span><em>storage_dir=None</em>, <em>cleanup_at_exit=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/file_retriever.html#FileRetriever"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.file_retriever.FileRetriever" title="Permalink to this definition">¶</a></dt>
@@ -225,7 +223,6 @@ files.</p>
 </table>
 </dd></dl>
 
-</div>
 </div>
 
 
