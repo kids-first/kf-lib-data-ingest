@@ -7,8 +7,8 @@ from functools import wraps
 
 class IngestStage(ABC):
 
-    def __init__(self, study_config_dir=None):
-        self.study_config_dir = study_config_dir
+    def __init__(self, stage_cache_dir=None):
+        self.stage_cache_dir = stage_cache_dir
         self.logger = logging.getLogger(type(self).__name__)
 
     @abstractmethod
@@ -22,7 +22,7 @@ class IngestStage(ABC):
         pass
 
     @abstractmethod
-    def _serialize_output(self, output):
+    def _write_output(self, output):
         """
         An ingest stage is responsible for serializing the data that is
         produced at the end of stage run.
@@ -32,7 +32,7 @@ class IngestStage(ABC):
         pass
 
     @abstractmethod
-    def _deserialize_output(self, serialized_output):
+    def _read_output(self):
         """
         An ingest stage is responsible for deserializing the data that it
         previously produced at the end of stage run
@@ -43,39 +43,6 @@ class IngestStage(ABC):
         :return: some data structure equal to what this stage produces
         """
         pass
-
-    def _construct_output_filepath(self):
-        """
-        Construct the filepath of the output.
-        Something like:
-            <study config dir path>/output_cache/<ingest stage class name>.xxx
-
-        :return: file location to put/get serialized output for this stage
-        :rtype: string
-        """
-        return os.path.join(
-            self.study_config_dir, 'output_cache',
-            type(self).__name__ + '_cache.txt'
-        ) if self.study_config_dir else None
-
-    def _read_output(self):
-        """
-        Deserialize from a file.
-        """
-        filepath = self._construct_output_filepath()
-        with open(filepath) as fp:
-            return self._deserialize_output(fp.read())
-
-    def _write_output(self, output):
-        """
-        Serialize to a file.
-        """
-        filepath = self._construct_output_filepath()
-        serialized = self._serialize_output(output)
-        if filepath and serialized:
-            os.makedirs(os.path.dirname(filepath), exist_ok=True)
-            with open(filepath, "w") as fp:
-                fp.write(serialized)
 
     def _log_run(func):
         """

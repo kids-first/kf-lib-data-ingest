@@ -27,17 +27,31 @@ def lcm(number_list):
 
 
 class ExtractStage(IngestStage):
-
-    def __init__(self, study_config_dir, extract_config_paths):
-        super().__init__(study_config_dir)
+    def __init__(
+        self, stage_cache_dir, extract_config_paths
+    ):
+        super().__init__(stage_cache_dir)
         if isinstance(extract_config_paths, list):
             self.extract_configs = [ExtractConfig(config_filepath)
                                     for config_filepath
                                     in extract_config_paths]
 
-    def _serialize_output(self, output):
+    def _output_path(self):
         """
-        Implements IngestStage._serialize_output
+        Construct the filepath of the output.
+        Something like:
+            <study config dir path>/output_cache/<ingest stage class name>.xxx
+
+        :return: file location to put/get serialized output for this stage
+        :rtype: string
+        """
+        return os.path.join(
+            self.stage_cache_dir, type(self).__name__ + '_cache.txt'
+        )
+
+    def _write_output(self, output):
+        """
+        Implements IngestStage._write_output
         """
         class IndexlessJSONEncoder(json.JSONEncoder):
             def default(self, obj):
@@ -47,13 +61,17 @@ class ExtractStage(IngestStage):
                     return no_index
                 return json.JSONEncoder.default(self, obj)
 
-        return json.dumps(output, cls=IndexlessJSONEncoder, indent=2)
+        with open(self._output_path(), "w") as fp:
+            json.dump(output, fp, cls=IndexlessJSONEncoder, indent=2)
 
-    def _deserialize_output(self, serialized_output):
+    def _read_output(self):
         """
-        Implements IngestStage._deserialize_output
+        Implements IngestStage._read_output
         """
-        data = json.loads(serialized_output)
+        data = {}
+        with open(self._output_path()) as fp:
+            data = json.load(fp)
+
         for k, v in data.items():
             v[1] = pandas.DataFrame.from_records(
                 v[1]['data'],
