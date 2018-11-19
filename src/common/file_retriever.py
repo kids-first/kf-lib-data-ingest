@@ -66,7 +66,12 @@ def _s3_save(protocol, source_loc, dest_obj, auth=None, logger=None):
             s3 = boto3.session.Session(profile_name=profile).resource("s3")
             s3.Object(bucket, key).download_fileobj(dest_obj)
             return
-        except botocore.exceptions.NoCredentialsError:
+        except (
+            # HACK: ClientError is too generic but (I think) all we get for now
+            # See https://github.com/boto/botocore/issues/1400
+            botocore.exceptions.ClientError,
+            botocore.exceptions.NoCredentialsError
+        ):
             pass
 
     raise botocore.exceptions.NoCredentialsError()  # never got the file
