@@ -218,7 +218,12 @@
             <span class="n">s3</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="n">profile_name</span><span class="o">=</span><span class="n">profile</span><span class="p">)</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s2">&quot;s3&quot;</span><span class="p">)</span>
             <span class="n">s3</span><span class="o">.</span><span class="n">Object</span><span class="p">(</span><span class="n">bucket</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">download_fileobj</span><span class="p">(</span><span class="n">dest_obj</span><span class="p">)</span>
             <span class="k">return</span>
-        <span class="k">except</span> <span class="n">botocore</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">NoCredentialsError</span><span class="p">:</span>
+        <span class="k">except</span> <span class="p">(</span>
+            <span class="c1"># HACK: ClientError is too generic but (I think) all we get for now</span>
+            <span class="c1"># See https://github.com/boto/botocore/issues/1400</span>
+            <span class="n">botocore</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ClientError</span><span class="p">,</span>
+            <span class="n">botocore</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">NoCredentialsError</span>
+        <span class="p">):</span>
             <span class="k">pass</span>
 
     <span class="k">raise</span> <span class="n">botocore</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">NoCredentialsError</span><span class="p">()</span>  <span class="c1"># never got the file</span>
