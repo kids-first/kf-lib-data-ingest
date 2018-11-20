@@ -3,9 +3,9 @@ Module for loading the transform output into the dataservice.
 """
 from abc import abstractmethod
 
-from common.errors import InvalidIngestStageParameters
-from common.stage import IngestStage
-from etl.configuration.target_api_config import TargetAPIConfig
+from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
+from kf_lib_data_ingest.common.stage import IngestStage
+from kf_lib_data_ingest.etl.configuration.target_api_config import TargetAPIConfig  # noqa E501
 
 # TODO
 # REMEMBER THIS!

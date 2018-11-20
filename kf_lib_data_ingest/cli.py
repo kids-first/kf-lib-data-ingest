@@ -5,7 +5,7 @@ import inspect
 
 import click
 
-from config import DEFAULT_TARGET_URL
+from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
@@ -44,7 +44,7 @@ def ingest(dataset_ingest_config_path, target_url, use_async):
         'dataset_ingest_config_path.yml'
     """
     import os
-    from etl.ingest_pipeline import DataIngestPipeline
+    from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
 
     # Make kwargs from options
     frame = inspect.currentframe()

@@ -5,7 +5,7 @@ import pytest
 import requests_mock
 from moto import mock_s3
 
-from common.file_retriever import FileRetriever
+from kf_lib_data_ingest.common.file_retriever import FileRetriever
 from conftest import TEST_DATA_DIR
 
 TEST_S3_BUCKET = "s3_bucket"

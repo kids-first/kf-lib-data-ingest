@@ -3,12 +3,12 @@ import logging
 import os
 from collections import OrderedDict
 
-from config import DEFAULT_TARGET_URL
-from etl.configuration.dataset_ingest_config import DatasetIngestConfig
-from etl.configuration.log import setup_logger
-from etl.extract.extract import ExtractStage
-from etl.load.load import LoadStage
-from etl.transform.transform import TransformStage
+from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
+from kf_lib_data_ingest.etl.configuration.dataset_ingest_config import DatasetIngestConfig  # noqa E501
+from kf_lib_data_ingest.etl.configuration.log import setup_logger
+from kf_lib_data_ingest.etl.extract.extract import ExtractStage
+from kf_lib_data_ingest.etl.load.load import LoadStage
+from kf_lib_data_ingest.etl.transform.transform import TransformStage
 
 # TODO
 # Allow a run argument that contains the desired stages to run

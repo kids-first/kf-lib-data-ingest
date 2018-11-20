@@ -1,6 +1,6 @@
-from common import constants
-from etl.extract.operations import *
-from etl.transform.standard_model.concept_schema import CONCEPT
+from kf_lib_data_ingest.common import constants
+from kf_lib_data_ingest.etl.extract.operations import *
+from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import CONCEPT
 
 source_data_url = 'file://../data/simple_headered_tsv_2.tsv'
 

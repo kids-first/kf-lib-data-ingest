@@ -6,7 +6,7 @@ import re
 import numpy
 import pandas
 
-from common.type_safety import assert_safe_type
+from kf_lib_data_ingest.common.type_safety import assert_safe_type
 
 
 def try_pop(df, key, default=None):
@@ -28,7 +28,7 @@ def get_col(df, key):
     :returns: The indicated column from the dataframe, either by name or order.
     """
     if isinstance(key, int) and (key not in df.columns):
-        return df[df.columns[key-1]]  # the keyth column
+        return df[df.columns[key - 1]]  # the keyth column
     else:
         return df[key]
 

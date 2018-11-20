@@ -3,7 +3,7 @@ import time
 
 import pytest
 
-from config import (
+from kf_lib_data_ingest.config import (
     DEFAULT_LOG_FILENAME,
     DEFAULT_LOG_LEVEL,
     DEFAULT_LOG_OVERWRITE_OPT
@@ -13,6 +13,7 @@ from conftest import (
     TEST_DATA_DIR,
     KIDS_FIRST_CONFIG
 )
+from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
 
 target_api_config_path = KIDS_FIRST_CONFIG
 default_log_dir = os.path.join(TEST_DATA_DIR, 'test_study', 'logs')
@@ -115,7 +116,6 @@ def test_log_exceptions(ingest_pipeline):
     """
 
     # Create a dummy ingestion pipeline class
-    from etl.ingest_pipeline import DataIngestPipeline
 
     class NewPipeline(DataIngestPipeline):
         # Override run method to throw exception

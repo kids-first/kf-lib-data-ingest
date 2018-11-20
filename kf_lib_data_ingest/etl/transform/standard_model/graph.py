@@ -1,12 +1,12 @@
 import networkx as nx
 
-from etl.transform.standard_model.concept_schema import (
+from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
     DELIMITER,
     is_identifier,
     concept_from,
     concept_attr_from
 )
-from common.misc import iterate_pairwise
+from kf_lib_data_ingest.common.misc import iterate_pairwise
 
 
 class ConceptGraph(object):

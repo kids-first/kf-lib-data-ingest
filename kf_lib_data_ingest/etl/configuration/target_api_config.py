@@ -113,12 +113,12 @@ All but the first of these required attributes must be dicts.
 
 import networkx as nx
 
-from etl.configuration.base_config import PyModuleConfig
-from etl.transform.standard_model.concept_schema import (
+from kf_lib_data_ingest.etl.configuration.base_config import PyModuleConfig
+from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
     concept_property_set,
     concept_set
 )
-from common.type_safety import (
+from kf_lib_data_ingest.common.type_safety import (
     assert_safe_type,
     assert_all_safe_type
 )

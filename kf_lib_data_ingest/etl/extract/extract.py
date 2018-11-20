@@ -6,13 +6,19 @@ from math import gcd
 
 import pandas
 
-from common.datafile_readers import read_excel_file
-from common.file_retriever import PROTOCOL_SEP, FileRetriever, split_protocol
-from common.misc import intsafe_str
-from common.stage import IngestStage
-from common.type_safety import assert_safe_type, function
-from etl.configuration.base_config import ConfigValidationError
-from etl.configuration.extract_config import ExtractConfig
+from kf_lib_data_ingest.common.datafile_readers import read_excel_file
+from kf_lib_data_ingest.common.file_retriever import (
+    PROTOCOL_SEP,
+    FileRetriever,
+    split_protocol
+)
+from kf_lib_data_ingest.common.misc import intsafe_str
+from kf_lib_data_ingest.common.stage import IngestStage
+from kf_lib_data_ingest.common.type_safety import function
+from kf_lib_data_ingest.etl.configuration.base_config import (
+    ConfigValidationError
+)
+from kf_lib_data_ingest.etl.configuration.extract_config import ExtractConfig
 
 is_function = function  # simple alias for clarity
 
@@ -22,7 +28,7 @@ def lcm(number_list):
     Returns the least common multiple from a list of numbers.
     """
     return reduce(
-        lambda x, y: x*y//gcd(x, y), number_list
+        lambda x, y: x * y // gcd(x, y), number_list
     )
 
 

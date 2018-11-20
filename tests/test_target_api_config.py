@@ -4,9 +4,9 @@ import random
 import pytest
 
 from conftest import TEST_ROOT_DIR
-from etl.configuration.base_config import ConfigValidationError
-from etl.configuration.target_api_config import TargetAPIConfig
-from etl.transform.standard_model.concept_schema import CONCEPT
+
+from kf_lib_data_ingest.etl.configuration.target_api_config import TargetAPIConfig
+from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import CONCEPT
 KIDS_FIRST_CONFIG = os.path.join(os.path.dirname(TEST_ROOT_DIR),
                                  'kf_lib_data_ingest',
                                  'target_apis', 'kids_first.py')

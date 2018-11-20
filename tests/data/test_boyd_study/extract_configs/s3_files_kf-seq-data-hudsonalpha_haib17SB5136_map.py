@@ -1,6 +1,6 @@
-from common import constants
-from etl.extract.operations import *
-from etl.transform.standard_model.concept_schema import CONCEPT
+from kf_lib_data_ingest.common import constants
+from kf_lib_data_ingest.etl.extract.operations import *
+from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import CONCEPT
 
 source_data_url = (
     's3://kf-study-us-east-1-prd-sd-p445achv/study-files/modified/'
@@ -63,7 +63,7 @@ operations = [
     ),
     value_map(
         m={
-            r'^([^_]+_[^_]+_)[^_]+_(.+)\.fastq\.gz$': lambda a, b: a+b,
+            r'^([^_]+_[^_]+_)[^_]+_(.+)\.fastq\.gz$': lambda a, b: a + b,
             r'.+': None
         },
         in_col='file_name',

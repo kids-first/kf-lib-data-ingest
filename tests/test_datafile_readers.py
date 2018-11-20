@@ -3,7 +3,7 @@ import os
 import pandas
 import pytest
 
-from common import datafile_readers
+from kf_lib_data_ingest.common import datafile_readers
 from conftest import TEST_DATA_DIR
 
 excel_path = os.path.join(

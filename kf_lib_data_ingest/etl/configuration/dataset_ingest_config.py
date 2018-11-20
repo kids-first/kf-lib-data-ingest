@@ -1,8 +1,8 @@
 import os
 import logging
 
-from etl.configuration.base_config import YamlConfig
-from config import (
+from kf_lib_data_ingest.etl.configuration.base_config import YamlConfig
+from kf_lib_data_ingest.config import (
     DATASET_INGEST_CONFIG_DEFAULT_FILENAME,
     DATA_INGEST_SCHEMA_PATH,
     DEFAULT_LOG_LEVEL,
