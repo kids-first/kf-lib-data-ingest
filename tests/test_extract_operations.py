@@ -1,5 +1,5 @@
 """
-Tests for src/extract/operations.py
+Tests for kf_lib_data_ingest/extract/operations.py
 """
 
 import pandas

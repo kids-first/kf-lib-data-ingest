@@ -8,59 +8,62 @@ from etl.extract.operations import *
 # REQUIRED: source data file url declaration
 # Only _one_ data file per config file. File merging happens in another stage.
 # Supported protocols are currently: s3, file, http, https
-# See also: src/common/file_retriever.py:FileRetriever._getters
+# See also: kf_lib_data_ingest/common/file_retriever.py:FileRetriever._getters
 source_data_url = '<protocol>://<path>'
 
 
 # REQUIRED: source data loading arguments
 source_data_loading_parameters = {
-    "load_function": <function pointer>,
-    <argument name>: <value>,
+    "load_function": < function pointer >,
+    < argument name > : < value > ,
     # etc...
 }
 
 # Since it's a python file, you can define your own local functions as needed.
 # Just don't break the required fields.
+
+
 def some_function(x):
     return x
+
 
 # REQUIRED (probably): operations for pulling columns out of the file data
 # The goal is to generate a new dataframe that represents the associated file
 # data using standard concepts and values.
 operations = [
     value_map(
-        m= # see note below on value_map.m
-        out_col= # standard concept property for resulting column
-        in_col= # column header or numeric index of column in source file
+        m=  # see note below on value_map.m
+        out_col=  # standard concept property for resulting column
+        in_col=  # column header or numeric index of column in source file
     ),
     # column_map is just like value_map but applies per whole column
     column_map(
-        m= # function that takes a column and returns a column
-        out_col= # standard concept property for resulting column
-        in_col= # column header or numeric index of column in source file
+        m=  # function that takes a column and returns a column
+        out_col=  # standard concept property for resulting column
+        in_col=  # column header or numeric index of column in source file
     ),
     # keep_map is like column_map or value_map with `m=lambda x: x`
     keep_map(
-        out_col= # standard concept property for resulting column
-        in_col= # column header or numeric index of column in source file
+        out_col=  # standard concept property for resulting column
+        in_col=  # column header or numeric index of column in source file
     ),
     row_map(
-        m= # function that takes a row and returns a value
-        out_col= # standard concept property for resulting column
+        m=  # function that takes a row and returns a value
+        out_col=  # standard concept property for resulting column
     ),
     constant_map(
-        m= # a constant value
-        out_col= # standard concept property for resulting column
+        m=  # a constant value
+        out_col=  # standard concept property for resulting column
     ),
     melt_map(  # combines pandas.melt (see pandas docs) with value_map
-        var_name= # standard concept property for resulting var_name column
-        var_map= # dict of file_column:standard_name replacements for melt vars
-        value_name= # standard concept property for resulting value_name column
-        value_map= # value_map.m structure for the melt values
+        var_name=  # standard concept property for resulting var_name column
+        var_map=  # dict of file_column:standard_name replacements for melt vars
+        value_name=  # standard concept property for resulting value_name column
+        value_map=  # value_map.m structure for the melt values
     ),
     # df_map is the mother of all maps
     df_map(
-        m= # function that takes a df and returns a standard concepts df
+        m=  # function that takes a df and returns a standard concepts df
     ),
     # ...
     #

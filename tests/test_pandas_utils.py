@@ -1,5 +1,5 @@
 """
-Tests for src/common/pandas_utils.py
+Tests for kf_lib_data_ingest/common/pandas_utils.py
 """
 
 import pandas

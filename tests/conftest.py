@@ -6,7 +6,8 @@ import pytest
 TEST_ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 TEST_DATA_DIR = os.path.join(TEST_ROOT_DIR, 'data')
 KIDS_FIRST_CONFIG = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                 'src', 'target_apis', 'kids_first.py')
+                                 'kf_lib_data_ingest',
+                                 'target_apis', 'kids_first.py')
 
 
 def delete_logs(log_dir):

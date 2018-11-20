@@ -1,5 +1,5 @@
 """
-Tests for src/common/safety.py
+Tests for kf_lib_data_ingest/common/safety.py
 """
 
 import pandas
