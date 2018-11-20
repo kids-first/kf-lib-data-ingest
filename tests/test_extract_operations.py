@@ -1,11 +1,11 @@
 """
-Tests for src/extract/operations.py
+Tests for kf_lib_data_ingest/extract/operations.py
 """
 
 import pandas
 import pytest
-from etl.extract import operations
-from common.type_safety import function
+from kf_lib_data_ingest.etl.extract import operations
+from kf_lib_data_ingest.common.type_safety import function
 from test_type_safety import type_exemplars
 
 

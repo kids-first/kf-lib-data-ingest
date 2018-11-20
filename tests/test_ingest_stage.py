@@ -1,7 +1,7 @@
 import pytest
 
-from common.errors import InvalidIngestStageParameters
-from common.stage import IngestStage
+from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
+from kf_lib_data_ingest.common.stage import IngestStage
 
 
 def test_ingest_stage_abs_cls():

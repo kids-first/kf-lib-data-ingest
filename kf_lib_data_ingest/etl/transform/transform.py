@@ -1,8 +1,8 @@
 """
 Module for transforming source data DataFrames to the standard model.
 """
-from common.errors import InvalidIngestStageParameters
-from common.stage import IngestStage
+from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
+from kf_lib_data_ingest.common.stage import IngestStage
 
 
 class TransformStage(IngestStage):

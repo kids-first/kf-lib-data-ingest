@@ -3,10 +3,10 @@ import os
 import pandas
 import pytest
 
-from common.misc import intsafe_str
 from conftest import TEST_DATA_DIR
-from etl.extract.extract import ExtractStage
-from etl.transform.standard_model.concept_schema import CONCEPT
+from kf_lib_data_ingest.common.misc import intsafe_str
+from kf_lib_data_ingest.etl.extract.extract import ExtractStage
+from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import CONCEPT
 
 study_1 = os.path.join(TEST_DATA_DIR, 'test_study')
 expected_results = {
@@ -39,7 +39,7 @@ def test_extracts():
         for config in extract_configs:
             extracted = df_out[config][1]
             expected = es._source_file_to_df(
-                "file://"+study_configs[config]
+                "file://" + study_configs[config]
             )
 
             # test for same columns (might be out of order)

@@ -2,7 +2,7 @@ import os
 
 from click.testing import CliRunner
 
-import cli
+from kf_lib_data_ingest import cli
 from conftest import TEST_DATA_DIR
 
 COMMAND_LINE_ERROR_CODE = 2

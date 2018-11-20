@@ -8,7 +8,7 @@ from etl.extract.operations import *
 # REQUIRED: source data file url declaration
 # Only _one_ data file per config file. File merging happens in another stage.
 # Supported protocols are currently: s3, file, http, https
-# See also: src/common/file_retriever.py:FileRetriever._getters
+# See also: kf_lib_data_ingest/common/file_retriever.py:FileRetriever._getters
 source_data_url = '<protocol>://<path>'
 
 

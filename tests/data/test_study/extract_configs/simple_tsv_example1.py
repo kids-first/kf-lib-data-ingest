@@ -1,6 +1,6 @@
-from common import constants
-from etl.extract.operations import *
-from etl.transform.standard_model.concept_schema import CONCEPT
+from kf_lib_data_ingest.common import constants
+from kf_lib_data_ingest.etl.extract.operations import *
+from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import CONCEPT
 
 source_data_url = 'file://../data/simple_headered_tsv_1.tsv'
 
@@ -58,7 +58,7 @@ operations = [
     [
         value_map(
             in_col=6,  # age in hours (first)
-            m=lambda x: int(x)/24,
+            m=lambda x: int(x) / 24,
             out_col=CONCEPT.PHENOTYPE.EVENT_AGE_DAYS
         ),
         melt_map(
@@ -74,7 +74,7 @@ operations = [
     [
         value_map(
             in_col=9,  # age in hours (second)
-            m=lambda x: int(x)/24,
+            m=lambda x: int(x) / 24,
             out_col=CONCEPT.PHENOTYPE.EVENT_AGE_DAYS
         ),
         melt_map(

@@ -1,11 +1,11 @@
 """
-Tests for src/common/pandas_utils.py
+Tests for kf_lib_data_ingest/common/pandas_utils.py
 """
 
 import pandas
 import pytest
 
-from common import pandas_utils
+from kf_lib_data_ingest.common import pandas_utils
 
 
 def test_try_pop():

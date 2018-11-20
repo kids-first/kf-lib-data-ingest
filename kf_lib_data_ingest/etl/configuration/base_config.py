@@ -5,7 +5,7 @@ from abc import (
     abstractmethod
 )
 
-from common.misc import (
+from kf_lib_data_ingest.common.misc import (
     import_module_from_file,
     read_yaml
 )

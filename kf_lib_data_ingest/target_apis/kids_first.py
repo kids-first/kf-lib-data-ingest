@@ -11,7 +11,9 @@ See etl.configuration.target_api_config docstring for more details on
 requirements for format and content.
 """
 
-from etl.transform.standard_model.concept_schema import CONCEPT
+from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
+    CONCEPT
+)
 
 target_service_entity_id = 'kf_id'
 

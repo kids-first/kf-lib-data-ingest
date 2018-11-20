@@ -3,7 +3,7 @@ import logging
 import os
 import time
 
-from config import (
+from kf_lib_data_ingest.config import (
     DEFAULT_LOG_OVERWRITE_OPT,
     DEFAULT_LOG_LEVEL,
     DEFAULT_LOG_FILENAME

@@ -3,8 +3,11 @@ import os
 import pytest
 
 from conftest import TEST_DATA_DIR
-from etl.configuration.base_config import (AbstractConfig,
-                                           ConfigValidationError, YamlConfig)
+from kf_lib_data_ingest.etl.configuration.base_config import (
+    AbstractConfig,
+    ConfigValidationError,
+    YamlConfig
+)
 
 
 def test_config_abs_cls():

@@ -3,10 +3,13 @@ import shutil
 import pytest
 
 
+from kf_lib_data_ingest.etl.configuration.target_api_config import TargetAPIConfig
+from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
 TEST_ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 TEST_DATA_DIR = os.path.join(TEST_ROOT_DIR, 'data')
 KIDS_FIRST_CONFIG = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                 'src', 'target_apis', 'kids_first.py')
+                                 'kf_lib_data_ingest',
+                                 'target_apis', 'kids_first.py')
 
 
 def delete_logs(log_dir):
@@ -24,7 +27,6 @@ def make_ingest_pipeline(config_filepath=None):
     Create ingest pipeline as test dependency
     """
     # Create ingest pipeline
-    from etl.ingest_pipeline import DataIngestPipeline
     if not config_filepath:
         data_ingest_config_path = os.path.join(TEST_DATA_DIR,
                                                'test_study',
@@ -55,5 +57,4 @@ def ingest_pipeline():
 
 @pytest.fixture(scope='function')
 def target_api_config():
-    from etl.configuration.target_api_config import TargetAPIConfig
     return TargetAPIConfig(KIDS_FIRST_CONFIG)
