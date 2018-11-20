@@ -5,7 +5,9 @@ from abc import abstractmethod
 
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
 from kf_lib_data_ingest.common.stage import IngestStage
-from kf_lib_data_ingest.etl.configuration.target_api_config import TargetAPIConfig  # noqa E501
+from kf_lib_data_ingest.etl.configuration.target_api_config import (
+    TargetAPIConfig
+)
 
 # TODO
 # REMEMBER THIS!

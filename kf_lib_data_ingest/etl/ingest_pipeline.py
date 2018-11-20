@@ -4,7 +4,9 @@ import os
 from collections import OrderedDict
 
 from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
-from kf_lib_data_ingest.etl.configuration.dataset_ingest_config import DatasetIngestConfig  # noqa E501
+from kf_lib_data_ingest.etl.configuration.dataset_ingest_config import (
+    DatasetIngestConfig,
+)
 from kf_lib_data_ingest.etl.configuration.log import setup_logger
 from kf_lib_data_ingest.etl.extract.extract import ExtractStage
 from kf_lib_data_ingest.etl.load.load import LoadStage

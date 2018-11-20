@@ -3,11 +3,10 @@ import os
 import pandas
 import pytest
 
+from conftest import TEST_DATA_DIR
 from kf_lib_data_ingest.common.misc import intsafe_str
 from kf_lib_data_ingest.etl.extract.extract import ExtractStage
 from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import CONCEPT
-
-from conftest import TEST_DATA_DIR
 
 study_1 = os.path.join(TEST_DATA_DIR, 'test_study')
 expected_results = {
@@ -15,15 +14,15 @@ expected_results = {
         os.path.join(study_1, 'extract_configs', 'simple_tsv_example1.py'):
             os.path.join(
                 study_1, 'extract_outputs', 'simple_tsv_example1_output.tsv'
-        ),
+            ),
         os.path.join(study_1, 'extract_configs', 'simple_tsv_example2.py'):
             os.path.join(
                 study_1, 'extract_outputs', 'simple_tsv_example2_output.tsv'
-        ),
+            ),
         os.path.join(study_1, 'extract_configs', 'unsimple_xlsx_example1.py'):
             os.path.join(
                 study_1, 'extract_outputs', 'unsimple_xlsx_example1_output.tsv'
-        )
+            )
     }
 }
 
