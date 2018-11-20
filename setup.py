@@ -9,12 +9,11 @@ with open(req_file) as f:
 setup(
     name='kf-lib-data-ingest',
     version='0.1',
-    description='Kids First Data Ingest CLI',
-    packages=find_packages('src'),
-    package_dir={'': 'src'},
+    description='Kids First Data Ingest Library',
+    packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'kidsfirst=cli:cli',
+            'kidsfirst=kf_lib_data_ingest.cli:cli',
         ],
     },
     include_package_data=True,
