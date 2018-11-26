@@ -3,7 +3,9 @@ import shutil
 import pytest
 
 
-from kf_lib_data_ingest.etl.configuration.target_api_config import TargetAPIConfig
+from kf_lib_data_ingest.etl.configuration.target_api_config import (
+    TargetAPIConfig
+)
 from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
 TEST_ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 TEST_DATA_DIR = os.path.join(TEST_ROOT_DIR, 'data')
