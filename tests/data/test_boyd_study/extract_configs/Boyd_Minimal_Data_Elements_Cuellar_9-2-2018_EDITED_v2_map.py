@@ -1,6 +1,10 @@
-from kf_lib_data_ingest.common import constants
+import pandas
+
+from kf_lib_data_ingest.common import constants, file_retriever
 from kf_lib_data_ingest.etl.extract.operations import *
-from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import CONCEPT
+from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
+    CONCEPT
+)
 
 source_data_url = (
     's3://kf-study-us-east-1-prd-sd-p445achv/study-files/modified/'
@@ -9,13 +13,36 @@ source_data_url = (
 
 source_data_loading_parameters = {}
 
+
+# Boyd re-issued new samples without updating their data table with the new
+# sample IDs, so we track the mappings from the sample manifest and then apply
+# them here when extracting the sample/aliquot IDs.
+_manifest_data = pandas.read_table(
+    file_retriever.FileRetriever().get(
+        's3://kf-study-us-east-1-prd-sd-p445achv/study-files/modified/'
+        'manifest_180917_rectified.tsv'
+    )
+)
+_sample_mapping = {
+    v['Sample Description'][10:]: v['Sample Name']
+    for _, v in _manifest_data.iterrows()
+    if v['Sample Description'].startswith('germline: 5136-SB-')
+}
+
+
 operations = [
-    keep_map(
+    value_map(
         in_col='Sample/Aliquot ID',
+        m={
+            r'.*': lambda x: _sample_mapping.get(x, x)
+        },
         out_col=CONCEPT.BIOSPECIMEN.ID
     ),
-    keep_map(
+    value_map(
         in_col='Sample/Aliquot ID',
+        m={
+            r'.*': lambda x: _sample_mapping.get(x, x)
+        },
         out_col=CONCEPT.BIOSPECIMEN.ALIQUOT_ID
     ),
     keep_map(
