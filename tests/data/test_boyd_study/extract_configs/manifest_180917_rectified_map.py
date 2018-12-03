@@ -1,6 +1,8 @@
 from kf_lib_data_ingest.common import constants
 from kf_lib_data_ingest.etl.extract.operations import *
-from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import CONCEPT
+from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
+    CONCEPT
+)
 
 source_data_url = (
     's3://kf-study-us-east-1-prd-sd-p445achv/study-files/modified/'
@@ -15,11 +17,11 @@ operations = [
         out_col=CONCEPT.SEQUENCING.LIBRARY_NAME
     ),
     keep_map(
-        in_col='combined',
+        in_col='Sample Name',
         out_col=CONCEPT.BIOSPECIMEN.ALIQUOT_ID
     ),
     keep_map(
-        in_col='combined',
+        in_col='Sample Name',
         out_col=CONCEPT.BIOSPECIMEN.ID
     )
 ]
