@@ -24,6 +24,11 @@ expected_results = {
         os.path.join(study_1, 'extract_configs', 'unsimple_xlsx_example1.py'):
             os.path.join(
                 study_1, 'extract_outputs', 'unsimple_xlsx_example1_output.tsv'
+            ),
+        os.path.join(study_1, 'extract_configs', 'split_rows_tsv_example1.py'):
+            os.path.join(
+                study_1,
+                'extract_outputs', 'split_rows_tsv_example1_output.tsv'
             )
     }
 }

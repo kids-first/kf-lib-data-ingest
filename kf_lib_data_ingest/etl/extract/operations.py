@@ -149,7 +149,7 @@ def column_map(m, in_col, out_col):
 
     def column_map_func(df):
         new_df = DataFrame()
-        new_df[out_col] = m(get_col(df, in_col))
+        new_df[out_col] = m(get_col(df, in_col).copy())
         return new_df
 
     return column_map_func
