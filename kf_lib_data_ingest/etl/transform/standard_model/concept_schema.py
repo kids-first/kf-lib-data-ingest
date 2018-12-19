@@ -1,4 +1,4 @@
-from common.misc import obj_attrs_to_dict
+from kf_lib_data_ingest.common.misc import obj_attrs_to_dict
 
 DELIMITER = '|'
 UNIQUE_ID_ATTR = 'UNIQUE_KEY'

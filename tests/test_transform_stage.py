@@ -7,8 +7,8 @@ import pytest
 
 import pandas as pd
 
-from etl.transform.transform import TransformStage
-from common.errors import InvalidIngestStageParameters
+from kf_lib_data_ingest.etl.transform.transform import TransformStage
+from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
 
 
 def test_invalid_run_parameters():

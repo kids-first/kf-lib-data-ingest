@@ -3,13 +3,13 @@ Module for transforming source data DataFrames to the standard model.
 """
 from pandas import DataFrame
 
-from common.errors import InvalidIngestStageParameters
-from common.stage import IngestStage
-from common.type_safety import (
+from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
+from kf_lib_data_ingest.common.stage import IngestStage
+from kf_lib_data_ingest.common.type_safety import (
     assert_safe_type,
     assert_all_safe_type
 )
-from etl.transform.standard_model.model import StandardModel
+from kf_lib_data_ingest.etl.transform.standard_model.model import StandardModel
 
 
 class TransformStage(IngestStage):

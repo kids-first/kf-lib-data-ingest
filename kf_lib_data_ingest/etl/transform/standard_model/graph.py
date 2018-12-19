@@ -3,15 +3,15 @@ from collections import deque
 
 import networkx as nx
 
-from etl.transform.standard_model.concept_schema import (
+from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
     DELIMITER,
     is_identifier,
     concept_from,
     concept_attr_from,
 )
-from common.misc import obj_attrs_to_dict
-from common.misc import iterate_pairwise
-from etl.configuration.log import create_default_logger
+from kf_lib_data_ingest.common.misc import obj_attrs_to_dict
+from kf_lib_data_ingest.common.misc import iterate_pairwise
+from kf_lib_data_ingest.etl.configuration.log import create_default_logger
 
 
 class ConceptGraph(object):

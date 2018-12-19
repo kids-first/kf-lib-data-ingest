@@ -8,7 +8,7 @@ from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
     CONCEPT,
     DELIMITER,
 )
-from common.misc import obj_attrs_to_dict
+from kf_lib_data_ingest.common.misc import obj_attrs_to_dict
 
 
 @pytest.fixture

@@ -16,15 +16,15 @@ expected_results = {
         os.path.join(study_1, 'extract_configs', 'simple_tsv_example1.py'):
             os.path.join(
                 study_1, 'extract_outputs', 'simple_tsv_example1_output.tsv'
-            ),
+        ),
         os.path.join(study_1, 'extract_configs', 'simple_tsv_example2.py'):
             os.path.join(
                 study_1, 'extract_outputs', 'simple_tsv_example2_output.tsv'
-            ),
+        ),
         os.path.join(study_1, 'extract_configs', 'unsimple_xlsx_example1.py'):
             os.path.join(
                 study_1, 'extract_outputs', 'unsimple_xlsx_example1_output.tsv'
-            )
+        )
     }
 }
 
