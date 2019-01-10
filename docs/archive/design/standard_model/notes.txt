@@ -12,7 +12,7 @@ Example:
 When transforming into target model, we will have a schema which defines and
 enforces relationships between concepts. If child concept is connected to more
 than one parent concept, this is invalid.
-BIOSPECIMEN is connected to more than one[PARTICIPANT, PARTICIPANT-predecessors]
+BIOSPECIMEN is connected to more than one[PARTICIPANT, PARTICIPANT-ancestors]
 This should not be allowed and should raise an exception (maybe)
 
 -- Identifier Properties --
@@ -54,7 +54,7 @@ When searching for a property, P of concept C1:
 Do BFS in search for P:
     For neighbor in all neighbors of C1:
         Evaluate whether to add neighbor to list of nodes to traverse:
-            Is neighbor a predecessor of C1 and is there a restriction for it?
+            Is neighbor an ancestor of C1 and is there a restriction for it?
                 No - it is valid
                 Yes - check whether it is valid
                     If neighbor is connected to any other nodes in the set
@@ -65,7 +65,7 @@ Example:
 Search for property PARTICIPANT.AGE.30 of participant P1.
 Do BFS in search of PARTICIPANT.AGE.30:
     For neighbor in all neighbors of P1:
-        Is neighbor concept any of participant's predecessor concepts [Family]:
+        Is neighbor concept any of participant's ancestor concepts [Family]:
             No - it is valid
             Yes - check whether it is valid
                 If neighbor (i.e. Family) is connected to any other nodes
@@ -85,8 +85,8 @@ Given a target concept from target_api_config:
         'institution': CONCEPT.INVESTIGATOR.INSTITUTION
     },
     'links': {
-        'foo_id': CONCEPT.FOO.ID,
-        'bar_id': CONCEPT.BAR.ID
+        'foo_id': CONCEPT.FOO.UNIQUE_KEY,
+        'bar_id': CONCEPT.BAR.UNIQUE_KEY
     }
 }
 
@@ -95,23 +95,23 @@ we will inject new keys into the target_concept dict:
 
 'target_concept': {
     'standard_concept': CONCEPT.INVESTIGATOR <-- Remove and replace w below
-    'id': CONCEPT.INVESTIGATOR.ID, <-- injected based on value of standard_concept
+    'id': CONCEPT.INVESTIGATOR.UNIQUE_KEY, <-- injected based on value of standard_concept
     'properties': {
         'id': CONCEPT.INVESTIGATOR.TARGET_SERVICE_ID <-- injected based on standard_concept
                                                             and value of target_service_entity_id
         'foo_id': CONCEPT.FOO.TARGET_SERVICE_ID <-- injected based on presence in links
         'bar_id': CONCEPT.BAR.TARGET_SERVICE_ID <-- injected based on presence in links
-        'external_id': CONCEPT.INVESTIGATOR.ID,
+        'external_id': CONCEPT.INVESTIGATOR.UNIQUE_KEY,
         'name': CONCEPT.INVESTIGATOR.NAME,
         'institution': CONCEPT.INVESTIGATOR.INSTITUTION
     },
     'links': {
-        'foo_id': CONCEPT.FOO.ID,
-        'bar_id': CONCEPT.BAR.ID
+        'foo_id': CONCEPT.FOO.UNIQUE_KEY,
+        'bar_id': CONCEPT.BAR.UNIQUE_KEY
     }
 }
 
-Now run attribute search for all attributes in 'id', 'properities', 'links' in
+Now run attribute search for all attributes in 'id', 'properties', 'links' in
 concept graph. Now we have values for all attributes/properties.
 
 During loading stage:
@@ -123,3 +123,16 @@ dicts AND do an ID translation (external_id --> target service id)
 
 This process allows us to use target service ids in source data or external_ids.
 In the latter case we must do an extra step to translate to target service ids.
+
+CONCEPT INSTANCE IDENTIFIERS
+-----------------------------
+There are two problems that need to be solved:
+1. Concept instances can be uniquely identified by a single thing or combinations of things
+ - Participants can be identified by a unique identifier provided by investigator
+ - Phenotypes can be identified by a combination of the participant's unique identifier,
+ phenotype name, and participant age at time of observation.
+
+2. A single concept instance can have multiple unique identifiers that identify it within a study
+- A participant can have a social security number
+- A participant can have a unique ID in the study
+- Both of these uniquely identify the same participant in the study

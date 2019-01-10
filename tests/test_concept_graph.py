@@ -6,8 +6,9 @@ from kf_lib_data_ingest.etl.transform.standard_model.graph import (
 )
 from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
     CONCEPT,
-    DELIMITER
+    DELIMITER,
 )
+from kf_lib_data_ingest.common.misc import obj_attrs_to_dict
 
 
 @pytest.fixture
@@ -17,7 +18,7 @@ def concept_graph():
 
 def test_construct_node():
     # Construct identifier node
-    concept_prop_str = CONCEPT.PARTICIPANT.ID
+    concept_prop_str = CONCEPT.PARTICIPANT.UNIQUE_KEY
     value = 'P1'
     node = ConceptNode(concept_prop_str, value)
 
@@ -38,7 +39,7 @@ def test_construct_node():
 
 
 def test_node_uid():
-    concept_prop_str = CONCEPT.PARTICIPANT.ID
+    concept_prop_str = CONCEPT.PARTICIPANT.UNIQUE_KEY
     value = 'P1'
     extract_config_url = '/extract_config_1.py'
     source_file_url = '/datafile.csv'
@@ -82,7 +83,7 @@ def test_add_and_get_node(concept_graph):
     assert concept_graph.get_node(node.key) == node
 
     # Add identifier node
-    concept_prop_str = CONCEPT.PARTICIPANT.ID
+    concept_prop_str = CONCEPT.PARTICIPANT.UNIQUE_KEY
     value = 'P1'
     node = concept_graph.add_or_get_node(concept_prop_str, value)
 
@@ -107,7 +108,7 @@ def test_add_edge_and_exists(concept_graph):
     """
     # Test directed edge
     node1 = ConceptNode(CONCEPT.BIOSPECIMEN.TISSUE_TYPE, 'normal')
-    node2 = ConceptNode(CONCEPT.BIOSPECIMEN.ID, 'B1')
+    node2 = ConceptNode(CONCEPT.BIOSPECIMEN.UNIQUE_KEY, 'B1')
     concept_graph._add_edge(node2, node1)
 
     # Check nodes exist
@@ -136,9 +137,9 @@ def test_connect_id_nodes(concept_graph):
     """
 
     # Create id nodes
-    p1 = concept_graph.add_or_get_node(CONCEPT.PARTICIPANT.ID, 'P1')
-    b1 = concept_graph.add_or_get_node(CONCEPT.BIOSPECIMEN.ID, 'B1')
-    g1 = concept_graph.add_or_get_node(CONCEPT.GENOMIC_FILE.ID, 'GF1')
+    p1 = concept_graph.add_or_get_node(CONCEPT.PARTICIPANT.UNIQUE_KEY, 'P1')
+    b1 = concept_graph.add_or_get_node(CONCEPT.BIOSPECIMEN.UNIQUE_KEY, 'B1')
+    g1 = concept_graph.add_or_get_node(CONCEPT.GENOMIC_FILE.UNIQUE_KEY, 'GF1')
     id_nodes = [p1, b1, g1]
 
     # Connect id nodes
@@ -164,8 +165,8 @@ def test_connect_attribute_nodes(concept_graph):
         CONCEPT.BIOSPECIMEN.TISSUE_TYPE, 'Normal')
 
     # Create id nodes
-    p1 = concept_graph.add_or_get_node(CONCEPT.PARTICIPANT.ID, 'P1')
-    b1 = concept_graph.add_or_get_node(CONCEPT.BIOSPECIMEN.ID, 'B1')
+    p1 = concept_graph.add_or_get_node(CONCEPT.PARTICIPANT.UNIQUE_KEY, 'P1')
+    b1 = concept_graph.add_or_get_node(CONCEPT.BIOSPECIMEN.UNIQUE_KEY, 'B1')
     id_nodes = [p1, b1]
 
     # Connect attribute nodes
@@ -176,3 +177,34 @@ def test_connect_attribute_nodes(concept_graph):
     assert concept_graph.graph.in_degree(tissue_type.key) == 2
     for node in id_nodes:
         assert concept_graph._edge_exists(node, tissue_type)
+
+
+def test_to_from_dict():
+    """
+    Test ConceptNode.to_dict and ConceptNode.from_dict
+    """
+
+    # Test ConceptNode.to_dict
+    n = ConceptNode(CONCEPT.PARTICIPANT.UNIQUE_KEY, 'P1')
+    node_dict = ConceptNode.to_dict(n)
+    for key, value in node_dict.items():
+        assert getattr(n, key) == value
+
+    # Test ConceptNode.from_dict
+    n_ = ConceptNode.from_dict(node_dict)
+    for attr in obj_attrs_to_dict(n_):
+        assert attr in node_dict
+        assert getattr(n_, attr) == node_dict[attr]
+
+    # Key is a non-existent attr on ConceptNode
+    node_dict['somekey'] = 'foo'
+    with pytest.raises(AttributeError) as e:
+        ConceptNode.from_dict(node_dict)
+        assert 'concept_attribute_pair' in str(e)
+
+    # Missing required key
+    node_dict.pop('somekey')
+    node_dict.pop('concept_attribute_pair')
+    with pytest.raises(KeyError) as e:
+        ConceptNode.from_dict(node_dict)
+        assert 'concept_attribute_pair' in str(e)

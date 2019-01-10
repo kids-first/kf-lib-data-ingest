@@ -2,6 +2,8 @@ import importlib
 import json
 import os
 import re
+
+import inspect
 from itertools import tee
 
 import numpy
@@ -73,3 +75,17 @@ def intsafe_str(val):
     except Exception:
         pass
     return val
+
+
+def obj_attrs_to_dict(cls):
+    """
+    Create a dict of obj attributes and values, including inherited attrs
+    """
+    # Get non function attributes
+    attributes = inspect.getmembers(cls, lambda x: not(inspect.isroutine(x)))
+
+    # Get non-hidden attrs
+    attributes = [a for a in attributes
+                  if not(a[0].startswith('__') and
+                         a[0].endswith('__'))]
+    return dict(attributes)

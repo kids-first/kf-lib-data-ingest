@@ -31,6 +31,52 @@ kidsfirst ingest /path/to/dataset_ingest_config.yml
 ```
 Run kidsfirst -h to see all commands and descriptions.
 
+### Debug
+During the development of a study ingest, a user will likely need
+to go through an iterative process of tweaking the extract configs, running
+ingest up until the load stage, and inspecting the transformed data which
+will be in the form of the standard concept graph. In order to thoroughly debug
+or inspect the graph, the developer will need a rich way to visualize and query
+the data in the graph.
+
+To accomplish this, the concept graph may be loaded into a Neo4j graph database,
+where it can then be visualized and queried through Neo4j's built-in browser
+application.
+
+#### Setup Neo4j graph database using Docker
+1. To start a new neo4j docker container named `graph-db` do:
+```
+> docker run --name=graph-db --volume=$HOME/neo4j/data:/data --env=NEO4J_AUTH=none -p 7474:7474 -p 7687:7687 -d neo4j
+```
+
+2. On all subsequent start/stops do:
+```
+docker container start graph-db
+docker container stop graph-db
+```
+
+#### Load a concept graph into the graph database
+Run the neo4j loader utility.
+
+The utility expects a GML file that was written by `etl.transform.standard_model.graph`'s `export_to_gml`
+method. As of 10/23/2018, the ingest pipeline does not yet have a clean and isolated way to run the transform stage by itself and optionally export the concept graph to file. For now, a previously generated test concept graph can be used for demonstration purposes.
+
+```
+./src/utilities/neo4j_util.py ./test/data/test_graph.gml
+```
+
+#### Query and visualize the graph
+To visualize/query the graph in the browser application point your browser to
+`http://localhost:7474/browser/`
+
+See https://neo4j.com/docs/developer-manual for details on how to use the neo4j browser to query the database using Cypher query language and visualize the graph.
+
+You can also start a Cypher shell in the container to execute queries if you just want a simple interface to the database.
+```
+> docker exec -it graph-db cypher-shell
+```
+
+
 ## Getting Started - Developers
 
 ### Setup dev environment

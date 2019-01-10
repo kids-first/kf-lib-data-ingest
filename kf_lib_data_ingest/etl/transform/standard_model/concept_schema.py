@@ -1,10 +1,20 @@
-import inspect
+from kf_lib_data_ingest.common.misc import obj_attrs_to_dict
 
 DELIMITER = '|'
+UNIQUE_ID_ATTR = 'UNIQUE_KEY'
+
+
+class FileMixin(object):
+    ETAG = None
+    SIZE = None
+    DATA_TYPE = None
+    FILE_NAME = None
+    FILE_PATH = None
 
 
 class PropertyMixin(object):
     _CONCEPT_NAME = None
+    UNIQUE_KEY = None
     ID = None
     TARGET_SERVICE_ID = None
     HIDDEN = None
@@ -24,6 +34,9 @@ class CONCEPT:
         ATTRIBUTION = None
         RELEASE_STATUS = None
         CATEGORY = None
+
+    class STUDY_FILE(PropertyMixin, FileMixin):
+        pass
 
     class FAMILY(PropertyMixin):
         pass
@@ -79,18 +92,10 @@ class CONCEPT:
         CONCENTRATION_MG_PER_ML = None
         VOLUME_ML = None
 
-    class GENOMIC_FILE(PropertyMixin):
-        ETAG = None
-        SIZE = None
-        DATA_TYPE = None
-        FILE_NAME = None
-        FILE_PATH = None
+    class GENOMIC_FILE(PropertyMixin, FileMixin):
         AVAILABILITY = None
         HARMONIZED = None
         CAVATICA_OUTPUT_FILE = None
-
-    class MULTI_SPECIMEN_GENOMIC_FILE(GENOMIC_FILE):
-        pass
 
     class READ_GROUP(PropertyMixin):
         PAIRED_END = None
@@ -117,6 +122,15 @@ class CONCEPT:
         class CENTER(PropertyMixin):
             NAME = None
 
+    class BIOSPECIMEN_GENOMIC_FILE(PropertyMixin):
+        pass
+
+    class BIOSPECIMEN_DIAGNOSIS(PropertyMixin):
+        pass
+
+    class READ_GROUP_GENOMIC_FILE(PropertyMixin):
+        pass
+
 
 def compile_schema():
     """
@@ -137,20 +151,6 @@ def compile_schema():
     _set_cls_attrs(CONCEPT, None, property_path, property_paths)
 
     return property_paths
-
-
-def _get_cls_attrs(cls):
-    """
-    Get class attributes including inherited attributes
-    """
-    # Get non function attributes
-    attributes = inspect.getmembers(cls, lambda x: not(inspect.isroutine(x)))
-
-    # Get non-hidden attrs
-    attributes = [a for a in attributes
-                  if not(a[0].startswith('__') and
-                         a[0].endswith('__'))]
-    return dict(attributes)
 
 
 def _set_cls_attrs(node, prev_node, property_path, property_paths):
@@ -177,7 +177,7 @@ def _set_cls_attrs(node, prev_node, property_path, property_paths):
         # Add class name to property path
         property_path.append(str(node.__name__))
         # Iterate over class attrs
-        for attr_name, value in _get_cls_attrs(node).items():
+        for attr_name, value in obj_attrs_to_dict(node).items():
             # Recurse
             if callable(value):
                 _set_cls_attrs(value, node,
@@ -225,41 +225,96 @@ concept_set = {
     CONCEPT.DIAGNOSIS,
     CONCEPT.OUTCOME,
     CONCEPT.GENOMIC_FILE,
-    CONCEPT.READ_GROUP
+    CONCEPT.READ_GROUP,
+    CONCEPT.BIOSPECIMEN_GENOMIC_FILE,
+    CONCEPT.BIOSPECIMEN_DIAGNOSIS,
+    CONCEPT.READ_GROUP_GENOMIC_FILE,
 }
 
 
-def _create_identifiers():
+def _create_unique_key_composition():
     """
-    Build the set of identifying concept properties.
+    Build a dict which stores the attributes used to build a unique key
+    for a particular concept. This key uniquely identifies concept instances of
+    the same type.
 
-    - All CONCEPT.<>.ID properties are identifiers
-    - Some concepts have additional identifying properties
+    A key in the dict is a standard concept and a value in
+    the dict is a set of concept attributes.
+
+    - The ID attribute is usually populated with a unique identifier
+    provided from the source data and so the default unique key for a concept
+    is composed of just the ID attribute.
+
+    - However, some concepts don't typically have a unique ID assigned in
+    the source data. These concepts can be uniquely identified by a
+    combination of one or more other concept attributes. Thus, the unique key
+    would be composed of a set of attribute values joined together by some
+    delimiter.
+
+    - For example a phenotype doesn't typically have a unique identifier
+    assigned to it in the source data. But a phenotype can be uniquely
+    identified by a combination of the participant's id, phenotype name,
+    observed status, and the age of the participant when the observation was
+    recorded. The values for these attributes would form the unique key for a
+    phenotype instance.
     """
+    # Default unique keys
     identifiers = {}
     for concept in concept_set:
-        identifiers[concept] = {concept.ID}
+        identifiers[concept._CONCEPT_NAME] = [concept.ID]
 
-    # Add other misc identifiers
-    identifiers[CONCEPT.GENOMIC_FILE].add(CONCEPT.GENOMIC_FILE.FILE_PATH)
-    identifiers[CONCEPT.SEQUENCING].add(CONCEPT.SEQUENCING.LIBRARY_NAME)
-    identifiers[CONCEPT.BIOSPECIMEN].add(CONCEPT.BIOSPECIMEN.ALIQUOT_ID)
+    # Compound unique keys
+    identifiers[CONCEPT.INVESTIGATOR._CONCEPT_NAME] = [
+        CONCEPT.INVESTIGATOR.NAME,
+        CONCEPT.INVESTIGATOR.INSTITUTION
+    ]
+
+    identifiers[CONCEPT.DIAGNOSIS._CONCEPT_NAME] = [
+        CONCEPT.PARTICIPANT.UNIQUE_KEY,
+        CONCEPT.DIAGNOSIS.NAME,
+        CONCEPT.DIAGNOSIS.TUMOR_LOCATION,
+        CONCEPT.DIAGNOSIS.SPATIAL_DESCRIPTOR,
+        CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS
+    ]
+    identifiers[CONCEPT.PHENOTYPE._CONCEPT_NAME] = [
+        CONCEPT.PARTICIPANT.UNIQUE_KEY,
+        CONCEPT.PHENOTYPE.NAME,
+        CONCEPT.PHENOTYPE.OBSERVED,
+        CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS
+    ]
+    identifiers[CONCEPT.OUTCOME._CONCEPT_NAME] = [
+        CONCEPT.PARTICIPANT.UNIQUE_KEY,
+        CONCEPT.OUTCOME.VITAL_STATUS,
+        CONCEPT.OUTCOME.DISEASE_RELATED,
+        CONCEPT.OUTCOME.EVENT_AGE_DAYS
+    ]
+    identifiers[CONCEPT.BIOSPECIMEN_GENOMIC_FILE._CONCEPT_NAME] = [
+        CONCEPT.BIOSPECIMEN.UNIQUE_KEY,
+        CONCEPT.GENOMIC_FILE.UNIQUE_KEY
+    ]
+    identifiers[CONCEPT.BIOSPECIMEN_DIAGNOSIS._CONCEPT_NAME] = [
+        CONCEPT.BIOSPECIMEN.UNIQUE_KEY,
+        CONCEPT.DIAGNOSIS.UNIQUE_KEY
+    ]
+    identifiers[CONCEPT.READ_GROUP_GENOMIC_FILE._CONCEPT_NAME] = [
+        CONCEPT.READ_GROUP.UNIQUE_KEY,
+        CONCEPT.GENOMIC_FILE.UNIQUE_KEY
+    ]
 
     return identifiers
 
 
-# Create the set of identifier concept properties
-identifiers = _create_identifiers()
-
-
 def is_identifier(concept_property_string):
     """
-    Given a delimited concept property string check whether the property
-    is an identifying property for this concept.
-     :param concept_property_string: a string like: PARTICIPANT|ID
+    Given a delimited concept property string, check whether it is a
+    UNIQUE_KEY property. The UNIQUE_KEY property is a standard concept property
+    which is reserved to uniquely identify concept instances of the same type.
+
+    :param concept_property_string: a concept attribute string such as
+    CONCEPT|PARTICIPANT|ID
     """
 
-    return concept_property_string in set().union(*identifiers.values())
+    return concept_attr_from(concept_property_string) == UNIQUE_ID_ATTR
 
 
 def concept_from(concept_attribute_str):
@@ -274,3 +329,6 @@ def concept_attr_from(concept_attribute_str):
     Extract the concept attribute from the concept attribute string
     """
     return concept_attribute_str.split(DELIMITER)[-1]
+
+
+unique_key_composition = _create_unique_key_composition()

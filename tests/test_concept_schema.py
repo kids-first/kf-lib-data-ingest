@@ -19,7 +19,9 @@ def test_identifiers():
 
     # Valid concept and property
     for concept in concept_set:
-        assert is_identifier(f'{concept._CONCEPT_NAME}{DELIMITER}ID')
+        assert is_identifier(f'{concept._CONCEPT_NAME}{DELIMITER}UNIQUE_KEY')
+        assert not is_identifier(
+            f'{concept._CONCEPT_NAME}{DELIMITER}ID')
 
 
 def test_set_cls_attrs():

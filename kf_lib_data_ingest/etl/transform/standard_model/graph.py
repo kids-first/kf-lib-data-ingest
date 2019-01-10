@@ -1,12 +1,17 @@
+import json
+from collections import deque
+
 import networkx as nx
 
 from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
     DELIMITER,
     is_identifier,
     concept_from,
-    concept_attr_from
+    concept_attr_from,
 )
+from kf_lib_data_ingest.common.misc import obj_attrs_to_dict
 from kf_lib_data_ingest.common.misc import iterate_pairwise
+from kf_lib_data_ingest.etl.configuration.log import create_default_logger
 
 
 class ConceptGraph(object):
@@ -77,7 +82,7 @@ class ConceptGraph(object):
 
     """
 
-    def __init__(self):
+    def __init__(self, logger=None):
         """
         Initialize a networkx directed graph and the indices
 
@@ -117,9 +122,12 @@ class ConceptGraph(object):
         self.id_index = {}
         self. attribute_index = {}
 
-    def find_attribute_node(self, start_key, goal_key, restrictions):
-        # TODO
-        pass
+        # Standalone mode
+        if not logger:
+            self.logger = create_default_logger(__name__)
+        # Called from standard_model.populate
+        else:
+            self.logger = logger
 
     def add_or_get_node(self, concept_attribute, value, **kwargs):
         """
@@ -189,6 +197,176 @@ class ConceptGraph(object):
         """
         for node in id_nodes:
             self._add_edge(node, attribute_node)
+
+    def find_attribute_value(self, start_node, concept_attribute_str,
+                             relation_graph):
+        """
+        Search the concept graph for the value of the concept attribute,
+        starting at a particular node.
+
+        Use breadth first search to traverse the graph. Do not pass thru
+        certain nodes that are "invalid", as governed by the relation_graph.
+        See _is_neighbor_valid for more details on what constitutes validity.
+
+        :param start_node: A ConceptNode and the starting point for search
+        :param concept_attribute_str: A string containing the concept attribute
+         (i.e. CONCEPT|PARTICIPANT|RACE) for which we must find the value.
+        :param relation_graph: a networkx.DiGraph containing the rules for
+        traversing the graph when searching for the concept attribute value.
+        """
+        # The start node does not exist in the graph
+        if not self.graph.has_node(start_node.key):
+            raise ValueError(f'ConceptNode {start_node.key} not found! '
+                             'Cannot continue find operation.')
+
+        # Does graph contain any nodes with concept attribute concept_attr_str?
+        if is_identifier(concept_attribute_str):
+            exists = (self.id_index.get(concept_from(concept_attribute_str))
+                      is not None)
+        else:
+            exists = concept_attribute_str in self.attribute_index
+
+        if not exists:
+            self.logger.info(
+                f'Could not find a value for {concept_attribute_str} since '
+                f'there are 0 {concept_attribute_str} nodes in the concept '
+                'graph!')
+
+            return None
+
+        # -- Search the graph for the value of concept attribute --
+        # Init data structures
+        # Keep track of nodes visited
+        visited = set([start_node.key])
+        # Keep track of nodes to process
+        queue = deque([start_node])
+
+        # Check directly connected concept ID nodes before searching graph
+        # Value for a given concept attribute is likely to be directly
+        # connected to its concept ID node since attributes for a particular
+        # concept are typically in the same table as the IDs for that concept
+        for node_key in nx.neighbors(self.graph, start_node.key):
+            neighbor = self.get_node(node_key)
+            if neighbor.concept_attribute_pair == concept_attribute_str:
+                return neighbor.value
+
+        # Start breadth first search
+        while queue:
+            current = queue.popleft()
+
+            # Found the node with the value for this concept attr
+            if current.concept_attribute_pair == concept_attribute_str:
+                return current.value
+
+            # Not found - keep searching neighbors
+            for node_key in nx.neighbors(self.graph, current.key):
+                neighbor = self.get_node(node_key)
+                # Add neighbor to list if it has not been searched yet and
+                # the neighbor is valid for traversal
+                concept_str = concept_from(concept_attribute_str)
+                neighbor_valid = self._is_neighbor_valid(concept_str,
+                                                         neighbor,
+                                                         relation_graph)
+                if (neighbor.key not in visited) and neighbor_valid:
+                    queue.append(neighbor)
+                    visited.add(neighbor.key)
+
+        # Searched the entire graph and we did not find the value for
+        # concept_attr_str
+        self.logger.info(f'Could not find a value for {concept_attribute_str}'
+                         ' in the concept graph.')
+        return None
+
+    def _is_neighbor_valid(self, node_concept, neighbor, relation_graph):
+        """
+        Helper method for find_attribute_value. Determines whether or not a
+        neighbor node is valid for traversal during a search.
+
+        Given the standard concept of a node N in the concept graph, and a
+        neighbor of N, determine whether the neighbor node is allowed to
+        be added to the list of nodes to search.
+
+        Validity
+        *********
+        A neighbor is valid if its concept is not an ancestor concept of
+        node_concept. Ancestry is defined in relation_graph, which stores
+        the hierarchical relationships between concepts.
+
+            Example 1 - Is neighbor valid, given:
+
+                - node_concept = participant
+                - neighbor node = biospecimen B1
+                - relation_graph: {
+                    family: {participant},
+                    participant: {biospecimen},
+                }
+
+                This is asking - is B1 valid for traversal while searching for
+                the value of a participant concept attribute?
+
+                Yes, since B1's concept, biospecimen, is a not an ancestor of
+                concept participant
+
+        If a neighbor's concept IS an ancestor concept of node_concept, then
+        a second check is needed to determine if the neighbor is valid.
+        A neighbor with an ancestor concept, wrt node_concept, is valid if
+        it is not connected to any nodes whose concept is equal to node_concept
+        or whose concept is any of node_concept's descendant concepts.
+
+            Example 2 - Is neighbor valid, given:
+
+                - node_concept = participant
+                - neighbor node = family F1
+                - relation_graph: {
+                    family: {participant},
+                    participant: {biospecimen},
+                }
+
+            This is asking is F1 valid for traversal while searching for the
+            value of a participant concept attribute?
+
+            Maybe - F1's concept, family, is an ancestor of concept participant
+            For F1 to be valid, it cannot be connected to any other participant
+            concepts or descendant concepts, such as biospecimen. If F1 is
+            connected to more than one participant, and we allow traversal
+            through F1 when searching for a particular participant's attribute
+            value, then we may find the value but for the wrong participant.
+
+        :param node_concept: A string that is the standard concept of a node N
+        :param neighbor: A ConceptNode that is one of N's neighbors
+        :param relation_graph: A networkx.DiGraph governing how the graph can
+        be traversed when searching for the value of a concept attribute.
+        """
+
+        # Valid - the neighbor is not in the set of ancestors
+        if neighbor.concept not in nx.ancestors(relation_graph, node_concept):
+            return True
+
+        # Check if the neighbor is connected to other nodes with the same
+        # concept as node_concept or if it is connected to nodes
+        # with a concept that is one of the descendant concepts of node_concept
+        descendants = nx.descendants(relation_graph, node_concept)
+        restrictions = descendants | {node_concept}
+
+        # Start the breadth first search
+        visited = set([neighbor.key])
+        queue = deque([neighbor])
+
+        while queue:
+            # Is this a restricted concept?
+            current = queue.popleft()
+            if current.concept in restrictions:
+                return False
+
+            # Add neighbor nodes if they haven't been visited and
+            # they are identifier nodes. No need to look at non-identifier
+            # nodes since they are dead ends (have no outgoing edges)
+            for node_key in nx.neighbors(self.graph, current.key):
+                node = self.get_node(node_key)
+                if (node.key not in visited) and node.is_identifier:
+                    queue.append(node)
+                    visited.add(node.key)
+        return True
 
     def _add_edge(self, node1, node2, bidirectional=False):
         """
@@ -345,6 +523,43 @@ class ConceptNode(object):
         self.col = str(col)
         self.uid = self._create_uid()
 
+    @classmethod
+    def to_dict(cls, concept_node):
+        """
+        Create a dict where keys are ConceptNode attributes and values are
+        attribute values.
+
+        :param concept_node: the ConceptNode to serialize
+        """
+        return obj_attrs_to_dict(concept_node)
+
+    @classmethod
+    def from_dict(cls, node_dict):
+        """
+        Create an instance of ConceptNode from a dict containing ConceptNode
+        class attributes.
+
+        :param node_dict: dict with where keys must be attributes of
+        ConceptNode
+        """
+        required = {'concept_attribute_pair', 'value'}
+        for req in required:
+            if req not in node_dict:
+                raise KeyError(f'ConceptNode.from_dict requires: {required}')
+
+        n = ConceptNode(node_dict.get('concept_attribute_pair'),
+                        node_dict.get('value'))
+        for key, value in node_dict.items():
+            if key in required:
+                continue
+
+            if hasattr(n, key):
+                setattr(n, key, value)
+            else:
+                raise AttributeError(f'{key} is not an attribute of '
+                                     'ConceptNode.')
+        return n
+
     def _set_is_identifier(self):
         """
         Set is_identifier if the ConceptNode's attribute is in the set
@@ -375,3 +590,61 @@ class ConceptNode(object):
                                    self.col])
         else:
             return None
+
+
+def export_to_gml(concept_graph, filepath='./concept_graph.gml'):
+    """
+    Serialize the concept graph and write to a GML file.
+
+    GML content follows this format:
+        graph [
+          directed 1
+          node [
+            id 0
+            label "CONCEPT|FAMILY|ID|F1"
+            object "{JSON string representing ConceptNode attributes
+                    and values}"
+          ]
+          ..
+          edge [
+            source 0
+            target 1
+          ]
+          ...
+        ]
+
+    :param graph: a networkx.DiGraph containing the standard concept graph
+    :param filepath: the path to the file where the output will be written
+    """
+
+    def serialize(concept_node):
+        """
+        Helper to serialize ConceptNodes in nx graph
+        """
+        if isinstance(concept_node, ConceptNode):
+            n = ConceptNode.to_dict(concept_node)
+            return json.dumps(n)
+        else:
+            return concept_node
+
+    nx.write_gml(concept_graph.graph, filepath, stringizer=serialize)
+
+
+def import_from_gml(filepath='./concept_graph.gml'):
+    """
+    Read in GML file and create a networkx.DiGraph that represents a
+    ConceptGraph
+
+    :param filepath: the path to the GML file
+    """
+
+    def deserialize(node_obj_dict_str):
+        """
+        Helper to deserialize the attribute value string into
+        a ConceptNode
+        """
+        d = json.loads(node_obj_dict_str)
+        node_obj_dict = ConceptNode.from_dict(d)
+        return node_obj_dict
+
+    return nx.read_gml(filepath, destringizer=deserialize)
