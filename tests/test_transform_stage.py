@@ -9,11 +9,12 @@ import pandas as pd
 
 from kf_lib_data_ingest.etl.transform.transform import TransformStage
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
+from conftest import KIDS_FIRST_CONFIG
 
 
 def test_invalid_run_parameters():
 
-    stage = TransformStage()
+    stage = TransformStage(KIDS_FIRST_CONFIG)
 
     # Bad keys
     with pytest.raises(InvalidIngestStageParameters):
