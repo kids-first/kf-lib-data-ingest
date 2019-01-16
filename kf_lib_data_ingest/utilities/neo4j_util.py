@@ -29,11 +29,11 @@ from py2neo.data import (
     Subgraph
 )
 
-from etl.transform.standard_model.graph import (
+from kf_lib_data_ingest.etl.transform.standard_model.graph import (
     ConceptNode,
     import_from_gml
 )
-from etl.transform.standard_model.concept_schema import (
+from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
     DELIMITER as CONCEPT_DELIMITER,
     concept_attr_from
 )
@@ -57,7 +57,7 @@ class Neo4jConceptGraphLoader(object):
     def load_gml(self, filepath):
         """
         Create a neo4j graph given a GML file that was created by
-        etl.transform.standard_model.ConceptGraph.export_to_gml.
+        etl.transform.standard_model.graph.export_to_gml.
 
         This operation is idempotent. The existing neo4j graph will be deleted
         and a new one will be created to replace the deleted one. All nodes
