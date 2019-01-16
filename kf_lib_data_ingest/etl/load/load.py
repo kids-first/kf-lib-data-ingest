@@ -37,17 +37,11 @@ class LoadStage(IngestStage):
         # previously produced at the end of stage run
         pass  # TODO
 
-    def _adapt(self, standard_model):
-        entity = {}
-        # TODO: will use the target schema and standard model to yield entities
-        # to load into the dataservice
-        return entity
-
     def _load(self, thing):
         # TODO: put the thing into the server (does the sending)
         pass
 
-    def _validate_run_parameters(self, standard_model):
+    def _validate_run_parameters(self, target_entities):
         # Should raise a InvalidIngestStageParameters if any
         # parameters are missing.
         # raise InvalidIngestStageParameters
@@ -56,7 +50,8 @@ class LoadStage(IngestStage):
         # class
         pass
 
-    def _run(self, standard_model):
+    def _run(self, target_entities):
         # TODO: revisit maybe?
-        for entity in self._adapt(standard_model):
-            self._load(entity)
+        for entity_type, entities in target_entities.items():
+            for entity in entities:
+                self._load(entity)

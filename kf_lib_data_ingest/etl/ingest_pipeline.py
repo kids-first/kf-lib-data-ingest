@@ -100,7 +100,7 @@ class DataIngestPipeline(object):
         self.stage_dict['e'] = (ExtractStage,
                                 extract_cache_dir,
                                 self.data_ingest_config.extract_config_paths)
-        self.stage_dict['t'] = (TransformStage, )
+        self.stage_dict['t'] = (TransformStage, target_api_config_path)
 
         self.stage_dict['l'] = (
             LoadStage, target_api_config_path,
