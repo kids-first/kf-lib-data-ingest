@@ -9,16 +9,24 @@ from kf_lib_data_ingest.common.type_safety import (
     assert_safe_type,
     assert_all_safe_type
 )
-from kf_lib_data_ingest.etl.transform.standard_model.model import StandardModel
 from kf_lib_data_ingest.etl.configuration.target_api_config import (
     TargetAPIConfig
 )
+from kf_lib_data_ingest.etl.transform.auto import AutoTransformer
+from kf_lib_data_ingest.etl.transform.guided import GuidedTransformer
 
 
 class TransformStage(IngestStage):
-    def __init__(self, target_api_config_path):
+    def __init__(self, target_api_config_path, auto_transform,
+                 transform_function_path=None):
         super().__init__()
         self.target_api_config = TargetAPIConfig(target_api_config_path)
+
+        if auto_transform:
+            self.transformer = AutoTransformer(self.target_api_config)
+        else:
+            self.transformer = GuidedTransformer(self.target_api_config,
+                                                 transform_function_path)
 
     def _read_output(self):
         # An ingest stage is responsible for serializing the data that is
@@ -62,19 +70,13 @@ class TransformStage(IngestStage):
 
     def _run(self, data_dict):
         """
-        Transform the tabular mapped data into a unified standard form,
-        then transform again from the standard form into a dict of lists.
+        Transform the tabular mapped data into a dict of lists.
         Keys are target entity types and values are lists of target entity
         dicts.
 
         :param data_dict: a dict containing the mapped source data which
         follows the format outlined in _validate_run_parameters.
         """
-        # Insert mapped dataframes into the standard model
-        model = StandardModel(logger=self.logger)
-        model.populate(data_dict)
-
-        # Transform the concept graph into target entities
-        target_entities = model.transform(self.target_api_config)
+        target_entities = self.transformer._run(data_dict)
 
         return target_entities
