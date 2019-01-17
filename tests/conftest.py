@@ -7,11 +7,15 @@ from kf_lib_data_ingest.etl.configuration.target_api_config import (
     TargetAPIConfig
 )
 from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
+from kf_lib_data_ingest.etl.transform.transform import TransformStage
 TEST_ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 TEST_DATA_DIR = os.path.join(TEST_ROOT_DIR, 'data')
 KIDS_FIRST_CONFIG = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                  'kf_lib_data_ingest',
                                  'target_apis', 'kids_first.py')
+TRANSFORM_MODULE_PATH = os.path.join(TEST_DATA_DIR,
+                                     'test_study',
+                                     'transform_module.py')
 
 
 def delete_logs(log_dir):
@@ -60,3 +64,8 @@ def ingest_pipeline():
 @pytest.fixture(scope='function')
 def target_api_config():
     return TargetAPIConfig(KIDS_FIRST_CONFIG)
+
+
+@pytest.fixture(scope='function')
+def transform_stage():
+    return TransformStage(KIDS_FIRST_CONFIG, TRANSFORM_MODULE_PATH, False)

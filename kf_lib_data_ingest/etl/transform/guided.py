@@ -21,7 +21,7 @@ from kf_lib_data_ingest.etl.configuration.transform_module import (
 class GuidedTransformer(IngestStage):
     def __init__(self, target_api_config, transform_function_path):
         super().__init__()
-        # self.transform_module = TransformModule(transform_function_path)
+        self.transform_module = TransformModule(transform_function_path)
         self.target_api_config = target_api_config
 
     def _read_output(self):
