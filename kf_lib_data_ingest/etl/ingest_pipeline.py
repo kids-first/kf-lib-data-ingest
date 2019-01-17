@@ -54,7 +54,8 @@ class DataIngestPipeline(object):
         # Top level exception handler
         # Catch exception, log it to file and console, and exit
         try:
-            self._run(target_api_config_path, use_async, target_url)
+            self._run(target_api_config_path, auto_transform, use_async,
+                      target_url)
         except Exception as e:
             logging.exception(e)
             exit(1)
@@ -92,18 +93,33 @@ class DataIngestPipeline(object):
         """
         # Create an ordered dict of all ingest stages and their parameters
         self.stage_dict = OrderedDict()
-        extract_cache_dir = os.path.join(
-            os.path.dirname(self.data_ingest_config.config_filepath),
-            'output_cache'
-        )
+
+        ingest_config_dir = os.path.dirname(
+            self.data_ingest_config.config_filepath)
+
+        # Extract stage
+        extract_cache_dir = os.path.join(ingest_config_dir, 'output_cache')
         os.makedirs(extract_cache_dir, exist_ok=True)
         self.stage_dict['e'] = (ExtractStage,
                                 extract_cache_dir,
                                 self.data_ingest_config.extract_config_paths)
-        self.stage_dict['t'] = (TransformStage, target_api_config_path,
-                                auto_transform,
-                                self.data_ingest_config.transform_function_path)
 
+        # Transform stage
+        transform_funct_path = self.data_ingest_config.transform_function_path
+
+        if transform_funct_path:
+            # User only supplied filename, assume file is in ingest_config_dir
+            dirpath, filename = os.path.split(transform_funct_path)
+            if not dirpath:
+                transform_funct_path = os.path.join(ingest_config_dir,
+                                                    filename)
+            transform_funct_path = os.path.abspath(
+                os.path.expanduser(transform_funct_path))
+
+        self.stage_dict['t'] = (TransformStage, target_api_config_path,
+                                auto_transform, transform_funct_path)
+
+        # Load stage
         self.stage_dict['l'] = (
             LoadStage, target_api_config_path,
             target_url, use_async,
