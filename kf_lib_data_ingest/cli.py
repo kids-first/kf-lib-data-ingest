@@ -27,12 +27,17 @@ def cli():
               is_flag=True,
               help='A flag specifying whether to use sync or async loading '
               'into the target service')
+@click.option('--auto_transform',
+              default=False,
+              is_flag=True,
+              help='A flag specifying whether to use auto transformation or '
+              'user guided transformation')
 @click.option('-t', '--target_url',
               default=DEFAULT_TARGET_URL, show_default=True,
               help='Target service URL where data will be loaded into')
 @click.argument('dataset_ingest_config_path',
                 type=click.Path(exists=True, file_okay=True, dir_okay=True))
-def ingest(dataset_ingest_config_path, target_url, use_async):
+def ingest(dataset_ingest_config_path, target_url, auto_transform, use_async):
     """
     Run the Kids First data ingest pipeline.
 

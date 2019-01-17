@@ -30,8 +30,8 @@ class DataIngestPipeline(object):
         self.data_ingest_config = DatasetIngestConfig(
             dataset_ingest_config_path)
 
-    def run(self, target_api_config_path, use_async=False,
-            target_url=DEFAULT_TARGET_URL):
+    def run(self, target_api_config_path, auto_transform=False,
+            use_async=False, target_url=DEFAULT_TARGET_URL):
         """
         Entry point for data ingestion. Run ingestion in the top level
         exception handler so that exceptions are logged.
@@ -79,8 +79,8 @@ class DataIngestPipeline(object):
         # Setup logger
         setup_logger(log_dir, **opt_log_params)
 
-    def _run(self, target_api_config_path, use_async=False,
-             target_url=DEFAULT_TARGET_URL):
+    def _run(self, target_api_config_path, auto_transform=False,
+             use_async=False, target_url=DEFAULT_TARGET_URL):
         """
         Runs the ingest pipeline
 
@@ -100,7 +100,9 @@ class DataIngestPipeline(object):
         self.stage_dict['e'] = (ExtractStage,
                                 extract_cache_dir,
                                 self.data_ingest_config.extract_config_paths)
-        self.stage_dict['t'] = (TransformStage, target_api_config_path)
+        self.stage_dict['t'] = (TransformStage, target_api_config_path,
+                                auto_transform,
+                                self.data_ingest_config.transform_function_path)
 
         self.stage_dict['l'] = (
             LoadStage, target_api_config_path,
