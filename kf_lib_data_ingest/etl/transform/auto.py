@@ -1,5 +1,7 @@
 """
-Module for transforming source data DataFrames to the standard model.
+Module for 'auto' transforming source data into target service entities.
+Auto transformation does not require guidance from the user on how to merge
+source data tables.
 """
 from pandas import DataFrame
 
