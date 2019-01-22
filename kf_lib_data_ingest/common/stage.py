@@ -7,8 +7,13 @@ from functools import wraps
 
 class IngestStage(ABC):
 
-    def __init__(self, stage_cache_dir=None):
-        self.stage_cache_dir = stage_cache_dir
+    def __init__(self, ingest_output_dir=None):
+        self.ingest_output_dir = ingest_output_dir or (
+            os.path.join(os.getcwd(), 'output_cache')
+        )
+        self.stage_cache_dir = os.path.join(self.ingest_output_dir,
+                                            type(self).__name__)
+        os.makedirs(self.stage_cache_dir, exist_ok=True)
         self.logger = logging.getLogger(type(self).__name__)
 
     @abstractmethod

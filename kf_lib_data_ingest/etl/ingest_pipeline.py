@@ -29,6 +29,7 @@ class DataIngestPipeline(object):
         """
         self.data_ingest_config = DatasetIngestConfig(
             dataset_ingest_config_path)
+        self._make_output_dir()
 
     def run(self, target_api_config_path, auto_transform=False,
             use_async=False, target_url=DEFAULT_TARGET_URL):
@@ -63,6 +64,16 @@ class DataIngestPipeline(object):
         # Log the end of the run
         self.logger.info('END data ingestion')
 
+    def _make_output_dir(self):
+        """
+        Make top level ingest output dir
+        """
+        self.ingest_config_dir = os.path.dirname(
+            self.data_ingest_config.config_filepath)
+        self.ingest_output_dir = os.path.join(self.ingest_config_dir,
+                                              'output_cache')
+        os.makedirs(self.ingest_output_dir, exist_ok=True)
+
     def _get_log_params(self, data_ingest_config):
         """
         Get log params from data_ingest_config
@@ -94,14 +105,9 @@ class DataIngestPipeline(object):
         # Create an ordered dict of all ingest stages and their parameters
         self.stage_dict = OrderedDict()
 
-        ingest_config_dir = os.path.dirname(
-            self.data_ingest_config.config_filepath)
-
         # Extract stage
-        extract_cache_dir = os.path.join(ingest_config_dir, 'output_cache')
-        os.makedirs(extract_cache_dir, exist_ok=True)
         self.stage_dict['e'] = (ExtractStage,
-                                extract_cache_dir,
+                                self.ingest_output_dir,
                                 self.data_ingest_config.extract_config_paths)
 
         # Transform stage
@@ -111,10 +117,10 @@ class DataIngestPipeline(object):
             transform_fp = self.data_ingest_config.transform_function_path
             if transform_fp:
                 transform_fp = os.path.join(
-                    ingest_config_dir, os.path.relpath(transform_fp))
+                    self.ingest_config_dir, os.path.relpath(transform_fp))
 
         self.stage_dict['t'] = (TransformStage, target_api_config_path,
-                                transform_fp)
+                                self.ingest_output_dir, transform_fp)
 
         # Load stage
         self.stage_dict['l'] = (
@@ -125,7 +131,7 @@ class DataIngestPipeline(object):
         # Iterate over stages and execute them
         output = None
         for key, params in self.stage_dict.items():
-            # Instantiate an instance of the ingest stage
+                # Instantiate an instance of the ingest stage
             stage = params[0](*(params[1:]))
             # First stage is always extract
             if key == 'e':

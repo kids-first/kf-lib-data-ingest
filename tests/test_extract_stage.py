@@ -32,7 +32,8 @@ expected_results = {
 def test_extracts():
     for study_dir, study_configs in expected_results.items():
         extract_configs = list(study_configs.keys())
-        es = ExtractStage(study_dir, extract_configs)
+        ingest_output_dir = os.path.join(study_dir, 'output_cache')
+        es = ExtractStage(ingest_output_dir, extract_configs)
         df_out = es.run()
 
         es._write_output(df_out)

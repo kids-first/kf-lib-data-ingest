@@ -10,6 +10,9 @@ from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
 from kf_lib_data_ingest.etl.transform.transform import TransformStage
 TEST_ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 TEST_DATA_DIR = os.path.join(TEST_ROOT_DIR, 'data')
+TEST_INGEST_OUTPUT_DIR = os.path.join(TEST_DATA_DIR,
+                                      'test_study',
+                                      'output_cache')
 KIDS_FIRST_CONFIG = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                  'kf_lib_data_ingest',
                                  'target_apis', 'kids_first.py')
@@ -68,4 +71,5 @@ def target_api_config():
 
 @pytest.fixture(scope='function')
 def transform_stage():
-    return TransformStage(KIDS_FIRST_CONFIG, TRANSFORM_MODULE_PATH)
+    return TransformStage(KIDS_FIRST_CONFIG, TEST_INGEST_OUTPUT_DIR,
+                          transform_function_path=TRANSFORM_MODULE_PATH)
