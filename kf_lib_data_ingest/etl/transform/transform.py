@@ -1,7 +1,9 @@
 """
-Module for transforming source data DataFrames to the standard model.
+Module for transforming source data pandas.DataFrames to the standard model.
 """
-from pandas import DataFrame
+import os
+
+import pandas
 
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
 from kf_lib_data_ingest.common.stage import IngestStage
@@ -24,8 +26,9 @@ from kf_lib_data_ingest.etl.transform.guided import GuidedTransformer
 
 
 class TransformStage(IngestStage):
-    def __init__(self, target_api_config_path, transform_function_path=None):
-        super().__init__()
+    def __init__(self, target_api_config_path, ingest_output_dir,
+                 transform_function_path=None):
+        super().__init__(ingest_output_dir)
         self.target_api_config = TargetAPIConfig(target_api_config_path)
 
         if not transform_function_path:
@@ -35,14 +38,33 @@ class TransformStage(IngestStage):
                                                  transform_function_path)
 
     def _read_output(self):
-        # An ingest stage is responsible for serializing the data that is
-        # produced at the end of stage run
-        pass  # TODO
+        """
+        Read previously written transform stage output
+        Delegate the work to the transformer that is loaded at run time
+        """
+        prev_output = {}
+        for filename in os.listdir(self.output_dir):
+            if not filename.endswith('.tsv'):
+                continue
+            fp = os.path.join(self.stage_cache_dir, filename)
+            prev_output[filename] = pandas.read_csv(fp, delimiter='\t')
+
+        return prev_output
 
     def _write_output(self, output):
-        # An ingest stage is responsible for deserializing the data that it
-        # previously produced at the end of stage run
-        pass  # TODO
+        """
+        Write output of transform stage to file
+        Delegate the work to the transformer that is loaded at run time
+
+        :param output: output created by self._run
+        :type output: a dict of pandas.DataFrames
+        """
+        assert_safe_type(output, dict)
+        assert_all_safe_type(output.values(), pandas.DataFrame)
+
+        for key, df in output.items():
+            fp = os.path.join(self.stage_cache_dir, key + '.tsv')
+            df.to_csv(fp, sep='\t')
 
     def _validate_run_parameters(self, data_dict):
         """
@@ -50,12 +72,12 @@ class TransformStage(IngestStage):
         method gets executed before the body of _run is executed.
 
         A key in df_dict should be a string containing the URL to the
-        extract config module used to produce the Pandas DataFrame in the
+        extract config module used to produce the pandas.DataFrame in the
         value tuple.
 
         A value in df_dict should be a tuple where the first member is a
         string containing the URL to the source data file, and the second
-        member of the tuple is a Pandas DataFrame containing the mapped
+        member of the tuple is a pandas.DataFrame containing the mapped
         source data.
 
         :param data_dict: a dict containing the mapped source data which
@@ -66,10 +88,10 @@ class TransformStage(IngestStage):
             assert_safe_type(data_dict, dict)
             assert_all_safe_type(data_dict.keys(), str)
 
-            # Check that values are tuples of (string, DataFrames)
+            # Check that values are tuples of (string, pandas.DataFrames)
             for extract_config_url, df in data_dict.values():
                 assert_safe_type(extract_config_url, str)
-                assert_safe_type(df, DataFrame)
+                assert_safe_type(df, pandas.DataFrame)
 
         except TypeError as e:
             raise InvalidIngestStageParameters from e
@@ -78,8 +100,8 @@ class TransformStage(IngestStage):
         """
         Iterate over mapped dataframes and insert the unique key columns
 
-        :param df_dict: a dict of Pandas DataFrames. A key is an extract config
-        URL and a value is a tuple of (source file url, DataFrame).
+        :param df_dict: a dict of pandas.DataFrames. A key is an extract config
+        URL and a value is a tuple of (source file url, pandas.DataFrame).
         """
         for extract_config_url, (source_file_url, df) in df_dict.items():
             # Insert unique key columns
@@ -95,8 +117,9 @@ class TransformStage(IngestStage):
             if not is_any_unique_keys:
                 raise ValueError(
                     'Error inserting dataframe into ConceptGraph! There must '
-                    'be at least 1 unique key column in the DataFrame. Source '
-                    f'of error is {extract_config_url} : {source_file_url}'
+                    'be at least 1 unique key column in the pandas.DataFrame. '
+                    f'Source of error is {extract_config_url} : '
+                    f'{source_file_url}'
                 )
 
     def _add_unique_key_cols(self, df,
@@ -116,7 +139,7 @@ class TransformStage(IngestStage):
 
         A unique key column for a concept will only be added if all of the
         columns required to compose the unique key for that concept exist in
-        the DataFrame.
+        the pandas.DataFrame.
 
         The value of a unique key will be a delimited string containing the
         values from required unique key columns.
@@ -141,7 +164,7 @@ class TransformStage(IngestStage):
             ------------------------------------------------------------------------------ # noqa E501
                 OT1                 Deceased                        OT1-Deceased # noqa E501
 
-        :param df: the Pandas DataFrame that will be modified
+        :param df: the pandas.DataFrame that will be modified
         :param unique_key_composition: a dict where a key is a standard concept
         string and a value is a list of required columns needed to compose
         a unique key for the concept.
@@ -189,7 +212,7 @@ class TransformStage(IngestStage):
 
         :param concept_name: a string and the name of the concept for which a
         unique key will be made
-        :param df: a Pandas DataFrame
+        :param df: a pandas.DataFrame
         :param output_key_cols: the output list of columns needed to build the
         unique key column for a concept.
         """
@@ -237,5 +260,7 @@ class TransformStage(IngestStage):
         self._insert_unique_keys(data_dict)
 
         target_entities = self.transformer.run(data_dict)
+
+        self._write_output(target_entities)
 
         return target_entities
