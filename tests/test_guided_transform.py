@@ -1,4 +1,5 @@
 import pytest
+import pandas as pd
 
 from kf_lib_data_ingest.etl.configuration.base_config import (
     ConfigValidationError
@@ -47,3 +48,22 @@ def test_no_transform_module(target_api_config):
     with pytest.raises(ConfigValidationError) as e:
         GuidedTransformer(target_api_config, None)
         assert 'Guided transformation requires a' in str(e)
+
+
+@pytest.mark.parametrize('ret_val, error',
+                         [(None, TypeError),
+                          ({'foo': pd.DataFrame()}, KeyError),
+                          ({'participant': None}, TypeError)
+                          ])
+def test_bad_ret_vals_transform_funct(transform_stage, ret_val, error):
+    """
+    Test wrong return values from transform function
+    """
+    tf = transform_stage.transformer
+
+    def f(df_dict):
+        return ret_val
+
+    tf.transform_module.transform_function = f
+    with pytest.raises(error):
+        tf._apply_transform_funct({})

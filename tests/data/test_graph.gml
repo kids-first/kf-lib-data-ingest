@@ -17,13 +17,13 @@ graph [
   ]
   node [
     id 3
-    label "CONCEPT|PARTICIPANT|UNIQUE_KEY|P1"
-    object "{&#34;attribute&#34;: &#34;UNIQUE_KEY&#34;, &#34;col&#34;: &#34;3&#34;, &#34;concept&#34;: &#34;CONCEPT|PARTICIPANT&#34;, &#34;concept_attribute_pair&#34;: &#34;CONCEPT|PARTICIPANT|UNIQUE_KEY&#34;, &#34;extract_config_url&#34;: &#34;s3://bucket/key/pedigree.csv&#34;, &#34;is_identifier&#34;: true, &#34;key&#34;: &#34;CONCEPT|PARTICIPANT|UNIQUE_KEY|P1&#34;, &#34;row&#34;: &#34;0&#34;, &#34;source_file_url&#34;: &#34;file:///study/configs/pedigree.py&#34;, &#34;uid&#34;: &#34;s3://bucket/key/pedigree.csv|file:///study/configs/pedigree.py|0|3&#34;, &#34;value&#34;: &#34;P1&#34;}"
+    label "CONCEPT|FAMILY|UNIQUE_KEY|F1"
+    object "{&#34;attribute&#34;: &#34;UNIQUE_KEY&#34;, &#34;col&#34;: &#34;3&#34;, &#34;concept&#34;: &#34;CONCEPT|FAMILY&#34;, &#34;concept_attribute_pair&#34;: &#34;CONCEPT|FAMILY|UNIQUE_KEY&#34;, &#34;extract_config_url&#34;: &#34;s3://bucket/key/pedigree.csv&#34;, &#34;is_identifier&#34;: true, &#34;key&#34;: &#34;CONCEPT|FAMILY|UNIQUE_KEY|F1&#34;, &#34;row&#34;: &#34;0&#34;, &#34;source_file_url&#34;: &#34;file:///study/configs/pedigree.py&#34;, &#34;uid&#34;: &#34;s3://bucket/key/pedigree.csv|file:///study/configs/pedigree.py|0|3&#34;, &#34;value&#34;: &#34;F1&#34;}"
   ]
   node [
     id 4
-    label "CONCEPT|FAMILY|UNIQUE_KEY|F1"
-    object "{&#34;attribute&#34;: &#34;UNIQUE_KEY&#34;, &#34;col&#34;: &#34;4&#34;, &#34;concept&#34;: &#34;CONCEPT|FAMILY&#34;, &#34;concept_attribute_pair&#34;: &#34;CONCEPT|FAMILY|UNIQUE_KEY&#34;, &#34;extract_config_url&#34;: &#34;s3://bucket/key/pedigree.csv&#34;, &#34;is_identifier&#34;: true, &#34;key&#34;: &#34;CONCEPT|FAMILY|UNIQUE_KEY|F1&#34;, &#34;row&#34;: &#34;0&#34;, &#34;source_file_url&#34;: &#34;file:///study/configs/pedigree.py&#34;, &#34;uid&#34;: &#34;s3://bucket/key/pedigree.csv|file:///study/configs/pedigree.py|0|4&#34;, &#34;value&#34;: &#34;F1&#34;}"
+    label "CONCEPT|PARTICIPANT|UNIQUE_KEY|P1"
+    object "{&#34;attribute&#34;: &#34;UNIQUE_KEY&#34;, &#34;col&#34;: &#34;4&#34;, &#34;concept&#34;: &#34;CONCEPT|PARTICIPANT&#34;, &#34;concept_attribute_pair&#34;: &#34;CONCEPT|PARTICIPANT|UNIQUE_KEY&#34;, &#34;extract_config_url&#34;: &#34;s3://bucket/key/pedigree.csv&#34;, &#34;is_identifier&#34;: true, &#34;key&#34;: &#34;CONCEPT|PARTICIPANT|UNIQUE_KEY|P1&#34;, &#34;row&#34;: &#34;0&#34;, &#34;source_file_url&#34;: &#34;file:///study/configs/pedigree.py&#34;, &#34;uid&#34;: &#34;s3://bucket/key/pedigree.csv|file:///study/configs/pedigree.py|0|4&#34;, &#34;value&#34;: &#34;P1&#34;}"
   ]
   node [
     id 5
@@ -33,7 +33,7 @@ graph [
   node [
     id 6
     label "CONCEPT|PARTICIPANT|UNIQUE_KEY|P2"
-    object "{&#34;attribute&#34;: &#34;UNIQUE_KEY&#34;, &#34;col&#34;: &#34;3&#34;, &#34;concept&#34;: &#34;CONCEPT|PARTICIPANT&#34;, &#34;concept_attribute_pair&#34;: &#34;CONCEPT|PARTICIPANT|UNIQUE_KEY&#34;, &#34;extract_config_url&#34;: &#34;s3://bucket/key/pedigree.csv&#34;, &#34;is_identifier&#34;: true, &#34;key&#34;: &#34;CONCEPT|PARTICIPANT|UNIQUE_KEY|P2&#34;, &#34;row&#34;: &#34;1&#34;, &#34;source_file_url&#34;: &#34;file:///study/configs/pedigree.py&#34;, &#34;uid&#34;: &#34;s3://bucket/key/pedigree.csv|file:///study/configs/pedigree.py|1|3&#34;, &#34;value&#34;: &#34;P2&#34;}"
+    object "{&#34;attribute&#34;: &#34;UNIQUE_KEY&#34;, &#34;col&#34;: &#34;4&#34;, &#34;concept&#34;: &#34;CONCEPT|PARTICIPANT&#34;, &#34;concept_attribute_pair&#34;: &#34;CONCEPT|PARTICIPANT|UNIQUE_KEY&#34;, &#34;extract_config_url&#34;: &#34;s3://bucket/key/pedigree.csv&#34;, &#34;is_identifier&#34;: true, &#34;key&#34;: &#34;CONCEPT|PARTICIPANT|UNIQUE_KEY|P2&#34;, &#34;row&#34;: &#34;1&#34;, &#34;source_file_url&#34;: &#34;file:///study/configs/pedigree.py&#34;, &#34;uid&#34;: &#34;s3://bucket/key/pedigree.csv|file:///study/configs/pedigree.py|1|4&#34;, &#34;value&#34;: &#34;P2&#34;}"
   ]
   node [
     id 7
@@ -43,7 +43,7 @@ graph [
   node [
     id 8
     label "CONCEPT|BIOSPECIMEN|UNIQUE_KEY|B1"
-    object "{&#34;attribute&#34;: &#34;UNIQUE_KEY&#34;, &#34;col&#34;: &#34;2&#34;, &#34;concept&#34;: &#34;CONCEPT|BIOSPECIMEN&#34;, &#34;concept_attribute_pair&#34;: &#34;CONCEPT|BIOSPECIMEN|UNIQUE_KEY&#34;, &#34;extract_config_url&#34;: &#34;s3://bucket/key/subject_sample.csv&#34;, &#34;is_identifier&#34;: true, &#34;key&#34;: &#34;CONCEPT|BIOSPECIMEN|UNIQUE_KEY|B1&#34;, &#34;row&#34;: &#34;0&#34;, &#34;source_file_url&#34;: &#34;file:///study/configs/subject_sample.py&#34;, &#34;uid&#34;: &#34;s3://bucket/key/subject_sample.csv|file:///study/configs/subject_sample.py|0|2&#34;, &#34;value&#34;: &#34;B1&#34;}"
+    object "{&#34;attribute&#34;: &#34;UNIQUE_KEY&#34;, &#34;col&#34;: &#34;3&#34;, &#34;concept&#34;: &#34;CONCEPT|BIOSPECIMEN&#34;, &#34;concept_attribute_pair&#34;: &#34;CONCEPT|BIOSPECIMEN|UNIQUE_KEY&#34;, &#34;extract_config_url&#34;: &#34;s3://bucket/key/subject_sample.csv&#34;, &#34;is_identifier&#34;: true, &#34;key&#34;: &#34;CONCEPT|BIOSPECIMEN|UNIQUE_KEY|B1&#34;, &#34;row&#34;: &#34;0&#34;, &#34;source_file_url&#34;: &#34;file:///study/configs/subject_sample.py&#34;, &#34;uid&#34;: &#34;s3://bucket/key/subject_sample.csv|file:///study/configs/subject_sample.py|0|3&#34;, &#34;value&#34;: &#34;B1&#34;}"
   ]
   node [
     id 9
@@ -53,7 +53,7 @@ graph [
   node [
     id 10
     label "CONCEPT|BIOSPECIMEN|UNIQUE_KEY|B2"
-    object "{&#34;attribute&#34;: &#34;UNIQUE_KEY&#34;, &#34;col&#34;: &#34;2&#34;, &#34;concept&#34;: &#34;CONCEPT|BIOSPECIMEN&#34;, &#34;concept_attribute_pair&#34;: &#34;CONCEPT|BIOSPECIMEN|UNIQUE_KEY&#34;, &#34;extract_config_url&#34;: &#34;s3://bucket/key/subject_sample.csv&#34;, &#34;is_identifier&#34;: true, &#34;key&#34;: &#34;CONCEPT|BIOSPECIMEN|UNIQUE_KEY|B2&#34;, &#34;row&#34;: &#34;1&#34;, &#34;source_file_url&#34;: &#34;file:///study/configs/subject_sample.py&#34;, &#34;uid&#34;: &#34;s3://bucket/key/subject_sample.csv|file:///study/configs/subject_sample.py|1|2&#34;, &#34;value&#34;: &#34;B2&#34;}"
+    object "{&#34;attribute&#34;: &#34;UNIQUE_KEY&#34;, &#34;col&#34;: &#34;3&#34;, &#34;concept&#34;: &#34;CONCEPT|BIOSPECIMEN&#34;, &#34;concept_attribute_pair&#34;: &#34;CONCEPT|BIOSPECIMEN|UNIQUE_KEY&#34;, &#34;extract_config_url&#34;: &#34;s3://bucket/key/subject_sample.csv&#34;, &#34;is_identifier&#34;: true, &#34;key&#34;: &#34;CONCEPT|BIOSPECIMEN|UNIQUE_KEY|B2&#34;, &#34;row&#34;: &#34;1&#34;, &#34;source_file_url&#34;: &#34;file:///study/configs/subject_sample.py&#34;, &#34;uid&#34;: &#34;s3://bucket/key/subject_sample.csv|file:///study/configs/subject_sample.py|1|3&#34;, &#34;value&#34;: &#34;B2&#34;}"
   ]
   node [
     id 11
@@ -63,7 +63,7 @@ graph [
   node [
     id 12
     label "CONCEPT|BIOSPECIMEN|UNIQUE_KEY|B3"
-    object "{&#34;attribute&#34;: &#34;UNIQUE_KEY&#34;, &#34;col&#34;: &#34;2&#34;, &#34;concept&#34;: &#34;CONCEPT|BIOSPECIMEN&#34;, &#34;concept_attribute_pair&#34;: &#34;CONCEPT|BIOSPECIMEN|UNIQUE_KEY&#34;, &#34;extract_config_url&#34;: &#34;s3://bucket/key/subject_sample.csv&#34;, &#34;is_identifier&#34;: true, &#34;key&#34;: &#34;CONCEPT|BIOSPECIMEN|UNIQUE_KEY|B3&#34;, &#34;row&#34;: &#34;2&#34;, &#34;source_file_url&#34;: &#34;file:///study/configs/subject_sample.py&#34;, &#34;uid&#34;: &#34;s3://bucket/key/subject_sample.csv|file:///study/configs/subject_sample.py|2|2&#34;, &#34;value&#34;: &#34;B3&#34;}"
+    object "{&#34;attribute&#34;: &#34;UNIQUE_KEY&#34;, &#34;col&#34;: &#34;3&#34;, &#34;concept&#34;: &#34;CONCEPT|BIOSPECIMEN&#34;, &#34;concept_attribute_pair&#34;: &#34;CONCEPT|BIOSPECIMEN|UNIQUE_KEY&#34;, &#34;extract_config_url&#34;: &#34;s3://bucket/key/subject_sample.csv&#34;, &#34;is_identifier&#34;: true, &#34;key&#34;: &#34;CONCEPT|BIOSPECIMEN|UNIQUE_KEY|B3&#34;, &#34;row&#34;: &#34;2&#34;, &#34;source_file_url&#34;: &#34;file:///study/configs/subject_sample.py&#34;, &#34;uid&#34;: &#34;s3://bucket/key/subject_sample.csv|file:///study/configs/subject_sample.py|2|3&#34;, &#34;value&#34;: &#34;B3&#34;}"
   ]
   node [
     id 13
@@ -88,19 +88,11 @@ graph [
   ]
   edge [
     source 3
-    target 8
+    target 6
   ]
   edge [
     source 3
-    target 7
-  ]
-  edge [
-    source 3
-    target 10
-  ]
-  edge [
-    source 3
-    target 9
+    target 5
   ]
   edge [
     source 4
@@ -120,15 +112,23 @@ graph [
   ]
   edge [
     source 4
-    target 6
+    target 8
   ]
   edge [
     source 4
-    target 5
+    target 7
+  ]
+  edge [
+    source 4
+    target 10
+  ]
+  edge [
+    source 4
+    target 9
   ]
   edge [
     source 6
-    target 4
+    target 3
   ]
   edge [
     source 6
@@ -148,7 +148,7 @@ graph [
   ]
   edge [
     source 8
-    target 3
+    target 4
   ]
   edge [
     source 8
@@ -160,7 +160,7 @@ graph [
   ]
   edge [
     source 10
-    target 3
+    target 4
   ]
   edge [
     source 10
