@@ -1,5 +1,5 @@
 """
-Module for transforming source data pandas.DataFrames to the standard model.
+Module for transforming source data Pandas DataFrames to the standard model.
 """
 import os
 
@@ -74,12 +74,12 @@ class TransformStage(IngestStage):
         method gets executed before the body of _run is executed.
 
         A key in df_dict should be a string containing the URL to the
-        extract config module used to produce the pandas.DataFrame in the
+        extract config module used to produce the Pandas DataFrame in the
         value tuple.
 
         A value in df_dict should be a tuple where the first member is a
         string containing the URL to the source data file, and the second
-        member of the tuple is a pandas.DataFrame containing the mapped
+        member of the tuple is a Pandas DataFrame containing the mapped
         source data.
 
         :param data_dict: a dict containing the mapped source data which
@@ -119,7 +119,7 @@ class TransformStage(IngestStage):
             if not is_any_unique_keys:
                 raise ValueError(
                     'Error inserting dataframe into ConceptGraph! There must '
-                    'be at least 1 unique key column in the pandas.DataFrame. '
+                    'be at least 1 unique key column in the Pandas DataFrame. '
                     f'Source of error is {extract_config_url} : '
                     f'{source_file_url}'
                 )
@@ -141,7 +141,7 @@ class TransformStage(IngestStage):
 
         A unique key column for a concept will only be added if all of the
         columns required to compose the unique key for that concept exist in
-        the pandas.DataFrame.
+        the Pandas DataFrame.
 
         The value of a unique key will be a delimited string containing the
         values from required unique key columns.
@@ -166,7 +166,7 @@ class TransformStage(IngestStage):
             ------------------------------------------------------------------------------ # noqa E501
                 OT1                 Deceased                        OT1-Deceased # noqa E501
 
-        :param df: the pandas.DataFrame that will be modified
+        :param df: the Pandas DataFrame that will be modified
         :param unique_key_composition: a dict where a key is a standard concept
         string and a value is a list of required columns needed to compose
         a unique key for the concept.
@@ -214,7 +214,7 @@ class TransformStage(IngestStage):
 
         :param concept_name: a string and the name of the concept for which a
         unique key will be made
-        :param df: a pandas.DataFrame
+        :param df: a Pandas DataFrame
         :param output_key_cols: the output list of columns needed to build the
         unique key column for a concept.
         """

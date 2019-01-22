@@ -33,10 +33,9 @@ def test_extracts():
     for study_dir, study_configs in expected_results.items():
         extract_configs = list(study_configs.keys())
         ingest_output_dir = os.path.join(study_dir, 'output_cache')
-        es = ExtractStage(ingest_output_dir, extract_configs)
+        es = ExtractStage(extract_configs, ingest_output_dir=ingest_output_dir,
+                          write_output=True)
         df_out = es.run()
-
-        es._write_output(df_out)
         recycled_output = es._read_output()
 
         for config in extract_configs:

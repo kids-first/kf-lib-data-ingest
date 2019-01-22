@@ -3,10 +3,7 @@ import os
 from click.testing import CliRunner
 
 from kf_lib_data_ingest import cli
-from conftest import (
-    TEST_DATA_DIR,
-    TRANSFORM_MODULE_PATH
-)
+from conftest import TEST_DATA_DIR
 
 COMMAND_LINE_ERROR_CODE = 2
 
@@ -37,6 +34,7 @@ def test_ingest():
     runner = CliRunner()
     result = runner.invoke(cli.ingest, [ingest_config_path,
                                         '--auto_transform'])
+    assert result.exit_code == 0
 
     # Test guided transform
     result = runner.invoke(cli.ingest, [ingest_config_path])

@@ -63,6 +63,10 @@ def ingest_pipeline():
     if os.path.exists(p.data_ingest_config.log_dir):
         shutil.rmtree(p.data_ingest_config.log_dir)
 
+    # Delete the entire output_cache directory
+    if os.path.exists(p.ingest_output_dir):
+        shutil.rmtree(p.ingest_output_dir)
+
 
 @pytest.fixture(scope='function')
 def target_api_config():
@@ -71,5 +75,6 @@ def target_api_config():
 
 @pytest.fixture(scope='function')
 def transform_stage():
-    return TransformStage(KIDS_FIRST_CONFIG, TEST_INGEST_OUTPUT_DIR,
+    return TransformStage(KIDS_FIRST_CONFIG,
+                          ingest_output_dir=TEST_INGEST_OUTPUT_DIR,
                           transform_function_path=TRANSFORM_MODULE_PATH)

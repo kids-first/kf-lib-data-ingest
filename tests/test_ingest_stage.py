@@ -10,8 +10,9 @@ from conftest import TEST_INGEST_OUTPUT_DIR
 @pytest.fixture(scope='function')
 def ValidIngestStage():
     class ValidIngestStage(IngestStage):
-        def __init__(self, ingest_output_dir=None):
-            super().__init__(ingest_output_dir)
+        def __init__(self, ingest_output_dir=None, write_output=False):
+            super().__init__(ingest_output_dir=ingest_output_dir,
+                             write_output=write_output)
 
         def _run(self, foo):
             pass
@@ -62,7 +63,8 @@ def test_stage_dir_creation(ValidIngestStage):
     """
     Test that a stage's output dir gets created properly
     """
-    stage = ValidIngestStage(TEST_INGEST_OUTPUT_DIR)
+    stage = ValidIngestStage(ingest_output_dir=TEST_INGEST_OUTPUT_DIR,
+                             write_output=True)
 
     assert os.path.isdir(stage.ingest_output_dir)
     assert os.path.isdir(stage.stage_cache_dir)
