@@ -34,9 +34,10 @@ def lcm(number_list):
 
 class ExtractStage(IngestStage):
     def __init__(
-        self, ingest_output_dir, extract_config_paths
+        self, extract_config_paths, ingest_output_dir=None, write_output=False
     ):
-        super().__init__(ingest_output_dir)
+        super().__init__(ingest_output_dir=ingest_output_dir,
+                         write_output=write_output)
         if isinstance(extract_config_paths, list):
             self.extract_configs = [ExtractConfig(config_filepath)
                                     for config_filepath

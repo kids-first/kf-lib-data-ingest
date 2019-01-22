@@ -22,6 +22,10 @@ def cli():
 
 
 @click.command()
+@click.option('--write_output',
+              default=False,
+              is_flag=True,
+              help='A flag specifying whether to write stage output to file')
 @click.option('--use_async',
               default=False,
               is_flag=True,
@@ -37,7 +41,8 @@ def cli():
               help='Target service URL where data will be loaded into')
 @click.argument('dataset_ingest_config_path',
                 type=click.Path(exists=True, file_okay=True, dir_okay=True))
-def ingest(dataset_ingest_config_path, target_url, auto_transform, use_async):
+def ingest(dataset_ingest_config_path, target_url, auto_transform, use_async,
+           write_output):
     """
     Run the Kids First data ingest pipeline.
 

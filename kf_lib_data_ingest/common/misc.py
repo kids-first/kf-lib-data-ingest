@@ -89,3 +89,17 @@ def obj_attrs_to_dict(cls):
                   if not(a[0].startswith('__') and
                          a[0].endswith('__'))]
     return dict(attributes)
+
+
+def kwargs_from_frame(current_frame, start_arg_pos=1):
+    """
+    Create a dict with the keyword arguments from a method, represented by
+    current_frame.
+    :param current_frame: frame object for the caller’s stack frame.
+    :param start_arg_pos: the index in the list of args after which all keyword
+    args will be collected.
+    """
+    args, _, _, values = inspect.getargvalues(current_frame)
+    kwargs = {arg: values[arg] for arg in args[start_arg_pos:]}
+
+    return kwargs

@@ -26,9 +26,11 @@ from kf_lib_data_ingest.etl.transform.guided import GuidedTransformer
 
 
 class TransformStage(IngestStage):
-    def __init__(self, target_api_config_path, ingest_output_dir,
-                 transform_function_path=None):
-        super().__init__(ingest_output_dir)
+    def __init__(self, target_api_config_path, transform_function_path=None,
+                 ingest_output_dir=None, write_output=False):
+        super().__init__(ingest_output_dir=ingest_output_dir,
+                         write_output=write_output)
+
         self.target_api_config = TargetAPIConfig(target_api_config_path)
 
         if not transform_function_path:
@@ -260,7 +262,5 @@ class TransformStage(IngestStage):
         self._insert_unique_keys(data_dict)
 
         target_entities = self.transformer.run(data_dict)
-
-        self._write_output(target_entities)
 
         return target_entities

@@ -19,9 +19,10 @@ from kf_lib_data_ingest.etl.configuration.target_api_config import (
 
 class LoadStage(IngestStage):
     def __init__(
-        self, target_api_config_path, target_url, use_async, entities_to_load
+        self, target_api_config_path, target_url, use_async=False,
+        entities_to_load=None, ingest_output_dir=None, write_output=False
     ):
-        super().__init__()
+        super().__init__(ingest_output_dir=None, write_output=False)
         self.target_api_config = TargetAPIConfig(target_api_config_path)
         self.entities_to_load = entities_to_load
         self.target_url = target_url
