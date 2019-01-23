@@ -3,7 +3,10 @@ import os
 from click.testing import CliRunner
 
 from kf_lib_data_ingest import cli
-from conftest import TEST_DATA_DIR
+from conftest import (
+    TEST_DATA_DIR,
+    TRANSFORM_MODULE_PATH
+)
 
 COMMAND_LINE_ERROR_CODE = 2
 
@@ -26,10 +29,17 @@ def test_ingest():
     """
     Test ingest runs successfully with correct params
     """
-    path = os.path.join(TEST_DATA_DIR,
-                        'test_study', 'dataset_ingest_config.yml')
+    # Test auto transform
+    ingest_config_path = os.path.join(TEST_DATA_DIR,
+                                      'test_study',
+                                      'dataset_ingest_config.yml')
+
     runner = CliRunner()
-    result = runner.invoke(cli.ingest, [path])
+    result = runner.invoke(cli.ingest, [ingest_config_path,
+                                        '--auto_transform'])
+
+    # Test guided transform
+    result = runner.invoke(cli.ingest, [ingest_config_path])
 
     assert result.exit_code == 0
     assert 'BEGIN data ingestion' in result.output

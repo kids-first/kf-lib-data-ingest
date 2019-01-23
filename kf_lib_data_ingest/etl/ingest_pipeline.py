@@ -30,8 +30,8 @@ class DataIngestPipeline(object):
         self.data_ingest_config = DatasetIngestConfig(
             dataset_ingest_config_path)
 
-    def run(self, target_api_config_path, use_async=False,
-            target_url=DEFAULT_TARGET_URL):
+    def run(self, target_api_config_path, auto_transform=False,
+            use_async=False, target_url=DEFAULT_TARGET_URL):
         """
         Entry point for data ingestion. Run ingestion in the top level
         exception handler so that exceptions are logged.
@@ -54,7 +54,8 @@ class DataIngestPipeline(object):
         # Top level exception handler
         # Catch exception, log it to file and console, and exit
         try:
-            self._run(target_api_config_path, use_async, target_url)
+            self._run(target_api_config_path, auto_transform, use_async,
+                      target_url)
         except Exception as e:
             logging.exception(e)
             exit(1)
@@ -79,8 +80,8 @@ class DataIngestPipeline(object):
         # Setup logger
         setup_logger(log_dir, **opt_log_params)
 
-    def _run(self, target_api_config_path, use_async=False,
-             target_url=DEFAULT_TARGET_URL):
+    def _run(self, target_api_config_path, auto_transform=False,
+             use_async=False, target_url=DEFAULT_TARGET_URL):
         """
         Runs the ingest pipeline
 
@@ -92,16 +93,30 @@ class DataIngestPipeline(object):
         """
         # Create an ordered dict of all ingest stages and their parameters
         self.stage_dict = OrderedDict()
-        extract_cache_dir = os.path.join(
-            os.path.dirname(self.data_ingest_config.config_filepath),
-            'output_cache'
-        )
+
+        ingest_config_dir = os.path.dirname(
+            self.data_ingest_config.config_filepath)
+
+        # Extract stage
+        extract_cache_dir = os.path.join(ingest_config_dir, 'output_cache')
         os.makedirs(extract_cache_dir, exist_ok=True)
         self.stage_dict['e'] = (ExtractStage,
                                 extract_cache_dir,
                                 self.data_ingest_config.extract_config_paths)
-        self.stage_dict['t'] = (TransformStage, target_api_config_path)
 
+        # Transform stage
+        transform_fp = None
+        # Create file path to transform function Python module
+        if not auto_transform:
+            transform_fp = self.data_ingest_config.transform_function_path
+            if transform_fp:
+                transform_fp = os.path.join(
+                    ingest_config_dir, os.path.relpath(transform_fp))
+
+        self.stage_dict['t'] = (TransformStage, target_api_config_path,
+                                transform_fp)
+
+        # Load stage
         self.stage_dict['l'] = (
             LoadStage, target_api_config_path,
             target_url, use_async,

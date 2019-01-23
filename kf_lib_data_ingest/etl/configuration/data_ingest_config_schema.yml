@@ -11,6 +11,9 @@ properties:
     extract_config_dir:
         description: "The directory storing the extract configuration python modules."
         type: "string"
+    transform_function_path:
+        description: "The path to the user defined transform function (i.e. transform_function.py). The path is assumed to be relative to the directory containing the dataset_ingest_config.yaml file"
+        type: "string"
     logging:
         description: "The logging parameters"
         type: "object"

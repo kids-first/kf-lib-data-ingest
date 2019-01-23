@@ -42,13 +42,14 @@ class DatasetIngestConfig(YamlConfig):
         self.extract_config_dir = os.path.join(
             os.path.dirname(self.config_filepath),
             self.contents.get('extract_config_dir'))
-
         self.extract_config_paths = [os.path.join(self.extract_config_dir,
                                                   filename)
                                      for filename in os.listdir(
                                      self.extract_config_dir)
                                      if filename.endswith('.py')]
         self._set_log_params()
+        self.transform_function_path = self.contents.get(
+            'transform_function_path')
         self.study = self.contents.get('study')
         self.investigator = self.contents.get('investigator')
         self.target_service_entities = self.contents.get(
