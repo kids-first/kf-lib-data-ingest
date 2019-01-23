@@ -237,6 +237,6 @@ class TransformStage(IngestStage):
         # Insert unique key columns before running transformation
         self._insert_unique_keys(data_dict)
 
-        target_entities = self.transformer._run(data_dict)
+        target_entities = self.transformer.run(data_dict)
 
         return target_entities

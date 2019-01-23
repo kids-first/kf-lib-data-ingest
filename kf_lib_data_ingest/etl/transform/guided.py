@@ -4,35 +4,17 @@ a user supplied transform function which specifies how the source data tables
 should be merged in order to yield a single table per target service entity.
 """
 
-from kf_lib_data_ingest.common.stage import IngestStage
 from kf_lib_data_ingest.etl.configuration.transform_module import (
     TransformModule
 )
 
 
-class GuidedTransformer(IngestStage):
+class GuidedTransformer():
     def __init__(self, target_api_config, transform_function_path):
-        super().__init__()
         self.transform_module = TransformModule(transform_function_path)
         self.target_api_config = target_api_config
 
-    def _read_output(self):
-        # An ingest stage is responsible for serializing the data that is
-        # produced at the end of stage run
-        pass  # TODO
-
-    def _write_output(self, output):
-        # An ingest stage is responsible for deserializing the data that it
-        # previously produced at the end of stage run
-        pass  # TODO
-
-    def _validate_run_parameters(self, data_dict):
-        """
-        Implemented by TransformStage
-        """
-        pass
-
-    def _run(self, data_dict):
+    def run(self, data_dict):
         """
         Transform the tabular mapped data into a unified standard form,
         then transform again from the standard form into a dict of lists.
