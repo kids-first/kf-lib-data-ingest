@@ -155,9 +155,9 @@ def merge_wo_duplicates(left, right, **kwargs):
     :type right: Pandas.DataFrame
     :param kwargs: keyword args expected by Pandas.merge function
     """
-    def resolve_duplicates(df):
-        l_suffix = '_x'
-        r_suffix = '_y'
+    def resolve_duplicates(df, suffixes):
+        l_suffix = suffixes[0]
+        r_suffix = suffixes[1]
 
         while True:
             to_del = set()
@@ -176,7 +176,7 @@ def merge_wo_duplicates(left, right, **kwargs):
 
     merged = pandas.merge(left, right, **kwargs)
 
-    return resolve_duplicates(merged)
+    return resolve_duplicates(merged, kwargs.pop('suffixes', ('_x', '_y')))
 
 
 def outer_merge(df1, df2, with_merge_detail_dfs=True, **kwargs):
@@ -212,8 +212,8 @@ def outer_merge(df1, df2, with_merge_detail_dfs=True, **kwargs):
                       for keyword in ['both', 'left_only', 'right_only']]
 
         for df in [outer] + detail_dfs:
-            df.drop(['_merge'], axis=1, inplace=True)
             df.dropna(how="all", inplace=True)
+            del df['_merge']
 
         return outer, detail_dfs[0], detail_dfs[1], detail_dfs[2]
 

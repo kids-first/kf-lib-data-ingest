@@ -65,6 +65,11 @@ def test_merge_wo_duplicates(dfs):
     merged = pandas_utils.merge_wo_duplicates(df1, df2, on='A', how='outer')
     assert merged.equals(expected_df)
 
+    # Same as above, but with custom suffixes
+    merged = pandas_utils.merge_wo_duplicates(
+        df1, df2, on='A', how='outer', suffixes=('__left__', '__right__'))
+    assert merged.equals(expected_df)
+
     # Test when NaNs result from outer merge
     df2.at[2, 'A'] = 'bloo'
     expected_df = df1.copy().append(df2.tail(1), ignore_index=True)
@@ -91,4 +96,3 @@ def test_outer_merge(dfs):
                                   with_merge_detail_dfs=False)
     assert isinstance(df, pandas.DataFrame)
     assert expected.equals(df)
-
