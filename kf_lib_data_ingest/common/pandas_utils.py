@@ -187,8 +187,10 @@ def outer_merge(df1, df2, with_merge_detail_dfs=True, **kwargs):
 
         both - a dataframe of rows that matched in both the left and right
         dataframes (equivalent to the df returned by an inner join)
-        left - a dataframe of rows that were ONLY in the left dataframe
-        right - a dataframe of rows that were ONLY in the right dataframe
+        left_only - a dataframe of rows that were ONLY in the left dataframe
+        right_only - a dataframe of rows that were ONLY in the right dataframe
+
+    See https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.merge.html # noqa
 
     :param df1: the left dataframe to be merged
     :type df1: Pandas.DataFrame
@@ -206,16 +208,14 @@ def outer_merge(df1, df2, with_merge_detail_dfs=True, **kwargs):
     outer = merge_wo_duplicates(df1, df2, **kwargs)
 
     if with_merge_detail_dfs:
-        both = outer[outer['_merge'] == 'both']
-        left = outer[outer['_merge'] == 'left_only']
-        right = outer[outer['_merge'] == 'right_only']
+        detail_dfs = [outer[outer['_merge'] == keyword]
+                      for keyword in ['both', 'left_only', 'right_only']]
 
-        for df in [outer, both, left, right]:
+        for df in [outer] + detail_dfs:
             df.drop(['_merge'], axis=1, inplace=True)
             df.dropna(how="all", inplace=True)
 
-        return outer, both, left, right
+        return outer, detail_dfs[0], detail_dfs[1], detail_dfs[2]
 
     else:
         return outer
-
