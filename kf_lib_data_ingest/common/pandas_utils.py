@@ -140,3 +140,82 @@ def safe_pandas_replace(data, mappings, regex=False):
         output[nulls] = data[nulls]
 
     return output
+
+
+def merge_wo_duplicates(left, right, **kwargs):
+    """
+    Merge two dataframes and return a dataframe with no duplicate columns.
+
+    If duplicate columns result from the merge, resolve duplicates by
+    filling nans on the left column with values from the right column.
+
+    :param left: left dataframe
+    :type left: Pandas.DataFrame
+    :param right: right dataframe
+    :type right: Pandas.DataFrame
+    :param kwargs: keyword args expected by Pandas.merge function
+    """
+    def resolve_duplicates(df, suffixes):
+        l_suffix = suffixes[0]
+        r_suffix = suffixes[1]
+
+        while True:
+            to_del = set()
+            for coll in df.columns:
+                if coll.endswith(l_suffix):
+                    firstpart = coll.split(l_suffix)[0]
+                    colr = firstpart + r_suffix
+                    df[firstpart] = df[coll].fillna(df[colr])
+                    to_del.update([coll, colr])
+            if not to_del:
+                break
+            else:
+                for c in to_del:
+                    del df[c]
+        return df
+
+    merged = pandas.merge(left, right, **kwargs)
+
+    return resolve_duplicates(merged, kwargs.pop('suffixes', ('_x', '_y')))
+
+
+def outer_merge(df1, df2, with_merge_detail_dfs=True, **kwargs):
+    """
+    Do Pandas outer merge, return merge result and 3 additional dfs if
+    with_merge_details=True. The 3 merge detail dataframes are useful for
+    quickly identifying missing data:
+
+        both - a dataframe of rows that matched in both the left and right
+        dataframes (equivalent to the df returned by an inner join)
+        left_only - a dataframe of rows that were ONLY in the left dataframe
+        right_only - a dataframe of rows that were ONLY in the right dataframe
+
+    See https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.merge.html # noqa
+
+    :param df1: the left dataframe to be merged
+    :type df1: Pandas.DataFrame
+    :param df2: the right dataframe to be merged
+    :type df2: Pandas.DataFrame
+    :param with_merge_detail_dfs: boolean specifying whether to output
+    additional dataframes
+    :type with_merge_details: boolean
+    :param kwargs: keyword args expected by Pandas.merge
+    :type kwargs: dict
+    :returns: 1 dataframe or tuple of 4 dataframes
+    """
+    kwargs['how'] = 'outer'
+    kwargs['indicator'] = with_merge_detail_dfs
+    outer = merge_wo_duplicates(df1, df2, **kwargs)
+
+    if with_merge_detail_dfs:
+        detail_dfs = [outer[outer['_merge'] == keyword]
+                      for keyword in ['both', 'left_only', 'right_only']]
+
+        for df in [outer] + detail_dfs:
+            df.dropna(how="all", inplace=True)
+            del df['_merge']
+
+        return outer, detail_dfs[0], detail_dfs[1], detail_dfs[2]
+
+    else:
+        return outer
