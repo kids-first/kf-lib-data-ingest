@@ -3,6 +3,7 @@ Module for transforming source data into target service entities via
 a user supplied transform function which specifies how the source data tables
 should be merged in order to yield a single table per target service entity.
 """
+import logging
 
 from kf_lib_data_ingest.etl.configuration.transform_module import (
     TransformModule
@@ -11,6 +12,7 @@ from kf_lib_data_ingest.etl.configuration.transform_module import (
 
 class GuidedTransformer():
     def __init__(self, target_api_config, transform_function_path):
+        self.logger = logging.getLogger(type(self).__name__)
         self.transform_module = TransformModule(transform_function_path)
         self.target_api_config = target_api_config
 
