@@ -1,4 +1,9 @@
-import os
+
+"""
+TransformModule encapsulates a user supplied python file that defines the
+transformation function to use during the transform stage of ingestion.
+"""
+
 from kf_lib_data_ingest.etl.configuration.base_config import (
     PyModuleConfig,
     ConfigValidationError
