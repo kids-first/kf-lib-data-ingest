@@ -105,13 +105,16 @@ class DataIngestPipeline(object):
                                 self.data_ingest_config.extract_config_paths)
 
         # Transform stage
-        transform_funct_path = self.data_ingest_config.transform_function_path
-        if transform_funct_path:
-            transform_funct_path = os.path.join(
-                ingest_config_dir, os.path.relpath(transform_funct_path))
+        transform_fp = None
+        # Create file path to transform function Python module
+        if not auto_transform:
+            transform_fp = self.data_ingest_config.transform_function_path
+            if transform_fp:
+                transform_fp = os.path.join(
+                    ingest_config_dir, os.path.relpath(transform_fp))
 
         self.stage_dict['t'] = (TransformStage, target_api_config_path,
-                                auto_transform, transform_funct_path)
+                                transform_fp)
 
         # Load stage
         self.stage_dict['l'] = (
