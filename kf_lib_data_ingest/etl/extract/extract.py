@@ -64,8 +64,18 @@ class ExtractStage(IngestStage):
         Implements IngestStage._write_output
 
         Write dataframes to tsv files in the stage's output dir.
-        Write an JSON file that tracks metadata about the tsv files such as
-        the extract_config_url and source_url for each dataframe
+        Write a JSON file that stores metadata needed to reconstruct the output
+        dict. This is the extract_config_url and source_url for each file.
+
+        The metadata.json file looks like this:
+
+        {
+            <path to output file>: {
+                'extract_config_url': <URL to the files's extract config>
+                'source_data_url': <URL to the original data file>
+            },
+            ...
+        }
 
         :param output: the return from ExtractStage._run
         :type output: dict
@@ -90,7 +100,7 @@ class ExtractStage(IngestStage):
         """
         Implements IngestStage._write_output
 
-        Read the output files created by _write_output and reconstruct the
+        Read in the output files created by _write_output and reconstruct the
         original output of ExtractStage._run.
 
         :returns the original output of ExtractStage._run.
@@ -131,7 +141,7 @@ class ExtractStage(IngestStage):
     def _run(self):
         """
         :returns: A dictionary where a key is the URL to the extract_config
-            that produced the dataframe and a value is a tuple of
+            that produced the dataframe and a value is a tuple containing:
             (<URL to source data fle>, <extracted DataFrame>)
         """
         output = {}
