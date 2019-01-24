@@ -7,8 +7,14 @@ from functools import wraps
 
 class IngestStage(ABC):
 
-    def __init__(self, stage_cache_dir=None):
-        self.stage_cache_dir = stage_cache_dir
+    def __init__(self, ingest_output_dir=None):
+        self.ingest_output_dir = ingest_output_dir
+        if self.ingest_output_dir:
+            self.stage_cache_dir = os.path.join(self.ingest_output_dir,
+                                                type(self).__name__)
+        else:
+            self.stage_cache_dir = None
+
         self.logger = logging.getLogger(type(self).__name__)
 
     @abstractmethod
@@ -85,6 +91,8 @@ class IngestStage(ABC):
         output = self._run(*args, **kwargs)
 
         # Write output of stage to disk
-        self._write_output(output)
+        if self.stage_cache_dir:
+            os.makedirs(self.stage_cache_dir, exist_ok=True)
+            self._write_output(output)
 
         return output

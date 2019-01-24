@@ -29,6 +29,10 @@ class DataIngestPipeline(object):
         """
         self.data_ingest_config = DatasetIngestConfig(
             dataset_ingest_config_path)
+        self.ingest_config_dir = os.path.dirname(
+            self.data_ingest_config.config_filepath)
+        self.ingest_output_dir = os.path.join(self.ingest_config_dir,
+                                              'output')
 
     def run(self, target_api_config_path, auto_transform=False,
             use_async=False, target_url=DEFAULT_TARGET_URL):
@@ -94,14 +98,9 @@ class DataIngestPipeline(object):
         # Create an ordered dict of all ingest stages and their parameters
         self.stage_dict = OrderedDict()
 
-        ingest_config_dir = os.path.dirname(
-            self.data_ingest_config.config_filepath)
-
         # Extract stage
-        extract_cache_dir = os.path.join(ingest_config_dir, 'output_cache')
-        os.makedirs(extract_cache_dir, exist_ok=True)
         self.stage_dict['e'] = (ExtractStage,
-                                extract_cache_dir,
+                                self.ingest_output_dir,
                                 self.data_ingest_config.extract_config_paths)
 
         # Transform stage
@@ -111,7 +110,7 @@ class DataIngestPipeline(object):
             transform_fp = self.data_ingest_config.transform_function_path
             if transform_fp:
                 transform_fp = os.path.join(
-                    ingest_config_dir, os.path.relpath(transform_fp))
+                    self.ingest_config_dir, os.path.relpath(transform_fp))
 
         self.stage_dict['t'] = (TransformStage, target_api_config_path,
                                 transform_fp)
