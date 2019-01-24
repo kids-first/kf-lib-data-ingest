@@ -46,6 +46,11 @@ def test_extracts():
             assert sorted(expected.columns) == sorted(extracted.columns)
             expected = expected[extracted.columns]
 
+            # test serialize / deserialize equivalence
+            pandas.testing.assert_frame_equal(
+                expected, recycled_output[config][1]
+            )
+
             # account for datatype mismatches induced by loading the expected
             # result directly from a file
             for col in expected.columns:
@@ -54,8 +59,3 @@ def test_extracts():
 
             # test for expected equivalence
             pandas.testing.assert_frame_equal(extracted, expected)
-
-            # test serialize/deserialize equivalence
-            pandas.testing.assert_frame_equal(
-                extracted, recycled_output[config][1]
-            )
