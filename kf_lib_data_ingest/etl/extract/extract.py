@@ -116,7 +116,7 @@ class ExtractStage(IngestStage):
                 pandas.read_csv(filepath, delimiter='\t')
             )
 
-        self.logger.info(f'Reading {self.__class__.__name__} output:\n'
+        self.logger.info(f'Reading {type(self).__name__} output:\n'
                          f'{pformat(list(metadata.keys()))}')
         return output
 
