@@ -72,4 +72,5 @@ def target_api_config():
 
 @pytest.fixture(scope='function')
 def transform_stage():
-    return TransformStage(KIDS_FIRST_CONFIG, TRANSFORM_MODULE_PATH)
+    return TransformStage(KIDS_FIRST_CONFIG,
+                          transform_function_path=TRANSFORM_MODULE_PATH)
