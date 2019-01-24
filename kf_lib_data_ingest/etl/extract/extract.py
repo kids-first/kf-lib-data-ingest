@@ -93,7 +93,7 @@ class ExtractStage(IngestStage):
 
         write_json(metadata, meta_fp)
 
-        self.logger.info(f'Writing {self.__class__.__name__} output:\n'
+        self.logger.info(f'Writing {type(self).__name__} output:\n'
                          f'{pformat(list(output.keys()))}')
 
     def _read_output(self):
@@ -142,7 +142,7 @@ class ExtractStage(IngestStage):
         """
         :returns: A dictionary where a key is the URL to the extract_config
             that produced the dataframe and a value is a tuple containing:
-            (<URL to source data fle>, <extracted DataFrame>)
+            (<URL to source data file>, <extracted DataFrame>)
         """
         output = {}
         for extract_config in self.extract_configs:
