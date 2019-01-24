@@ -25,9 +25,9 @@ class GuidedTransformer():
 
     def _apply_transform_funct(self, data_dict):
         """
-        Apply user supplied transform function to merge dataframes in df_dict
+        Apply user supplied transform function to merge dataframes in data_dict
         into a new set of dataframes, so that each target entity has 1
-        dataframe with all of its data.
+        dataframe with all of its mapped data from extract stage.
 
         :param df_dict: a dict of mapped dataframes from the ExtractStage
         :type df_dict: dict
@@ -46,6 +46,7 @@ class GuidedTransformer():
         transform_funct = self.transform_module.transform_function
         entity_df_dict = transform_funct(df_dict)
 
+        # -- Validation of transform function output --
         # Must return a dict of dataframes
         assert_safe_type(entity_df_dict, dict)
         assert_all_safe_type(entity_df_dict.values(), pandas.DataFrame)
@@ -54,7 +55,7 @@ class GuidedTransformer():
         target_concepts = set(self.target_api_config.concept_schemas.keys())
         error = KeyError(f"Error in transform_function's "
                          f"return value, file: {filepath}. Keys in dict "
-                         "must be valid target_concepts, one of: \n"
+                         "must be valid target_concepts. Must be one of: \n"
                          f"{pformat(target_concepts)}")
         if not entity_df_dict.keys():
             raise error
@@ -71,13 +72,15 @@ class GuidedTransformer():
         Keys are target entity types and values are lists of target entity
         dicts.
 
-        :param data_dict: a dict containing the mapped source data which
-        follows the format outlined in _validate_run_parameters.
+        :param data_dict: the output (a dict of mapped DataFrames) from
+        ExtractStage.run. See TransformStage._validate_run_parameters for
+        a more detailed description.
+        :type data_dict: dict
         """
         output = {}
         entity_df_dict = self._apply_transform_funct(data_dict)
 
-        # TODO - more in guided transform to coming soon
+        # TODO - more coming soon
 
         # Temporary - set output to raw entity_df_dict
         output = entity_df_dict
