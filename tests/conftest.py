@@ -60,6 +60,10 @@ def ingest_pipeline():
     if os.path.exists(p.data_ingest_config.log_dir):
         shutil.rmtree(p.data_ingest_config.log_dir)
 
+    # Delete the entire ingest outputs directory
+    if os.path.exists(p.ingest_output_dir):
+        shutil.rmtree(p.ingest_output_dir)
+
 
 @pytest.fixture(scope='function')
 def target_api_config():

@@ -1,8 +1,8 @@
-import json
 import os
 from collections import defaultdict
 from functools import reduce
 from math import gcd
+from pprint import pformat
 
 import pandas
 
@@ -12,7 +12,11 @@ from kf_lib_data_ingest.common.file_retriever import (
     FileRetriever,
     split_protocol
 )
-from kf_lib_data_ingest.common.misc import intsafe_str
+from kf_lib_data_ingest.common.misc import (
+    intsafe_str,
+    write_json,
+    read_json
+)
 from kf_lib_data_ingest.common.stage import IngestStage
 from kf_lib_data_ingest.common.type_safety import function
 from kf_lib_data_ingest.etl.configuration.base_config import (
@@ -58,32 +62,63 @@ class ExtractStage(IngestStage):
     def _write_output(self, output):
         """
         Implements IngestStage._write_output
-        """
-        class IndexlessJSONEncoder(json.JSONEncoder):
-            def default(self, obj):
-                if hasattr(obj, 'to_dict'):
-                    no_index = obj.to_dict(orient='split')
-                    del no_index['index']
-                    return no_index
-                return json.JSONEncoder.default(self, obj)
 
-        with open(self._output_path(), "w") as fp:
-            json.dump(output, fp, cls=IndexlessJSONEncoder, indent=2)
+        Write dataframes to tsv files in the stage's output dir.
+        Write a JSON file that stores metadata needed to reconstruct the output
+        dict. This is the extract_config_url and source_url for each file.
+
+        The metadata.json file looks like this:
+
+        {
+            <path to output file>: {
+                'extract_config_url': <URL to the files's extract config>
+                'source_data_url': <URL to the original data file>
+            },
+            ...
+        }
+
+        :param output: the return from ExtractStage._run
+        :type output: dict
+        """
+        meta_fp = os.path.join(self.stage_cache_dir, 'metadata.json')
+        metadata = {}
+        for extract_config_url, (source_url, df) in output.items():
+            filename = os.path.basename(extract_config_url).split('.')[0]
+            filepath = os.path.join(self.stage_cache_dir, filename + '.tsv')
+            metadata[filepath] = {
+                'extract_config_url': extract_config_url,
+                'source_data_url': source_url
+            }
+            df.to_csv(filepath, sep='\t', index=False)
+
+        write_json(metadata, meta_fp)
+
+        self.logger.info(f'Writing {type(self).__name__} output:\n'
+                         f'{pformat(list(output.keys()))}')
 
     def _read_output(self):
         """
-        Implements IngestStage._read_output
-        """
-        data = {}
-        with open(self._output_path()) as fp:
-            data = json.load(fp)
+        Implements IngestStage._write_output
 
-        for k, v in data.items():
-            v[1] = pandas.DataFrame.from_records(
-                v[1]['data'],
-                columns=v[1]['columns']
+        Read in the output files created by _write_output and reconstruct the
+        original output of ExtractStage._run.
+
+        :returns the original output of ExtractStage._run.
+        """
+        output = {}
+
+        meta_fp = os.path.join(self.stage_cache_dir, 'metadata.json')
+        metadata = read_json(meta_fp)
+
+        for filepath, info in metadata.items():
+            output[info['extract_config_url']] = (
+                info['source_data_url'],
+                pandas.read_csv(filepath, delimiter='\t')
             )
-        return data
+
+        self.logger.info(f'Reading {self.__class__.__name__} output:\n'
+                         f'{pformat(list(metadata.keys()))}')
+        return output
 
     def _validate_run_parameters(self):
         # Extract stage does not expect any args
@@ -105,8 +140,9 @@ class ExtractStage(IngestStage):
 
     def _run(self):
         """
-        :returns: A dictionary of all extracted dataframes keyed by extract
-            config paths
+        :returns: A dictionary where a key is the URL to the extract_config
+            that produced the dataframe and a value is a tuple containing:
+            (<URL to source data file>, <extracted DataFrame>)
         """
         output = {}
         for extract_config in self.extract_configs:
