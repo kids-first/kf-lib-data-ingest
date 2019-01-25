@@ -21,7 +21,8 @@ class IngestStage(ABC):
         """
         Read the stage's previously written output from the output directory,
         stage_cache_dir. If stage_cache_dir is not defined or does not exist
-        raise FileNotFoundError.
+        raise FileNotFoundError. Otherwise call the private _read_output method
+        which is expected to be implemented by subclasses.
 
         :returns: the output produced by _read_output (defined by sublcasses)
         """
@@ -35,7 +36,8 @@ class IngestStage(ABC):
     def write_output(self, output):
         """
         Write stage's output to the stage's output directory if it is
-        defined.
+        defined. Call the private _write_output method which is expected to be
+        implemented by subclasses.
         """
         if self.stage_cache_dir:
             os.makedirs(self.stage_cache_dir, exist_ok=True)
