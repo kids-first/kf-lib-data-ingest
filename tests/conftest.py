@@ -10,6 +10,9 @@ from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
 from kf_lib_data_ingest.etl.transform.transform import TransformStage
 TEST_ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 TEST_DATA_DIR = os.path.join(TEST_ROOT_DIR, 'data')
+TEST_INGEST_OUTPUT_DIR = os.path.join(TEST_DATA_DIR,
+                                      'test_study',
+                                      'output')
 KIDS_FIRST_CONFIG = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                  'kf_lib_data_ingest',
                                  'target_apis', 'kids_first.py')
@@ -27,6 +30,12 @@ def delete_logs(log_dir):
         file_path = os.path.join(log_dir, filename)
         if os.path.isfile(file_path):
             os.remove(file_path)
+
+
+def delete_ingest_outputs(output_dir):
+    # Delete the entire ingest outputs directory
+    if os.path.exists(output_dir):
+        shutil.rmtree(output_dir)
 
 
 def make_ingest_pipeline(config_filepath=None):
@@ -61,9 +70,7 @@ def ingest_pipeline():
     if os.path.exists(p.data_ingest_config.log_dir):
         shutil.rmtree(p.data_ingest_config.log_dir)
 
-    # Delete the entire ingest outputs directory
-    if os.path.exists(p.ingest_output_dir):
-        shutil.rmtree(p.ingest_output_dir)
+    delete_ingest_outputs(p.ingest_output_dir)
 
 
 @pytest.fixture(scope='function')
@@ -73,5 +80,9 @@ def target_api_config():
 
 @pytest.fixture(scope='function')
 def transform_stage():
-    return TransformStage(KIDS_FIRST_CONFIG,
-                          transform_function_path=TRANSFORM_MODULE_PATH)
+    yield TransformStage(KIDS_FIRST_CONFIG,
+                         ingest_output_dir=TEST_INGEST_OUTPUT_DIR,
+                         transform_function_path=TRANSFORM_MODULE_PATH)
+
+    # Test teardown
+    delete_ingest_outputs(TEST_INGEST_OUTPUT_DIR)
