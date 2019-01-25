@@ -34,7 +34,7 @@ def test_extracts():
         extract_configs = list(study_configs.keys())
         es = ExtractStage(os.path.join(study_dir, 'output'), extract_configs)
         df_out = es.run()
-        recycled_output = es._read_output()
+        recycled_output = es.read_output()
 
         for config in extract_configs:
             extracted = df_out[config][1]
