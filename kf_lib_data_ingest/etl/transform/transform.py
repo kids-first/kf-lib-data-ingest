@@ -44,10 +44,11 @@ class TransformStage(IngestStage):
         """
         Read previously written transform stage output
 
-        :returns: dict of pandas.DataFrames
+        :returns: dict of pandas.DataFrames keyed by strings
+        representing target concepts (i.e. participant, biospecimen, etc)
         """
         output = {
-            filename.split('.')[0]: pandas.read_csv(
+            os.path.splitext(filename)[0]: pandas.read_csv(
                 os.path.join(self.stage_cache_dir, filename),
                 delimiter='\t')
             for filename in os.listdir(self.stage_cache_dir)
