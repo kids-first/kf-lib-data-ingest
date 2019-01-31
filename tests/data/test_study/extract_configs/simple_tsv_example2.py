@@ -28,13 +28,13 @@ operations = [
         in_col='bam_file_name',
         out_col=CONCEPT.GENOMIC_FILE.FILE_NAME
     ),
-    row_map(
-        m=lambda row: row['storage_dir'] + '/' + row['bam_file_name'],
-        out_col=CONCEPT.GENOMIC_FILE.FILE_PATH
-    ),
     keep_map(
         in_col='cram_file_name',
         out_col=CONCEPT.GENOMIC_FILE.FILE_NAME
+    ),
+    row_map(
+        m=lambda row: row['storage_dir'] + '/' + row['bam_file_name'],
+        out_col=CONCEPT.GENOMIC_FILE.FILE_PATH
     ),
     row_map(
         m=lambda row: row['storage_dir'] + '/' + row['cram_file_name'],

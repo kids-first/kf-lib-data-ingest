@@ -30,4 +30,4 @@ def read_excel_file(filepath_or_buffer, **kwargs):
             wb = xlrd.open_workbook(
                 filename=filepath_or_buffer, logfile=devnull
             )
-    return pandas.read_excel(wb, engine='xlrd', **kwargs)
+    return pandas.read_excel(wb, engine='xlrd', dtype=object, **kwargs)

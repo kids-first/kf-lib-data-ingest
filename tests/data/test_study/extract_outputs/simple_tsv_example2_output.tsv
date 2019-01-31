@@ -1,121 +1,121 @@
-CONCEPT|BIOSPECIMEN|ALIQUOT_ID	CONCEPT|GENOMIC_FILE|FILE_PATH	CONCEPT|GENOMIC_FILE|FILE_NAME	CONCEPT|BIOSPECIMEN|ID
-4	FLDR0/2.bam	2.bam	4
-5	FLDR0/3.bam	3.bam	5
-6	FLDR0/4.bam	4.bam	6
-7	FLDR1/5.bam	5.bam	7
-8	FLDR1/6.bam	6.bam	8
-9	FLDR1/7.bam	7.bam	9
-10	FLDR1/8.bam	8.bam	10
-11	FLDR1/9.bam	9.bam	11
-12	FLDR2/10.bam	10.bam	12
-13	FLDR2/11.bam	11.bam	13
-14	FLDR2/12.bam	12.bam	14
-15	FLDR2/13.bam	13.bam	15
-16	FLDR2/14.bam	14.bam	16
-17	FLDR3/15.bam	15.bam	17
-18	FLDR3/16.bam	16.bam	18
-19	FLDR3/17.bam	17.bam	19
-20	FLDR3/18.bam	18.bam	20
-21	FLDR3/19.bam	19.bam	21
-22	FLDR4/20.bam	20.bam	22
-23	FLDR4/21.bam	21.bam	23
-24	FLDR4/22.bam	22.bam	24
-25	FLDR4/23.bam	23.bam	25
-26	FLDR4/24.bam	24.bam	26
-27	FLDR5/25.bam	25.bam	27
-28	FLDR5/26.bam	26.bam	28
-29	FLDR5/27.bam	27.bam	29
-30	FLDR5/28.bam	28.bam	30
-31	FLDR5/29.bam	29.bam	31
-32	FLDR6/30.bam	30.bam	32
-33	FLDR6/31.bam	31.bam	33
-34	FLDR6/32.bam	32.bam	34
-35	FLDR6/33.bam	33.bam	35
-36	FLDR6/34.bam	34.bam	36
-37	FLDR7/35.bam	35.bam	37
-38	FLDR7/36.bam	36.bam	38
-39	FLDR7/37.bam	37.bam	39
-40	FLDR7/38.bam	38.bam	40
-41	FLDR7/39.bam	39.bam	41
-42	FLDR8/40.bam	40.bam	42
-43	FLDR8/41.bam	41.bam	43
-44	FLDR8/42.bam	42.bam	44
-45	FLDR8/43.bam	43.bam	45
-46	FLDR8/44.bam	44.bam	46
-47	FLDR9/45.bam	45.bam	47
-48	FLDR9/46.bam	46.bam	48
-49	FLDR9/47.bam	47.bam	49
-50	FLDR9/48.bam	48.bam	50
-51	FLDR9/49.bam	49.bam	51
-52	FLDR10/50.bam	50.bam	52
-53	FLDR10/51.bam	51.bam	53
-54	FLDR10/52.bam	52.bam	54
-55	FLDR10/53.bam	53.bam	55
-56	FLDR10/54.bam	54.bam	56
-57	FLDR11/55.bam	55.bam	57
-58	FLDR11/56.bam	56.bam	58
-59	FLDR11/57.bam	57.bam	59
-60	FLDR11/58.bam	58.bam	60
-61	FLDR11/59.bam	59.bam	61
-62	FLDR12/60.bam	60.bam	62
-63	FLDR12/61.bam	61.bam	63
-4	FLDR0/2.cram	2.cram	4
-5	FLDR0/3.cram	3.cram	5
-6	FLDR0/4.cram	4.cram	6
-7	FLDR1/5.cram	5.cram	7
-8	FLDR1/6.cram	6.cram	8
-9	FLDR1/7.cram	7.cram	9
-10	FLDR1/8.cram	8.cram	10
-11	FLDR1/9.cram	9.cram	11
-12	FLDR2/10.cram	10.cram	12
-13	FLDR2/11.cram	11.cram	13
-14	FLDR2/12.cram	12.cram	14
-15	FLDR2/13.cram	13.cram	15
-16	FLDR2/14.cram	14.cram	16
-17	FLDR3/15.cram	15.cram	17
-18	FLDR3/16.cram	16.cram	18
-19	FLDR3/17.cram	17.cram	19
-20	FLDR3/18.cram	18.cram	20
-21	FLDR3/19.cram	19.cram	21
-22	FLDR4/20.cram	20.cram	22
-23	FLDR4/21.cram	21.cram	23
-24	FLDR4/22.cram	22.cram	24
-25	FLDR4/23.cram	23.cram	25
-26	FLDR4/24.cram	24.cram	26
-27	FLDR5/25.cram	25.cram	27
-28	FLDR5/26.cram	26.cram	28
-29	FLDR5/27.cram	27.cram	29
-30	FLDR5/28.cram	28.cram	30
-31	FLDR5/29.cram	29.cram	31
-32	FLDR6/30.cram	30.cram	32
-33	FLDR6/31.cram	31.cram	33
-34	FLDR6/32.cram	32.cram	34
-35	FLDR6/33.cram	33.cram	35
-36	FLDR6/34.cram	34.cram	36
-37	FLDR7/35.cram	35.cram	37
-38	FLDR7/36.cram	36.cram	38
-39	FLDR7/37.cram	37.cram	39
-40	FLDR7/38.cram	38.cram	40
-41	FLDR7/39.cram	39.cram	41
-42	FLDR8/40.cram	40.cram	42
-43	FLDR8/41.cram	41.cram	43
-44	FLDR8/42.cram	42.cram	44
-45	FLDR8/43.cram	43.cram	45
-46	FLDR8/44.cram	44.cram	46
-47	FLDR9/45.cram	45.cram	47
-48	FLDR9/46.cram	46.cram	48
-49	FLDR9/47.cram	47.cram	49
-50	FLDR9/48.cram	48.cram	50
-51	FLDR9/49.cram	49.cram	51
-52	FLDR10/50.cram	50.cram	52
-53	FLDR10/51.cram	51.cram	53
-54	FLDR10/52.cram	52.cram	54
-55	FLDR10/53.cram	53.cram	55
-56	FLDR10/54.cram	54.cram	56
-57	FLDR11/55.cram	55.cram	57
-58	FLDR11/56.cram	56.cram	58
-59	FLDR11/57.cram	57.cram	59
-60	FLDR11/58.cram	58.cram	60
-61	FLDR11/59.cram	59.cram	61
-62	FLDR12/60.cram	60.cram	62
-63	FLDR12/61.cram	61.cram	63
+index	CONCEPT|BIOSPECIMEN|ALIQUOT_ID	CONCEPT|GENOMIC_FILE|FILE_PATH	CONCEPT|GENOMIC_FILE|FILE_NAME	CONCEPT|BIOSPECIMEN|ID
+0	4	FLDR0/2.bam	2.bam	4
+1	5	FLDR0/3.bam	3.bam	5
+2	6	FLDR0/4.bam	4.bam	6
+3	7	FLDR1/5.bam	5.bam	7
+4	8	FLDR1/6.bam	6.bam	8
+5	9	FLDR1/7.bam	7.bam	9
+6	10	FLDR1/8.bam	8.bam	10
+7	11	FLDR1/9.bam	9.bam	11
+8	12	FLDR2/10.bam	10.bam	12
+9	13	FLDR2/11.bam	11.bam	13
+10	14	FLDR2/12.bam	12.bam	14
+11	15	FLDR2/13.bam	13.bam	15
+12	16	FLDR2/14.bam	14.bam	16
+13	17	FLDR3/15.bam	15.bam	17
+14	18	FLDR3/16.bam	16.bam	18
+15	19	FLDR3/17.bam	17.bam	19
+16	20	FLDR3/18.bam	18.bam	20
+17	21	FLDR3/19.bam	19.bam	21
+18	22	FLDR4/20.bam	20.bam	22
+19	23	FLDR4/21.bam	21.bam	23
+20	24	FLDR4/22.bam	22.bam	24
+21	25	FLDR4/23.bam	23.bam	25
+22	26	FLDR4/24.bam	24.bam	26
+23	27	FLDR5/25.bam	25.bam	27
+24	28	FLDR5/26.bam	26.bam	28
+25	29	FLDR5/27.bam	27.bam	29
+26	30	FLDR5/28.bam	28.bam	30
+27	31	FLDR5/29.bam	29.bam	31
+28	32	FLDR6/30.bam	30.bam	32
+29	33	FLDR6/31.bam	31.bam	33
+30	34	FLDR6/32.bam	32.bam	34
+31	35	FLDR6/33.bam	33.bam	35
+32	36	FLDR6/34.bam	34.bam	36
+33	37	FLDR7/35.bam	35.bam	37
+34	38	FLDR7/36.bam	36.bam	38
+35	39	FLDR7/37.bam	37.bam	39
+36	40	FLDR7/38.bam	38.bam	40
+37	41	FLDR7/39.bam	39.bam	41
+38	42	FLDR8/40.bam	40.bam	42
+39	43	FLDR8/41.bam	41.bam	43
+40	44	FLDR8/42.bam	42.bam	44
+41	45	FLDR8/43.bam	43.bam	45
+42	46	FLDR8/44.bam	44.bam	46
+43	47	FLDR9/45.bam	45.bam	47
+44	48	FLDR9/46.bam	46.bam	48
+45	49	FLDR9/47.bam	47.bam	49
+46	50	FLDR9/48.bam	48.bam	50
+47	51	FLDR9/49.bam	49.bam	51
+48	52	FLDR10/50.bam	50.bam	52
+49	53	FLDR10/51.bam	51.bam	53
+50	54	FLDR10/52.bam	52.bam	54
+51	55	FLDR10/53.bam	53.bam	55
+52	56	FLDR10/54.bam	54.bam	56
+53	57	FLDR11/55.bam	55.bam	57
+54	58	FLDR11/56.bam	56.bam	58
+55	59	FLDR11/57.bam	57.bam	59
+56	60	FLDR11/58.bam	58.bam	60
+57	61	FLDR11/59.bam	59.bam	61
+58	62	FLDR12/60.bam	60.bam	62
+59	63	FLDR12/61.bam	61.bam	63
+0	4	FLDR0/2.cram	2.cram	4
+1	5	FLDR0/3.cram	3.cram	5
+2	6	FLDR0/4.cram	4.cram	6
+3	7	FLDR1/5.cram	5.cram	7
+4	8	FLDR1/6.cram	6.cram	8
+5	9	FLDR1/7.cram	7.cram	9
+6	10	FLDR1/8.cram	8.cram	10
+7	11	FLDR1/9.cram	9.cram	11
+8	12	FLDR2/10.cram	10.cram	12
+9	13	FLDR2/11.cram	11.cram	13
+10	14	FLDR2/12.cram	12.cram	14
+11	15	FLDR2/13.cram	13.cram	15
+12	16	FLDR2/14.cram	14.cram	16
+13	17	FLDR3/15.cram	15.cram	17
+14	18	FLDR3/16.cram	16.cram	18
+15	19	FLDR3/17.cram	17.cram	19
+16	20	FLDR3/18.cram	18.cram	20
+17	21	FLDR3/19.cram	19.cram	21
+18	22	FLDR4/20.cram	20.cram	22
+19	23	FLDR4/21.cram	21.cram	23
+20	24	FLDR4/22.cram	22.cram	24
+21	25	FLDR4/23.cram	23.cram	25
+22	26	FLDR4/24.cram	24.cram	26
+23	27	FLDR5/25.cram	25.cram	27
+24	28	FLDR5/26.cram	26.cram	28
+25	29	FLDR5/27.cram	27.cram	29
+26	30	FLDR5/28.cram	28.cram	30
+27	31	FLDR5/29.cram	29.cram	31
+28	32	FLDR6/30.cram	30.cram	32
+29	33	FLDR6/31.cram	31.cram	33
+30	34	FLDR6/32.cram	32.cram	34
+31	35	FLDR6/33.cram	33.cram	35
+32	36	FLDR6/34.cram	34.cram	36
+33	37	FLDR7/35.cram	35.cram	37
+34	38	FLDR7/36.cram	36.cram	38
+35	39	FLDR7/37.cram	37.cram	39
+36	40	FLDR7/38.cram	38.cram	40
+37	41	FLDR7/39.cram	39.cram	41
+38	42	FLDR8/40.cram	40.cram	42
+39	43	FLDR8/41.cram	41.cram	43
+40	44	FLDR8/42.cram	42.cram	44
+41	45	FLDR8/43.cram	43.cram	45
+42	46	FLDR8/44.cram	44.cram	46
+43	47	FLDR9/45.cram	45.cram	47
+44	48	FLDR9/46.cram	46.cram	48
+45	49	FLDR9/47.cram	47.cram	49
+46	50	FLDR9/48.cram	48.cram	50
+47	51	FLDR9/49.cram	49.cram	51
+48	52	FLDR10/50.cram	50.cram	52
+49	53	FLDR10/51.cram	51.cram	53
+50	54	FLDR10/52.cram	52.cram	54
+51	55	FLDR10/53.cram	53.cram	55
+52	56	FLDR10/54.cram	54.cram	56
+53	57	FLDR11/55.cram	55.cram	57
+54	58	FLDR11/56.cram	56.cram	58
+55	59	FLDR11/57.cram	57.cram	59
+56	60	FLDR11/58.cram	58.cram	60
+57	61	FLDR11/59.cram	59.cram	61
+58	62	FLDR12/60.cram	60.cram	62
+59	63	FLDR12/61.cram	61.cram	63
