@@ -185,15 +185,31 @@ def test_melt_map():
             else:
                 operations.melt_map('VAR_COL', k, 'VAL_COL', l)
 
-    # applying melt_map to a df should be the same as applying melt with the
-    # given arguments
     func = operations.melt_map(
-        'VAR_COL', {'COL_A': 'NEW_A'}, 'VAL_COL', lambda x: x
+        'VAR_COL',
+        {'COL_A': 'NEW_A', 'COL_B': 'NEW_B'},
+        'VAL_COL',
+        lambda x: x*2
     )
+
+    # input:
+    #   COL_A COL_B COL_C COL_D
+    # 0     1     a     z     3
+    # 1     2     b     y     2
+    # 2     3     c     x     1
     out_df = func(bigger_df)
-    melt_df = (
-        pandas.DataFrame(bigger_df['COL_A'])
-        .rename(columns={'COL_A': 'NEW_A'})
-        .melt(var_name='VAR_COL', value_name='VAL_COL')
-    )
-    assert out_df.equals(melt_df)
+
+    # expected output:
+    #   VAR_COL VAL_COL
+    # 0   NEW_A      11
+    # 1   NEW_A      22
+    # 2   NEW_A      33
+    # 0   NEW_B      aa
+    # 1   NEW_B      bb
+    # 2   NEW_B      cc
+    expected_output = pandas.DataFrame({
+        'VAR_COL': ['NEW_A', 'NEW_A', 'NEW_A', 'NEW_B', 'NEW_B', 'NEW_B'],
+        'VAL_COL': ['11', '22', '33', 'aa', 'bb', 'cc']
+    }, index=[0, 1, 2, 0, 1, 2])
+
+    assert out_df.equals(expected_output)
