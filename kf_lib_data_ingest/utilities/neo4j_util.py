@@ -130,7 +130,8 @@ class Neo4jConceptGraphLoader(object):
             attr_dict = ConceptNode.to_dict(concept_node)
             pair = attr_dict.pop('concept_attribute_pair')
             key = attr_dict.pop('key')
-            attr_dict['name'] = key
+            attr_dict['concept_id'] = key
+            attr_dict['name'] = attr_dict['value']
             attr_dict['attribute'] = concept_attr_from(pair)
 
             # Neo4j node label
