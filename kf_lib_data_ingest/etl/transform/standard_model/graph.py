@@ -1,4 +1,5 @@
 import json
+import logging
 from collections import deque
 
 import networkx as nx
@@ -11,7 +12,6 @@ from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
 )
 from kf_lib_data_ingest.common.misc import obj_attrs_to_dict
 from kf_lib_data_ingest.common.misc import iterate_pairwise
-from kf_lib_data_ingest.etl.configuration.log import create_default_logger
 
 
 class ConceptGraph(object):
@@ -118,16 +118,10 @@ class ConceptGraph(object):
             }
 
         """
+        self.logger = logging.getLogger(type(self).__name__)
         self.graph = nx.DiGraph()
         self.id_index = {}
         self. attribute_index = {}
-
-        # Standalone mode
-        if not logger:
-            self.logger = create_default_logger(__name__)
-        # Called from standard_model.populate
-        else:
-            self.logger = logger
 
     def add_or_get_node(self, concept_attribute, value, **kwargs):
         """
@@ -227,7 +221,7 @@ class ConceptGraph(object):
             exists = concept_attribute_str in self.attribute_index
 
         if not exists:
-            self.logger.info(
+            self.logger.debug(
                 f'Could not find a value for {concept_attribute_str} since '
                 f'there are 0 {concept_attribute_str} nodes in the concept '
                 'graph!')
@@ -273,8 +267,8 @@ class ConceptGraph(object):
 
         # Searched the entire graph and we did not find the value for
         # concept_attr_str
-        self.logger.info(f'Could not find a value for {concept_attribute_str}'
-                         ' in the concept graph.')
+        self.logger.debug(f'Could not find a value for {concept_attribute_str}'
+                          ' in the concept graph.')
         return None
 
     def _is_neighbor_valid(self, node_concept, neighbor, relation_graph):

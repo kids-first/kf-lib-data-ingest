@@ -26,7 +26,7 @@ class AutoTransformer():
         self.logger.info('Begin auto transformation ...')
 
         # Insert mapped dataframes into the standard model
-        model = StandardModel(logger=self.logger)
+        model = StandardModel()
         model.populate(data_dict)
 
         # Transform the concept graph into target entities

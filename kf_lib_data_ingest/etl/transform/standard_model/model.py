@@ -1,21 +1,15 @@
+import logging
 from copy import deepcopy
 
 import pandas as pd
 
 from kf_lib_data_ingest.etl.transform.standard_model.graph import ConceptGraph
-from kf_lib_data_ingest.etl.configuration.log import create_default_logger
 
 
 class StandardModel(object):
 
-    def __init__(self, logger=None):
-        # If we're in stand alone mode (testing)
-        if not logger:
-            self.logger = create_default_logger(__name__)
-        # If this is called from transform stage
-        else:
-            self.logger = logger
-
+    def __init__(self):
+        self.logger = logging.getLogger(type(self).__name__)
         self.concept_graph = None
 
     def transform(self, target_api_config, target_concepts_to_transform=None):
@@ -86,7 +80,7 @@ class StandardModel(object):
         # Get the ID nodes for this standard concept from the concept graph
         id_node_keys = self.concept_graph.id_index.get(standard_concept_str)
         if not id_node_keys:
-            self.logger.warning(
+            self.logger.debug(
                 f'The concept graph does not contain any '
                 f'"{standard_concept_str}" ID nodes in the graph! '
                 f'Nothing to transform for "{standard_concept_str}"')
@@ -141,7 +135,7 @@ class StandardModel(object):
 
         return output
 
-    def populate(self, df_dict, logger=None):
+    def populate(self, df_dict):
         """
         Iterate over DataFrames and insert each into the ConceptGraph
 
@@ -149,7 +143,7 @@ class StandardModel(object):
         URL and a value is a tuple of (source file url, DataFrame).
         """
         # Create an empty concept graph
-        self.concept_graph = ConceptGraph(logger=logger)
+        self.concept_graph = ConceptGraph()
 
         # Insert nodes into concept attribute graph
         # For each DataFrame

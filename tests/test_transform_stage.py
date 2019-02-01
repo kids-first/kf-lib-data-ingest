@@ -51,7 +51,7 @@ def test_read_write(transform_stage, df):
     """
     extract_output = {'extract_config_url': ('source_url', df)}
     output = transform_stage.run(extract_output)
-    recycled_output = transform_stage.recycled_output()
+    recycled_output = transform_stage.read_output()
 
     for target_entity, df in output.items():
         assert target_entity in recycled_output
