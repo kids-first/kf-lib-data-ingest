@@ -77,6 +77,11 @@ class TransformStage(IngestStage):
         self.logger.info(f'Writing {type(self).__name__} output:\n'
                          f'{pformat(paths)}')
 
+        # Call write output of transformer module in case there is additional
+        # output to be written
+        if hasattr(self.transformer, 'write_output'):
+            self.transformer.write_output(self.stage_cache_dir)
+
     def _validate_run_parameters(self, data_dict):
         """
         Validate the parameters being passed into the _run method. This
