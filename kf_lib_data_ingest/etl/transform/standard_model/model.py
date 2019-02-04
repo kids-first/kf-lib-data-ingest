@@ -4,6 +4,9 @@ from copy import deepcopy
 import pandas as pd
 
 from kf_lib_data_ingest.etl.transform.standard_model.graph import ConceptGraph
+from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
+    concept_attr_from
+)
 
 
 class StandardModel(object):
@@ -179,8 +182,13 @@ class StandardModel(object):
                 if (not value) or (value == 'None') or (pd.isnull(value)):
                     continue
 
+                # TODO TEMPORARY - Do not add ID attributes
+                attribute = concept_attr_from(col)
+                if attribute.lower() == 'id':
+                    continue
+
                 # Add node to graph
-                node = self.concept_graph.add_or_get_node(col, row[col],
+                node = self.concept_graph.add_or_get_node(col, value,
                                                           **props)
 
                 # Sort nodes into ID nodes and attribute nodes
