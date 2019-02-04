@@ -12,7 +12,7 @@ USE_ASYNC_KEY = 'use_async'
 TARGET_URL_KEY = 'target_url'
 DEFAULT_TARGET_URL = 'http://localhost:5000'
 TARGET_SERVICE_CONFIG_PATH = os.path.join(ROOT_DIR,
-                                          'target_services',
+                                          'target_apis',
                                           'kids_first.py')
 DEFAULT_LOG_FILENAME = 'ingest.log'
 DEFAULT_LOG_LEVEL = logging.INFO
