@@ -208,6 +208,9 @@ class ConceptGraph(object):
         :param relation_graph: a networkx.DiGraph containing the rules for
         traversing the graph when searching for the concept attribute value.
         """
+        if concept_attribute_str is None:
+            return
+
         # The start node does not exist in the graph
         if not self.graph.has_node(start_node.key):
             raise ValueError(f'ConceptNode {start_node.key} not found! '
