@@ -173,12 +173,16 @@ class StandardModel(object):
                     'row': r,
                     'col': c
                 }
+                value = row[col]
+
                 # Do not add null nodes to the graph
-                if pd.isnull(row[col]):
+                if (not value) or (value == 'None') or (pd.isnull(value)):
                     continue
+
                 # Add node to graph
                 node = self.concept_graph.add_or_get_node(col, row[col],
                                                           **props)
+
                 # Sort nodes into ID nodes and attribute nodes
                 if node.is_identifier:
                     id_nodes.append(node)
