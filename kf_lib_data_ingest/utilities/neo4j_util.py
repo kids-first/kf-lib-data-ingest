@@ -21,6 +21,7 @@ graph.
 """
 
 import argparse
+from pprint import pformat
 
 from py2neo import Graph
 from py2neo.data import (
@@ -29,6 +30,7 @@ from py2neo.data import (
     Subgraph
 )
 
+from kf_lib_data_ingest.etl.configuration.log import create_default_logger
 from kf_lib_data_ingest.etl.transform.standard_model.graph import (
     ConceptNode,
     import_from_gml
@@ -42,7 +44,8 @@ NEO4J_DELIMITER = '_'
 
 
 class Neo4jConceptGraphLoader(object):
-    def __init__(self, uri=None, username=None, password=None):
+    def __init__(self, uri=None, username=None, password=None,
+                 log_level=None):
         """
         Create a neo4j Graph obj which manages the connection to the
         neo4j server.
@@ -52,6 +55,9 @@ class Neo4jConceptGraphLoader(object):
         :param username: database user name
         :param password: database password for username
         """
+        self.logger = create_default_logger(type(self).__name__,
+                                            log_level=log_level)
+        self.uri = uri
         self.graph = Graph(uri, auth=(username, password))
 
     def load_gml(self, filepath):
@@ -66,6 +72,11 @@ class Neo4jConceptGraphLoader(object):
 
         :param filepath: path to location of serialized ConceptGraph JSON file
         """
+        self.logger.info('Begin loading GML graph into Neo4j DB @'
+                         f'{self.uri}')
+
+        self.logger.info('Deleting current graph first '
+                         f'({len(self.graph.nodes)} nodes) ...')
         # Clear concept graph db
         self.graph.delete_all()
         assert len(self.graph.nodes) == 0
@@ -84,10 +95,15 @@ class Neo4jConceptGraphLoader(object):
             source_concept_node = nx_concept_graph.node[edge[0]]['object']
             n1 = self._create_or_get_node(source_concept_node)
 
+            self.logger.info(f'Insert node {n1["name"]}')
+            self.logger.debug(
+                f'\n{pformat(ConceptNode.to_dict(source_concept_node))}')
+
             # Create second neo4j node if it doesn't exist
             target_concept_node = nx_concept_graph.node[edge[1]]['object']
             n2 = self._create_or_get_node(target_concept_node)
 
+            self.logger.info(f"Create edge {n1['name']} to {n2['name']}")
             r = self._create_edge(n1, n2)
 
             # Create neo4j subgraph if it doesn't exist
@@ -101,6 +117,10 @@ class Neo4jConceptGraphLoader(object):
         # Create graph transaction and commit
         tx.create(g)
         tx.commit()
+
+        self.logger.info('COMPLETE - Created graph with '
+                         f'{len(self.graph.nodes)} nodes, '
+                         f'{len(self.graph.relationships)} edges')
 
     def _create_edge(self, source_node, target_node):
         """
@@ -146,6 +166,18 @@ class Neo4jConceptGraphLoader(object):
         return neo4j_node
 
 
+def load(filepath, host=None, port=None, username=None, password=None,
+         log_level=None):
+    uri = None
+
+    if host and port:
+        uri = f'bolt://{host}:{port}'
+
+    neo4j = Neo4jConceptGraphLoader(uri=uri, username=username,
+                                    password=password, log_level=log_level)
+    neo4j.load_gml(filepath)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("filepath",
@@ -166,14 +198,11 @@ if __name__ == '__main__':
     parser.add_argument("-p", "--password", type=str,
                         help="Password to authenticate with the Neo4j server")
 
+    parser.add_argument(
+        "-l", "--log_levl", type=str,
+        help="Log level, can be: {debug, info, warning, error}")
+
     args = parser.parse_args()
 
-    uri = None
-    uname = args.username or None
-    pword = args.password or None
-
-    if args.host and args.port:
-        uri = f'bolt://{args.host}:{args.port}'
-
-    neo4j = Neo4jConceptGraphLoader(uri=uri, username=uname, password=pword)
-    neo4j.load_gml(args.filepath)
+    load(args.filepath, username=args.username, password=args.password,
+         host=args.host, port=args.port, log_level=args.log_levl)
