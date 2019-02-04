@@ -17,6 +17,9 @@ def create_default_logger(logger_name, log_level=logging.DEBUG):
     Will mostly be used for testing and when running individual components
     of the ingest pipeline.
     """
+    if isinstance(log_level, str):
+        log_level = getattr(logging, log_level.upper())
+
     logger = logging.getLogger(logger_name)
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
