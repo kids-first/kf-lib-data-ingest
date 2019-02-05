@@ -55,6 +55,7 @@ class Neo4jConceptGraphLoader(object):
         :param username: database user name
         :param password: database password for username
         """
+        log_level = log_level or 'info'
         self.logger = create_default_logger(type(self).__name__,
                                             log_level=log_level)
         self.uri = uri
@@ -77,7 +78,9 @@ class Neo4jConceptGraphLoader(object):
 
         self.logger.info('Deleting current graph first '
                          f'({len(self.graph.nodes)} nodes) ...')
+
         # Clear concept graph db
+        self.neo4j_nodes = {}
         self.graph.delete_all()
         assert len(self.graph.nodes) == 0
 
@@ -87,17 +90,30 @@ class Neo4jConceptGraphLoader(object):
         # Begin transaction
         tx = self.graph.begin()
 
-        # For each edge
-        self.neo4j_nodes = {}
+        # Create nodes
+        # self._insert_nodes(tx, nx_concept_graph)
+        # Create edges
+        self._insert_edges(tx, nx_concept_graph)
+
+        self.logger.info('COMPLETE - Created graph with '
+                         f'{len(self.graph.nodes)} nodes, '
+                         f'{len(self.graph.relationships)} edges')
+
+    def _insert_nodes(self, tx, nx_concept_graph):
+        self.logger.info(f'Inserting {len(self.graph.nodes)} nodes')
+        for node_key in nx_concept_graph:
+            n = nx_concept_graph.node.get(node_key)
+            source_concept_node = n['object']
+            n = self._create_or_get_node(source_concept_node)
+            tx.create(n)
+        tx.commit()
+
+    def _insert_edges(self, tx, nx_concept_graph):
         g = None
         for edge in nx_concept_graph.edges():
             # Create first neo4j Node if it doesn't exist
             source_concept_node = nx_concept_graph.node[edge[0]]['object']
             n1 = self._create_or_get_node(source_concept_node)
-
-            self.logger.info(f'Insert node {n1["name"]}')
-            self.logger.debug(
-                f'\n{pformat(ConceptNode.to_dict(source_concept_node))}')
 
             # Create second neo4j node if it doesn't exist
             target_concept_node = nx_concept_graph.node[edge[1]]['object']
@@ -117,10 +133,6 @@ class Neo4jConceptGraphLoader(object):
         # Create graph transaction and commit
         tx.create(g)
         tx.commit()
-
-        self.logger.info('COMPLETE - Created graph with '
-                         f'{len(self.graph.nodes)} nodes, '
-                         f'{len(self.graph.relationships)} edges')
 
     def _create_edge(self, source_node, target_node):
         """
@@ -146,6 +158,9 @@ class Neo4jConceptGraphLoader(object):
         neo4j_node = self.neo4j_nodes.get(concept_node.key)
 
         if not neo4j_node:
+            self.logger.info(f'Insert node {concept_node.value}')
+            self.logger.debug(
+                f'\n{pformat(ConceptNode.to_dict(concept_node))}')
             # Neo4j node attributes
             attr_dict = ConceptNode.to_dict(concept_node)
             pair = attr_dict.pop('concept_attribute_pair')
