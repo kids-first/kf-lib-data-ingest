@@ -13,14 +13,13 @@ its values with other values.
 See: docs/design/extract_config_format.py for function details
 """
 from pandas import DataFrame
+
 from kf_lib_data_ingest.common.pandas_utils import (
+    Split,
     get_col,
     safe_pandas_replace
 )
-from kf_lib_data_ingest.common.type_safety import (
-    function,
-    assert_safe_type
-)
+from kf_lib_data_ingest.common.type_safety import assert_safe_type, function
 
 
 def df_map(m):

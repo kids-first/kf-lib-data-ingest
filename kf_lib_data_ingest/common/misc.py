@@ -1,9 +1,8 @@
 import importlib
+import inspect
 import json
 import os
 import re
-
-import inspect
 from itertools import tee
 
 import numpy

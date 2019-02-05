@@ -8,7 +8,6 @@ source_data_url = 'file://../data/split_rows_tsv_1.tsv'
 
 source_data_loading_parameters = {}
 
-
 operations = [
     keep_map(
         in_col='pid',
@@ -17,14 +16,14 @@ operations = [
     value_map(
         in_col='diagnosis',
         m={
-            r'.+': lambda x: x.split(',')
+            r'.+': lambda x: Split(x.split(','))
         },
         out_col=CONCEPT.DIAGNOSIS.NAME
     ),
     value_map(
         in_col='bsid',
         m={
-            r'.+': lambda x: x.split(',')
+            r'.+': lambda x: Split(x.split(','))
         },
         out_col=CONCEPT.BIOSPECIMEN.ALIQUOT_ID
     ),

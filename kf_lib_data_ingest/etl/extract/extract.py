@@ -1,4 +1,3 @@
-import copy
 import os
 from collections import defaultdict
 from functools import reduce
@@ -14,6 +13,7 @@ from kf_lib_data_ingest.common.file_retriever import (
     split_protocol
 )
 from kf_lib_data_ingest.common.misc import intsafe_str, read_json, write_json
+from kf_lib_data_ingest.common.pandas_utils import split_df_rows_on_splits
 from kf_lib_data_ingest.common.stage import IngestStage
 from kf_lib_data_ingest.common.type_safety import function
 from kf_lib_data_ingest.etl.configuration.base_config import (
@@ -31,37 +31,6 @@ def lcm(number_list):
     return reduce(
         lambda x, y: x * y // gcd(x, y), number_list
     )
-
-
-def split_row_lists(df_row_dict):
-    """
-    Take a DataFrame row represented as a dict and if any split any cell values
-    that are lists into multiple rows.
-
-    e.g.:
-    {'a': [1, 2], 'b': [3, 4]}
-    becomes
-    [
-        {'a': 1, 'b': 3},
-        {'a': 1, 'b': 4},
-        {'a': 2, 'b': 3},
-        {'a': 2, 'b': 4}
-    ]
-
-    :param df_row_dict: A DataFrame row represented as a col:value dict
-    :type df_row_dict: dict
-    :return: list of rows resulting from any splits
-    :rtype: list
-    """
-    row_list = []
-    for k, v in df_row_dict.items():
-        if isinstance(v, list):
-            for vi in v:
-                new_row = copy.deepcopy(df_row_dict)
-                new_row[k] = vi.strip()
-                row_list += split_row_lists(new_row)
-            break
-    return row_list or [df_row_dict]
 
 
 class ExtractStage(IngestStage):
@@ -210,11 +179,9 @@ class ExtractStage(IngestStage):
             )
 
             # split value lists into separate rows
-            split_out = []
-            for row in df_out.reset_index().to_dict(orient='records'):
-                split_out += split_row_lists(row)
-
-            df_out = pandas.DataFrame(split_out).set_index('index')
+            df_out = split_df_rows_on_splits(
+                                                df_out.reset_index()
+                                            ).set_index('index')
             del df_out.index.name
 
             output[extract_config.config_filepath] = (data_path, df_out)
