@@ -6,12 +6,15 @@ import re
 import numpy
 import pandas
 
+from kf_lib_data_ingest.common.misc import multisplit
 from kf_lib_data_ingest.common.type_safety import assert_safe_type
 
 
 class Split:
     """Object for use with split_df_rows_on_splits to differentiate between
     regular lists of things and lists of things to split.
+
+    Replaces lists with a Split object containing the list.
     """
     def __init__(self, things):
         assert_safe_type(things, list)
@@ -60,6 +63,22 @@ def split_df_rows_on_splits(df):
         split_out += split_row(row)
     df = pandas.DataFrame(split_out)
     return df
+
+
+def split_df_rows_on_delims(df, cols: list = None, delimiters: list = None):
+    """
+    Split row into multiple rows based on delimited strings in df[col]
+    for all columns in cols
+    """
+    cols = cols or df.columns
+    for i, row in df.iterrows():
+        for col in cols:
+            val = multisplit(row[col], delimiters)
+            if len(val) > 1:
+                row[col] = Split(val)
+            else:
+                row[col] = val[0]
+    return split_df_rows_on_splits(df)
 
 
 def try_pop(df, key, default=None):
