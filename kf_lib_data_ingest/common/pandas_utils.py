@@ -18,10 +18,7 @@ class Split:
     """
     def __init__(self, things):
         assert_safe_type(things, list)
-        self._things = things
-
-    def get(self):
-        return self._things
+        self.things = things
 
 
 def split_df_rows_on_splits(df):
@@ -51,7 +48,7 @@ def split_df_rows_on_splits(df):
         row_list = []
         for k, v in df_row_dict.items():
             if isinstance(v, Split):
-                for vi in v.get():
+                for vi in v.things:
                     new_row = df_row_dict.copy()
                     new_row[k] = vi.strip()
                     row_list += split_row(new_row)
