@@ -274,14 +274,28 @@ class ExtractStage(IngestStage):
         # dataframe whose length is the least common multiple of their lengths
         # by repeating each column the right number of times.
         #
-        # A B C                     A B C
-        # 1 1 1     will become     1 1 1
-        #   2 2                     1 2 2
-        #     3                     1 1 3
-        #                           1 2 1
-        #                           1 1 2
-        #                           1 2 3
+        # A data file that looks like...
         #
+        #  index   A   B   C
+        #  0       1   3   5
+        #  1       2   4   6
+        #
+        # ... (with B and C each being melted) temporarily extracts to ...
+        #
+        #  A_index A | DESCRIPTION_index DESCRIPTION | VALUE_index VALUE
+        #  0       1 | 0                 B           | 0           3
+        #  1       2 | 1                 B           | 1           4
+        #            | 0                 C           | 0           5
+        #            | 1                 C           | 1           6
+        #
+        # ... and will then repeat column A here to fill the DataFrame ...
+        #
+        #  index   A   DESCRIPTION   VALUE
+        #  0       1   B             3
+        #  1       2   B             4
+        #  0       1   C             5
+        #  1       2   C             6
+
         df_out = pandas.DataFrame()
         index = None
         for col_name, col_series in out_cols.items():
