@@ -89,7 +89,7 @@ class ExtractStage(IngestStage):
                 'extract_config_url': extract_config_url,
                 'source_data_url': source_url
             }
-            df.to_csv(filepath, sep='\t', index=False)
+            df.to_csv(filepath, sep='\t', index=True)
 
         write_json(metadata, meta_fp)
 
@@ -113,7 +113,7 @@ class ExtractStage(IngestStage):
         for filepath, info in metadata.items():
             output[info['extract_config_url']] = (
                 info['source_data_url'],
-                pandas.read_csv(filepath, delimiter='\t')
+                pandas.read_csv(filepath, delimiter='\t', index_col=0)
             )
 
         self.logger.info(f'Reading {type(self).__name__} output:\n'
@@ -172,6 +172,10 @@ class ExtractStage(IngestStage):
                 **(extract_config.loading_params)
             ).applymap(intsafe_str)
 
+            self.logger.debug(
+                "Loaded DataFrame with dimensions %s", df_in.shape
+            )
+
             # extraction
             df_out = self._chain_operations(
                 df_in, extract_config.operations
@@ -195,23 +199,29 @@ class ExtractStage(IngestStage):
 
         :returns: A pandas dataframe containing the requested data
         """
+        self.logger.debug("Retrieving source file %s", file_path)
         f = FileRetriever().get(file_path)
+
         if load_func:
+            self.logger.info("Calling custom load function.")
             df = load_func(f, **load_args)
         else:
             if file_path.endswith('.xlsx') or file_path.endswith('.xls'):
                 df = read_excel_file(f, **load_args)
             elif file_path.endswith('.tsv'):
-                df = pandas.read_table(f, sep='\t', **load_args)
+                df = pandas.read_table(f, sep='\t', dtype=object, **load_args)
             elif file_path.endswith('.csv'):
-                df = pandas.read_table(f, sep=',', **load_args)
+                df = pandas.read_table(f, sep=',', dtype=object, **load_args)
             else:
                 raise ConfigValidationError(
                     "Could not determine appropriate loader for data file",
                     file_path
                 )
+
         if after_load:
-            return after_load(df)
+            self.logger.info("Calling custom after_load function.")
+            df = after_load(df)
+
         return df
 
     def _chain_operations(self, df_in, operations):
@@ -234,6 +244,7 @@ class ExtractStage(IngestStage):
                 self._log_operation(op)
                 res = op(df_in)
             else:  # list
+                self.logger.info("Diving into nested operation sublist.")
                 res = self._chain_operations(df_in, op)
 
             # result length must be a whole multiple of the original length,
@@ -242,26 +253,51 @@ class ExtractStage(IngestStage):
 
             for col_name, col_series in res.iteritems():
                 out_cols[col_name] = out_cols[col_name].append(
-                    col_series, ignore_index=True
+                    col_series, ignore_index=False
                 )
+
+        self.logger.info("Done with the operations list.")
 
         # the output dataframe length will be the least common multiple of the
         # extracted column lengths
         length_lcm = lcm(list(map(len, out_cols.values())))
 
+        self.logger.debug("Extracted column lengths are:")
+        for col_name, col_series in out_cols.items():
+            self.logger.debug("- %s: %d", col_name, col_series.size)
+
+        self.logger.info(
+            "Equalizing column lengths to the LCM: %d", length_lcm
+        )
+
         # Given a set of different length columns, we need to make a resulting
         # dataframe whose length is the least common multiple of their lengths
         # by repeating each column the right number of times.
         #
-        # A B C                     A B C
-        # 1 1 1     will become     1 1 1
-        #   2 2                     1 2 2
-        #     3                     1 1 3
-        #                           1 2 1
-        #                           1 1 2
-        #                           1 2 3
+        # A data file that looks like...
         #
+        #  index   A   B   C
+        #  0       1   3   5
+        #  1       2   4   6
+        #
+        # ... (with B and C each being melted) temporarily extracts to ...
+        #
+        #  A_index A | DESCRIPTION_index DESCRIPTION | VALUE_index VALUE
+        #  0       1 | 0                 B           | 0           3
+        #  1       2 | 1                 B           | 1           4
+        #            | 0                 C           | 0           5
+        #            | 1                 C           | 1           6
+        #
+        # ... and will then repeat column A here to fill the DataFrame ...
+        #
+        #  index   A   DESCRIPTION   VALUE
+        #  0       1   B             3
+        #  1       2   B             4
+        #  0       1   C             5
+        #  1       2   C             6
+
         df_out = pandas.DataFrame()
+        index = None
         for col_name, col_series in out_cols.items():
             if not col_series.empty:
                 length_multiplier = length_lcm / col_series.size
@@ -270,5 +306,13 @@ class ExtractStage(IngestStage):
                 df_out[col_name] = pandas.Series(
                     list(col_series) * round(length_multiplier)
                 )
-
+                col_index = list(col_series.index) * round(length_multiplier)
+                if index:
+                    if index != col_index:
+                        raise Exception(
+                            "Inconsistent column indices.", index, col_index
+                        )
+                else:
+                    index = col_index
+        df_out.index = index
         return df_out
