@@ -239,6 +239,9 @@ go here. For more information on custom loading read <TODO>.
 Extract operations
 ------------------
 
+The operations list
+^^^^^^^^^^^^^^^^^^^
+
 .. code-block:: python
 
     operations = [
@@ -252,6 +255,9 @@ appropriately.
 
 For more information about extract operation functions, read <TODO>.
 
+A value map operation with functional replacements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 .. code-block:: python
 
     value_map(
@@ -264,9 +270,9 @@ For more information about extract operation functions, read <TODO>.
 
 This says "Use the ``participant`` column as input (in_col=), replace
 everything that matches the regular expression pattern ``^PID(\d+)$`` with just
-the captured part and remove the zero padding by running the captured
-part through the function ``lambda x: int(x)`` (m={...}), and then output the result to a
-``CONCEPT.PARTICIPANT.ID`` column (out_col=)."
+the captured part and remove the zero padding by running the captured part
+through the function ``lambda x: int(x)`` (m={...}), and then output the result
+to a ``CONCEPT.PARTICIPANT.ID`` column (out_col=)."
 
 The resulting intermediate output will look like:
 
@@ -292,6 +298,9 @@ mother/father IDs, but, in the absence of an overriding directive such as input
 from the investigators about their preferences, it doesn't really make a
 difference which way we choose.
 
+A value map operation with variable replacements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 .. code-block:: python
 
     value_map(
@@ -308,4 +317,120 @@ that matches the regular expression pattern ``^F$`` with the standard code for
 Female and replace everything that matches ``^M$`` with the standard code for
 Male (m={...}), and then output the result to a ``CONCEPT.PARTICIPANT.GENDER``
 column (out_col=)."
+
+The resulting intermediate output will look like:
+
+.. csv-table::
+    :header: "index", "CONCEPT.PARTICIPANT.ID"
+
+    "0", "Female"
+    "1", ""
+    "2", ""
+    "3", "Male"
+    "4", ""
+    "5", ""
+    "6", "Male"
+    "7", ""
+    "8", ""
+
+A melt map operation
+^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+        melt_map(
+            var_name=CONCEPT.PHENOTYPE.NAME,
+            map_for_vars={
+                "CLEFT_EGO": "Cleft ego",
+                "CLEFT_ID": "Cleft id"
+            },
+            value_name=CONCEPT.PHENOTYPE.OBSERVED,
+            map_for_values=observed_yes_no
+        )
+
+This says "Generate new columns ``CONCEPT.PHENOTYPE.NAME`` and
+``CONCEPT.PHENOTYPE.OBSERVED`` by melting (read
+https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.melt.html)
+the ``CLEFT_EGO`` and ``CLEFT_ID`` columns into the `variables` ``Cleft ego``
+and ``Cleft id`` and map the ``TRUE``/``FALSE`` `values` by passing them
+through the included ``observed_yes_no`` function."
+
+The resulting intermediate output will look like:
+
+.. csv-table::
+    :header: "index", "CONCEPT.PHENOTYPE.NAME", "CONCEPT.PHENOTYPE.OBSERVED"
+
+    "0", "Cleft ego", "Positive"
+    "1", "Cleft ego", "Positive"
+    "2", "Cleft ego", "Positive"
+    "3", "Cleft ego", "Positive"
+    "4", "Cleft ego", "Positive"
+    "5", "Cleft ego", "Positive"
+    "6", "Cleft ego", "Positive"
+    "7", "Cleft ego", "Positive"
+    "8", "Cleft ego", "Negative"
+    "0", "Cleft id", "Negative"
+    "1", "Cleft id", "Negative"
+    "2", "Cleft id", "Negative"
+    "3", "Cleft id", "Positive"
+    "4", "Cleft id", "Positive"
+    "5", "Cleft id", "Positive"
+    "6", "Cleft id", "Negative"
+    "7", "Cleft id", "Positive"
+    "8", "Cleft id", "Positive"
+
+A nested operation sub-list
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+    [
+        value_map(
+            in_col=6,  # age in hours (first)
+            m=lambda x: int(x) / 24,
+            out_col=CONCEPT.PHENOTYPE.EVENT_AGE_DAYS
+        ),
+        melt_map(
+            var_name=CONCEPT.PHENOTYPE.NAME,
+            map_for_vars={
+                "CLEFT_EGO": "Cleft ego",
+                "CLEFT_ID": "Cleft id"
+            },
+            value_name=CONCEPT.PHENOTYPE.OBSERVED,
+            map_for_values=observed_yes_no
+        )
+    ]
+
+Having a sub-list says "Treat the enclosed operations as a single
+logically-linked unit".
+
+For this particular scenario it gives a way to say that **these** phenotype
+columns go with **this** age column and not **that other** age column. It
+should also always be possible to accomplish the same thing by making a
+separate extract configuration file for those operations.
+
+The resulting intermediate output for both of these operations together will
+look like:
+
+.. csv-table::
+    :header: "index", "CONCEPT.PHENOTYPE.EVENT_AGE_DAYS", "CONCEPT.PHENOTYPE.NAME", "CONCEPT.PHENOTYPE.OBSERVED"
+
+    "0", "0.166667", "Cleft ego", "Positive"
+    "1", "18.125", "Cleft ego", "Positive"
+    "2", "1.416667", "Cleft ego", "Positive"
+    "3", "0.166667", "Cleft ego", "Positive"
+    "4", "14.375", "Cleft ego", "Positive"
+    "5", "1.416667", "Cleft ego", "Positive"
+    "6", "1.416667", "Cleft ego", "Positive"
+    "7", "1814.375", "Cleft ego", "Positive"
+    "8", "0.208333", "Cleft ego", "Negative"
+    "0", "0.166667", "Cleft id", "Negative"
+    "1", "18.125", "Cleft id", "Negative"
+    "2", "1.416667", "Cleft id", "Negative"
+    "3", "0.166667", "Cleft id", "Positive"
+    "4", "14.375", "Cleft id", "Positive"
+    "5", "1.416667", "Cleft id", "Positive"
+    "6", "1.416667", "Cleft id", "Negative"
+    "7", "1814.375", "Cleft id", "Positive"
+    "8", "0.208333", "Cleft id", "Positive"
 
