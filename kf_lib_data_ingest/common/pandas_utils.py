@@ -6,7 +6,76 @@ import re
 import numpy
 import pandas
 
+from kf_lib_data_ingest.common.misc import multisplit
 from kf_lib_data_ingest.common.type_safety import assert_safe_type
+
+
+class Split:
+    """Object for use with split_df_rows_on_splits to differentiate between
+    regular lists of things and lists of things to split.
+
+    Replaces lists with a Split object containing the list.
+    """
+    def __init__(self, things):
+        assert_safe_type(things, list)
+        self.things = things
+
+
+def split_df_rows_on_splits(df):
+    """
+    Take a DataFrame and split any cell values that contain Splits into
+    multiple rows.
+
+    e.g.:
+
+    a row that looks like...
+
+    {'a': Split([1, 2]), 'b': Split([[3, 4])}
+
+    ...will become...
+
+    [
+        {'a': 1, 'b': 3},
+        {'a': 1, 'b': 4},
+        {'a': 2, 'b': 3},
+        {'a': 2, 'b': 4}
+    ]
+
+    :param df: a DataFrame
+    :return: a new DataFrame
+    """
+    def split_row(df_row_dict):
+        row_list = []
+        for k, v in df_row_dict.items():
+            if isinstance(v, Split):
+                for vi in v.things:
+                    new_row = df_row_dict.copy()
+                    new_row[k] = vi.strip()
+                    row_list += split_row(new_row)
+                break
+        return row_list or [df_row_dict]
+
+    split_out = []
+    for row in df.to_dict(orient='records'):
+        split_out += split_row(row)
+    df = pandas.DataFrame(split_out)
+    return df
+
+
+def split_df_rows_on_delims(df, cols: list = None, delimiters: list = None):
+    """
+    Split row into multiple rows based on delimited strings in df[col]
+    for all columns in cols
+    """
+    cols = cols or df.columns
+    for i, row in df.iterrows():
+        for col in cols:
+            val = multisplit(row[col], delimiters)
+            if len(val) > 1:
+                row[col] = Split(val)
+            else:
+                row[col] = val[0]
+    return split_df_rows_on_splits(df)
 
 
 def try_pop(df, key, default=None):

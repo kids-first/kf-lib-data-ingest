@@ -1,13 +1,14 @@
 import importlib
+import inspect
 import json
 import os
 import re
-
-import inspect
 from itertools import tee
 
 import numpy
 import yaml
+
+from kf_lib_data_ingest.common.type_safety import assert_safe_type
 
 
 def import_module_from_file(filepath):
@@ -89,3 +90,20 @@ def obj_attrs_to_dict(cls):
                   if not(a[0].startswith('__') and
                          a[0].endswith('__'))]
     return dict(attributes)
+
+
+def multisplit(string: str, delimiters: list):
+    """Split a string by multiple delimiters.
+
+    :param string: the string to split
+    :type string: str
+    :param delimiters: the list of delimiters to split by
+    :type delimiters: list
+    :return: the split substrings
+    :rtype: list
+    """
+
+    assert_safe_type(string, str)
+    assert_safe_type(delimiters, list)
+    regexPattern = '|'.join(map(re.escape, delimiters))
+    return re.split(regexPattern, string)

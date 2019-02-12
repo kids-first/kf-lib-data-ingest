@@ -12,11 +12,8 @@ from kf_lib_data_ingest.common.file_retriever import (
     FileRetriever,
     split_protocol
 )
-from kf_lib_data_ingest.common.misc import (
-    intsafe_str,
-    write_json,
-    read_json
-)
+from kf_lib_data_ingest.common.misc import intsafe_str, read_json, write_json
+from kf_lib_data_ingest.common.pandas_utils import split_df_rows_on_splits
 from kf_lib_data_ingest.common.stage import IngestStage
 from kf_lib_data_ingest.common.type_safety import function
 from kf_lib_data_ingest.etl.configuration.base_config import (
@@ -181,6 +178,12 @@ class ExtractStage(IngestStage):
                 df_in, extract_config.operations
             )
 
+            # split value lists into separate rows
+            df_out = split_df_rows_on_splits(
+                                                df_out.reset_index()
+                                            ).set_index('index')
+            del df_out.index.name
+
             output[extract_config.config_filepath] = (data_path, df_out)
 
         # return dictionary of all dataframes keyed by extract config paths
@@ -272,7 +275,8 @@ class ExtractStage(IngestStage):
 
         # Given a set of different length columns, we need to make a resulting
         # dataframe whose length is the least common multiple of their lengths
-        # by repeating each column the right number of times.
+        # by repeating each column the right number of times. This is
+        # predicated on the assumption that no rows were added or removed.
         #
         # A data file that looks like...
         #
