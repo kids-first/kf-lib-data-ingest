@@ -277,7 +277,7 @@ to a ``CONCEPT.PARTICIPANT.ID`` column (out_col=)."
 The resulting intermediate output will look like:
 
 .. csv-table::
-    :header: "index", "CONCEPT.PARTICIPANT.ID"
+    :header: "index", "<CONCEPT.PARTICIPANT.ID>"
 
     "0", "1"
     "1", "2"
@@ -321,7 +321,7 @@ column (out_col=)."
 The resulting intermediate output will look like:
 
 .. csv-table::
-    :header: "index", "CONCEPT.PARTICIPANT.ID"
+    :header: "index", "<CONCEPT.PARTICIPANT.ID>"
 
     "0", "Female"
     "1", ""
@@ -358,7 +358,7 @@ through the included ``observed_yes_no`` function."
 The resulting intermediate output will look like:
 
 .. csv-table::
-    :header: "index", "CONCEPT.PHENOTYPE.NAME", "CONCEPT.PHENOTYPE.OBSERVED"
+    :header: "index", "<CONCEPT.PHENOTYPE.NAME>", "<CONCEPT.PHENOTYPE.OBSERVED>"
 
     "0", "Cleft ego", "Positive"
     "1", "Cleft ego", "Positive"
@@ -413,7 +413,7 @@ The resulting intermediate output for both of these operations together will
 look like:
 
 .. csv-table::
-    :header: "index", "CONCEPT.PHENOTYPE.EVENT_AGE_DAYS", "CONCEPT.PHENOTYPE.NAME", "CONCEPT.PHENOTYPE.OBSERVED"
+    :header: "index", "<CONCEPT.PHENOTYPE.EVENT_AGE_DAYS>", "<CONCEPT.PHENOTYPE.NAME>", "<CONCEPT.PHENOTYPE.OBSERVED>"
 
     "0", "0.166667", "Cleft ego", "Positive"
     "1", "18.125", "Cleft ego", "Positive"
@@ -434,3 +434,39 @@ look like:
     "7", "1814.375", "Cleft id", "Positive"
     "8", "0.208333", "Cleft id", "Positive"
 
+The final Extraction product
+----------------------------
+
+Once all of the operations are complete and the extract stage has done its
+magic, the final extracted result given the data and our configuration is:
+
+.. csv-table::
+    :header: "index", "<CONCEPT.PARTICIPANT.ID>", "<CONCEPT.PARTICIPANT.MOTHER_ID>", "<CONCEPT.PARTICIPANT.FATHER_ID>", "<CONCEPT.PARTICIPANT.GENDER>", "<CONCEPT.PARTICIPANT.CONSENT_TYPE>", "<CONCEPT.PHENOTYPE.EVENT_AGE_DAYS>", "<CONCEPT.PHENOTYPE.NAME>", "<CONCEPT.PHENOTYPE.OBSERVED>"
+
+    "0", "1", "2", "3", "Female", "GRU", "0.166667", "Cleft ego", "Positive"
+    "1", "2", "", "", "", "GRU", "18.125", "Cleft ego", "Positive"
+    "2", "3", "", "", "", "GRU", "1.416667", "Cleft ego", "Positive"
+    "3", "4", "5", "6", "Male", "HMB-IRB", "0.166667", "Cleft ego", "Positive"
+    "4", "5", "", "", "", "GRU", "14.375", "Cleft ego", "Positive"
+    "5", "6", "", "", "", "HMB-IRB", "1.416667", "Cleft ego", "Positive"
+    "6", "7", "8", "9", "Male", "GRU", "1.416667", "Cleft ego", "Positive"
+    "7", "8", "", "", "", "GRU", "1814.375", "Cleft ego", "Positive"
+    "8", "9", "", "", "", "GRU", "0.208333", "Cleft ego", "Negative"
+    "0", "1", "2", "3", "Female", "GRU", "0.166667", "Cleft id", "Negative"
+    "1", "2", "", "", "", "GRU", "18.125", "Cleft id", "Negative"
+    "2", "3", "", "", "", "GRU", "1.416667", "Cleft id", "Negative"
+    "3", "4", "5", "6", "Male", "HMB-IRB", "0.166667", "Cleft id", "Positive"
+    "4", "5", "", "", "", "GRU", "14.375", "Cleft id", "Positive"
+    "5", "6", "", "", "", "HMB-IRB", "1.416667", "Cleft id", "Positive"
+    "6", "7", "8", "9", "Male", "GRU", "1.416667", "Cleft id", "Negative"
+    "7", "8", "", "", "", "GRU", "1814.375", "Cleft id", "Positive"
+    "8", "9", "", "", "", "GRU", "0.208333", "Cleft id", "Positive"
+    "0", "1", "2", "3", "Female", "GRU", "0.166667", "Extra eardrum", "Negative"
+    "1", "2", "", "", "", "GRU", "18.125", "Extra eardrum", "Negative"
+    "2", "3", "", "", "", "GRU", "1.416667", "Extra eardrum", "Negative"
+    "3", "4", "5", "6", "Male", "HMB-IRB", "0.166667", "Extra eardrum", "Negative"
+    "4", "5", "", "", "", "GRU", "1.416667", "Extra eardrum", "Negative"
+    "5", "6", "", "", "", "HMB-IRB", "1814.375", "Extra eardrum", "Negative"
+    "6", "7", "8", "9", "Male", "GRU", "0.208333", "Extra eardrum", "Positive"
+    "7", "8", "", "", "", "GRU", "2.166667", "Extra eardrum", "Positive"
+    "8", "9", "", "", "", "GRU", "1.041667", "Extra eardrum", "Positive"
