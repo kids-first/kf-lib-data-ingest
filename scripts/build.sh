@@ -12,5 +12,6 @@ pip install -r dev-requirements.txt
 pip install -r doc-requirements.txt
 
 cd docs
+doc8 source
 make html
 cd -

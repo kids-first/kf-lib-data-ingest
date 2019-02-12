@@ -1,5 +1,5 @@
 Quickstart
-===========
+==========
 
 Provide a simple example. Overview of CLI as primary means of execution
 
