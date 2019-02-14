@@ -1,10 +1,10 @@
 Common
 ==========
 
-.. automodule:: common.errors
-.. currentmodule:: common.errors
+.. automodule:: kf_lib_data_ingest.common.errors
+.. currentmodule:: kf_lib_data_ingest.common.errors
 
 .. autoclass:: InvalidIngestStageParameters
 
-.. automodule:: common.file_retriever
+.. automodule:: kf_lib_data_ingest.common.file_retriever
     :members:
