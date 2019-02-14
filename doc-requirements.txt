@@ -1,2 +1,4 @@
 sphinx==1.8.1
+sphinx_rtd_theme==0.4.2
+sphinx-autobuild==0.7.1
 -e git+https://github.com/kids-first/kf-sphinx-docs-theme.git#egg=kf-sphinx-docs-theme

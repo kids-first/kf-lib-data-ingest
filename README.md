@@ -109,15 +109,24 @@ We currently use Sphinx for generating the API/reference documentation for the i
 If you would like to develop documentation follow these steps:
 1. Install the Python packages needed to build the documentation
 
-```
-pip install -r doc-requirements.txt
-```
-2. Build the static docs site
+    ```
+    pip install -r doc-requirements.txt
+    ```
 
-After making changes to docstrings in the source code or .rst files in docs/source, you will need to rebuild the html:
-```
-cd docs
-make html
-```
+2. Run the docs build server so that docs will auto-reload as edits are made
 
-3. This will generate a `build` subdirectory containing the generated docs site. View the docs by opening `docs/build/html/index.html` in the browser
+    ```shell
+    sphinx-autobuild docs/source docs/build -p 8000
+    ```
+The docs site will be available on `localhost:8000`
+
+OR if you really want to, you can still build the docs manually
+
+1. Build the static docs site
+    ```
+    cd docs
+    make html
+    ```
+This will generate a `build` subdirectory containing the generated docs site.
+
+2. View the docs by opening `docs/build/html/index.html` in the browser
