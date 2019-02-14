@@ -1,74 +1,29 @@
 ============================
-Configuring your first study
+Extract Stage
 ============================
 
-Study configuration consists of a directory containing three components:
+The extract stage does 3 main things:
 
-1. A top-level study configuration file called ``dataset_ingest_config.yml``
-    This defines metadata about the study itself such as what the study's name
-    is and who the investigators are as well as paths to the other two
-    components.
-2. A directory of `Extract Configuration` files
-    These define how data is interpreted and extracted from each of the files
-    provided by the investigator.
-3. (optional) A guided `Transform Module` file
-    This replaces automatic graph-based transformation with a predictable set
-    of user-programmed operations.
+1. Select or extract the desired subset of data from the source data files
+2. Clean the selected data (i.e. remove trailing whitespaces, etc)
+3. Map the cleaned data's attributes and values to Kids First entity attributes and acceptable values.
 
-The study directory
-===================
+The extract configuration files instruct the extract stage on how to accomplish the above.
 
-Your complete ingest configuration for a study will look like this::
-
-    My_Study/
-    ├── dataset_ingest_config.yml
-    ├── extract_configs/
-    │   ├── one_file_extract_config.py
-    │   ├── another_file_extract_config.py
-    │   └── ...
-    └── transform_module.py
-
-dataset_ingest_config.yml
-=========================
-
-This file contains details that control ingestion of the study as a whole. It
-includes study metadata, the list of investigators, and paths to the extract
-configs directory and the optional transform module.
-
-It looks something like:
-
-.. code-block:: yaml
-
-    study:
-        kf_id: 'SD_MEOWMEOW'
-        external_id: 'phs0001999'
-        short_name: 'Cat Study'
-        name: 'The long study of cats'
-        authority: 'dbgap'
-        version: 'v2.p1'
-        release_status: 'Pending'
-        category: 'Cancer'
-        attribution: 'https://www.meowmeowmeow.cat/study/attribution.html'
-
-    investigators:
-        - 'IG_12345678'
-        - 'IG_87654321'
-
-    extract_config_dir: 'extract_configs'
-
-    transform_function_path: 'transform_module.py'
-
-Extract Configuration files
-===========================
+Write Extract Configuration Files
+==================================
 
 Every data file provided by the investigator will require at least one extract
 configuration file. The reasons why will hopefully become clear after reading
 this section.
 
-Here's an example data file:
-----------------------------
+We will step through how to write an extract configuration file for one of the source data files
+and then you should be able to write the configs for the rest of them.
 
-.. csv-table:: simple_headered_tsv_1.tsv
+Here's a example source data file:
+----------------------------------
+
+.. csv-table:: family_and_phenotype.tsv
     :header: "participant", "mother", "father", "gender", "consent", "age in hours", "CLEFT_EGO", "CLEFT_ID", "age in hours", "EXTRA_EARDRUM"
 
     "PID001", "2", "3", "F", "1", "4", "TRUE", "FALSE", "4", "FALSE"
@@ -81,8 +36,8 @@ Here's an example data file:
     "PID008", "", "", "", "1", "43545", "TRUE", "TRUE", "52", "TRUE"
     "PID009", "", "", "", "1", "5", "FALSE", "TRUE", "25", "TRUE"
 
-In order to merge this data into our system, we need to:
---------------------------------------------------------
+In order to ingest this data into the Kids First ecosystem, we need to:
+-----------------------------------------------------------------------
 
 * Convert the column headers into something standardized that the toolchain can
   understand
@@ -108,7 +63,7 @@ The following extract configuration file accomplishes all of those needs
         CONCEPT
     )
 
-    source_data_url = 'file://../data/simple_headered_tsv_1.tsv'
+    source_data_url = 'file://../data/family_and_phenotype.tsv'
 
     source_data_loading_parameters = {}
 
@@ -215,7 +170,7 @@ Fetching the data
 
 .. code-block:: python
 
-    source_data_url = 'file://../data/simple_headered_tsv_1.tsv'
+    source_data_url = 'file://../data/family_and_phenotype.tsv'
 
 The first thing that the extractor does for every config file is fetch the
 related source data. This specifies where the file lives so that the code can
