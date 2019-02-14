@@ -31,6 +31,7 @@ Load
 
    install
    quickstart
+   tutorial/index.rst
    developer
    reference/index.rst
    design/overview
