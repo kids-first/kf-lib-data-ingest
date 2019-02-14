@@ -1,5 +1,6 @@
-Kids First Data Ingest Lib Docs
-===============================
+.. image:: _static/images/logo.png
+   :alt: Kids First Data Ingest Library
+
 
 Overview
 ^^^^^^^^
