@@ -1,8 +1,9 @@
-codacy-coverage==1.3.10
-pytest==3.6.3
-pytest-cache==1.0
-pytest-cov==2.5.1
-pytest-codestyle==1.3.1
-requests_mock==1.5.2
+codacy-coverage==1.3.11
+ipaddress==1.0.22
 moto==1.3.7
-py2neo==4.1.0
+py2neo==4.2.0
+pyopenssl==19.0.0
+pytest-cache==1.0
+pytest-codestyle==1.4.0
+pytest-cov==2.6.1
+requests-mock==1.5.2
