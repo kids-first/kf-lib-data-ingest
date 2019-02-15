@@ -111,9 +111,12 @@ def test_invalid_urls(url):
     Test bad url
     """
     with pytest.raises(LookupError) as e:
-        FileRetriever().get(url)
-        assert f"Retrieving URL: {url} " in e
-        assert "No client found for protocol:" in e
+        try:
+            FileRetriever().get(url)
+        except LookupError as e:
+            assert f"In URL: {url}" in str(e)
+            assert "Invalid protocol:" in str(e)
+            raise
 
 
 def _test_get_file(url, storage_dir, use_storage_dir, cleanup_at_exit,
