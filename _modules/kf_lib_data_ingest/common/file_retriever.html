@@ -191,10 +191,17 @@
 <span class="sd">    :type url: string</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">split_url</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">PROTOCOL_SEP</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">protocol</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">split_url</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">split_url</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">split_url</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span></div>
+        <span class="n">protocol</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">split_url</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">split_url</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">protocol</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">FileRetriever</span><span class="o">.</span><span class="n">_getters</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span>
+            <span class="n">f</span><span class="s2">&quot;In URL: </span><span class="si">{url}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">f</span><span class="s2">&quot;Invalid protocol: </span><span class="si">{protocol}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">f</span><span class="s2">&quot;Options are: {[x+&#39;://&#39; for x in FileRetriever._getters]}&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">protocol</span><span class="p">,</span> <span class="n">path</span></div>
 
 
 <span class="k">def</span> <span class="nf">_s3_save</span><span class="p">(</span><span class="n">protocol</span><span class="p">,</span> <span class="n">source_loc</span><span class="p">,</span> <span class="n">dest_obj</span><span class="p">,</span> <span class="n">auth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -325,16 +332,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Fetching </span><span class="si">%s</span><span class="s2"> with primary auth &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">auth</span><span class="p">)</span>
         <span class="n">protocol</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">split_protocol</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">protocol</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">FileRetriever</span><span class="o">.</span><span class="n">_getters</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span>
-                <span class="n">f</span><span class="s2">&quot;Retrieving URL: </span><span class="si">{url}</span><span class="se">\n</span><span class="s2">&quot;</span>
-                <span class="n">f</span><span class="s2">&quot;No client found for protocol: </span><span class="si">{protocol}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">&quot;Detected protocol &#39;</span><span class="si">%s</span><span class="s2">&#39; --&gt; Using getter </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="n">protocol</span><span class="p">,</span> <span class="n">FileRetriever</span><span class="o">.</span><span class="n">_getters</span><span class="p">[</span><span class="n">protocol</span><span class="p">]</span><span class="o">.</span><span class="vm">__name__</span>
-            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Detected protocol &#39;</span><span class="si">%s</span><span class="s2">&#39; --&gt; Using getter </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">protocol</span><span class="p">,</span> <span class="n">FileRetriever</span><span class="o">.</span><span class="n">_getters</span><span class="p">[</span><span class="n">protocol</span><span class="p">]</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="p">)</span>
 
         <span class="c1"># TODO: Either remove this try wrapper or remove this message.</span>
         <span class="c1"># I think there may be a better way to handle exceptional cleanup. -Avi</span>
