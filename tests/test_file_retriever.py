@@ -65,6 +65,8 @@ def test_s3_file(s3_file, storage_dir, use_storage_dir, cleanup_at_exit,
     """
     Test file retrieval via s3
     """
+    os.environ.setdefault("AWS_ACCESS_KEY_ID", "foobar_key")
+    os.environ.setdefault("AWS_SECRET_ACCESS_KEY", "foobar_secret")
     _test_get_file(s3_file, storage_dir, use_storage_dir, cleanup_at_exit,
                    should_file_exist)
 
