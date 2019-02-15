@@ -1,6 +1,7 @@
 """
 Entry point for the Kids First Data Ingest Client
 """
+import os
 import inspect
 
 import click
@@ -68,6 +69,21 @@ def ingest(dataset_ingest_config_path, target_url, auto_transform, use_async):
     p.run(target_api_config_path, **kwargs)
 
 
+@click.command(name='new')
+@click.option('--dest_dir',
+              help='Path to the directory where the new ingest package will '
+              'be created. If not specified, the current working dir will '
+              'be used.',
+              type=click.Path(exists=False, file_okay=False, dir_okay=True))
+def create_new_ingest(dest_dir=None):
+    """
+    Create a new ingest package based on the template:
+    kf_lib_data_ingest.factory.templates.study
+    """
+    from kf_lib_data_ingest.factory.generate import new_ingest_pkg
+    new_ingest_pkg(dest_dir)
+
+
 @click.command()
 def extract():
     pass
@@ -84,3 +100,4 @@ def load():
 
 
 cli.add_command(ingest)
+cli.add_command(create_new_ingest)
