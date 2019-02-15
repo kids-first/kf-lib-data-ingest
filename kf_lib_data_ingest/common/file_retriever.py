@@ -31,10 +31,17 @@ def split_protocol(url):
     :type url: string
     """
     split_url = url.split(PROTOCOL_SEP, 1)
+    protocol, path = None, None
     if len(split_url) == 2:
-        return split_url[0], split_url[1]
-    else:
-        return None, None
+        protocol, path = split_url[0], split_url[1]
+
+    if protocol not in FileRetriever._getters:
+        raise LookupError(
+            f"In URL: {url}\n"
+            f"Invalid protocol: {protocol}\n"
+            f"Options are: {[x+'://' for x in FileRetriever._getters]}"
+        )
+    return protocol, path
 
 
 def _s3_save(protocol, source_loc, dest_obj, auth=None, logger=None):
@@ -165,16 +172,11 @@ class FileRetriever(object):
         """
         self.logger.info("Fetching %s with primary auth '%s'", url, auth)
         protocol, path = split_protocol(url)
-        if protocol not in FileRetriever._getters:
-            raise LookupError(
-                f"Retrieving URL: {url}\n"
-                f"No client found for protocol: {protocol}"
-            )
-        else:
-            self.logger.info(
-                "Detected protocol '%s' --> Using getter %s",
-                protocol, FileRetriever._getters[protocol].__name__
-            )
+
+        self.logger.info(
+            "Detected protocol '%s' --> Using getter %s",
+            protocol, FileRetriever._getters[protocol].__name__
+        )
 
         # TODO: Either remove this try wrapper or remove this message.
         # I think there may be a better way to handle exceptional cleanup. -Avi
