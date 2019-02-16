@@ -37,7 +37,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Reference" href="reference/index.html" />
-    <link rel="prev" title="Quickstart" href="quickstart.html" />
+    <link rel="prev" title="Extract Stage" href="tutorial/extract.html" />
     <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
  
 </head>
@@ -94,6 +94,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/index.html">Tutorial</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Developers</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#setup-development-environment">Setup Development Environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#run-unit-tests">Run Unit Tests</a></li>
@@ -203,7 +204,7 @@ $ source venv/bin/activate
 </div>
 <div class="section" id="build-documentation">
 <h2>Build Documentation<a class="headerlink" href="#build-documentation" title="Permalink to this headline">¶</a></h2>
-<p>We currently use Sphinx for generating the API/reference documentation for the ingest library.</p>
+<p>We currently use Sphinx for generating the API/reference documentation.</p>
 <p>If you would like to develop documentation follow these steps:</p>
 <ol class="arabic">
 <li><p class="first">Install the Python packages needed to build the documentation:</p>
@@ -211,16 +212,14 @@ $ source venv/bin/activate
 </pre></div>
 </div>
 </li>
-<li><p class="first">Build the static docs site</p>
-</li>
-</ol>
-<p>After making changes to docstrings in the source code or .rst files in docs/source, you will need to rebuild the html:</p>
+<li><p class="first">Build the static docs site:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd docs
 $ make html
 </pre></div>
 </div>
-<ol class="arabic simple" start="3">
-<li>This will generate a <code class="docutils literal notranslate"><span class="pre">build</span></code> subdirectory containing the generated docs site. View the docs by opening <code class="docutils literal notranslate"><span class="pre">docs/build/html/index.html</span></code> in the browser</li>
+</li>
+<li><p class="first">View the docs by opening <code class="docutils literal notranslate"><span class="pre">docs/build/html/index.html</span></code> in a browser.</p>
+</li>
 </ol>
 </div>
 </div>
@@ -236,7 +235,7 @@ $ make html
         <a href="reference/index.html" class="btn btn-neutral float-right" title="Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="quickstart.html" class="btn btn-neutral float-left" title="Quickstart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="tutorial/extract.html" class="btn btn-neutral float-left" title="Extract Stage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

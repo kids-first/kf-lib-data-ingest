@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Extract stage &mdash; Kids First Data Ingest Libraries  documentation</title>
+  <title>Tutorial &mdash; Kids First Data Ingest Libraries  documentation</title>
   
 
   
@@ -36,8 +36,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Transform Stage" href="transform.html" />
-    <link rel="prev" title="Ingest Pipeline Design" href="overview.html" />
+    <link rel="next" title="Study Configuration" href="study_configuration.html" />
+    <link rel="prev" title="Quickstart" href="../quickstart.html" />
     <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
  
 </head>
@@ -94,15 +94,15 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../developer.html">Developers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="overview.html">Ingest Pipeline Design</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Extract stage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="transform.html">Transform Stage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="load.html">Load stage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="study_configuration.html">Study Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="project_setup.html">Project Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extract.html">Extract Stage</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../developer.html">Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Ingest Pipeline Design</a></li>
 </ul>
 
             
@@ -148,15 +148,13 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="overview.html">Ingest Pipeline Design</a> &raquo;</li>
-        
-      <li>Extract stage</li>
+      <li>Tutorial</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/design/extract.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/tutorial/index.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -169,12 +167,42 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="extract-stage">
-<h1>Extract stage<a class="headerlink" href="#extract-stage" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li>File retrieval</li>
-<li>Extract config design</li>
+  <div class="section" id="tutorial">
+<h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
+<p>The quickstart example uses a simple dataset and is primarily intended to show
+a user how to run the ingest pipeline and view basic outputs. This tutorial
+will use a more complex study dataset and step through each ingest stage in
+much more depth.</p>
+<p>In this tutorial we will cover:</p>
+<ol class="arabic simple">
+<li>How to configure complex extractions with multiple messy source data files</li>
+<li>How to write a transform function for the transform stage</li>
+<li>How to run the ingest pipeline from end to end</li>
+<li>How to debug steps 1 through 3 by:<ul>
+<li>Running stages individually</li>
+<li>Viewing stage outputs</li>
+<li>Viewing ingest logs</li>
 </ul>
+</li>
+</ol>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="study_configuration.html">Study Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="study_configuration.html#the-study-directory">The study directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="study_configuration.html#dataset-ingest-config-yml">dataset_ingest_config.yml</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="project_setup.html">Project Setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="project_setup.html#create-your-ingest-project">Create Your Ingest Project</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="extract.html">Extract Stage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="extract.html#write-extract-configuration-files">Write Extract Configuration Files</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </div>
 
 
@@ -185,10 +213,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="transform.html" class="btn btn-neutral float-right" title="Transform Stage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="study_configuration.html" class="btn btn-neutral float-right" title="Study Configuration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="overview.html" class="btn btn-neutral float-left" title="Ingest Pipeline Design" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../quickstart.html" class="btn btn-neutral float-left" title="Quickstart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

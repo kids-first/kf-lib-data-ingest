@@ -1,0 +1,304 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Study Configuration &mdash; Kids First Data Ingest Libraries  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Project Setup" href="project_setup.html" />
+    <link rel="prev" title="Tutorial" href="index.html" />
+    <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
+ 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorial</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Study Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-study-directory">The study directory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dataset-ingest-config-yml">dataset_ingest_config.yml</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project_setup.html">Project Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extract.html">Extract Stage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developer.html">Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Ingest Pipeline Design</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Kids First Data Ingest Libraries</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Tutorial</a> &raquo;</li>
+        
+      <li>Study Configuration</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/tutorial/study_configuration.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="study-configuration">
+<h1>Study Configuration<a class="headerlink" href="#study-configuration" title="Permalink to this headline">¶</a></h1>
+<p>Each study that needs to be ingested will have a single directory that contains
+all of the configuration/inputs needed by the ingest pipeline to extract,
+transform, and load the study into a target data store or service.</p>
+<p>The study directory contains three components:</p>
+<ol class="arabic simple">
+<li><dl class="first docutils">
+<dt>A top-level study configuration file called <code class="docutils literal notranslate"><span class="pre">dataset_ingest_config.yml</span></code></dt>
+<dd>This defines metadata about the study itself such as what the study’s name
+is and who the investigators are as well as paths to the other two
+components.</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>A directory of <cite>Extract Configuration</cite> files</dt>
+<dd>This is the configuration needed by the extract stage. These files define
+how data is interpreted and extracted from each of the files provided by
+the investigator.</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>(optional) A guided <cite>Transform Module</cite> file</dt>
+<dd>This is the configuration used by the transform stage. The
+<cite>Transform Module</cite> file replaces automatic graph-based transformation with
+a predictable set of user-programmed operations. If this file does not
+exist, then automatic graph-based transformation will be used by the
+transform stage. More on this later in the tutorial.</dd>
+</dl>
+</li>
+</ol>
+<div class="section" id="the-study-directory">
+<h2>The study directory<a class="headerlink" href="#the-study-directory" title="Permalink to this headline">¶</a></h2>
+<p>Your complete ingest configuration for a study will look like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>my_study/
+├── dataset_ingest_config.yml
+├── extract_configs/
+│   ├── one_file_extract_config.py
+│   ├── another_file_extract_config.py
+│   └── ...
+└── transform_module.py  (optional)
+</pre></div>
+</div>
+</div>
+<div class="section" id="dataset-ingest-config-yml">
+<h2>dataset_ingest_config.yml<a class="headerlink" href="#dataset-ingest-config-yml" title="Permalink to this headline">¶</a></h2>
+<p>This file contains details that control ingestion of the study as a whole. It
+includes study metadata, the list of investigators, logging parameters, and
+paths to the extract configs directory and the optional transform module.</p>
+<p>It looks something like:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">study</span><span class="p">:</span>
+    <span class="nt">kf_id</span><span class="p">:</span> <span class="s">&#39;SD_MEOWMEOW&#39;</span>
+    <span class="nt">external_id</span><span class="p">:</span> <span class="s">&#39;phs0001999&#39;</span>
+    <span class="nt">short_name</span><span class="p">:</span> <span class="s">&#39;Cat</span><span class="nv"> </span><span class="s">Study&#39;</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="s">&#39;The</span><span class="nv"> </span><span class="s">long</span><span class="nv"> </span><span class="s">study</span><span class="nv"> </span><span class="s">of</span><span class="nv"> </span><span class="s">cats&#39;</span>
+    <span class="nt">authority</span><span class="p">:</span> <span class="s">&#39;dbgap&#39;</span>
+    <span class="nt">version</span><span class="p">:</span> <span class="s">&#39;v2.p1&#39;</span>
+    <span class="nt">release_status</span><span class="p">:</span> <span class="s">&#39;Pending&#39;</span>
+    <span class="nt">category</span><span class="p">:</span> <span class="s">&#39;Cancer&#39;</span>
+    <span class="nt">attribution</span><span class="p">:</span> <span class="s">&#39;https://www.meowmeowmeow.cat/study/attribution.html&#39;</span>
+
+<span class="nt">investigators</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="s">&#39;IG_12345678&#39;</span>
+    <span class="p p-Indicator">-</span> <span class="s">&#39;IG_87654321&#39;</span>
+
+<span class="nt">extract_config_dir</span><span class="p">:</span> <span class="s">&#39;extract_configs&#39;</span>
+
+<span class="nt">transform_function_path</span><span class="p">:</span> <span class="s">&#39;transform_module.py&#39;</span>
+
+<span class="nt">logging</span><span class="p">:</span>
+    <span class="nt">log_level</span><span class="p">:</span> <span class="s">&#39;info&#39;</span>
+    <span class="nt">overwrite_log</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
+</pre></div>
+</div>
+<p>Ok, let’s head on over to <a class="reference internal" href="project_setup.html#tutorial-project-setup"><span class="std std-ref">Project Setup</span></a> to start building
+the study.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="project_setup.html" class="btn btn-neutral float-right" title="Project Setup" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Tutorial" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Kids First
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
