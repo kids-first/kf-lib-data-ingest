@@ -361,20 +361,15 @@ A value map that splits cells apart
         out_col=CONCEPT.BIOSPECIMEN.ID
     )
 
-This says take "Use the ``specimens`` column as input, split any ``,`` or ``;``
+This says "Use the ``specimens`` column as input, split any ``,`` or ``;``
 delimited values apart into their own entries, and then output the result to a
 standard concept column for biospecimen ID."
 
 .. note::
 
     We use a special ``Split()`` object for lists of values that we want to
-    split apart. That lets us preserve the ability to return a list of values
-    pertaining to a single entity without splitting them apart if we need to.
-
-.. note::
-    The thing assigned in ``m=`` here is a function and not a table. That's
-    because we're applying the same function to every entry without regular
-    expression filtering.
+    split apart into multiple rows. Just returning a list will not split the
+    contained items apart.
 
 The resulting intermediate output will look like:
 
