@@ -56,7 +56,7 @@ In order to ingest this data into the Kids First ecosystem, we need to:
   Male/Female, because we want to use standard constant codes wherever
   possible. Our constants are located in
   ``kf_lib_data_ingest.common.constants``
-* Split delimited specimens apart into their own entries
+* Split delimited specimens apart into their own rows
 * Convert age (hrs) to age in days
 * Reshape the CLEFT_EGO, CLEFT_ID, and EXTRA_EARDRUM columns into observation
   events
