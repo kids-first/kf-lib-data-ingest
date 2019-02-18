@@ -1,13 +1,22 @@
+==========
 Quickstart
 ==========
 
-Provide a simple example. Overview of CLI as primary means of execution
+Under Construction
 
-- Generate new ingest package
-- Modify template extract config
-- Run ingest
+.. image:: /_static/images/construction.svg
+   :width: 150px
+   :height: 150 px
+   :alt: Under Construction
+
+But coming soon ...
+
+Quickstart example will focus on the basics:
+
+- Generate a new ingest package
+- Modify a template extract config
+- Run ingest pipeline
 - Debugging
     - Run single stage
-    - Logs
-    - Stage output
-    - Concept Graph visualization
+    - View ingest log
+    - View single stage output
