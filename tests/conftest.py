@@ -16,6 +16,7 @@ KIDS_FIRST_CONFIG = os.path.join(os.path.dirname(os.path.dirname(__file__)),
 TRANSFORM_MODULE_PATH = os.path.join(TEST_DATA_DIR,
                                      'test_study',
                                      'transform_module.py')
+COMMAND_LINE_ERROR_CODE = 2
 
 
 def delete_logs(log_dir):
@@ -34,11 +35,11 @@ def make_ingest_pipeline(config_filepath=None):
     """
     # Create ingest pipeline
     if not config_filepath:
-        data_ingest_config_path = os.path.join(TEST_DATA_DIR,
-                                               'test_study',
-                                               'dataset_ingest_config.yml')
+        config_filepath = os.path.join(TEST_DATA_DIR,
+                                       'test_study',
+                                       'dataset_ingest_config.yml')
 
-    p = DataIngestPipeline(data_ingest_config_path)
+    p = DataIngestPipeline(config_filepath)
 
     # Delete any existing log files
     delete_logs(p.data_ingest_config.log_dir)

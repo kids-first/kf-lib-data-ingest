@@ -7,8 +7,7 @@ from conftest import (
     TEST_DATA_DIR,
     TRANSFORM_MODULE_PATH
 )
-
-COMMAND_LINE_ERROR_CODE = 2
+from conftest import COMMAND_LINE_ERROR_CODE
 
 
 def test_ingest_cmd_missing_required_args():
