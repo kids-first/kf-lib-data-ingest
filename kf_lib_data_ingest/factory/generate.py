@@ -27,16 +27,17 @@ def new_ingest_pkg(dest_dir=None):
         dest_dir = os.path.expanduser(dest_dir)
         dest_dir = os.path.realpath(dest_dir)
 
-    # Don't overwrite existing ingest dirs
-    if os.path.isdir(dest_dir):
-        raise FileExistsError(
-            f'Cannot create a new ingest package here: {dest_dir}. '
-            'Directory already exists!')
-
     # Create package
     src_dir = os.path.join(os.path.dirname(__file__), 'templates',
                            INGEST_PKG_TEMPLATE_NAME)
-    shutil.copytree(src_dir, dest_dir)
+
+    # Don't overwrite existing study dir
+    try:
+        shutil.copytree(src_dir, dest_dir)
+    except FileExistsError:
+        print(f'Cannot create a new ingest package here: {dest_dir}. '
+              'Directory already exists!')
+        return None
 
     print(f'Created new ingest package at: {dest_dir}')
 

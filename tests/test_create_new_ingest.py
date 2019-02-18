@@ -54,13 +54,8 @@ def test_new_ingest_already_exists(tmpdir):
     dest_dir = os.path.join(tmpdir, 'new_study')
     ret_dest_dir = new_ingest_pkg(dest_dir)
 
-    with pytest.raises(FileExistsError) as e:
-        try:
-            new_ingest_pkg(ret_dest_dir)
-        except FileExistsError as e:
-            assert 'Cannot create a new ingest package' in str(e)
-            assert 'Directory already exists' in str(e)
-            raise
+    dest_dir = new_ingest_pkg(ret_dest_dir)
+    assert dest_dir is None
 
 
 def test_ingest_template_study(tmpdir):
