@@ -24,3 +24,5 @@ In this tutorial we will cover:
    study_configuration.rst
    project_setup.rst
    extract.rst
+   transform.rst
+   load.rst
