@@ -2,8 +2,8 @@
 Auto-generated extract config module.
 
 See documentation at
-https://kids-first.github.io/kf-lib-data-ingest/ for information on writing
-extract config files.
+https://kids-first.github.io/kf-lib-data-ingest/tutorial/extract.html for
+information on writing extract config files.
 """
 
 from kf_lib_data_ingest.common import constants

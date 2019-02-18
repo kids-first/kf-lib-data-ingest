@@ -38,4 +38,6 @@ def new_ingest_pkg(dest_dir=None):
                            INGEST_PKG_TEMPLATE_NAME)
     shutil.copytree(src_dir, dest_dir)
 
+    print(f'Created new ingest package at: {dest_dir}')
+
     return dest_dir
