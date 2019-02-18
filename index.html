@@ -164,32 +164,199 @@
   <img alt="Kids First Data Ingest Library" src="_images/logo.png" />
 <div class="section" id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
-<p>The Kids First Data Ingest Library standardizes the transformation and
-ingestion of Kids First raw study data into target Kids First services.</p>
-<p>A CLI wraps the library and is the primary user interface for using the
-ingestion pipeline. Users will use the CLI to ingest Kids First studies into
-the Kids First Data Service which is the only supported target service at this
-point.</p>
+<p>The Kids First Data Ingest Library is both an ETL (extract, transform, load)
+framework and a library that standardizes the ingestion of raw Kids First study
+data into target Kids First services.</p>
+<div class="section" id="framework-and-library">
+<h2>Framework and Library<a class="headerlink" href="#framework-and-library" title="Permalink to this headline">¶</a></h2>
+<p>Since this is a library as well as a framework, there are components of the
+<code class="docutils literal notranslate"><span class="pre">kf_lib_data_ingest</span></code> package that can be used as standalone tools or
+utilities. The <code class="docutils literal notranslate"><span class="pre">ExtractStage</span></code> for example can be used as a standalone tool
+for data selection and mapping (see <a class="reference internal" href="tutorial/extract.html#tutorial-extract-stage"><span class="std std-ref">Extract Stage</span></a> for details).
+Anything in <code class="docutils literal notranslate"><span class="pre">kf_lib_data_ingest.utilities</span></code> can be used as a standalone tool.</p>
+<p>Additionally, there are a handful of helper functions in
+<code class="docutils literal notranslate"><span class="pre">kf_lib_data_ingest.common.pandas_utils</span></code> that could be used outside of the
+framework for data wrangling tasks. See &lt;TODO&gt; for details.</p>
 </div>
-<div class="section" id="extract">
-<h1>Extract<a class="headerlink" href="#extract" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="command-line-interface">
+<h2>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h2>
+<p>A command line interface (CLI) wraps the library and is the primary user
+interface for executing the ingest pipeline. Users will use the CLI to generate
+new ingest modules and run ingest jobs to ETL Kids First X01 study datasets
+into the Kids First Data Service. The Data Service is currently the only
+supported target service at this point.</p>
+</div>
+<div class="section" id="ingest-pipeline">
+<h2>Ingest Pipeline<a class="headerlink" href="#ingest-pipeline" title="Permalink to this headline">¶</a></h2>
+<div class="figure" id="id1">
+<img alt="Ingest Pipeline Overview" src="_images/ingest-pipeline.png" />
+<p class="caption"><span class="caption-text">Overview of the ingest pipeline</span></p>
+</div>
+<div class="section" id="users">
+<h3>Users<a class="headerlink" href="#users" title="Permalink to this headline">¶</a></h3>
+<p>Users of the ingest system will likely fall into 2 categories:</p>
+<ol class="arabic simple">
+<li><strong>Ingest Operator</strong><ul>
+<li>Will never create a new study ingest module</li>
+<li>Will likely just be running existing ingest modules</li>
+<li>May need to learn how to modify configuration by inspection of existing
+ingest module configurations</li>
+</ul>
+</li>
+<li><strong>Ingest Configuration Developer</strong><ul>
+<li>Runs ingest modules</li>
+<li>Understands how to create new configurations and modify existing ones</li>
+<li>Knows Python well and likely knows Pandas fairly well</li>
+</ul>
+</li>
+</ol>
+</div>
+<div class="section" id="inputs">
+<h3>Inputs<a class="headerlink" href="#inputs" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>Overview (purpose, inputs, outputs)</li>
-<li>Brief description of concept schema</li>
+<li><strong>Local or remote source data files</strong></li>
+<li><strong>Configuration files</strong></li>
+</ul>
+<p>Source data files might look like this:</p>
+<table border="1" class="docutils" id="id2">
+<caption><span class="caption-text">data.tsv</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">p id</th>
+<th class="head">gender</th>
+<th class="head">sample id</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>PID001</td>
+<td>f</td>
+<td>SS001</td>
+</tr>
+<tr class="row-odd"><td>PID002</td>
+<td>female</td>
+<td>SS002</td>
+</tr>
+<tr class="row-even"><td>PID003</td>
+<td>m</td>
+<td>SS003</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="outputs">
+<h3>Outputs<a class="headerlink" href="#outputs" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><strong>Ingest log</strong> - A log file containing runtime details of an executed ingest
+job</li>
+<li><strong>Serialized stage output</strong> - The output of each stage execution in a
+serializable form written to disk</li>
 </ul>
 </div>
-<div class="section" id="transform">
-<h1>Transform<a class="headerlink" href="#transform" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li>Overview (purpose, inputs, outputs)</li>
-<li>Brief description of concept graph</li>
-</ul>
+<div class="section" id="extract-stage">
+<h3>Extract Stage<a class="headerlink" href="#extract-stage" title="Permalink to this headline">¶</a></h3>
+<p>The extract stage does the following:</p>
+<ol class="arabic simple">
+<li><strong>Retrieve</strong> - Retrieve the source data files whether they are local or
+remote and read into memory</li>
+<li><strong>Select</strong> - Extract the desired subset of data from the source data files</li>
+<li><strong>Clean</strong>- Clean the source data (i.e. remove trailing whitespaces, etc)</li>
+<li><strong>Map</strong> - Map the cleaned data to a set of standard Kids First attributes
+and values</li>
+</ol>
+<p>The standard set of attributes and values are defined in the Kids First
+Standard Concept Schema. See &lt;TODO&gt; for more details. Extract stage output
+might look like this:</p>
+<table border="1" class="docutils" id="id3">
+<caption><span class="caption-text">data.tsv</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">CONCEPT.PARTICIPANT.ID</th>
+<th class="head">CONCEPT.PARTICIPANT.GENDER</th>
+<th class="head">CONCEPT.BIOSPECIMEN.ID</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>PID001</td>
+<td>Female</td>
+<td>SS001</td>
+</tr>
+<tr class="row-odd"><td>PID002</td>
+<td>Female</td>
+<td>SS002</td>
+</tr>
+<tr class="row-even"><td>PID003</td>
+<td>Male</td>
+<td>SS003</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div class="section" id="load">
-<h1>Load<a class="headerlink" href="#load" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li>Overview (purpose, inputs, outputs)</li>
-</ul>
+<div class="section" id="transform-stage">
+<h3>Transform Stage<a class="headerlink" href="#transform-stage" title="Permalink to this headline">¶</a></h3>
+<p>The transform stage converts the clean and standardized data into a form that
+is expected by the target database or service.</p>
+<ol class="arabic">
+<li><p class="first"><strong>Convert from standard form to target form</strong></p>
+<blockquote>
+<div><p>To do this, the transform stage requires an additional input -
+the target API configuration file. This file specifies how entities and
+their attributes in the Kids First Standard Concept Schema map to entities
+and their attributes in the target service.</p>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>Apply common transformations</strong></p>
+<blockquote>
+<div><p>For example, filling in left over null or unknown values with standard
+values (i.e. Not Reported, Unknown).</p>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>Translate Source Data Entity IDs</strong></p>
+<blockquote>
+<div><p>Every time the ingest pipeline runs and loads new entities into the target,
+it keeps a record of the ID created by the target service for an entity and
+the corresponding ID for that entity in the source data.</p>
+<p>This part of transform looks up a source data ID in the ID cache and
+translates it to its corresponding target service ID, if one exists.</p>
+</div></blockquote>
+</li>
+</ol>
+<p>Transform stage output might look like this:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="nt">&quot;participant&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;kf_id&quot;</span><span class="p">:</span> <span class="s2">&quot;PT_00001111&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;external_id&quot;</span><span class="p">:</span> <span class="s2">&quot;PID001&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;gender&quot;</span><span class="p">:</span> <span class="s2">&quot;Female&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;kf_id&quot;</span><span class="p">:</span> <span class="s2">&quot;PT_00001112&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;external_id&quot;</span><span class="p">:</span> <span class="s2">&quot;PID002&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;gender&quot;</span><span class="p">:</span> <span class="s2">&quot;Female&quot;</span>
+        <span class="p">}</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;kf_id&quot;</span><span class="p">:</span> <span class="s2">&quot;PT_00001113&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;external_id&quot;</span><span class="p">:</span> <span class="s2">&quot;PID003&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;gender&quot;</span><span class="p">:</span> <span class="s2">&quot;Male&quot;</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="load-stage">
+<h3>Load Stage<a class="headerlink" href="#load-stage" title="Permalink to this headline">¶</a></h3>
+<p>At this point, all transformations to data values are complete and the
+data is in a form that is expected by the target database or service.
+The load stage transmits the entity payloads to the target.</p>
+<p>Head on over to the <a class="reference internal" href="tutorial/index.html#tutorial"><span class="std std-ref">Tutorial</span></a> to get started with data ingestion!</p>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Table of Contents</span></p>
 <ul>
@@ -220,6 +387,8 @@ point.</p>
 </ul>
 </li>
 </ul>
+</div>
+</div>
 </div>
 </div>
 
