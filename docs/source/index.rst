@@ -137,21 +137,21 @@ Transform stage output might look like this:
 .. code-block:: json
 
     {
-        'participant': [
+        "participant": [
             {
-                'kf_id': 'PT_00001111',
-                'external_id': 'PID001',
-                'gender': 'Female',
+                "kf_id": "PT_00001111",
+                "external_id": "PID001",
+                "gender": "Female"
             },
             {
-                'kf_id': 'PT_00001112',
-                'external_id': 'PID002',
-                'gender': 'Female',
+                "kf_id": "PT_00001112",
+                "external_id": "PID002",
+                "gender": "Female"
             }
             {
-                'kf_id': 'PT_00001113',
-                'external_id': 'PID003',
-                'gender': 'Male',
+                "kf_id": "PT_00001113",
+                "external_id": "PID003",
+                "gender": "Male"
             }
         ]
     }
