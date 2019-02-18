@@ -1,16 +1,17 @@
 .. image:: _static/images/logo.png
    :alt: Kids First Data Ingest Library
 
-*********
+********
 Overview
-*********
+********
 
 The Kids First Data Ingest Library is both an ETL (extract, transform, load)
 framework and a library that standardizes the ingestion of raw Kids First study
 data into target Kids First services.
 
 Framework and Library
-=======================
+=====================
+
 Since this is a library as well as a framework, there are components of the
 ``kf_lib_data_ingest`` package that can be used as standalone tools or
 utilities. The ``ExtractStage`` for example can be used as a standalone tool
@@ -22,7 +23,8 @@ Additionally, there are a handful of helper functions in
 framework for data wrangling tasks. See <TODO> for details.
 
 Command Line Interface
-=======================
+======================
+
 A command line interface (CLI) wraps the library and is the primary user
 interface for executing the ingest pipeline. Users will use the CLI to generate
 new ingest modules and run ingest jobs to ETL Kids First X01 study datasets
@@ -39,52 +41,58 @@ Ingest Pipeline
 
 Users
 -----
-Users of the ingest system will likely fall into 3 categories:
+
+Users of the ingest system will likely fall into 2 categories:
 
 1. **Ingest Operator**
+
    - Will never create a new study ingest module
    - Will likely just be running existing ingest modules
    - May need to learn how to modify configuration by inspection of existing
-   ingest module configurations.
+     ingest module configurations
 
 2. **Ingest Configuration Developer**
+
    - Runs ingest modules
-   - Understands how to create new configurations and modify existing ones.
-   - Knows Python well and likely knows Pandas fairly well.
+   - Understands how to create new configurations and modify existing ones
+   - Knows Python well and likely knows Pandas fairly well
 
 Inputs
 ------
+
 - **Local or remote source data files**
 - **Configuration files**
 
 Source data files might look like this:
 
-    .. csv-table:: data.tsv
-        :header: "p id", "gender", "sample id"
+.. csv-table:: data.tsv
+    :header: "p id", "gender", "sample id"
 
-        "PID001", "f", "SS001"
-        "PID002", "female", "SS002"
-        "PID003", "m", "SS003"
+    "PID001", "f", "SS001"
+    "PID002", "female", "SS002"
+    "PID003", "m", "SS003"
 
 
 Outputs
 -------
-- **Ingest log**
-    - A log file containing runtime details of an executed ingest job
-- **Serialized stage output**
-    - The output of each stage execution in a serializable form written to disk
+
+- **Ingest log** - A log file containing runtime details of an executed ingest
+  job
+- **Serialized stage output** - The output of each stage execution in a
+  serializable form written to disk
 
 
 Extract Stage
 -------------
+
 The extract stage does the following:
 
 1. **Retrieve** - Retrieve the source data files whether they are local or
-remote and read into memory.
+   remote and read into memory
 2. **Select** - Extract the desired subset of data from the source data files
 3. **Clean**- Clean the source data (i.e. remove trailing whitespaces, etc)
 4. **Map** - Map the cleaned data to a set of standard Kids First attributes
-and values.
+   and values
 
 The standard set of attributes and values are defined in the Kids First
 Standard Concept Schema. See <TODO> for more details. Extract stage output
@@ -98,7 +106,8 @@ might look like this:
     "PID003", "Male", "SS003"
 
 Transform Stage
-----------------
+---------------
+
 The transform stage converts the clean and standardized data into a form that
 is expected by the target database or service.
 
@@ -150,11 +159,11 @@ Transform stage output might look like this:
 
 
 Load Stage
------------
+----------
+
 At this point, all transformations to data values are complete and the
 data is in a form that is expected by the target database or service.
 The load stage transmits the entity payloads to the target.
-
 
 Head on over to the :ref:`tutorial` to get started with data ingestion!
 
