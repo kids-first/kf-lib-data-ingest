@@ -30,17 +30,17 @@ Here's a example source data file:
 
 .. csv-table:: family_and_phenotype.tsv
     :header: "[ignore]", "[ignore]", "[ignore]", "[ignore]", "[ignore]", "[ignore]", "[ignore]", "[ignore]", "[ignore]", "[ignore]", "[ignore]"
-             "[ignore]", "participant", "mother", "father", "gender", "consent", "age in hours", "CLEFT_EGO", "CLEFT_ID", "age in hours", "EXTRA_EARDRUM"
+             "[ignore]", "participant", "mother", "father", "gender", "specimens", "age (hrs)", "CLEFT_EGO", "CLEFT_ID", "age (hrs)", "EXTRA_EARDRUM"
 
-    "[ignore]", "PID001", "2", "3", "F", "1", "4", "TRUE", "FALSE", "4", "FALSE"
-    "[ignore]", "PID002", "", "", "", "1", "435", "TRUE", "FALSE", "435", "FALSE"
-    "[ignore]", "PID003", "", "", "", "1", "34", "TRUE", "FALSE", "34", "FALSE"
-    "[ignore]", "PID004", "5", "6", "M", "2", "4", "TRUE", "TRUE", "4", "FALSE"
-    "[ignore]", "PID005", "", "", "", "1", "345", "TRUE", "TRUE", "34", "FALSE"
-    "[ignore]", "PID006", "", "", "", "2", "34", "TRUE", "TRUE", "43545", "FALSE"
-    "[ignore]", "PID007", "8", "9", "M", "1", "34", "TRUE", "FALSE", "5", "TRUE"
-    "[ignore]", "PID008", "", "", "", "1", "43545", "TRUE", "TRUE", "52", "TRUE"
-    "[ignore]", "PID009", "", "", "", "1", "5", "FALSE", "TRUE", "25", "TRUE"
+    "[ignore]", "PID001", "2", "3", "F", "SP001A,SP001B", "4", "TRUE", "FALSE", "4", "FALSE"
+    "[ignore]", "PID002", "", "", "", "SP002A; SP002B", "435", "TRUE", "FALSE", "435", "FALSE"
+    "[ignore]", "PID003", "", "", "", "SP003A;SP003B", "34", "TRUE", "FALSE", "34", "FALSE"
+    "[ignore]", "PID004", "5", "6", "M", "SP004A; SP004B", "4", "TRUE", "TRUE", "4", "FALSE"
+    "[ignore]", "PID005", "", "", "", "SP005A, SP005B", "345", "TRUE", "TRUE", "34", "FALSE"
+    "[ignore]", "PID006", "", "", "", "SP006", "34", "TRUE", "TRUE", "43545", "FALSE"
+    "[ignore]", "PID007", "8", "9", "M", "SP007", "34", "TRUE", "FALSE", "5", "TRUE"
+    "[ignore]", "PID008", "", "", "", "SP008A,SP008B", "43545", "TRUE", "TRUE", "52", "TRUE"
+    "[ignore]", "PID009", "", "", "", "SP009A,SP009B", "5", "FALSE", "TRUE", "25", "TRUE"
 
 In order to ingest this data into the Kids First ecosystem, we need to:
 -----------------------------------------------------------------------
@@ -56,8 +56,8 @@ In order to ingest this data into the Kids First ecosystem, we need to:
   Male/Female, because we want to use standard constant codes wherever
   possible. Our constants are located in
   ``kf_lib_data_ingest.common.constants``
-* Convert the consent numbers to standardized consent codes
-* Convert age in hours to age in days
+* Split delimited specimens apart into their own rows
+* Convert age (hrs) to age in days
 * Reshape the CLEFT_EGO, CLEFT_ID, and EXTRA_EARDRUM columns into observation
   events
 * Convert the TRUE and FALSE strings into standardized observation codes
@@ -74,12 +74,13 @@ The following extract configuration file accomplishes all of those needs
     from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
         CONCEPT
     )
+    import re
 
     source_data_url = 'file://path/to/family_and_phenotype.tsv'
 
     source_data_loading_parameters = {
-        header=1,
-        usecols=lambda x: x != "[ignore]"
+        "header": :1,
+        "usecols": :lambda x: x != "[ignore]"
     }
 
 
@@ -121,17 +122,13 @@ The following extract configuration file accomplishes all of those needs
             out_col=CONCEPT.PARTICIPANT.GENDER
         ),
         value_map(
-            in_col="consent",
-            m={
-                "1": constants.CONSENT_TYPE.GRU,
-                "2": constants.CONSENT_TYPE.HMB_IRB,
-                "3": constants.CONSENT_TYPE.DS_OC_PUB_MDS
-            },
-            out_col=CONCEPT.PARTICIPANT.CONSENT_TYPE
+            in_col="specimens",
+            m=lambda x: Split(re.split('[,;]', x)),
+            out_col=CONCEPT.BIOSPECIMEN.ID
         ),
         [
             value_map(
-                in_col=6,  # age in hours (first)
+                in_col=6,  # age (hrs) (first)
                 m=lambda x: int(x) / 24,
                 out_col=CONCEPT.PHENOTYPE.EVENT_AGE_DAYS
             ),
@@ -147,7 +144,7 @@ The following extract configuration file accomplishes all of those needs
         ],
         [
             value_map(
-                in_col=9,  # age in hours (second)
+                in_col=9,  # age (hrs) (second)
                 m=lambda x: int(x) / 24,
                 out_col=CONCEPT.PHENOTYPE.EVENT_AGE_DAYS
             ),
@@ -174,6 +171,7 @@ Imports!
     from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
         CONCEPT
     )
+    import re
 
 It's a Python module! Cool! That lets us do all kinds of neat stuff like
 import predefined constants and functions.
@@ -198,13 +196,13 @@ Loading the data
 .. code-block:: python
 
     source_data_loading_parameters = {
-        header=1,
-        usecols=lambda x: x != "[ignore]"
+        header: 1,
+        usecols: :lambda x: x != "[ignore]"
     }
 
- The arguments that we put into the ``source_data_loading_parameters`` table
- correspond with the Python pandas IO parameters described in
- http://pandas.pydata.org/pandas-docs/stable/user_guide/io.html
+The arguments that we put into the ``source_data_loading_parameters`` table
+correspond with the Python pandas IO parameters described in
+http://pandas.pydata.org/pandas-docs/stable/user_guide/io.html
 
 This example file contains tab-separated values (hence the filename ending with
 '.tsv') with a non-standard layout where we need to ignore the first row. For
@@ -330,6 +328,13 @@ Technically we could do a more complex operation here to recover the mother and
 father genders by determining whether the participant ID exists in the "mother"
 or "father" column, but we can also do that later during the Transform stage.
 
+.. note::
+
+    The right side of ``m={...}`` fields can be values (replace with `this`) or
+    functions (apply `this` and replace with the result). The same is true for
+    ``m`` itself if you want the same value or sme function for every row
+    without first matching patterns.
+
 The resulting intermediate output will look like:
 
 .. csv-table::
@@ -344,6 +349,81 @@ The resulting intermediate output will look like:
     "6", "Male"
     "7", ""
     "8", ""
+
+A value map that splits cells apart
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+    value_map(
+        in_col="specimens",
+        m=lambda x: Split(re.split('[,;]', x)),
+        out_col=CONCEPT.BIOSPECIMEN.ID
+    )
+
+This says "Use the ``specimens`` column as input, split any ``,`` or ``;``
+delimited values apart into their own entries, and then output the result to a
+standard concept column for biospecimen ID."
+
+.. note::
+
+    We use a special ``Split()`` object for lists of values that we want to
+    split apart into multiple rows. Just returning a list will not split the
+    contained items apart.
+
+The resulting intermediate output will look like:
+
+.. csv-table::
+    :header: "index", "<CONCEPT.BIOSPECIMEN.ID>"
+
+    "0", "SP001A"
+    "0", "SP001B"
+    "1", "SP002A"
+    "1", "SP002B"
+    "2", "SP003A"
+    "2", "SP003B"
+    "3", "SP004A"
+    "3", "SP004B"
+    "4", "SP005A"
+    "4", "SP005B"
+    "5", "SP006"
+    "6", "SP007"
+    "7", "SP008A"
+    "7", "SP008B"
+    "8", "SP009A"
+    "8", "SP009B"
+    "0", "SP001A"
+    "0", "SP001B"
+    "1", "SP002A"
+    "1", "SP002B"
+    "2", "SP003A"
+    "2", "SP003B"
+    "3", "SP004A"
+    "3", "SP004B"
+    "4", "SP005A"
+    "4", "SP005B"
+    "5", "SP006"
+    "6", "SP007"
+    "7", "SP008A"
+    "7", "SP008B"
+    "8", "SP009A"
+    "8", "SP009B"
+    "0", "SP001A"
+    "0", "SP001B"
+    "1", "SP002A"
+    "1", "SP002B"
+    "2", "SP003A"
+    "2", "SP003B"
+    "3", "SP004A"
+    "3", "SP004B"
+    "4", "SP005A"
+    "4", "SP005B"
+    "5", "SP006"
+    "6", "SP007"
+    "7", "SP008A"
+    "7", "SP008B"
+    "8", "SP009A"
+    "8", "SP009B"
 
 A melt map operation
 ^^^^^^^^^^^^^^^^^^^^
@@ -398,7 +478,7 @@ A nested operation sub-list
 
     [
         value_map(
-            in_col=6,  # age in hours (first)
+            in_col=6,  # age (hrs) (first)
             m=lambda x: int(x) / 24,
             out_col=CONCEPT.PHENOTYPE.EVENT_AGE_DAYS
         ),
@@ -453,32 +533,53 @@ Once all of the operations are complete and the extract stage has done its
 magic, the final extracted result given the data and our configuration is:
 
 .. csv-table::
-    :header: "index", "<CONCEPT.PARTICIPANT.ID>", "<CONCEPT.PARTICIPANT.MOTHER_ID>", "<CONCEPT.PARTICIPANT.FATHER_ID>", "<CONCEPT.PARTICIPANT.GENDER>", "<CONCEPT.PARTICIPANT.CONSENT_TYPE>", "<CONCEPT.PHENOTYPE.EVENT_AGE_DAYS>", "<CONCEPT.PHENOTYPE.NAME>", "<CONCEPT.PHENOTYPE.OBSERVED>"
+    :header: "index", "<CONCEPT.PARTICIPANT.ID>", "<CONCEPT.PARTICIPANT.MOTHER_ID>", "<CONCEPT.PARTICIPANT.FATHER_ID>", "<CONCEPT.PARTICIPANT.GENDER>", "<CONCEPT.BIOSPECIMEN.ID>", "<CONCEPT.PHENOTYPE.EVENT_AGE_DAYS>", "<CONCEPT.PHENOTYPE.NAME>", "<CONCEPT.PHENOTYPE.OBSERVED>"
 
-    "0", "1", "2", "3", "Female", "GRU", "0.166667", "Cleft ego", "Positive"
-    "1", "2", "", "", "", "GRU", "18.125", "Cleft ego", "Positive"
-    "2", "3", "", "", "", "GRU", "1.416667", "Cleft ego", "Positive"
-    "3", "4", "5", "6", "Male", "HMB-IRB", "0.166667", "Cleft ego", "Positive"
-    "4", "5", "", "", "", "GRU", "14.375", "Cleft ego", "Positive"
-    "5", "6", "", "", "", "HMB-IRB", "1.416667", "Cleft ego", "Positive"
-    "6", "7", "8", "9", "Male", "GRU", "1.416667", "Cleft ego", "Positive"
-    "7", "8", "", "", "", "GRU", "1814.375", "Cleft ego", "Positive"
-    "8", "9", "", "", "", "GRU", "0.208333", "Cleft ego", "Negative"
-    "0", "1", "2", "3", "Female", "GRU", "0.166667", "Cleft id", "Negative"
-    "1", "2", "", "", "", "GRU", "18.125", "Cleft id", "Negative"
-    "2", "3", "", "", "", "GRU", "1.416667", "Cleft id", "Negative"
-    "3", "4", "5", "6", "Male", "HMB-IRB", "0.166667", "Cleft id", "Positive"
-    "4", "5", "", "", "", "GRU", "14.375", "Cleft id", "Positive"
-    "5", "6", "", "", "", "HMB-IRB", "1.416667", "Cleft id", "Positive"
-    "6", "7", "8", "9", "Male", "GRU", "1.416667", "Cleft id", "Negative"
-    "7", "8", "", "", "", "GRU", "1814.375", "Cleft id", "Positive"
-    "8", "9", "", "", "", "GRU", "0.208333", "Cleft id", "Positive"
-    "0", "1", "2", "3", "Female", "GRU", "0.166667", "Extra eardrum", "Negative"
-    "1", "2", "", "", "", "GRU", "18.125", "Extra eardrum", "Negative"
-    "2", "3", "", "", "", "GRU", "1.416667", "Extra eardrum", "Negative"
-    "3", "4", "5", "6", "Male", "HMB-IRB", "0.166667", "Extra eardrum", "Negative"
-    "4", "5", "", "", "", "GRU", "1.416667", "Extra eardrum", "Negative"
-    "5", "6", "", "", "", "HMB-IRB", "1814.375", "Extra eardrum", "Negative"
-    "6", "7", "8", "9", "Male", "GRU", "0.208333", "Extra eardrum", "Positive"
-    "7", "8", "", "", "", "GRU", "2.166667", "Extra eardrum", "Positive"
-    "8", "9", "", "", "", "GRU", "1.041667", "Extra eardrum", "Positive"
+    "0", "1", "2", "3", "Female", "SP001A", "0.166666667", "Cleft ego", "Positive"
+    "0", "1", "2", "3", "Female", "SP001B", "0.166666667", "Cleft ego", "Positive"
+    "1", "2", "", "", "", "SP002A", "18.125", "Cleft ego", "Positive"
+    "1", "2", "", "", "", "SP002B", "18.125", "Cleft ego", "Positive"
+    "2", "3", "", "", "", "SP003A", "1.416666667", "Cleft ego", "Positive"
+    "2", "3", "", "", "", "SP003B", "1.416666667", "Cleft ego", "Positive"
+    "3", "4", "5", "6", "Male", "SP004A", "0.166666667", "Cleft ego", "Positive"
+    "3", "4", "5", "6", "Male", "SP004B", "0.166666667", "Cleft ego", "Positive"
+    "4", "5", "", "", "", "SP005A", "14.375", "Cleft ego", "Positive"
+    "4", "5", "", "", "", "SP005B", "14.375", "Cleft ego", "Positive"
+    "5", "6", "", "", "", "SP006", "1.416666667", "Cleft ego", "Positive"
+    "6", "7", "8", "9", "Male", "SP007", "1.416666667", "Cleft ego", "Positive"
+    "7", "8", "", "", "", "SP008A", "1814.375", "Cleft ego", "Positive"
+    "7", "8", "", "", "", "SP008B", "1814.375", "Cleft ego", "Positive"
+    "8", "9", "", "", "", "SP009A", "0.208333333", "Cleft ego", "Negative"
+    "8", "9", "", "", "", "SP009B", "0.208333333", "Cleft ego", "Negative"
+    "0", "1", "2", "3", "Female", "SP001A", "0.166666667", "Cleft id", "Negative"
+    "0", "1", "2", "3", "Female", "SP001B", "0.166666667", "Cleft id", "Negative"
+    "1", "2", "", "", "", "SP002A", "18.125", "Cleft id", "Negative"
+    "1", "2", "", "", "", "SP002B", "18.125", "Cleft id", "Negative"
+    "2", "3", "", "", "", "SP003A", "1.416666667", "Cleft id", "Negative"
+    "2", "3", "", "", "", "SP003B", "1.416666667", "Cleft id", "Negative"
+    "3", "4", "5", "6", "Male", "SP004A", "0.166666667", "Cleft id", "Positive"
+    "3", "4", "5", "6", "Male", "SP004B", "0.166666667", "Cleft id", "Positive"
+    "4", "5", "", "", "", "SP005A", "14.375", "Cleft id", "Positive"
+    "4", "5", "", "", "", "SP005B", "14.375", "Cleft id", "Positive"
+    "5", "6", "", "", "", "SP006", "1.416666667", "Cleft id", "Positive"
+    "6", "7", "8", "9", "Male", "SP007", "1.416666667", "Cleft id", "Negative"
+    "7", "8", "", "", "", "SP008A", "1814.375", "Cleft id", "Positive"
+    "7", "8", "", "", "", "SP008B", "1814.375", "Cleft id", "Positive"
+    "8", "9", "", "", "", "SP009A", "0.208333333", "Cleft id", "Positive"
+    "8", "9", "", "", "", "SP009B", "0.208333333", "Cleft id", "Positive"
+    "0", "1", "2", "3", "Female", "SP001A", "0.166666667", "Extra eardrum", "Negative"
+    "0", "1", "2", "3", "Female", "SP001B", "0.166666667", "Extra eardrum", "Negative"
+    "1", "2", "", "", "", "SP002A", "18.125", "Extra eardrum", "Negative"
+    "1", "2", "", "", "", "SP002B", "18.125", "Extra eardrum", "Negative"
+    "2", "3", "", "", "", "SP003A", "1.416666667", "Extra eardrum", "Negative"
+    "2", "3", "", "", "", "SP003B", "1.416666667", "Extra eardrum", "Negative"
+    "3", "4", "5", "6", "Male", "SP004A", "0.166666667", "Extra eardrum", "Negative"
+    "3", "4", "5", "6", "Male", "SP004B", "0.166666667", "Extra eardrum", "Negative"
+    "4", "5", "", "", "", "SP005A", "1.416666667", "Extra eardrum", "Negative"
+    "4", "5", "", "", "", "SP005B", "1.416666667", "Extra eardrum", "Negative"
+    "5", "6", "", "", "", "SP006", "1814.375", "Extra eardrum", "Negative"
+    "6", "7", "8", "9", "Male", "SP007", "0.208333333", "Extra eardrum", "Positive"
+    "7", "8", "", "", "", "SP008A", "2.166666667", "Extra eardrum", "Positive"
+    "7", "8", "", "", "", "SP008B", "2.166666667", "Extra eardrum", "Positive"
+    "8", "9", "", "", "", "SP009A", "1.041666667", "Extra eardrum", "Positive"
+    "8", "9", "", "", "", "SP009B", "1.041666667", "Extra eardrum", "Positive"
