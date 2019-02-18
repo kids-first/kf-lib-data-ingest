@@ -3,7 +3,9 @@ import shutil
 import filecmp
 
 import pytest
+from click.testing import CliRunner
 
+from kf_lib_data_ingest import cli
 from kf_lib_data_ingest.factory.generate import new_ingest_pkg
 from kf_lib_data_ingest.config import (
     INGEST_PKG_TEMPLATE_NAME,
@@ -59,3 +61,15 @@ def test_new_ingest_already_exists(tmpdir):
             assert 'Cannot create a new ingest package' in str(e)
             assert 'Directory already exists' in str(e)
             raise
+
+
+def test_ingest_template_study(tmpdir):
+    # > kidsfirst new
+    study_dir = os.path.join(tmpdir, 'my_study')
+    runner = CliRunner()
+    result = runner.invoke(cli.create_new_ingest, ['--dest_dir', study_dir])
+
+    # Dir created
+    assert os.path.isdir(study_dir)
+    # No exceptions raised
+    assert result.exit_code == 0
