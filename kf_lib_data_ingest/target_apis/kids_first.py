@@ -68,7 +68,8 @@ target_concepts = {
             "ethnicity": CONCEPT.PARTICIPANT.ETHNICITY,
             "gender": CONCEPT.PARTICIPANT.GENDER,
             "race": CONCEPT.PARTICIPANT.RACE,
-            'visible': CONCEPT.PARTICIPANT.HIDDEN
+            'visible': CONCEPT.PARTICIPANT.HIDDEN,
+            "affected_status": CONCEPT.PARTICIPANT.IS_AFFECTED_UNDER_STUDY
         },
         'endpoint': '/participants'
     },
