@@ -26,7 +26,7 @@ properties:
                 type: "string"
             overwrite_log:
                 description: "Determines whether to overwrite the log file or create a new one"
-                type: "string"
+                type: "boolean"
     study:
         description: "The attributes defining a study in the Kids First data model"
         type: "object"

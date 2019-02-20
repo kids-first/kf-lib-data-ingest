@@ -31,16 +31,10 @@ def test_defaults(ingest_pipeline):
     assert (ingest_pipeline.data_ingest_config.overwrite_log ==
             DEFAULT_LOG_OVERWRITE_OPT)
 
-    # Test that ingest.log was not created but ingest-{datetime}.log
-    # was created
+    # Test that ingest.log was created
     ingest_pipeline.run(target_api_config_path)
     log_filepath = os.path.join(default_log_dir, DEFAULT_LOG_FILENAME)
-    assert os.path.isfile(log_filepath) is False
-
-    # Test that new logs are created on each run
-    time.sleep(1)
-    ingest_pipeline.run(target_api_config_path)
-    assert len(os.listdir(default_log_dir)) == 2
+    assert os.path.isfile(log_filepath) is True
 
 
 def test_log_dir(ingest_pipeline):
@@ -65,12 +59,6 @@ def test_overwrite_log(ingest_pipeline):
     """
     Test that overwriting the default log file works
     """
-
-    # Update data ingest config
-    ingest_pipeline.data_ingest_config.contents['logging'] = {
-        'overwrite_log': True}
-    ingest_pipeline.data_ingest_config._set_log_params()
-
     log_dir = ingest_pipeline.data_ingest_config.log_dir
     assert len(os.listdir(log_dir)) == 0
 
@@ -85,6 +73,16 @@ def test_overwrite_log(ingest_pipeline):
     # No new files should be created
     ingest_pipeline.run(target_api_config_path)
     assert len(os.listdir(log_dir)) == 1
+
+    # Update data ingest config
+    ingest_pipeline.data_ingest_config.contents['logging'] = {
+        'overwrite_log': False}
+    ingest_pipeline.data_ingest_config._set_log_params()
+
+    # Test that new logs are created on each run
+    time.sleep(1)
+    ingest_pipeline.run(target_api_config_path)
+    assert len(os.listdir(default_log_dir)) == 2
 
 
 def test_log_level(ingest_pipeline):
