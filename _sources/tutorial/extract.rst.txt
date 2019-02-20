@@ -50,7 +50,7 @@ In order to ingest this data into the Kids First ecosystem, we need to:
 * Convert the column headers into a standardized set of conepts that the
   toolchain can understand. The values are defined in the Standard Concept
   Schema located in
-  ``kf_lib_data_ingest.etl.transform.standard_model.concept_schema.CONCEPT``
+  ``kf_lib_data_ingest.common.concept_schema.CONCEPT``
 * Unify the formats of the participant IDs and the mother/father IDs
 * Convert the M and F in the gender column to standardized values for
   Male/Female, because we want to use standard constant codes wherever
@@ -71,7 +71,7 @@ The following extract configuration file accomplishes all of those needs
 
     from kf_lib_data_ingest.common import constants
     from kf_lib_data_ingest.etl.extract.operations import *
-    from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
+    from kf_lib_data_ingest.common.concept_schema import (
         CONCEPT
     )
     import re
@@ -168,7 +168,7 @@ Imports!
 
     from kf_lib_data_ingest.common import constants
     from kf_lib_data_ingest.etl.extract.operations import *
-    from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
+    from kf_lib_data_ingest.common.concept_schema import (
         CONCEPT
     )
     import re

@@ -366,7 +366,7 @@ the second row and second column</li>
 <li>Convert the column headers into a standardized set of conepts that the
 toolchain can understand. The values are defined in the Standard Concept
 Schema located in
-<code class="docutils literal notranslate"><span class="pre">kf_lib_data_ingest.etl.transform.standard_model.concept_schema.CONCEPT</span></code></li>
+<code class="docutils literal notranslate"><span class="pre">kf_lib_data_ingest.common.concept_schema.CONCEPT</span></code></li>
 <li>Unify the formats of the participant IDs and the mother/father IDs</li>
 <li>Convert the M and F in the gender column to standardized values for
 Male/Female, because we want to use standard constant codes wherever
@@ -384,7 +384,7 @@ events</li>
 <p>(We’ll explain how each piece works after showing the whole thing)</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common</span> <span class="kn">import</span> <span class="n">constants</span>
 <span class="kn">from</span> <span class="nn">kf_lib_data_ingest.etl.extract.operations</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.etl.transform.standard_model.concept_schema</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.concept_schema</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">CONCEPT</span>
 <span class="p">)</span>
 <span class="kn">import</span> <span class="nn">re</span>
@@ -479,7 +479,7 @@ events</li>
 <h3>Imports!<a class="headerlink" href="#imports" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common</span> <span class="kn">import</span> <span class="n">constants</span>
 <span class="kn">from</span> <span class="nn">kf_lib_data_ingest.etl.extract.operations</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.etl.transform.standard_model.concept_schema</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.concept_schema</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">CONCEPT</span>
 <span class="p">)</span>
 <span class="kn">import</span> <span class="nn">re</span>
