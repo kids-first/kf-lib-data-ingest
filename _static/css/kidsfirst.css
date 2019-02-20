@@ -1,4 +1,9 @@
 
+.wy-nav-top {
+    background: #343434;
+    border-bottom: #a6278f solid 8px;
+}
+
 .wy-side-nav-search {
     background: #f4f5f8;
     color: #343434;
@@ -15,11 +20,16 @@
 }
 
 .wy-menu-vertical a {
-    color: #f4f5f8;
+    color: #dbdcdf;
 }
 
 .wy-menu-vertical a:active {
     background: #e53a95;
+}
+
+.wy-menu-vertical p.caption {
+    padding: 0 1.0em;
+    border-left: solid 0.25em #a6278f;
 }
 
 .wy-side-nav-search input[type="text"] {
