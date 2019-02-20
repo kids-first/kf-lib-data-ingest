@@ -110,4 +110,5 @@ venv.bak/
 .vscode/
 
 # stage serialization output
-*_cache.txt
+output/
+
