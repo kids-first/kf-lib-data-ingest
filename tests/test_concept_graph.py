@@ -4,7 +4,7 @@ from kf_lib_data_ingest.etl.transform.standard_model.graph import (
     ConceptNode,
     ConceptGraph
 )
-from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
+from kf_lib_data_ingest.common.concept_schema import (
     CONCEPT,
     DELIMITER,
 )
