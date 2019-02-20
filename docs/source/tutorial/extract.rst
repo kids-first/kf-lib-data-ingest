@@ -79,7 +79,7 @@ The following extract configuration file accomplishes all of those needs
     source_data_url = 'file://path/to/family_and_phenotype.tsv'
 
     source_data_loading_parameters = {
-        "header": :1,
+        "header": 1,
         "usecols": :lambda x: x != "[ignore]"
     }
 
