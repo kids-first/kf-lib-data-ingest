@@ -17,6 +17,32 @@ class IngestStage(ABC):
 
         self.logger = logging.getLogger(type(self).__name__)
 
+    def read_output(self):
+        """
+        Read the stage's previously written output from the output directory,
+        stage_cache_dir. If stage_cache_dir is not defined or does not exist
+        raise FileNotFoundError. Otherwise call the private _read_output method
+        which is expected to be implemented by subclasses.
+
+        :returns: the output produced by _read_output (defined by sublcasses)
+        """
+        if not (self.stage_cache_dir and os.path.isdir(self.stage_cache_dir)):
+            raise FileNotFoundError(f'Error reading {type(self).__name__} '
+                                    f'output. The output directory: '
+                                    f'"{self.stage_cache_dir}" does not exist')
+        else:
+            return self._read_output()
+
+    def write_output(self, output):
+        """
+        Write stage's output to the stage's output directory if it is
+        defined. Call the private _write_output method which is expected to be
+        implemented by subclasses.
+        """
+        if self.stage_cache_dir:
+            os.makedirs(self.stage_cache_dir, exist_ok=True)
+            self._write_output(output)
+
     @abstractmethod
     def _run(self, *args, **kwargs):
         pass
@@ -91,8 +117,6 @@ class IngestStage(ABC):
         output = self._run(*args, **kwargs)
 
         # Write output of stage to disk
-        if self.stage_cache_dir:
-            os.makedirs(self.stage_cache_dir, exist_ok=True)
-            self._write_output(output)
+        self.write_output(output)
 
         return output

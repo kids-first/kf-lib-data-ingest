@@ -1,7 +1,10 @@
 """
 Module for transforming source data DataFrames to the standard model.
 """
-from pandas import DataFrame
+import os
+from pprint import pformat
+
+import pandas
 
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
 from kf_lib_data_ingest.common.stage import IngestStage
@@ -24,8 +27,11 @@ from kf_lib_data_ingest.etl.transform.guided import GuidedTransformer
 
 
 class TransformStage(IngestStage):
-    def __init__(self, target_api_config_path, transform_function_path=None):
-        super().__init__()
+    def __init__(self, target_api_config_path, ingest_output_dir=None,
+                 transform_function_path=None):
+
+        super().__init__(ingest_output_dir=ingest_output_dir)
+
         self.target_api_config = TargetAPIConfig(target_api_config_path)
 
         if not transform_function_path:
@@ -35,14 +41,41 @@ class TransformStage(IngestStage):
                                                  transform_function_path)
 
     def _read_output(self):
-        # An ingest stage is responsible for serializing the data that is
-        # produced at the end of stage run
-        pass  # TODO
+        """
+        Read previously written transform stage output
+
+        :returns: dict of pandas.DataFrames keyed by strings
+        representing target concepts (i.e. participant, biospecimen, etc)
+        """
+        output = {
+            os.path.splitext(filename)[0]: pandas.read_csv(
+                os.path.join(self.stage_cache_dir, filename),
+                delimiter='\t')
+            for filename in os.listdir(self.stage_cache_dir)
+            if filename.endswith('.tsv')
+        }
+        self.logger.info(f'Reading {type(self).__name__} output:\n'
+                         f'{pformat(list(output.keys()))}')
+
+        return output
 
     def _write_output(self, output):
-        # An ingest stage is responsible for deserializing the data that it
-        # previously produced at the end of stage run
-        pass  # TODO
+        """
+        Write output of transform stage to file
+
+        :param output: output created by TransformStage._run
+        :type output: a dict of pandas.DataFrames
+        """
+        assert_safe_type(output, dict)
+        assert_all_safe_type(output.values(), pandas.DataFrame)
+        paths = []
+        for key, df in output.items():
+            fp = os.path.join(self.stage_cache_dir, key + '.tsv')
+            paths.append(fp)
+            df.to_csv(fp, sep='\t', index=False)
+
+        self.logger.info(f'Writing {type(self).__name__} output:\n'
+                         f'{pformat(paths)}')
 
     def _validate_run_parameters(self, data_dict):
         """
@@ -69,7 +102,7 @@ class TransformStage(IngestStage):
             # Check that values are tuples of (string, DataFrames)
             for extract_config_url, df in data_dict.values():
                 assert_safe_type(extract_config_url, str)
-                assert_safe_type(df, DataFrame)
+                assert_safe_type(df, pandas.DataFrame)
 
         except TypeError as e:
             raise InvalidIngestStageParameters from e

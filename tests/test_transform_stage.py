@@ -15,6 +15,22 @@ from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
 from kf_lib_data_ingest.common.constants import *
 
 
+@pytest.fixture(scope='function')
+def df():
+    """
+    Reusable test dataframe
+    """
+    return pd.DataFrame([{CONCEPT.PARTICIPANT.ID: 'P1',
+                          CONCEPT.BIOSPECIMEN.ID: 'B1',
+                          CONCEPT.PARTICIPANT.RACE: RACE.WHITE},
+                         {CONCEPT.PARTICIPANT.ID: 'P1',
+                          CONCEPT.BIOSPECIMEN.ID: 'B2',
+                          CONCEPT.PARTICIPANT.RACE: RACE.WHITE},
+                         {CONCEPT.PARTICIPANT.ID: 'P2',
+                          CONCEPT.BIOSPECIMEN.ID: 'B3',
+                          CONCEPT.PARTICIPANT.RACE: RACE.ASIAN}])
+
+
 def test_invalid_run_parameters(transform_stage):
     """
     Test running transform with invalid run params
@@ -29,7 +45,21 @@ def test_invalid_run_parameters(transform_stage):
         transform_stage.run({'foor': ('bar', None) for i in range(5)})
 
 
-def test_unique_keys(transform_stage):
+def test_read_write(transform_stage, df):
+    """
+    Test TransformStage.read_output/write_output
+    """
+    extract_output = {'extract_config_url': ('source_url', df)}
+    output = transform_stage.run(extract_output)
+    recycled_output = transform_stage.read_output()
+
+    for target_entity, df in output.items():
+        assert target_entity in recycled_output
+        other_df = recycled_output[target_entity]
+        assert other_df.equals(df)
+
+
+def test_unique_keys(transform_stage, df):
     """
     Test that transform stage correctly iterates over each mapped df and
     inserts a unique key column for each concept.
@@ -37,15 +67,6 @@ def test_unique_keys(transform_stage):
     Most concept's unique keys are composed of just the ID attribute. These
     are standard unique keys
     """
-    df = pd.DataFrame([{CONCEPT.PARTICIPANT.ID: 'P1',
-                        CONCEPT.BIOSPECIMEN.ID: 'B1',
-                        CONCEPT.PARTICIPANT.RACE: RACE.WHITE},
-                       {CONCEPT.PARTICIPANT.ID: 'P1',
-                        CONCEPT.BIOSPECIMEN.ID: 'B2',
-                        CONCEPT.PARTICIPANT.RACE: RACE.WHITE},
-                       {CONCEPT.PARTICIPANT.ID: 'P2',
-                        CONCEPT.BIOSPECIMEN.ID: 'B3',
-                        CONCEPT.PARTICIPANT.RACE: RACE.ASIAN}])
 
     # 3 Columns before
     assert 3 == len(df.columns)
