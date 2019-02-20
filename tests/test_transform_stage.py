@@ -47,11 +47,11 @@ def test_invalid_run_parameters(transform_stage):
 
 def test_read_write(transform_stage, df):
     """
-    Test TransformStage._recycled_output/_write_output
+    Test TransformStage.read_output/write_output
     """
     extract_output = {'extract_config_url': ('source_url', df)}
     output = transform_stage.run(extract_output)
-    recycled_output = transform_stage.recycled_output()
+    recycled_output = transform_stage.read_output()
 
     for target_entity, df in output.items():
         assert target_entity in recycled_output
