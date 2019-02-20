@@ -114,7 +114,7 @@ All but the first of these required attributes must be dicts.
 import networkx as nx
 
 from kf_lib_data_ingest.etl.configuration.base_config import PyModuleConfig
-from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
+from kf_lib_data_ingest.common.concept_schema import (
     concept_property_set,
     concept_set
 )

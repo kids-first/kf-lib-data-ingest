@@ -15,7 +15,7 @@ from kf_lib_data_ingest.common.type_safety import (
 from kf_lib_data_ingest.etl.configuration.target_api_config import (
     TargetAPIConfig
 )
-from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
+from kf_lib_data_ingest.common.concept_schema import (
     concept_from,
     concept_attr_from,
     unique_key_composition as DEFAULT_KEY_COMP,

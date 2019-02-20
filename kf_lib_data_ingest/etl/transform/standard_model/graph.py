@@ -3,7 +3,7 @@ from collections import deque
 
 import networkx as nx
 
-from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
+from kf_lib_data_ingest.common.concept_schema import (
     DELIMITER,
     is_identifier,
     concept_from,

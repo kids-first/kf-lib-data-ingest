@@ -5,7 +5,7 @@ import pytest
 import pandas as pd
 
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
-from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
+from kf_lib_data_ingest.common.concept_schema import (
     CONCEPT,
     DELIMITER,
     UNIQUE_ID_ATTR,

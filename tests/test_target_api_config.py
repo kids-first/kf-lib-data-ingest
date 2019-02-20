@@ -8,7 +8,7 @@ from conftest import TEST_ROOT_DIR
 from kf_lib_data_ingest.etl.configuration.target_api_config import (
     TargetAPIConfig
 )
-from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
+from kf_lib_data_ingest.common.concept_schema import (
     CONCEPT
 )
 KIDS_FIRST_CONFIG = os.path.join(os.path.dirname(TEST_ROOT_DIR),

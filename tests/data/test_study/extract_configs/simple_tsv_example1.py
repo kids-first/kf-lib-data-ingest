@@ -1,6 +1,6 @@
 from kf_lib_data_ingest.common import constants
 from kf_lib_data_ingest.etl.extract.operations import *
-from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
+from kf_lib_data_ingest.common.concept_schema import (
     CONCEPT
 )
 

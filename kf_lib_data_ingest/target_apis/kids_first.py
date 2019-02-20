@@ -12,7 +12,7 @@ See etl.configuration.target_api_config docstring for more details on
 requirements for format and content.
 """
 
-from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
+from kf_lib_data_ingest.common.concept_schema import (
     CONCEPT
 )
 

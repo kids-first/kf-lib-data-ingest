@@ -6,7 +6,7 @@ import pytest
 from conftest import TEST_DATA_DIR
 from kf_lib_data_ingest.common.misc import intsafe_str
 from kf_lib_data_ingest.etl.extract.extract import ExtractStage
-from kf_lib_data_ingest.etl.transform.standard_model.concept_schema import (
+from kf_lib_data_ingest.common.concept_schema import (
     CONCEPT
 )
 
