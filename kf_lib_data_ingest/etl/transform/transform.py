@@ -50,7 +50,7 @@ class TransformStage(IngestStage):
         output = {
             os.path.splitext(filename)[0]: pandas.read_csv(
                 os.path.join(self.stage_cache_dir, filename),
-                delimiter='\t')
+                delimiter='\t', index_col=0)
             for filename in os.listdir(self.stage_cache_dir)
             if filename.endswith('.tsv')
         }
@@ -72,8 +72,7 @@ class TransformStage(IngestStage):
         for key, df in output.items():
             fp = os.path.join(self.stage_cache_dir, key + '.tsv')
             paths.append(fp)
-            df.to_csv(fp, sep='\t', index=False)
-
+            df.to_csv(fp, sep='\t')
         self.logger.info(f'Writing {type(self).__name__} output:\n'
                          f'{pformat(paths)}')
 
