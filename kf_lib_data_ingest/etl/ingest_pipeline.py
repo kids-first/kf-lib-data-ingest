@@ -1,11 +1,13 @@
 import inspect
 import logging
 import os
-from collections import OrderedDict
+import pprint
+from collections import OrderedDict, defaultdict
 
+from kf_lib_data_ingest.common.concept_schema import CONCEPT
 from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
 from kf_lib_data_ingest.etl.configuration.dataset_ingest_config import (
-    DatasetIngestConfig,
+    DatasetIngestConfig
 )
 from kf_lib_data_ingest.etl.configuration.log import setup_logger
 from kf_lib_data_ingest.etl.extract.extract import ExtractStage
@@ -129,5 +131,159 @@ class DataIngestPipeline(object):
             # First stage is always extract
             if key == 'e':
                 output = stage.run()
+                self._post_extract(output)
             else:
                 output = stage.run(output)
+
+    def _post_extract(self, extract_output):
+        """Performs post-Extract accounting. Here is where we'll perform
+        whichever automatic data consistency checks we can do immediately after
+        the Extract stage is done. Checks that can only be reliably performed
+        after the Transform stage will not happen here.
+
+        :param extract_output: the output returned by ExtractStage.run()
+        """
+
+        raw_count = {
+            CONCEPT.PARTICIPANT.ID: {
+                'name': 'Participants',
+                'expected': 'expected_num_participants'
+            },
+            CONCEPT.BIOSPECIMEN.ID: {
+                'name': 'Specimens',
+                'expected': 'expected_num_specimens'
+            },
+            CONCEPT.GENOMIC_FILE.FILE_PATH: {
+                'name': 'Genomic Files'
+            }
+        }
+
+        # THE A_HAS_B CHECKS MIGHT NEED TO GO AFTER TRANSFORM
+        a_has_b_checks = {
+            "definitely": [
+                (CONCEPT.BIOSPECIMEN.ALIQUOT_ID, CONCEPT.PARTICIPANT.ID),
+                (CONCEPT.BIOSPECIMEN.ID, CONCEPT.PARTICIPANT.ID)
+            ],
+            "probably": [
+                (CONCEPT.PARTICIPANT.ID, CONCEPT.BIOSPECIMEN.ID),
+                (CONCEPT.PARTICIPANT.ID, CONCEPT.BIOSPECIMEN.ALIQUOT_ID)
+            ]
+        }
+
+        # record the things we want to record
+
+        # counted = {
+        #     a_key: {
+        #         a1: [file1, file2],
+        #         ...
+        #     },
+        #     ...
+        # }
+        counted = defaultdict(
+            lambda: defaultdict(set)
+        )
+        # a_has_b = {
+        #     (a_key, b_key): {
+        #         a1: {
+        #             b1: [file1, file2],
+        #             ...
+        #         },
+        #         ...
+        #     },
+        #     ...
+        # }
+        a_has_b = defaultdict(
+            lambda: defaultdict(
+                lambda: defaultdict(set)
+            )
+        )
+        # a_missing_b = {
+        #     (a_key, b_key): {
+        #         a1: [file1, file2],
+        #         ...
+        #     },
+        #     ...
+        # }
+        a_missing_b = defaultdict(
+            lambda: defaultdict(set)
+        )
+
+        for config_path, (data_file, df) in extract_output.items():
+            # record raw counts
+            for key in raw_count.keys():
+                if key in df:
+                    for val in df[key]:
+                        counted[key][val].add(data_file)
+            # record A has B checks
+            for _, a_b_pairs in a_has_b_checks.items():
+                for ab in a_b_pairs:
+                    a, b = ab
+                    if (a in df) and (b in df):
+                        for i, row in df.iterrows():
+                            a_has_b[ab][row[a]][row[b]].add(data_file)
+
+        # record A has B check failures
+        for _, a_b_pairs in a_has_b_checks.items():
+            for ab in a_b_pairs:
+                a, b = ab
+                for ai, files in counted[a].items():
+                    if ai not in a_has_b[ab]:
+                        a_missing_b[ab][ai].update(files)
+
+        message = ["POST-EXTRACT ACCOUNTING"]
+
+        # display raw count results
+
+        for k, v in raw_count.items():
+            message.append("")
+            name = v['name']
+            title = name + '  -  \'' + k + '\''
+            message.append(title)
+            message.append('-' * len(title))
+            message.append('Found: {}'.format(len(counted[k].keys())))
+            if v.get('expected'):
+                message.append(
+                    'Expected: {}'.format(
+                        getattr(
+                            self.data_ingest_config, v['expected'],
+                            '\'{}\' not set in {}'.format(
+                                v['expected'],
+                                self.data_ingest_config.config_filepath
+                            )
+                        )
+                    )
+                )
+
+        # display A has B check results
+
+        def _nums_as_nums(val):
+            try:
+                assert "_" not in val  # I hate PEP 515
+                return int(val)
+            except ValueError:
+                return val
+
+        for check, a_b_pairs in a_has_b_checks.items():
+            for ab in a_b_pairs:
+                a, b = ab
+                message.append("")
+                message.append(f"Every {a} should ({check}) have a {b}...")
+                if ab in a_missing_b:
+                    message.append(f"...but these don't:")
+                    message.append("{ what doesn't : where is it }")
+                    message.append(
+                        pprint.pformat(
+                            {
+                                # pprint forcibly sorts keys, so we trick it
+                                # for any key that looks like it could be a
+                                # stringified int
+                                _nums_as_nums(key): a_missing_b[ab][key]
+                                for key in a_missing_b[ab].keys()
+                            }
+                        )
+                    )
+                else:
+                    message.append("√")
+
+        message.append("")
+        self.logger.info("\n".join(message))
