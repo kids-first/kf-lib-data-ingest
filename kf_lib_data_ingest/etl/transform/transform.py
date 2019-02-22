@@ -29,7 +29,12 @@ class TransformStage(IngestStage):
         self.target_api_config = TargetAPIConfig(target_api_config_path)
 
         if not transform_function_path:
-            self.transformer = AutoTransformer(self.target_api_config)
+            # ** Temporary - until auto transform is further developed **
+            raise FileNotFoundError(
+                'Transform module file has not been created yet! '
+                'You must define a transform function in order for ingest '
+                'to continue.')
+            # self.transformer = AutoTransformer(self.target_api_config)
         else:
             self.transformer = GuidedTransformer(self.target_api_config,
                                                  transform_function_path)

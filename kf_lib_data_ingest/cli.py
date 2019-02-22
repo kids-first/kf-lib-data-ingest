@@ -28,17 +28,18 @@ def cli():
               is_flag=True,
               help='A flag specifying whether to use sync or async loading '
               'into the target service')
-@click.option('--auto_transform',
-              default=False,
-              is_flag=True,
-              help='A flag specifying whether to use auto transformation or '
-              'user guided transformation')
+# ** Temporary - until auto transform is further developed **
+# @click.option('--auto_transform',
+#               default=False,
+#               is_flag=True,
+#               help='A flag specifying whether to use auto transformation or '
+#               'user guided transformation')
 @click.option('-t', '--target_url',
               default=DEFAULT_TARGET_URL, show_default=True,
               help='Target service URL where data will be loaded into')
 @click.argument('dataset_ingest_config_path',
                 type=click.Path(exists=True, file_okay=True, dir_okay=True))
-def ingest(dataset_ingest_config_path, target_url, auto_transform, use_async):
+def ingest(dataset_ingest_config_path, target_url, use_async):
     """
     Run the Kids First data ingest pipeline.
 
@@ -49,7 +50,6 @@ def ingest(dataset_ingest_config_path, target_url, auto_transform, use_async):
         or a path to a directory which contains a file called
         'dataset_ingest_config_path.yml'
     """
-    import os
     from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
 
     # Make kwargs from options
