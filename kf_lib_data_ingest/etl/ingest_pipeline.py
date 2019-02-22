@@ -240,19 +240,25 @@ class DataIngestPipeline(object):
             title = name + '  -  \'' + k + '\''
             message.append(title)
             message.append('-' * len(title))
-            message.append('Found: {}'.format(len(counted[k].keys())))
+            found = len(counted[k].keys())
+            message.append('Found: {}'.format(found))
             if v.get('expected'):
-                message.append(
-                    'Expected: {}'.format(
-                        getattr(
-                            self.data_ingest_config, v['expected'],
+                if v['expected'] in self.data_ingest_config.contents:
+                    expected = self.data_ingest_config.contents[v['expected']]
+                    message.append(
+                        'Expected: {} {}'.format(
+                            expected, ('✅' if expected == found else '❌')
+                        )
+                    )
+                else:
+                    message.append(
+                        'Expected: {}'.format(
                             '\'{}\' not set in {}'.format(
                                 v['expected'],
                                 self.data_ingest_config.config_filepath
                             )
                         )
                     )
-                )
 
         # display A has B check results
 
@@ -269,8 +275,8 @@ class DataIngestPipeline(object):
                 message.append("")
                 message.append(f"Every {a} should ({check}) have a {b}...")
                 if ab in a_missing_b:
-                    message.append(f"...but these don't:")
-                    message.append("{ what doesn't : where is it }")
+                    message.append(f"❌ ...but these don't:")
+                    message.append("{ what doesn't : where it is }")
                     message.append(
                         pprint.pformat(
                             {
@@ -283,7 +289,7 @@ class DataIngestPipeline(object):
                         )
                     )
                 else:
-                    message.append("√")
+                    message.append("✅")
 
         message.append("")
         self.logger.info("\n".join(message))
