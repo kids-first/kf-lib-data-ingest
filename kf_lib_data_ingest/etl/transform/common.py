@@ -2,6 +2,7 @@
 For transform functionality that will be used by multiple
 modules in the kf_lib_data_ingest.etl.transform package
 """
+import logging
 
 from kf_lib_data_ingest.common.concept_schema import (
     concept_from,
@@ -10,6 +11,8 @@ from kf_lib_data_ingest.common.concept_schema import (
     UNIQUE_ID_ATTR,
     DELIMITER
 )
+
+logger = logging.getLogger(__name__)
 
 
 def insert_unique_keys(df_dict):
@@ -35,14 +38,15 @@ def insert_unique_keys(df_dict):
                                   for col in df.columns])
         if not is_any_unique_keys:
             raise ValueError(
-                'Error inserting dataframe into ConceptGraph! There must '
-                'be at least 1 unique key column in the DataFrame. Source '
-                f'of error is {extract_config_url} : {source_file_url}'
+                'No unique keys were created for table! There must '
+                'be at least 1 unique key column in a table. Zero unique keys '
+                'in a table means there is no way to any identify concept '
+                f'instances. Source of error is {extract_config_url} : '
+                f'{source_file_url}'
             )
 
 
-def _add_unique_key_cols(df,
-                         unique_key_composition=DEFAULT_KEY_COMP):
+def _add_unique_key_cols(df, unique_key_composition=DEFAULT_KEY_COMP):
     """
     Construct and insert unique key columns for each concept present in the
     mapped df. Only do this if there isn't already an existing unique key
@@ -98,12 +102,13 @@ def _add_unique_key_cols(df,
                              df, unique_key_composition,
                              output_key_cols)
         except AssertionError as e:
-            # Unique key composition not defined for a concept, dev error
-            if 'key composition not defined' in str(e):
-                raise e
             # One of the required cols to make the unique key did not exist
             # Cannot add a unique key col for this concept, move on
-            # logger.debug(str(e))
+            if 'Missing required column' in str(e):
+                logger.debug(str(e))
+            # Re-raise any other AssertionError
+            else:
+                raise e
         else:
             # Insert unique key column for the concept
             unique_key_col = f'{concept_name}{DELIMITER}{UNIQUE_ID_ATTR}'
@@ -160,8 +165,9 @@ def _unique_key_cols(concept_name, df, unique_key_composition,
         else:
             # If all of the required cols are not present then we cannot
             # make the unique key
-            assert req_col in cols, ('Did not create unique key for '
-                                     f'{concept_name}. Missing 1 or more '
-                                     'required columns')
+            assert req_col in cols, (
+                f'Could not create unique key for {concept_name}. '
+                f'Missing required column {req_col} needed to create the key'
+            )
 
             output_key_cols.append(req_col)
