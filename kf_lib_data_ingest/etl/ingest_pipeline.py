@@ -4,12 +4,13 @@ import os
 from collections import OrderedDict
 from pprint import pformat
 
+from kf_lib_data_ingest.common.concept_schema import CONCEPT
 from kf_lib_data_ingest.config import (
     DEFAULT_TARGET_URL,
     DEFAULT_ID_CACHE_FILENAME
 )
 from kf_lib_data_ingest.etl.configuration.dataset_ingest_config import (
-    DatasetIngestConfig,
+    DatasetIngestConfig
 )
 from kf_lib_data_ingest.etl.configuration.log import setup_logger
 from kf_lib_data_ingest.etl.extract.extract import ExtractStage
@@ -87,6 +88,7 @@ class DataIngestPipeline(object):
         try:
             self._run(target_api_config_path, **kwargs)
         except Exception as e:
+            msg = str(e) + '\nExiting.'
             logging.exception(e)
             exit(1)
 
@@ -104,9 +106,12 @@ class DataIngestPipeline(object):
         self.stage_dict = OrderedDict()
 
         # Extract stage
-        self.stage_dict['e'] = (ExtractStage,
-                                self.ingest_output_dir,
-                                self.data_ingest_config.extract_config_paths)
+        self.stage_dict['e'] = (
+            ExtractStage,
+            self.ingest_output_dir,
+            self.data_ingest_config.extract_config_paths,
+            self.data_ingest_config.expected_counts
+        )
 
         # Transform stage
         transform_fp = None
@@ -115,7 +120,8 @@ class DataIngestPipeline(object):
             transform_fp = self.data_ingest_config.transform_function_path
             if transform_fp:
                 transform_fp = os.path.join(
-                    self.ingest_config_dir, os.path.relpath(transform_fp))
+                    self.ingest_config_dir, os.path.relpath(transform_fp)
+                )
 
         uid_cache_filepath = os.path.join(self.ingest_config_dir,
                                           DEFAULT_ID_CACHE_FILENAME)
@@ -147,6 +153,6 @@ class DataIngestPipeline(object):
             stage = params[0](*(params[1:]))
             # First stage is always extract
             if key == 'e':
-                output = stage.run()
+                output, checks_passed, accounting_data = stage.run()
             else:
-                output = stage.run(output)
+                output, checks_passed, accounting_data = stage.run(output)

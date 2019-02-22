@@ -6,6 +6,7 @@ from math import gcd
 from pprint import pformat
 
 import pandas
+from tabulate import tabulate
 
 from kf_lib_data_ingest.common.datafile_readers import read_excel_file
 from kf_lib_data_ingest.common.file_retriever import (
@@ -20,13 +21,15 @@ from kf_lib_data_ingest.common.misc import (
 )
 from kf_lib_data_ingest.common.pandas_utils import split_df_rows_on_splits
 from kf_lib_data_ingest.common.stage import IngestStage
-from kf_lib_data_ingest.common.type_safety import function
+from kf_lib_data_ingest.common.type_safety import (
+    assert_all_safe_type,
+    assert_safe_type,
+    is_function
+)
 from kf_lib_data_ingest.etl.configuration.base_config import (
     ConfigValidationError
 )
 from kf_lib_data_ingest.etl.configuration.extract_config import ExtractConfig
-
-is_function = function  # simple alias for clarity
 
 
 def lcm(number_list):
@@ -40,13 +43,20 @@ def lcm(number_list):
 
 class ExtractStage(IngestStage):
     def __init__(
-        self, stage_cache_dir, extract_config_paths
+        self, stage_cache_dir, extract_config_paths, expected_counts=None
     ):
         super().__init__(stage_cache_dir)
         if isinstance(extract_config_paths, list):
             self.extract_configs = [ExtractConfig(config_filepath)
                                     for config_filepath
                                     in extract_config_paths]
+        elif isinstance(extract_config_paths, str):
+            self.extract_configs = [ExtractConfig(extract_config_paths)]
+
+        assert_safe_type(expected_counts, None, dict)
+        if isinstance(expected_counts, dict):
+            assert_all_safe_type(expected_counts.values(), int)
+        self.expected_counts = expected_counts
         self.FR = FileRetriever()
 
     def _output_path(self):
@@ -140,69 +150,6 @@ class ExtractStage(IngestStage):
                 in zip(op.__code__.co_freevars, op.__closure__)
             })
         self.logger.info(msg)
-
-    def _run(self):
-        """
-        :returns: A dictionary where a key is the URL to the extract_config
-            that produced the dataframe and a value is a tuple containing:
-            (<URL to source data file>, <extracted DataFrame>)
-        """
-        output = {}
-        for extract_config in self.extract_configs:
-            self.logger.info(
-                "Extract config: %s", extract_config.config_filepath
-            )
-            protocol, path = split_protocol(extract_config.source_data_url)
-            if protocol == 'file':
-                if path.startswith('.'):
-                    # relative paths from the extract config location
-                    path = os.path.normpath(
-                        os.path.join(
-                            os.path.dirname(extract_config.config_filepath),
-                            path
-                        )
-                    )
-                else:
-                    path = os.path.expanduser(path)
-
-            data_path = protocol + PROTOCOL_SEP + path
-
-            # read contents from file
-            try:
-                df_in = self._source_file_to_df(
-                    data_path,
-                    do_after_load=extract_config.do_after_load,
-                    load_func=extract_config.load_func,
-                    **(extract_config.loading_params)
-                )
-            except ConfigValidationError as e:
-                raise type(e)(
-                    f'In extract config {extract_config.config_filepath}'
-                    f' : {str(e)}'
-                )
-
-            self.logger.debug(
-                "Loaded DataFrame with dimensions %s", df_in.shape
-            )
-
-            # extraction
-            df_out = self._chain_operations(
-                df_in, extract_config.operations
-            )
-
-            # split value lists into separate rows
-            df_out = split_df_rows_on_splits(
-                df_out.reset_index()
-            ).set_index('index')
-            del df_out.index.name
-
-            # standardize values again after operations
-            df_out = self._clean_up_df(df_out)
-
-            output[extract_config.config_filepath] = (data_path, df_out)
-
-        # return dictionary of all dataframes keyed by extract config paths
-        return output
 
     def _clean_up_df(self, df):
         # We can't universally control which null type will get used by a data
@@ -376,3 +323,134 @@ class ExtractStage(IngestStage):
                     index = col_index
         df_out.index = index
         return df_out
+
+    def _run(self):
+        """
+        :returns: A dictionary where a key is the URL to the extract_config
+            that produced the dataframe and a value is a tuple containing:
+            (<URL to source data file>, <extracted DataFrame>)
+        """
+        output = {}
+        for extract_config in self.extract_configs:
+            self.logger.info(
+                "Extract config: %s", extract_config.config_filepath
+            )
+            protocol, path = split_protocol(extract_config.source_data_url)
+            if protocol == 'file':
+                if path.startswith('.'):
+                    # relative paths from the extract config location
+                    path = os.path.normpath(
+                        os.path.join(
+                            os.path.dirname(extract_config.config_filepath),
+                            path
+                        )
+                    )
+                else:
+                    path = os.path.expanduser(path)
+
+            data_path = protocol + PROTOCOL_SEP + path
+
+            # read contents from file
+            try:
+                df_in = self._source_file_to_df(
+                    data_path,
+                    do_after_load=extract_config.do_after_load,
+                    load_func=extract_config.load_func,
+                    **(extract_config.loading_params)
+                )
+            except ConfigValidationError as e:
+                raise type(e)(
+                    f'In extract config {extract_config.config_filepath}'
+                    f' : {str(e)}'
+                )
+
+            self.logger.debug(
+                "Loaded DataFrame with dimensions %s", df_in.shape
+            )
+
+            # extraction
+            df_out = self._chain_operations(
+                df_in, extract_config.operations
+            )
+
+            # split value lists into separate rows
+            df_out = split_df_rows_on_splits(
+                                                df_out.reset_index()
+                                            ).set_index('index')
+            del df_out.index.name
+
+            # standardize values again after operations
+            df_out = self._clean_up_df(df_out)
+
+            output[extract_config.config_filepath] = (data_path, df_out)
+
+        # return dictionary of all dataframes keyed by extract config paths
+        return output
+
+    def _postrun_accounting(self, run_output):
+        """
+        See the docstring for IngestStage._postrun_accounting.
+        """
+        # Storage for where all of the values for each concept key are found
+        # counted = {
+        #     a_key: {
+        #         a1: [file1, file2],
+        #         ...
+        #     },
+        #     ...
+        # }
+        counted = defaultdict(
+            lambda: defaultdict(set)
+        )
+
+        for config_path, (data_file, df) in run_output.items():
+            for key in df.columns:
+                for val in df[key]:
+                    counted[key][val].add(data_file)
+
+        uniques = {
+            key: len(unique_vals) for key, unique_vals in counted.items()
+        }
+
+        # display unique counts
+
+        message = ['UNIQUE COUNTS']
+        message.append(
+            pformat(uniques)
+        )
+        message.append('')
+
+        # check expected counts
+
+        all_checks_passed = True
+        message.append('EXPECTED COUNT CHECKS')
+
+        if not self.expected_counts:
+            message.append("No expected counts registered. ❌")
+            all_checks_passed = False
+        else:
+            checks = pandas.DataFrame(
+                columns=['key', 'expected', 'found', 'pass']
+            )
+            for key, expected in self.expected_counts.items():
+                found = uniques.get(key)
+                if expected == found:
+                    passed = '✅'
+                else:
+                    all_checks_passed = False
+                    passed = '❌'
+                checks = checks.append(
+                    {
+                        'key': key, 'expected': expected, 'found': found,
+                        'pass': passed
+                    },
+                    ignore_index=True
+                )
+            message.append(
+                tabulate(
+                    checks,
+                    headers='keys', showindex=False, tablefmt='psql'
+                )
+            )
+
+        return all_checks_passed, counted, '\n'.join(message)

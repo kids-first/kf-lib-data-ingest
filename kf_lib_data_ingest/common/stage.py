@@ -47,6 +47,20 @@ class IngestStage(ABC):
     def _run(self, *args, **kwargs):
         pass
 
+    def _postrun_accounting(self, run_output):
+        """
+        Performs post-run accounting. Here is where we'll perform whichever
+        automatic data consistency checks we can do immediately after the
+        current stage is done. Checks that can only be comprehensively
+        performed after later stages will not happen here.
+
+        :param run_output: the output returned by the _run() method
+        :return: boolean True if all accounting checks passed, else False
+        :return: some meaningful data structure of what has been accounted
+        :return: a human-readable message string describing the accounting
+        """
+        return True, None, None
+
     @abstractmethod
     def _validate_run_parameters(self, *args, **kwargs):
         # Subclasses should raise a InvalidIngestStageParameters if any
@@ -119,4 +133,11 @@ class IngestStage(ABC):
         # Write output of stage to disk
         self.write_output(output)
 
-        return output
+        all_checks_passed, accounting_data, accounting_message = (
+            self._postrun_accounting(output)
+        )
+        self.logger.info(
+            f'{type(self).__name__} Accounting\n\n{accounting_message}\n'
+        )
+
+        return output, all_checks_passed, accounting_data

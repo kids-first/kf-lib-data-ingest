@@ -73,7 +73,7 @@ def test_extracts():
     for study_dir, study_configs in expected_results.items():
         extract_configs = list(study_configs.keys())
         es = ExtractStage(os.path.join(study_dir, 'output'), extract_configs)
-        df_out = es.run()
+        df_out, _, _ = es.run()
         recycled_output = es.read_output()
 
         for config in extract_configs:
