@@ -184,6 +184,10 @@ class ExtractStage(IngestStage):
                                             ).set_index('index')
             del df_out.index.name
 
+            # standardize on string values
+            df_out = df_out.astype('object')
+            df_out[df_out.notnull()] = df_out[df_out.notnull()].astype('str')
+
             output[extract_config.config_filepath] = (data_path, df_out)
 
         # return dictionary of all dataframes keyed by extract config paths
