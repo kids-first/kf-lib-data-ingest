@@ -3,6 +3,7 @@ For transform functionality that will be used by multiple
 modules in the kf_lib_data_ingest.etl.transform package
 """
 import logging
+from copy import deepcopy
 
 from kf_lib_data_ingest.common.concept_schema import (
     concept_from,
@@ -11,6 +12,7 @@ from kf_lib_data_ingest.common.concept_schema import (
     UNIQUE_ID_ATTR,
     DELIMITER
 )
+VALUE_DELIMITER = '-'
 
 logger = logging.getLogger(__name__)
 
@@ -69,23 +71,32 @@ def _add_unique_key_cols(df, unique_key_composition=DEFAULT_KEY_COMP):
 
     For example, given the mapped dataframe:
 
-        CONCEPT.OUTCOME.ID | CONCEPT.OUTCOME.VITAL_STATUS
+        CONCEPT.PARTICIPANT.ID | CONCEPT.OUTCOME.VITAL_STATUS
         -------------------------------------------------
-            OT1                 Deceased
+            PT1                 Deceased
 
     the unique_key_composition:
             {
-                CONCEPT.OUTCOME: {CONCEPT.OUTCOME.ID,
-                                  CONCEPT.OUTCOME.VITAL_STATUS}
+                CONCEPT.PARTICIPANT: {
+                    'required': [
+                        CONCEPT.PARTICIPANT.ID
+                    ]
+                }
+                CONCEPT.OUTCOME: {
+                    'required': [
+                        CONCEPT.PARTICIPANT.UNIQUE_KEY,
+                        CONCEPT.OUTCOME.VITAL_STATUS
+                    ]
+                }
             }
 
     and the unique key delimiter: -
 
     the output dataframe would be:
 
-        CONCEPT.OUTCOME.ID | CONCEPT.OUTCOME.VITAL_STATUS | CONCEPT.OUTCOME.UNIQUE_KEY # noqa E501
+        CONCEPT.PARTICIPANT.ID | CONCEPT.OUTCOME.VITAL_STATUS | CONCEPT.OUTCOME.UNIQUE_KEY # noqa E501
         ------------------------------------------------------------------------------ # noqa E501
-            OT1                 Deceased                        OT1-Deceased # noqa E501
+            PT1                 Deceased                        PT1-Deceased # noqa E501
 
     :param df: the Pandas DataFrame that will be modified
     :param unique_key_composition: a dict where a key is a standard concept
@@ -94,80 +105,114 @@ def _add_unique_key_cols(df, unique_key_composition=DEFAULT_KEY_COMP):
     """
     # Iterate over all concepts and try to insert a unique key column
     # for each concept
-    for concept_name in unique_key_composition.keys():
+    for concept_name in unique_key_composition:
         # Determine the cols needed to compose a unique key for the concept
-        output_key_cols = []
-        try:
-            _unique_key_cols(concept_name,
-                             df, unique_key_composition,
-                             output_key_cols)
-        except AssertionError as e:
-            # One of the required cols to make the unique key did not exist
-            # Cannot add a unique key col for this concept, move on
-            if 'Missing required column' in str(e):
-                logger.debug(str(e))
-            # Re-raise any other AssertionError
-            else:
-                raise e
-        else:
-            # Insert unique key column for the concept
-            unique_key_col = f'{concept_name}{DELIMITER}{UNIQUE_ID_ATTR}'
-            df[unique_key_col] = df.apply(
-                lambda row: DELIMITER.join([str(row[c])
-                                            for c in output_key_cols]),
-                axis=1)
+        unique_key_cols = []
+        required = set()
+        optional = set()
+        _unique_key_cols(concept_name,
+                         df, unique_key_composition,
+                         unique_key_cols, required, optional)
+
+        # Missing required column needed to make the unique key
+        missing_req_cols = [col for col in required
+                            if col not in df.columns]
+        if len(missing_req_cols) > 0:
+            logger.debug(
+                f'Could not create unique key for {concept_name}. '
+                f'Missing required columns {missing_req_cols} needed to '
+                'create the key')
+            continue
+
+        # Insert unique key column for the concept
+        unique_key_col = f'{concept_name}{DELIMITER}{UNIQUE_ID_ATTR}'
+        df[unique_key_col] = df.apply(
+            lambda row: VALUE_DELIMITER.join([str(row[c])
+                                              for c in unique_key_cols
+                                              if c in df.columns]), axis=1)
 
     return df
 
 
 def _unique_key_cols(concept_name, df, unique_key_composition,
-                     output_key_cols):
+                     unique_key_cols, required_cols, optional_cols):
     """
     Compose the list of column names that are needed to build a unique key
     for a particular concept.
 
-    The required columns for a concept's unique key are defined in
-    common.concept_schema.unique_key_composition.
-
     A concept's unique key can be composed of other concept's unique keys.
     This is a recursive method that collects the required columns needed to
-    build a unique key column for a concept. If one of the required columns
+    build a unique key column for a concept. If one of the columns
     is a unique key it then the method will recurse in order to get
     the columns that make up that unique key.
+
+    For example, given the unique key composition:
+
+        unique_key_composition = {
+            'PARTICIPANT': {
+                'required' : [
+                    'PARTICIPANT|ID'
+                ]
+            }
+            'DIAGNOSIS':
+                'required': [
+                    'PARTICIPANT|UNIQUE_KEY',
+                    'DIAGNOSIS|NAME'
+                ],
+                'optional': [
+                    'DIAGNOSIS|EVENT_AGE_IN_DAYS'
+                ]
+        }
+
+    If we want to make the unique key for DIAGNOSIS, then at a minimun the
+    required columns (PARTICIPANT|ID, DIAGNOSIS|NAME) must be present in the
+    DataFrame. If any of the optional columns are also present, they will be
+    used to make the unique key too.
+
+    The columns for a concept's unique key are defined in
+    common.concept_schema.unique_key_composition.
 
     :param concept_name: a string and the name of the concept for which a
     unique key will be made
     :param df: a Pandas DataFrame
-    :param output_key_cols: the output list of columns needed to build the
+    :param unique_key_cols: the output list of columns needed to build the
     unique key column for a concept.
+    :param required_cols: the required subset of columns needed to build the
+    unique key column for a concept.
+    :param optional_cols: the additional columns that can be
+    used in the construction of the unique key if they are present
     """
+
+    # Get the cols needed to make a unique key for this concept
+    key_comp = deepcopy(unique_key_composition.get(concept_name))
+
+    # If key cols don't exist for a concept, then we have made a dev
+    # error in concept_schema.py
+    assert key_comp, ('Unique key composition not defined in concept '
+                      f'schema for concept {concept_name}!')
+
     # If unique key col for this concept already exists return that
-    output_key_col_name = f'{concept_name}{DELIMITER}{UNIQUE_ID_ATTR}'
-    if output_key_col_name in df.columns:
-        output_key_cols.append(output_key_col_name)
+    unique_key_col = f'{concept_name}{DELIMITER}{UNIQUE_ID_ATTR}'
+    if unique_key_col in df.columns:
+        unique_key_cols.append(unique_key_col)
+        required_cols.add(unique_key_col)
         return
 
-    # Get the required cols needed to make a unique key for this concept
-    required_cols = unique_key_composition.get(concept_name)
-    # If required cols don't exist for a concept, then we have made a dev
-    # error in concept_schema.py
-    assert required_cols, ('Unique key composition not defined in concept '
-                           f'schema for concept {concept_name}!')
+    required = key_comp.pop('required', [])
+    optional = key_comp.pop('optional', [])
+    key_cols = required + optional
 
-    # Add required cols to cols needed for the unique key
-    cols = set(df.columns)
-    for req_col in required_cols:
-        if concept_attr_from(req_col) == UNIQUE_ID_ATTR:
-            # The required col is a unique key it so recurse
-            _unique_key_cols(concept_from(req_col),
+    # Expand any unique keys into their basic components
+    for key_col in key_cols:
+        if concept_attr_from(key_col) == UNIQUE_ID_ATTR:
+            # The col is a unique key so recurse
+            _unique_key_cols(concept_from(key_col),
                              df, unique_key_composition,
-                             output_key_cols)
+                             unique_key_cols, required_cols, optional_cols)
         else:
-            # If all of the required cols are not present then we cannot
-            # make the unique key
-            assert req_col in cols, (
-                f'Could not create unique key for {concept_name}. '
-                f'Missing required column {req_col} needed to create the key'
-            )
-
-            output_key_cols.append(req_col)
+            # Add to list of cols needed to make unique key
+            unique_key_cols.append(key_col)
+            if key_col in required:
+                required_cols.add(key_col)
+            elif key_col in optional:
+                optional_cols.add(key_col)

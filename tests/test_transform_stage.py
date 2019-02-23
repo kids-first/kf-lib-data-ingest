@@ -1,6 +1,4 @@
 
-import os
-
 import pytest
 import pandas as pd
 
@@ -13,7 +11,8 @@ from kf_lib_data_ingest.common.concept_schema import (
     unique_key_composition
 )
 from kf_lib_data_ingest.etl.transform.common import (
-    _add_unique_key_cols
+    _add_unique_key_cols,
+    VALUE_DELIMITER
 )
 from kf_lib_data_ingest.common.constants import *
 
@@ -128,13 +127,42 @@ def test_compound_unique_keys():
             col2 = CONCEPT.GENOMIC_FILE.UNIQUE_KEY
 
             def func(row):
-                return (row[ukey_col].split(DELIMITER)[0] == row[col1] and
-                        row[ukey_col].split(DELIMITER)[1] == row[col2])
+                return (
+                    row[ukey_col].split(VALUE_DELIMITER)[0] == row[col1] and
+                    row[ukey_col].split(VALUE_DELIMITER)[1] == row[col2]
+                )
 
             assert df.apply(lambda row: func(row), axis=1).all()
 
         else:
             assert df[id_col].equals(df[ukey_col])
+
+
+def test_unique_key_w_optional():
+    """
+    Test unique key construction for concept whose unique key that has both
+    required components and optional components
+    """
+    df = pd.DataFrame({
+        CONCEPT.PARTICIPANT.ID: ['p1', 'p2', 'p3'],
+        CONCEPT.DIAGNOSIS.NAME: ['cold', 'flu', 'something'],
+        CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS: [20, 30, 40]
+    })
+    df = _add_unique_key_cols(df)
+
+    # Check for unique key column names and values
+    for ukey_col in [CONCEPT.PARTICIPANT.UNIQUE_KEY,
+                     CONCEPT.DIAGNOSIS.UNIQUE_KEY]:
+        assert ukey_col in df.columns
+
+    def func(row):
+        ukey = VALUE_DELIMITER.join(
+            [str(row[CONCEPT.PARTICIPANT.ID]),
+             str(row[CONCEPT.DIAGNOSIS.NAME]),
+             str(row[CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS])])
+        return row[ukey_col] == ukey
+
+    assert df.apply(lambda row: func(row), axis=1).all()
 
 
 def test_no_key_comp_defined():

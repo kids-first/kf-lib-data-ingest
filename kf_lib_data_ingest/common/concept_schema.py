@@ -263,46 +263,59 @@ def _create_unique_key_composition():
     # Default unique keys
     identifiers = {}
     for concept in concept_set:
-        identifiers[concept._CONCEPT_NAME] = [concept.ID]
+        identifiers[concept._CONCEPT_NAME] = {'required': [concept.ID]}
 
     # Compound unique keys
-    identifiers[CONCEPT.INVESTIGATOR._CONCEPT_NAME] = [
-        CONCEPT.INVESTIGATOR.NAME,
-        CONCEPT.INVESTIGATOR.INSTITUTION
-    ]
-
-    identifiers[CONCEPT.DIAGNOSIS._CONCEPT_NAME] = [
-        CONCEPT.PARTICIPANT.UNIQUE_KEY,
-        CONCEPT.DIAGNOSIS.NAME,
-        CONCEPT.DIAGNOSIS.TUMOR_LOCATION,
-        CONCEPT.DIAGNOSIS.SPATIAL_DESCRIPTOR,
-        CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS
-    ]
-    identifiers[CONCEPT.PHENOTYPE._CONCEPT_NAME] = [
-        CONCEPT.PARTICIPANT.UNIQUE_KEY,
-        CONCEPT.PHENOTYPE.NAME,
-        CONCEPT.PHENOTYPE.OBSERVED,
-        CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS
-    ]
-    identifiers[CONCEPT.OUTCOME._CONCEPT_NAME] = [
-        CONCEPT.PARTICIPANT.UNIQUE_KEY,
-        CONCEPT.OUTCOME.VITAL_STATUS,
-        CONCEPT.OUTCOME.DISEASE_RELATED,
-        CONCEPT.OUTCOME.EVENT_AGE_DAYS
-    ]
-    identifiers[CONCEPT.BIOSPECIMEN_GENOMIC_FILE._CONCEPT_NAME] = [
-        CONCEPT.BIOSPECIMEN.UNIQUE_KEY,
-        CONCEPT.GENOMIC_FILE.UNIQUE_KEY
-    ]
-    identifiers[CONCEPT.BIOSPECIMEN_DIAGNOSIS._CONCEPT_NAME] = [
-        CONCEPT.BIOSPECIMEN.UNIQUE_KEY,
-        CONCEPT.DIAGNOSIS.UNIQUE_KEY
-    ]
-    identifiers[CONCEPT.READ_GROUP_GENOMIC_FILE._CONCEPT_NAME] = [
-        CONCEPT.READ_GROUP.UNIQUE_KEY,
-        CONCEPT.GENOMIC_FILE.UNIQUE_KEY
-    ]
-
+    identifiers[CONCEPT.INVESTIGATOR._CONCEPT_NAME] = {
+        'required': [
+            CONCEPT.INVESTIGATOR.NAME,
+            CONCEPT.INVESTIGATOR.INSTITUTION
+        ]
+    }
+    identifiers[CONCEPT.DIAGNOSIS._CONCEPT_NAME] = {
+        'required': [
+            CONCEPT.PARTICIPANT.UNIQUE_KEY,
+            CONCEPT.DIAGNOSIS.NAME
+        ],
+        'optional': [CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS]
+    }
+    identifiers[CONCEPT.PHENOTYPE._CONCEPT_NAME] = {
+        'required': [
+            CONCEPT.PARTICIPANT.UNIQUE_KEY,
+            CONCEPT.PHENOTYPE.NAME
+        ],
+        'optional': [
+            CONCEPT.PHENOTYPE.OBSERVED,
+            CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS
+        ]
+    }
+    identifiers[CONCEPT.OUTCOME._CONCEPT_NAME] = {
+        'required': [
+            CONCEPT.PARTICIPANT.UNIQUE_KEY,
+            CONCEPT.OUTCOME.VITAL_STATUS
+        ],
+        'optional': [
+            CONCEPT.OUTCOME.EVENT_AGE_DAYS
+        ]
+    }
+    identifiers[CONCEPT.BIOSPECIMEN_GENOMIC_FILE._CONCEPT_NAME] = {
+        'required': [
+            CONCEPT.BIOSPECIMEN.UNIQUE_KEY,
+            CONCEPT.GENOMIC_FILE.UNIQUE_KEY
+        ]
+    }
+    identifiers[CONCEPT.BIOSPECIMEN_DIAGNOSIS._CONCEPT_NAME] = {
+        'required': [
+            CONCEPT.BIOSPECIMEN.UNIQUE_KEY,
+            CONCEPT.DIAGNOSIS.UNIQUE_KEY
+        ]
+    }
+    identifiers[CONCEPT.READ_GROUP_GENOMIC_FILE._CONCEPT_NAME] = {
+        'required': [
+            CONCEPT.READ_GROUP.UNIQUE_KEY,
+            CONCEPT.GENOMIC_FILE.UNIQUE_KEY
+        ]
+    }
     return identifiers
 
 
