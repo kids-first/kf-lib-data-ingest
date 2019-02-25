@@ -4,11 +4,12 @@ import pandas
 import pytest
 
 from conftest import TEST_DATA_DIR
+from kf_lib_data_ingest.common.concept_schema import CONCEPT
 from kf_lib_data_ingest.common.misc import intsafe_str
-from kf_lib_data_ingest.etl.extract.extract import ExtractStage
-from kf_lib_data_ingest.common.concept_schema import (
-    CONCEPT
+from kf_lib_data_ingest.etl.configuration.base_config import (
+    ConfigValidationError
 )
+from kf_lib_data_ingest.etl.extract.extract import ExtractStage
 
 study_1 = os.path.join(TEST_DATA_DIR, 'test_study')
 expected_results = {
@@ -71,10 +72,10 @@ def test_extracts():
         for config in extract_configs:
             extracted = df_out[config][1]
             expected = es._source_file_to_df(
-                "file://" + study_configs[config]
+                'file://' + study_configs[config]
             )
 
-            expected.set_index("index", inplace=True)
+            expected.set_index('index', inplace=True)
             expected.index = expected.index.astype(int)
             expected.index.name = None
 
@@ -87,3 +88,29 @@ def test_extracts():
             # test for expected equivalence
             A, B = rectify_cols_and_datatypes(expected, extracted)
             pandas.testing.assert_frame_equal(A, B)
+
+
+def test_bad_file_types():
+    es = ExtractStage(None, None)
+
+    # unknown type
+    with pytest.raises(ConfigValidationError):
+        try:
+            es._source_file_to_df(
+                'file://' +
+                os.path.join(TEST_DATA_DIR, 'yaml_schema.yml')
+            )
+        except ConfigValidationError as e:
+            assert "Could not determine appropriate loader" in str(e)
+            raise
+
+    # good type but error in load function
+    with pytest.raises(ConfigValidationError):
+        try:
+            es._source_file_to_df(
+                'file://' +
+                os.path.join(TEST_DATA_DIR, 'concept_graph.json')
+            )
+        except ConfigValidationError as e:
+            assert "Could not determine appropriate loader" not in str(e)
+            raise

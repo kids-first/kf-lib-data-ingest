@@ -12,8 +12,8 @@ class ExtractConfig(PyModuleConfig):
         super().__init__(filepath)
         self.source_data_url = self.contents.source_data_url
         self.loading_params = self.contents.source_data_loading_parameters
-        self.loading_func = self.loading_params.pop('load_func', None)
-        self.after_load = self.loading_params.pop('do_after_load', None)
+        self.load_func = self.loading_params.pop('load_func', None)
+        self.do_after_load = self.loading_params.pop('do_after_load', None)
         self.operations = self.contents.operations
 
     def _validate(self):

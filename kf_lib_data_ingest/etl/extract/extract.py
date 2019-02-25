@@ -42,6 +42,7 @@ class ExtractStage(IngestStage):
             self.extract_configs = [ExtractConfig(config_filepath)
                                     for config_filepath
                                     in extract_config_paths]
+        self.FR = FileRetriever()
 
     def _output_path(self):
         """
@@ -164,8 +165,8 @@ class ExtractStage(IngestStage):
             # read contents from file
             df_in = self._source_file_to_df(
                 data_path,
-                after_load=extract_config.after_load,
-                load_func=extract_config.loading_func,
+                do_after_load=extract_config.do_after_load,
+                load_func=extract_config.load_func,
                 **(extract_config.loading_params)
             ).applymap(intsafe_str)
 
@@ -194,7 +195,7 @@ class ExtractStage(IngestStage):
         return output
 
     def _source_file_to_df(
-        self, file_path, after_load=None, load_func=None, **load_args
+        self, file_path, do_after_load=None, load_func=None, **load_args
     ):
         """
         Load the file using either load_func if given or according to the file
@@ -207,27 +208,49 @@ class ExtractStage(IngestStage):
         :returns: A pandas dataframe containing the requested data
         """
         self.logger.debug("Retrieving source file %s", file_path)
-        f = FileRetriever().get(file_path)
+        f = self.FR.get(file_path).name
+
+        err = None
+        if load_func:
+            self.logger.info("Using custom load_func function.")
+        else:
+            load_args['dtype'] = object
+            if file_path.endswith(('.xlsx', '.xls')):
+                load_func = read_excel_file
+            elif file_path.endswith(('.tsv', '.csv')):
+                load_args['sep'] = (
+                    load_args.pop('delimiter', None) or
+                    load_args.pop('sep', None)
+                )
+                load_args['engine'] = 'python'
+                load_func = pandas.read_csv
+            elif file_path.endswith('.json'):
+                load_func = pandas.read_json
 
         if load_func:
-            self.logger.info("Calling custom load function.")
-            df = load_func(f, **load_args)
+            try:
+                df = load_func(f, **load_args)
+            except Exception as e:
+                err = f"In load_func {load_func.__name__} : {str(e)}"
         else:
-            if file_path.endswith('.xlsx') or file_path.endswith('.xls'):
-                df = read_excel_file(f, **load_args)
-            elif file_path.endswith('.tsv'):
-                df = pandas.read_table(f, sep='\t', dtype=object, **load_args)
-            elif file_path.endswith('.csv'):
-                df = pandas.read_table(f, sep=',', dtype=object, **load_args)
-            else:
-                raise ConfigValidationError(
-                    "Could not determine appropriate loader for data file",
-                    file_path
-                )
+            err = (
+                f"Could not determine appropriate loader for '{file_path}'"
+            )
 
-        if after_load:
-            self.logger.info("Calling custom after_load function.")
-            df = after_load(df)
+        if err:
+            msg = (
+                f"{err}'.\nYou may need to define a custom load_func function."
+            )
+            raise ConfigValidationError(msg)
+
+        # We can't easily control which null type will get used by a data file
+        # loader, and it might also change, so let's always push them all to
+        # Python's universal None type because numpy.nan isn't user-friendly.
+        df[df.isna()] = None
+
+        if do_after_load:
+            self.logger.info("Calling custom do_after_load function.")
+            df = do_after_load(df)
 
         return df
 
