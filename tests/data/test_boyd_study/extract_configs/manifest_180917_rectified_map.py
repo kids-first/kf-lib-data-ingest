@@ -14,6 +14,10 @@ source_data_loading_parameters = {}
 operations = [
     keep_map(
         in_col='Library',
+        out_col=CONCEPT.SEQUENCING.ID
+    ),
+    keep_map(
+        in_col='Library',
         out_col=CONCEPT.SEQUENCING.LIBRARY_NAME
     ),
     keep_map(
