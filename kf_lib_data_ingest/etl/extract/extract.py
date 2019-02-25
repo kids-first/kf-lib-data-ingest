@@ -246,7 +246,7 @@ class ExtractStage(IngestStage):
         # We can't easily control which null type will get used by a data file
         # loader, and it might also change, so let's always push them all to
         # Python's universal None type because numpy.nan isn't user-friendly.
-        df[df.isna()] = None
+        df = df.where(pandas.notnull(df), None)
 
         if do_after_load:
             self.logger.info("Calling custom do_after_load function.")
