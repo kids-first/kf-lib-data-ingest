@@ -32,6 +32,10 @@
     border-left: solid 0.25em #a6278f;
 }
 
+.wy-menu-vertical, .wy-menu-vertical p.caption {
+    color: #f4f5f8;
+}
+
 .wy-side-nav-search input[type="text"] {
     border-color: #009bba;
 }
