@@ -28,6 +28,10 @@ operations = [
         in_col='file_path',
         out_col=CONCEPT.GENOMIC_FILE.FILE_PATH
     ),
+    keep_map(
+        in_col='file_path',
+        out_col=CONCEPT.GENOMIC_FILE.ID
+    ),
     constant_map(
         m=constants.SEQUENCING.REFERENCE_GENOME.HG19,
         out_col=CONCEPT.SEQUENCING.REFERENCE_GENOME
