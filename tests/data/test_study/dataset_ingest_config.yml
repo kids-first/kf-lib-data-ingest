@@ -23,9 +23,9 @@ logging:
 # All extract config paths are relative to the directory this file is in
 extract_config_dir: 'extract_configs'
 
-transform_function_path: 'transform_module.py'
+accounting_config_path: 'accounting_config.py'
 
-expected_num_participants: 24
+transform_function_path: 'transform_module.py'
 
 study:
     kf_id: 'SD_MEOWMEOW'
