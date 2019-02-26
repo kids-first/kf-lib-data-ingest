@@ -113,7 +113,6 @@ class GuidedTransformer():
                          'to target concepts ...')
 
         target_instances = defaultdict(list)
-
         for (target_concept,
              config) in self.target_api_config.concept_schemas.items():
 
@@ -145,10 +144,11 @@ class GuidedTransformer():
             # Build target instances for target_concept (i.e. participant)
             total = df.shape[0]
             self.logger.info(f'Building {total} {target_concept} concepts ...')
-            for idx, row in df.iterrows():
+            for _, row in df.iterrows():
                 target_instance = {}
                 # id
                 target_instance['id'] = row[std_concept_ukey]
+
                 # endpoint
                 target_instance['endpoint'] = config['endpoint']
 
@@ -186,7 +186,7 @@ class GuidedTransformer():
         # Apply user transform func
         target_concept_df_dict = self._apply_transform_funct(data_dict)
 
-        # Transform from standard concepts target concepts
+        # Transform from standard concepts to target concepts
         target_instances = self._standard_to_target(target_concept_df_dict)
 
         return target_instances
