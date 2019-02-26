@@ -70,16 +70,20 @@ class GuidedTransformer():
     def _standard_to_target(self, entity_df_dict):
         """
         Convert a dict of standard concept DataFrames into a dict of lists of
-        dicts representing target concept instances.
+        dicts. The list of dicts represent lists of target concept instances.
 
         For example,
 
         This:
 
-            |CONCEPT.PARTICIPANT.ID | CONCEPT.PARTICIPANT.GENDER|
-            |-----------------------| --------------------------|
-            |        P1             |            Female         |
-            |        P2             |            Male           |
+        {
+            'participant':
+
+                |CONCEPT.PARTICIPANT.ID | CONCEPT.PARTICIPANT.GENDER|
+                |-----------------------| --------------------------|
+                |        P1             |            Female         |
+                |        P2             |            Male           |
+        }
 
         Turns into:
 
@@ -102,7 +106,8 @@ class GuidedTransformer():
 
         :param entity_df_dict: the output of the user transform function
         :type entity_df_dict: dict
-        :returns target_instances: a
+        :returns target_instances: dict (keyed by target concept) of lists
+        of dicts (target concept instances)
         """
         self.logger.info('Begin transformation from standard concepts '
                          'to target concepts ...')
@@ -120,19 +125,22 @@ class GuidedTransformer():
                 self.logger.info('No table found for target concept: '
                                  f'{target_concept}, skipping transformation')
                 continue
-            else:
-                # Temporary - Remove later
-                df = df.where((pandas.notnull(df)), None)
-                df_cols = set(df.columns)
+
+            # Temporary - Remove later
+            df = df.where((pandas.notnull(df)), None)
+            df_cols = set(df.columns)
 
             # Unique key for the target concept must exist
             standard_concept = config.get('standard_concept')
             std_concept_ukey = getattr(standard_concept, UNIQUE_ID_ATTR)
             if std_concept_ukey not in df_cols:
                 self.logger.info(
-                    'No unique key found in table for target'
-                    f'concept {target_concept}. Skip instance creation')
+                    'No unique key found in table for target '
+                    f'concept: {target_concept}. Skip instance creation')
                 continue
+
+            # Drop duplicates using unique key of std concept
+            df = df.drop_duplicates(subset=std_concept_ukey)
 
             # Build target instances for target_concept (i.e. participant)
             total = df.shape[0]
@@ -152,8 +160,8 @@ class GuidedTransformer():
                         'properties'][target_attr] = row.get(std_concept_attr)
 
                 # links
+                target_instance['links'] = defaultdict()
                 if 'links' in config:
-                    target_instance['links'] = defaultdict()
                     for (target_attr,
                          std_concept_attr) in config['links'].items():
                         target_instance[
