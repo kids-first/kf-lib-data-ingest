@@ -25,11 +25,13 @@ from kf_lib_data_ingest.etl.transform.guided import GuidedTransformer
 
 
 class TransformStage(IngestStage):
-    def __init__(self, target_api_config_path, ingest_output_dir=None,
+    def __init__(self, target_api_config_path,
+                 target_api_url=None, ingest_output_dir=None,
                  transform_function_path=None):
 
         super().__init__(ingest_output_dir=ingest_output_dir)
 
+        self.target_api_url = target_api_url
         self.target_api_config = TargetAPIConfig(target_api_config_path)
 
         if not transform_function_path:
