@@ -12,7 +12,11 @@ from kf_lib_data_ingest.common.file_retriever import (
     FileRetriever,
     split_protocol
 )
-from kf_lib_data_ingest.common.misc import intsafe_str, read_json, write_json
+from kf_lib_data_ingest.common.misc import (
+    read_json,
+    to_str_with_floats_downcast_to_ints_first,
+    write_json
+)
 from kf_lib_data_ingest.common.pandas_utils import split_df_rows_on_splits
 from kf_lib_data_ingest.common.stage import IngestStage
 from kf_lib_data_ingest.common.type_safety import function
@@ -168,7 +172,7 @@ class ExtractStage(IngestStage):
                 do_after_load=extract_config.do_after_load,
                 load_func=extract_config.load_func,
                 **(extract_config.loading_params)
-            ).applymap(intsafe_str)
+            )
 
             self.logger.debug(
                 "Loaded DataFrame with dimensions %s", df_in.shape
@@ -185,14 +189,30 @@ class ExtractStage(IngestStage):
                                             ).set_index('index')
             del df_out.index.name
 
-            # standardize on string values
-            df_out = df_out.astype('object')
-            df_out[df_out.notnull()] = df_out[df_out.notnull()].astype('str')
+            # standardize values again after operations
+            df_out = self._clean_up_df(df_out)
 
             output[extract_config.config_filepath] = (data_path, df_out)
 
         # return dictionary of all dataframes keyed by extract config paths
         return output
+
+    def _clean_up_df(self, df):
+        # We can't universally control which null type will get used by a data
+        # file loader, and it might also change, so let's always push them all
+        # to empty strings because nulls are not our friends. It's easier for a
+        # configurator to equate empty spreadsheet cells with empty strings.
+
+        # Typed loaders like pandas.read_json force us into storing numerically
+        # typed values, and then nulls, which read_json does not let you handle
+        # inline, cause pandas to convert perfectly good ints into ugly floats.
+        # So here we get any untidy values back to nice and tidy strings.
+
+        return df.applymap(
+            lambda x: to_str_with_floats_downcast_to_ints_first(
+                x, replace_na=True, na=''
+            )
+        )
 
     def _source_file_to_df(
         self, file_path, do_after_load=None, load_func=None, **load_args
@@ -214,8 +234,9 @@ class ExtractStage(IngestStage):
         if load_func:
             self.logger.info("Using custom load_func function.")
         else:
-            load_args['dtype'] = object
             if file_path.endswith(('.xlsx', '.xls')):
+                load_args['dtype'] = str
+                load_args['na_filter'] = False
                 load_func = read_excel_file
             elif file_path.endswith(('.tsv', '.csv')):
                 load_args['sep'] = (
@@ -223,9 +244,12 @@ class ExtractStage(IngestStage):
                     load_args.pop('sep', None)
                 )
                 load_args['engine'] = 'python'
+                load_args['dtype'] = str
+                load_args['na_filter'] = False
                 load_func = pandas.read_csv
             elif file_path.endswith('.json'):
                 load_func = pandas.read_json
+                load_args['convert_dates'] = False
 
         if load_func:
             try:
@@ -243,10 +267,7 @@ class ExtractStage(IngestStage):
             )
             raise ConfigValidationError(msg)
 
-        # We can't easily control which null type will get used by a data file
-        # loader, and it might also change, so let's always push them all to
-        # Python's universal None type because numpy.nan isn't user-friendly.
-        df = df.where(pandas.notnull(df), None)
+        df = self._clean_up_df(df)
 
         if do_after_load:
             self.logger.info("Calling custom do_after_load function.")

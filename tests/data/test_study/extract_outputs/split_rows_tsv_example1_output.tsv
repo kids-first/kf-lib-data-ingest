@@ -49,7 +49,7 @@ index	CONCEPT|PARTICIPANT|ID	CONCEPT|DIAGNOSIS|NAME	CONCEPT|BIOSPECIMEN|ALIQUOT_
 5	6	head	10	7.vcf
 6	7	shoulders	11	8.bam
 6	7	shoulders	11	8.vcf
-7	8	NaN	12	9.bam
-7	8	NaN	12	9.vcf
-8	9	NaN	NaN	10.bam
-8	9	NaN	NaN	10.vcf
+7	8		12	9.bam
+7	8		12	9.vcf
+8	9			10.bam
+8	9			10.vcf

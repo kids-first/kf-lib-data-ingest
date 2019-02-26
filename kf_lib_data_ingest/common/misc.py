@@ -5,7 +5,7 @@ import os
 import re
 from itertools import tee
 
-import numpy
+from pandas import isnull
 import yaml
 
 from kf_lib_data_ingest.common.type_safety import assert_safe_type
@@ -48,25 +48,37 @@ def iterate_pairwise(iterable):
     return zip(a, b)
 
 
-def intsafe_str(val):
-    """Converts numbers to str while collapsing "1.0" to "1", etc.
-    in case of wrong numeric encoding of integers in a spreadsheet.
-
-    Args:
-        val: Any basic type
-
-    Returns:
-        string: Representation of `val`
+def to_str_with_floats_downcast_to_ints_first(val, replace_na=False, na=None):
     """
-    if val is None or (isinstance(val, float) and numpy.isnan(val)):
-        return None
+    Converts values to stripped strings while collapsing downcastable floats.
+
+    Examples:
+        to_str_with_floats_downcast_to_ints_first(1) -> "1"
+        to_str_with_floats_downcast_to_ints_first(1.0) -> "1"
+        to_str_with_floats_downcast_to_ints_first("1_1  ") -> "1_1"
+        to_str_with_floats_downcast_to_ints_first(None) -> None
+        to_str_with_floats_downcast_to_ints_first(None, True, "") -> ""
+
+    :param val: any basic type
+    :param replace_na: should None/NaN values be replaced with something
+    :type replace_na: boolean
+    :param na: if replace_na is True, what should None/numpy.nan values be
+        replaced with
+
+
+    :return: new representation of `val`
+    """
+    if isnull(val):
+        if replace_na:
+            return na
+        else:
+            return val
     val = str(val).strip()
-    # I hate PEP 515.
-    # Now we have to check that we only have digits and dots. Whyyyyyyyyyy.
-    if not re.fullmatch(r'\d*(\.\d*)?', val):
+    # I don't care what PEP 515 says. Underscores mean this isn't a number.
+    if '_' in val:
         return val
+    # leading zeroes indicate a real string
     if (len(val) - len(val.lstrip('0'))) > 0:
-        # leading zeroes indicate a real string
         return val
     try:
         f_val = float(val)
