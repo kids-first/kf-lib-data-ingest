@@ -47,8 +47,9 @@ class TransformStage(IngestStage):
         """
         Read previously written transform stage output
 
-        :returns: dict of pandas.DataFrames keyed by strings
-        representing target concepts (i.e. participant, biospecimen, etc)
+        :returns: dict (keyed by target concepts) of lists of dicts
+        representing target concept instances (i.e. participant, biospecimen,
+        etc)
         """
         output = {
             os.path.splitext(filename)[0]: read_json(
@@ -63,7 +64,7 @@ class TransformStage(IngestStage):
 
     def _write_output(self, output):
         """
-        Write output of transform stage to file
+        Write output of transform stage to JSON file
 
         :param output: output created by TransformStage._run
         :type output: a dict of pandas.DataFrames
@@ -116,10 +117,12 @@ class TransformStage(IngestStage):
 
         :param data_dict: a dict containing the mapped source data which
         follows the format outlined in _validate_run_parameters.
+        :returns target_instances: dict - keyed by target concept -
+        of lists containing dicts - representing target concept instances.
         """
         # Insert unique key columns before running transformation
         insert_unique_keys(data_dict)
 
-        target_entities = self.transformer.run(data_dict)
+        target_instances = self.transformer.run(data_dict)
 
-        return target_entities
+        return target_instances

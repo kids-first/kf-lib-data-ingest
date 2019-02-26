@@ -47,9 +47,12 @@ def transform_module():
 
 def test_standard_to_target_transform(caplog, dfs, transform_stage):
     """
-    Test standard to target concept transformation
+    Test GuidedTransformer._standard_to_target transformation
     """
+    # Pytest caplog fixture is set to WARNING by default. Set to INFO so
+    # we can capture log messages in GuidedTransformer._standard_to_target
     caplog.set_level(logging.INFO)
+
     # Transform
     guided_transformer = transform_stage.transformer
     target_instances = guided_transformer._standard_to_target(dfs)
