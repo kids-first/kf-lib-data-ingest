@@ -1,6 +1,7 @@
 
 import pytest
 import pandas as pd
+from copy import deepcopy
 
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
 from kf_lib_data_ingest.common.concept_schema import (
@@ -187,3 +188,50 @@ def test_no_key_comp_defined():
     with pytest.raises(AssertionError) as e:
         _add_unique_key_cols(df, unique_key_composition)
         assert 'key composition not defined' in str(e)
+
+
+def test_source_to_target_conversion(transform_stage):
+    """
+    Test kf_lib_data_ingest.etl.transform.transform.source_to_target_ids
+    """
+    id_cache = {
+        'biospecimen': {
+            'b2': 'BS_00000002'
+        }
+    }
+    data_in = {
+        'biospecimen':
+        [
+            {'id': 'b1',  # should resolve to None
+             'links': {
+                 'participant_id': 'p1',  # should resolve to None
+                 'sequencing_center_id': None
+             }},
+            {'id': 'b2',  # should resolve to BS_00000002
+             'links': {
+                 'participant_id': 'p1',  # should resolve to None
+                 'sequencing_center_id': None
+             }}
+        ],
+        'participant':
+        [
+            {'id': 'p1',  # should resolve to None
+             'links': {
+                 'study_id': 's1'  # should resolve to None
+             }}
+        ]
+    }
+    data_out = transform_stage._source_to_target_ids(id_cache,
+                                                     deepcopy(data_in))
+
+    for target_concept, instances in data_out.items():
+        for i, instance in enumerate(instances):
+            if target_concept not in id_cache:
+                assert (instance['id']['source'] ==
+                        data_in[target_concept][i]['id'])
+                assert instance['id']['target'] is None
+            else:
+                source_id = instance['id']['source']
+                assert source_id == data_in[target_concept][i]['id']
+                expected = id_cache[target_concept].get(source_id, None)
+                assert instance['id']['target'] == expected
