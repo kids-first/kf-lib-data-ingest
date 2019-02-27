@@ -4,7 +4,10 @@ import os
 from collections import OrderedDict
 from pprint import pformat
 
-from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
+from kf_lib_data_ingest.config import (
+    DEFAULT_TARGET_URL,
+    DEFAULT_ID_CACHE_FILENAME
+)
 from kf_lib_data_ingest.etl.configuration.dataset_ingest_config import (
     DatasetIngestConfig,
 )
@@ -113,6 +116,8 @@ class DataIngestPipeline(object):
                 transform_fp = os.path.join(
                     self.ingest_config_dir, os.path.relpath(transform_fp))
 
+        id_cache_filepath = os.path.join(self.ingest_config_dir,
+                                         DEFAULT_ID_CACHE_FILENAME)
         self.stage_dict['t'] = (TransformStage, target_api_config_path,
                                 target_url, self.ingest_output_dir,
                                 transform_fp)
