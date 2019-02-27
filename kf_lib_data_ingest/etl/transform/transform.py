@@ -243,8 +243,17 @@ class TransformStage(IngestStage):
     def _source_to_target_ids(self, id_cache, target_instances):
         """
         Translate source data IDs to target service IDs by looking source
-        data IDs up in the ID cache. Insert results of lookups in
-        `target_instances` so it is ready for the load stage.
+        data IDs up in the ID cache.
+
+        Insert results of lookups in `target_instances` so it is ready
+        for the load stage.
+
+        If the load stage sees that the target ID value for an instance is
+        None, then it will know to create a NEW instance.
+
+        If the load stage sees that the target ID value for an instance is
+        not None, then it will know that this instance exists in the target
+        service and it will UPDATE the instance.
 
         Before ID translation, `target_instances` might look like:
 
@@ -293,10 +302,11 @@ class TransformStage(IngestStage):
                 ]
             }
 
-        :param id_cache: source to target ID cache. See load_id_cache.
-        :param target_instances: dict containing target instance dicts. See run
-        :returns target_instances: modified version of target_instances input
-        containing source to target translations
+        :param id_cache: source to target ID cache. See `load_id_cache` method
+        :param target_instances: dict containing target instance dicts. See
+        `_run` method
+        :returns target_instances: modified version of `target_instances` input
+        containing source to target ID translations
         """
         self.logger.info('Translating source IDs to target IDs')
         for target_concept, instances in target_instances.items():

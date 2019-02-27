@@ -33,8 +33,16 @@ def read_yaml(filepath):
 
 
 def read_json(filepath, default=None):
+    """
+    Read JSON file into Python dict. If default is not None and the file
+    does not exist, then return default
+
+    :param filepath: path to JSON file
+    :param default: default return value if file is not found
+    """
     if (default is not None) and (not os.path.isfile(filepath)):
         return default
+
     with open(filepath, 'r') as json_file:
         return json.load(json_file)
 
