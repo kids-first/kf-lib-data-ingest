@@ -17,9 +17,6 @@ from kf_lib_data_ingest.common.misc import (
     write_json,
     get_open_api_v2_schema
 )
-from kf_lib_data_ingest.config import (
-    DEFAULT_TARGET_URL
-)
 from kf_lib_data_ingest.common import constants
 from kf_lib_data_ingest.etl.configuration.target_api_config import (
     TargetAPIConfig
@@ -27,17 +24,24 @@ from kf_lib_data_ingest.etl.configuration.target_api_config import (
 from kf_lib_data_ingest.etl.transform.common import insert_unique_keys
 from kf_lib_data_ingest.etl.transform.auto import AutoTransformer
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformer
+from kf_lib_data_ingest.config import (
+    DEFAULT_TARGET_URL,
+    DEFAULT_ID_CACHE_FILENAME
+)
 
 
 class TransformStage(IngestStage):
     def __init__(self, target_api_config_path,
                  target_api_url=DEFAULT_TARGET_URL, ingest_output_dir=None,
-                 transform_function_path=None):
+                 transform_function_path=None, id_cache_filepath=None):
 
         super().__init__(ingest_output_dir=ingest_output_dir)
 
         self.target_api_url = target_api_url
         self.target_api_config = TargetAPIConfig(target_api_config_path)
+        self.id_cache_filepath = (id_cache_filepath or
+                                  os.path.join(os.getcwd(),
+                                               DEFAULT_ID_CACHE_FILENAME))
 
         if not transform_function_path:
             # ** Temporary - until auto transform is further developed **
@@ -236,6 +240,88 @@ class TransformStage(IngestStage):
 
                     instance['properties'][attr] = mapped_value
 
+    def _source_to_target_ids(self, id_cache, target_instances):
+        """
+        Translate source data IDs to target service IDs by looking source
+        data IDs up in the ID cache. Insert results of lookups in
+        `target_instances` so it is ready for the load stage.
+
+        Before ID translation, `target_instances` might look like:
+
+            { 'biospecimen': [
+                {
+                    'endpoint': '/biospecimens',
+                    'id': 'b1',
+                    'links': {
+                        'participant_id': 'p1',
+                        'sequencing_center_id': 'Baylor'
+                    },
+                    'properties': {
+                        'analyte_type': 'dna',
+                        ...
+                    }
+                },
+                ...
+                ]
+            }
+
+        After ID translation, `target_instances would look like:
+
+            { 'biospecimen': [
+                {
+                    'endpoint': '/biospecimens',
+                    'id': {
+                        'source': 'b1',
+                        'target': None
+                    },
+                    'links': {
+                        'participant_id': {
+                            'source': 'p1',
+                            'target': 'PT_00001111'
+                        },
+                        'sequencing_center_id': {
+                            'source': 'Baylor',
+                            'target': 'SC_00001111'
+                        }
+                    },
+                    'properties': {
+                        'analyte_type': 'dna',
+                        ...
+                    }
+                },
+                ...
+                ]
+            }
+
+        :param id_cache: source to target ID cache. See load_id_cache.
+        :param target_instances: dict containing target instance dicts. See run
+        :returns target_instances: modified version of target_instances input
+        containing source to target translations
+        """
+        self.logger.info('Translating source IDs to target IDs')
+        for target_concept, instances in target_instances.items():
+            for instance in instances:
+                # id
+                cache = id_cache.get(target_concept, {})
+                source_id = instance['id']
+                instance['id'] = {
+                    'target': cache.get(source_id),
+                    'source': source_id
+                }
+                # links
+                links = {}
+                for link_name, value in instance['links'].items():
+                    cache = id_cache.get(link_name.split('_id')[0], {})
+                    links.update(
+                        {
+                            link_name: {
+                                'target': cache.get(value),
+                                'source': value
+                            }
+                        }
+                    )
+                instance['links'] = links
+
         return target_instances
 
     def _run(self, data_dict):
@@ -252,7 +338,7 @@ class TransformStage(IngestStage):
         # Insert unique key columns before running transformation
         insert_unique_keys(data_dict)
 
-        # Guided or auto transformation
+        # Transform from standard concepts to target concepts
         target_instances = self.transformer.run(data_dict)
 
         # Null processing
@@ -266,5 +352,13 @@ class TransformStage(IngestStage):
         else:
             self.logger.warning('Skipping null processing because no target '
                                 'schema was found')
+
+        # Source to target ID translation
+        id_cache = read_json(self.id_cache_filepath, default={})
+        if not id_cache:
+            self.logger.warning(
+                f'ID cache file not found {self.id_cache_filepath}')
+        self._source_to_target_ids(id_cache,
+                                   target_instances)
 
         return target_instances
