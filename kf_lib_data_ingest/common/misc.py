@@ -59,11 +59,20 @@ def to_str_with_floats_downcast_to_ints_first(val, replace_na=False, na=None):
         to_str_with_floats_downcast_to_ints_first(None) -> None
         to_str_with_floats_downcast_to_ints_first(None, True, "") -> ""
 
+    If you're wondering what this is good for, try the following:
+        import pandas
+        df1 = pandas.DataFrame({"a":[1,2,3,None]}, dtype=object)
+        df2 = pandas.read_json(df1.to_json(), dtype=object)
+        str(df1['a'][0]) == str(df2['a'][0])  # this returns False. Yuck.
+        df1 = df1.applymap(to_str_with_floats_downcast_to_ints_first)
+        df2 = df2.applymap(to_str_with_floats_downcast_to_ints_first)
+        str(df1['a'][0]) == str(df2['a'][0])  # this returns True. Good.
+
     :param val: any basic type
     :param replace_na: should None/NaN values be replaced with something
     :type replace_na: boolean
-    :param na: if replace_na is True, what should None/numpy.nan values be
-        replaced with
+    :param na: if replace_na is True, what should None/NaN values be replaced
+        with
 
 
     :return: new representation of `val`
@@ -74,19 +83,18 @@ def to_str_with_floats_downcast_to_ints_first(val, replace_na=False, na=None):
         else:
             return val
     val = str(val).strip()
-    # I don't care what PEP 515 says. Underscores mean this isn't a number.
-    if '_' in val:
-        return val
-    # leading zeroes indicate a real string
-    if (len(val) - len(val.lstrip('0'))) > 0:
-        return val
-    try:
-        f_val = float(val)
-        i_val = int(f_val)
-        if i_val == f_val:
-            return str(i_val)
-    except Exception:
-        pass
+    if val != '':
+        # Don't automatically change anything with leading zeros, scientific
+        # notation, or underscores (I don't care what PEP 515 says).
+        if (val[0] == '0') or (not re.fullmatch(r'[\d.]+', val)):
+            return val
+        try:
+            f_val = float(val)
+            i_val = int(f_val)
+            if i_val == f_val:
+                return str(i_val)
+        except Exception:
+            pass
     return val
 
 
