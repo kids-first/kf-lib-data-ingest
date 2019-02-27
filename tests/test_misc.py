@@ -3,7 +3,7 @@ import pandas
 from kf_lib_data_ingest.common.misc import *
 
 
-def test_to_str_with_floats_downcast_to_ints_first():
+def test_numeric_to_str():
     df1 = pandas.DataFrame(
         {'a': [1, 2, 3, None], 'b': ['1_1', ' ab ', 2, None]}, dtype=object
     )
@@ -11,10 +11,10 @@ def test_to_str_with_floats_downcast_to_ints_first():
     assert not df1.astype(str).equals(df2.astype(str))
 
     df1 = df1.applymap(
-        lambda x: to_str_with_floats_downcast_to_ints_first(x, replace_na=True)
+        lambda x: numeric_to_str(x, replace_na=True)
     )
     df2 = df2.applymap(
-        lambda x: to_str_with_floats_downcast_to_ints_first(x, replace_na=True)
+        lambda x: numeric_to_str(x, replace_na=True)
     )
     assert df1.astype(str).equals(df2.astype(str))
 

@@ -14,7 +14,7 @@ from kf_lib_data_ingest.common.file_retriever import (
 )
 from kf_lib_data_ingest.common.misc import (
     read_json,
-    to_str_with_floats_downcast_to_ints_first,
+    numeric_to_str,
     write_json
 )
 from kf_lib_data_ingest.common.pandas_utils import split_df_rows_on_splits
@@ -200,8 +200,9 @@ class ExtractStage(IngestStage):
     def _clean_up_df(self, df):
         # We can't universally control which null type will get used by a data
         # file loader, and it might also change, so let's always push them all
-        # to empty strings because nulls are not our friends. It's easier for a
-        # configurator to equate empty spreadsheet cells with empty strings.
+        # to None because other nulls are not our friends. It's easier for a
+        # configurator to equate empty spreadsheet cells with None than e.g.
+        # numpy.nan.
 
         # Typed loaders like pandas.read_json force us into storing numerically
         # typed values, and then nulls, which read_json does not let you handle
@@ -209,9 +210,7 @@ class ExtractStage(IngestStage):
         # So here we get any untidy values back to nice and tidy strings.
 
         return df.applymap(
-            lambda x: to_str_with_floats_downcast_to_ints_first(
-                x, replace_na=True, na=''
-            )
+            lambda x: numeric_to_str(x, replace_na=True, na=None)
         )
 
     def _source_file_to_df(

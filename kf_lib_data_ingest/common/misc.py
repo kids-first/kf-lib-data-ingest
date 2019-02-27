@@ -48,7 +48,7 @@ def iterate_pairwise(iterable):
     return zip(a, b)
 
 
-def to_str_with_floats_downcast_to_ints_first(val, replace_na=False, na=None):
+def numeric_to_str(val, replace_na=False, na=None):
     """
     Converts values to stripped strings while collapsing downcastable floats.
 
@@ -82,6 +82,7 @@ def to_str_with_floats_downcast_to_ints_first(val, replace_na=False, na=None):
             return na
         else:
             return val
+
     val = str(val).strip()
     if val != '':
         # Don't automatically change anything with leading zeros, scientific

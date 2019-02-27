@@ -6,7 +6,7 @@ import pytest
 from conftest import TEST_DATA_DIR
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
 from kf_lib_data_ingest.common.misc import (
-    to_str_with_floats_downcast_to_ints_first
+    numeric_to_str
 )
 from kf_lib_data_ingest.etl.configuration.base_config import (
     ConfigValidationError
@@ -49,14 +49,10 @@ def rectify_cols_and_datatypes(A, B):
     # account for datatype mismatches induced by loading the expected
     # result directly from a file
     A = A.applymap(
-            lambda x: to_str_with_floats_downcast_to_ints_first(
-                x, replace_na=True, na=''
-            )
+            lambda x: numeric_to_str(x, replace_na=True, na='')
     )
     B = B.applymap(
-            lambda x: to_str_with_floats_downcast_to_ints_first(
-                x, replace_na=True, na=''
-            )
+            lambda x: numeric_to_str(x, replace_na=True, na='')
     )
 
     for col in A.columns:
