@@ -32,7 +32,9 @@ def read_yaml(filepath):
         return yaml.load(yaml_file)
 
 
-def read_json(filepath):
+def read_json(filepath, default=None):
+    if (default is not None) and (not os.path.isfile(filepath)):
+        return default
     with open(filepath, 'r') as json_file:
         return json.load(json_file)
 
