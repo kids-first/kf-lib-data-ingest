@@ -280,11 +280,12 @@ def outer_merge(df1, df2, with_merge_detail_dfs=True, **kwargs):
         detail_dfs = [outer[outer['_merge'] == keyword]
                       for keyword in ['both', 'left_only', 'right_only']]
 
+        ret = []
         for df in [outer] + detail_dfs:
-            df.dropna(how="all", inplace=True)
             del df['_merge']
+            ret.append(df.dropna(how="all"))
 
-        return outer, detail_dfs[0], detail_dfs[1], detail_dfs[2]
+        return tuple(ret)
 
     else:
         return outer
