@@ -5,7 +5,7 @@ import os
 import re
 from itertools import tee
 
-import numpy
+from pandas import isnull
 import yaml
 
 from kf_lib_data_ingest.common.type_safety import assert_safe_type
@@ -48,33 +48,54 @@ def iterate_pairwise(iterable):
     return zip(a, b)
 
 
-def intsafe_str(val):
-    """Converts numbers to str while collapsing "1.0" to "1", etc.
-    in case of wrong numeric encoding of integers in a spreadsheet.
-
-    Args:
-        val: Any basic type
-
-    Returns:
-        string: Representation of `val`
+def numeric_to_str(val, replace_na=False, na=None):
     """
-    if val is None or (isinstance(val, float) and numpy.isnan(val)):
-        return None
+    Converts values to stripped strings while collapsing downcastable floats.
+
+    Examples:
+        to_str_with_floats_downcast_to_ints_first(1) -> "1"
+        to_str_with_floats_downcast_to_ints_first(1.0) -> "1"
+        to_str_with_floats_downcast_to_ints_first("1_1  ") -> "1_1"
+        to_str_with_floats_downcast_to_ints_first(None) -> None
+        to_str_with_floats_downcast_to_ints_first(None, True, "") -> ""
+
+    If you're wondering what this is good for, try the following:
+        import pandas
+        df1 = pandas.DataFrame({"a":[1,2,3,None]}, dtype=object)
+        df2 = pandas.read_json(df1.to_json(), dtype=object)
+        str(df1['a'][0]) == str(df2['a'][0])  # this returns False. Yuck.
+        df1 = df1.applymap(to_str_with_floats_downcast_to_ints_first)
+        df2 = df2.applymap(to_str_with_floats_downcast_to_ints_first)
+        str(df1['a'][0]) == str(df2['a'][0])  # this returns True. Good.
+
+    :param val: any basic type
+    :param replace_na: should None/NaN values be replaced with something
+    :type replace_na: boolean
+    :param na: if replace_na is True, what should None/NaN values be replaced
+        with
+
+
+    :return: new representation of `val`
+    """
+    if isnull(val):
+        if replace_na:
+            return na
+        else:
+            return val
+
     val = str(val).strip()
-    # I hate PEP 515.
-    # Now we have to check that we only have digits and dots. Whyyyyyyyyyy.
-    if not re.fullmatch(r'\d*(\.\d*)?', val):
-        return val
-    if (len(val) - len(val.lstrip('0'))) > 0:
-        # leading zeroes indicate a real string
-        return val
-    try:
-        f_val = float(val)
-        i_val = int(f_val)
-        if i_val == f_val:
-            return str(i_val)
-    except Exception:
-        pass
+    if val != '':
+        # Don't automatically change anything with leading zeros, scientific
+        # notation, or underscores (I don't care what PEP 515 says).
+        if (val[0] == '0') or (not re.fullmatch(r'[\d.]+', val)):
+            return val
+        try:
+            f_val = float(val)
+            i_val = int(f_val)
+            if i_val == f_val:
+                return str(i_val)
+        except Exception:
+            pass
     return val
 
 
