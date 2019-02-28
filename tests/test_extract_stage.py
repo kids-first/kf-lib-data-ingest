@@ -5,9 +5,7 @@ import pytest
 
 from conftest import TEST_DATA_DIR
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
-from kf_lib_data_ingest.common.misc import (
-    numeric_to_str
-)
+from kf_lib_data_ingest.common.misc import numeric_to_str
 from kf_lib_data_ingest.etl.configuration.base_config import (
     ConfigValidationError
 )
@@ -120,3 +118,15 @@ def test_bad_file_types():
         except ConfigValidationError as e:
             assert "Could not determine appropriate loader" not in str(e)
             raise
+
+
+def test_no_load_return():
+    f = os.path.join(
+        study_1, 'extract_outputs', 'simple_tsv_example1_output.tsv'
+    )
+    es = ExtractStage(None, None)
+    with pytest.raises(ConfigValidationError):
+        es._source_file_to_df(
+            'file://' + f,
+            load_func=lambda x: None
+        )
