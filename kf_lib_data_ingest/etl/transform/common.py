@@ -20,12 +20,73 @@ logger = logging.getLogger(__name__)
 def insert_unique_keys(df_dict):
     """
     Iterate over mapped dataframes and insert the unique key columns
+    (i.e. CONCEPT.PARTICIPANT.UNIQUE_KEY)
 
-    The unique key is a special standard concept attribute which is
+    Definition
+    ----------
+
+    UNIQUE_KEY is a special standard concept attribute which is
     reserved to uniquely identify concept instances of the same type.
+
+    Purpose
+    -------
+    Unique keys have several purposes:
+
+    1. A unique key acts as a primary key for the concept instance in the
+     source data.
+
+    2. The ingest pipeline uses the unique key to identify duplicate
+    concept instances of the same type and drop them
+
+    3. Each time a new concept instance is created in the target service,
+    the ingest pipeline saves a record of the created instance's ID from the
+    target service and the instance's UNIQUE_KEY. These records are stored
+    in the ID cache.
+
+    The ID cache is used for determining whether to create or update an
+    entity in the target service each time the ingest pipeline runs.
+    When ingest pipeline runs again for the same dataset, it will lookup the
+    concept instance's UNIQUE_KEY in the ID cache to see if there is an
+    existing target service ID for the instance. If there is, an update will
+    be performed. If not, a new instance will be created.
+
+    Construction
+    ------------
+    In most cases, the UNIQUE_KEY simply equates to the identifier
+    (i.e. CONCEPT.PARTICIPANT.ID) assigned to the concept instance in the
+    source data by the data provider.
+
+    But some concepts don't have an explicit identifier that was given
+    by the data provider. These are usually event type concepts such as
+    DIAGNOSIS and PHENOTYPE observation events. For example, `Participant P1
+    was diagnosed with Ewing's Sarcoma on date X.` is a DIAGNOSIS event concept
+
+    For these concepts, a unique identifier must somehow be formed using
+    existing columns in the data (a.k.a other concept attributes).
+
+    Continuing with the above example, we can uniquely identify the DIAGNOSIS
+    event by combining the UNIQUE_KEY of the PARTICIPANT who has been given
+    the DIAGNOSIS, the name of the DIAGNOSIS, and the some sort of datetime
+    of the event
+
+    Example - DIAGNOSIS.UNIQUE_KEY
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    Composition Formula =
+
+        PARTICIPANT.UNIQUE_KEY + DIAGNOSIS.NAME + DIAGNOSIS.EVENT_AGE_IN_DAYS
+
+    Value of DIAGNOSIS.UNIQUE_KEY =
+
+        P1-Ewings-Sarcoma-500
+
+    The rules for composing UNIQUE_KEYs are defined in
+    kf_lib_data_ingest.common.concept_schema.
 
     :param df_dict: a dict of Pandas DataFrames. A key is an extract config
     URL and a value is a tuple of (source file url, DataFrame).
+    :returns df_dict: a modified version of the input, with UNIQUE_KEY columns
+    added to each DataFrame
     """
     for extract_config_url, (source_file_url, df) in df_dict.items():
         # Insert unique key columns
@@ -42,7 +103,7 @@ def insert_unique_keys(df_dict):
             raise ValueError(
                 'No unique keys were created for table! There must '
                 'be at least 1 unique key column in a table. Zero unique keys '
-                'in a table means there is no way to any identify concept '
+                'in a table means there is no way to identify any concept '
                 f'instances. Source of error is {extract_config_url} : '
                 f'{source_file_url}'
             )
@@ -50,29 +111,23 @@ def insert_unique_keys(df_dict):
 
 def _add_unique_key_cols(df, unique_key_composition=DEFAULT_KEY_COMP):
     """
-    Construct and insert unique key columns for each concept present in the
-    mapped df. Only do this if there isn't already an existing unique key
+    Construct and insert UNIQUE_KEY columns for each concept present in the
+    mapped df. Only do this if there isn't already an existing UNIQUE_KEY
     column for a particular concept.
 
-    The unique key is a special standard concept attribute which is
-    reserved to uniquely identify concept instances of the same type.
-
-    If the unique key column hasn't been explicitly provided in the mapped
-    data, then this method will insert a unique key column using the values
-    from other columns in the data. The columns it uses are defined in
-    etl.transform.standard_model.concept_schema.unique_key_composition
-
-    A unique key column for a concept will only be added if all of the
-    columns required to compose the unique key for that concept exist in
+    A UNIQUE_KEY column for a concept will only be added if all of the
+    columns required to compose the UNIQUE_KEY for that concept exist in
     the DataFrame.
 
-    The value of a unique key will be a delimited string containing the
-    values from required unique key columns.
+    The rules for composition are defined in kf_lib_data_ingest.common.concept_schema #noqa E501
+
+    The value of a UNIQUE_KEY will be a delimited string containing the
+    values from required columns needed to compose the UNIQUE_KEY.
 
     For example, given the mapped dataframe:
 
         CONCEPT.PARTICIPANT.ID | CONCEPT.OUTCOME.VITAL_STATUS
-        -------------------------------------------------
+        -----------------------------------------------------
             PT1                 Deceased
 
     the unique_key_composition:
@@ -95,13 +150,13 @@ def _add_unique_key_cols(df, unique_key_composition=DEFAULT_KEY_COMP):
     the output dataframe would be:
 
         CONCEPT.PARTICIPANT.ID | CONCEPT.OUTCOME.VITAL_STATUS | CONCEPT.OUTCOME.UNIQUE_KEY # noqa E501
-        ------------------------------------------------------------------------------ # noqa E501
+        ---------------------------------------------------------------------------------- # noqa E501
             PT1                 Deceased                        PT1-Deceased # noqa E501
 
     :param df: the Pandas DataFrame that will be modified
     :param unique_key_composition: a dict where a key is a standard concept
     string and a value is a list of required columns needed to compose
-    a unique key for the concept.
+    a unique key for the concept
     """
     # Iterate over all concepts and try to insert a unique key column
     # for each concept
@@ -144,7 +199,7 @@ def _unique_key_cols(concept_name, df, unique_key_composition,
     This is a recursive method that collects the required columns needed to
     build a unique key column for a concept. If one of the columns
     is a unique key it then the method will recurse in order to get
-    the columns that make up that unique key.
+    the columns which make up that unique key.
 
     For example, given the unique key composition:
 
@@ -164,13 +219,10 @@ def _unique_key_cols(concept_name, df, unique_key_composition,
                 ]
         }
 
-    If we want to make the unique key for DIAGNOSIS, then at a minimun the
+    If we want to make the unique key for DIAGNOSIS, then at a minimum the
     required columns (PARTICIPANT|ID, DIAGNOSIS|NAME) must be present in the
     DataFrame. If any of the optional columns are also present, they will be
     used to make the unique key too.
-
-    The columns for a concept's unique key are defined in
-    common.concept_schema.unique_key_composition.
 
     :param concept_name: a string and the name of the concept for which a
     unique key will be made

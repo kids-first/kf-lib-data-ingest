@@ -25,7 +25,7 @@ def test_ingest_cmd_missing_required_args():
     assert result.exit_code == COMMAND_LINE_ERROR_CODE
 
 
-def test_ingest(tmpdir):
+def test_ingest():
     """
     Test ingest - guided transform
     """
@@ -43,6 +43,11 @@ def test_ingest(tmpdir):
 def test_ingest_no_transform_module(tmpdir):
     """
     Test ingest with no transform module defined
+
+    Note - This test is temporary. When auto-transform implementation is
+    complete, the absence of a transform module will result in the execution
+    of auto-transform. This test will be modified to check that auto-transform
+    executes.
     """
     # Copy test_study dir and remove the transform module
     study_dir = os.path.join(TEST_DATA_DIR, 'test_study')

@@ -140,7 +140,7 @@ def test_compound_unique_keys():
 
 def test_unique_key_w_optional():
     """
-    Test unique key construction for concept whose unique key that has both
+    Test unique key construction for concept whose unique key has both
     required components and optional components
     """
     df = pd.DataFrame({
