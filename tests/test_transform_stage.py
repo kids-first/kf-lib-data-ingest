@@ -1,5 +1,6 @@
 
 import pytest
+import json
 import pandas as pd
 
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
@@ -52,13 +53,16 @@ def test_read_write(transform_stage, df):
     Test TransformStage.read_output/write_output
     """
     extract_output = {'extract_config_url': ('source_url', df)}
+
+    # Transform outputs json
     output = transform_stage.run(extract_output)
     recycled_output = transform_stage.read_output()
 
-    for target_entity, df in output.items():
+    for target_entity, data in output.items():
         assert target_entity in recycled_output
-        other_df = recycled_output[target_entity]
-        assert other_df.equals(df)
+        other_data = recycled_output[target_entity]
+        # Compare using DataFrames
+        assert pd.DataFrame(other_data).equals(pd.DataFrame(data))
 
 
 def test_unique_keys(df):
