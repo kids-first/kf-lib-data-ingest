@@ -72,7 +72,7 @@ def test_unique_keys(df):
 
     # 3 Columns before
     assert 3 == len(df.columns)
-    df = _add_unique_key_cols(df)
+    df = _add_unique_key_cols(df, unique_key_composition)
 
     # 3 original + 2 unique key cols for the concepts
     assert 5 == len(df.columns)
@@ -109,7 +109,7 @@ def test_compound_unique_keys():
 
     # 3 columns before
     assert 3 == len(df.columns)
-    df = _add_unique_key_cols(df)
+    df = _add_unique_key_cols(df, unique_key_composition)
     # 3 original + 3 unique key columns + 1 for the compound concept
     assert 7 == len(df.columns)
     # 4 distinct concepts should exist now (1 new one is a compound concept)
@@ -148,7 +148,7 @@ def test_unique_key_w_optional():
         CONCEPT.DIAGNOSIS.NAME: ['cold', 'flu', 'something'],
         CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS: [20, 30, 40]
     })
-    df = _add_unique_key_cols(df)
+    df = _add_unique_key_cols(df, unique_key_composition)
 
     # Check for unique key column names and values
     for ukey_col in [CONCEPT.PARTICIPANT.UNIQUE_KEY,
@@ -182,5 +182,5 @@ def test_no_key_comp_defined():
     # No key composition defined for concept
     del unique_key_composition[CONCEPT.PARTICIPANT._CONCEPT_NAME]
     with pytest.raises(AssertionError) as e:
-        _add_unique_key_cols(df)
+        _add_unique_key_cols(df, unique_key_composition)
         assert 'key composition not defined' in str(e)

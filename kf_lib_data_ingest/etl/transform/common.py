@@ -17,7 +17,7 @@ VALUE_DELIMITER = '-'
 logger = logging.getLogger(__name__)
 
 
-def insert_unique_keys(df_dict):
+def insert_unique_keys(df_dict, unique_key_composition=DEFAULT_KEY_COMP):
     """
     Iterate over mapped dataframes and insert the unique key columns
     (i.e. CONCEPT.PARTICIPANT.UNIQUE_KEY)
@@ -80,17 +80,21 @@ def insert_unique_keys(df_dict):
 
         P1-Ewings-Sarcoma-500
 
-    The rules for composing UNIQUE_KEYs are defined in
+    The rules for composing UNIQUE_KEYs are defined in `unique_key_composition`
+    input parameter, and if not supplied, the default will be loaded from
     kf_lib_data_ingest.common.concept_schema.
 
     :param df_dict: a dict of Pandas DataFrames. A key is an extract config
     URL and a value is a tuple of (source file url, DataFrame).
+    :param unique_key_composition: a dict where a key is a standard concept
+    string and a value is a list of required columns needed to compose
+    a unique key for the concept
     :returns df_dict: a modified version of the input, with UNIQUE_KEY columns
     added to each DataFrame
     """
     for extract_config_url, (source_file_url, df) in df_dict.items():
         # Insert unique key columns
-        df = _add_unique_key_cols(df)
+        df = _add_unique_key_cols(df, unique_key_composition)
 
         # If no unique key columns are present raise an error.
         # This means that the dataframe does not have anything to uniquely
@@ -109,7 +113,7 @@ def insert_unique_keys(df_dict):
             )
 
 
-def _add_unique_key_cols(df, unique_key_composition=DEFAULT_KEY_COMP):
+def _add_unique_key_cols(df, unique_key_composition):
     """
     Construct and insert UNIQUE_KEY columns for each concept present in the
     mapped df. Only do this if there isn't already an existing UNIQUE_KEY
@@ -119,7 +123,9 @@ def _add_unique_key_cols(df, unique_key_composition=DEFAULT_KEY_COMP):
     columns required to compose the UNIQUE_KEY for that concept exist in
     the DataFrame.
 
-    The rules for composition are defined in kf_lib_data_ingest.common.concept_schema #noqa E501
+    The rules for composition are defined in unique_key_composition.
+    See kf_lib_data_ingest.common.concept_schema._create_unique_key_composition
+    for details on structure and content.
 
     The value of a UNIQUE_KEY will be a delimited string containing the
     values from required columns needed to compose the UNIQUE_KEY.
@@ -154,9 +160,10 @@ def _add_unique_key_cols(df, unique_key_composition=DEFAULT_KEY_COMP):
             PT1                 Deceased                        PT1-Deceased # noqa E501
 
     :param df: the Pandas DataFrame that will be modified
-    :param unique_key_composition: a dict where a key is a standard concept
-    string and a value is a list of required columns needed to compose
-    a unique key for the concept
+    :param unique_key_composition: the rules for composing a concept's
+    unique key.
+    :returns df: modified version of input DataFrame with new UNIQUE_KEY
+    columns inserted for each concept present in the input DataFrame.
     """
     # Iterate over all concepts and try to insert a unique key column
     # for each concept
@@ -195,10 +202,10 @@ def _unique_key_cols(concept_name, df, unique_key_composition,
     Compose the list of column names that are needed to build a unique key
     for a particular concept.
 
-    A concept's unique key can be composed of other concept's unique keys.
+    A concept's unique key can be composed of other concepts' unique keys.
     This is a recursive method that collects the required columns needed to
     build a unique key column for a concept. If one of the columns
-    is a unique key it then the method will recurse in order to get
+    is a unique key then the method will recurse in order to get
     the columns which make up that unique key.
 
     For example, given the unique key composition:
