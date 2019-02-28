@@ -11,7 +11,6 @@ target service (i.e Kids First Dataservice)
 See etl.configuration.target_api_config docstring for more details on
 requirements for format and content.
 """
-
 from kf_lib_data_ingest.common.concept_schema import (
     CONCEPT
 )
