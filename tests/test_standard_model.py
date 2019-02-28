@@ -12,6 +12,7 @@ from kf_lib_data_ingest.common.concept_schema import (
     is_identifier,
     unique_key_composition
 )
+from kf_lib_data_ingest.etl.transform.common import insert_unique_keys
 from kf_lib_data_ingest.etl.transform.standard_model.model import StandardModel
 from kf_lib_data_ingest.etl.transform.standard_model.graph import (
     ConceptNode,
@@ -53,7 +54,7 @@ def data_df_dict(transform_stage):
                (f'file:///study/configs/{k}.py', pd.DataFrame(v))
                for k, v in data.items()}
 
-    transform_stage._insert_unique_keys(df_dict)
+    insert_unique_keys(df_dict)
 
     return df_dict
 
@@ -80,7 +81,7 @@ def model(data_df_dict):
 
 
 @pytest.fixture(scope='function')
-def random_data_df_dict(transform_stage):
+def random_data_df_dict():
     """
     Create composite table containing random participant, family, biospecimen
     data appropriately formatted for populating standard concept model.
@@ -110,7 +111,7 @@ def random_data_df_dict(transform_stage):
     df_dict = {f's3://bucket/key/clinical.csv':
                (f'file:///study/configs/clinical.py', clinical)}
 
-    transform_stage._insert_unique_keys(df_dict)
+    insert_unique_keys(df_dict)
 
     return df_dict
 
