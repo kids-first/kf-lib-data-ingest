@@ -58,11 +58,9 @@ def test_standard_to_target_transform(caplog, dfs, transform_stage):
     target_instances = guided_transformer._standard_to_target(dfs)
 
     # Check that output only contains concepts that had data and unique key
-    output_concepts = target_instances.keys()
-    expected_concepts = [c for c in output_concepts
-                         if c != 'sequencing_experiment']
-    assert not (set(output_concepts)
-                .symmetric_difference(set(expected_concepts)))
+    output_concepts = set(target_instances.keys())
+    expected_concepts = output_concepts - {'sequencing_experiment'}
+    assert output_concepts == expected_concepts
 
     # Check instances counts and values
     for target_concept, instances in target_instances.items():
