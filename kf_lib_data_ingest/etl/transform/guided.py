@@ -80,7 +80,7 @@ class GuidedTransformer():
             'participant':
 
                 |CONCEPT.PARTICIPANT.ID | CONCEPT.PARTICIPANT.GENDER|
-                |-----------------------| --------------------------|
+                |-----------------------|---------------------------|
                 |        P1             |            Female         |
                 |        P2             |            Male           |
         }
@@ -120,19 +120,15 @@ class GuidedTransformer():
             df = entity_df_dict.get(target_concept)
 
             # No data exists for the target_concept
-            if not isinstance(df, pandas.DataFrame):
+            if df is None:
                 self.logger.info('No table found for target concept: '
                                  f'{target_concept}, skipping transformation')
                 continue
 
-            # Temporary - Remove later
-            df = df.where((pandas.notnull(df)), None)
-            df_cols = set(df.columns)
-
             # Unique key for the target concept must exist
             standard_concept = config.get('standard_concept')
             std_concept_ukey = getattr(standard_concept, UNIQUE_ID_ATTR)
-            if std_concept_ukey not in df_cols:
+            if std_concept_ukey not in df.columns:
                 self.logger.info(
                     'No unique key found in table for target '
                     f'concept: {target_concept}. Skip instance creation')
