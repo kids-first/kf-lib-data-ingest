@@ -1,4 +1,5 @@
 import os
+import sys
 from collections import defaultdict
 from functools import reduce
 from math import gcd
@@ -13,8 +14,8 @@ from kf_lib_data_ingest.common.file_retriever import (
     split_protocol
 )
 from kf_lib_data_ingest.common.misc import (
-    read_json,
     numeric_to_str,
+    read_json,
     write_json
 )
 from kf_lib_data_ingest.common.pandas_utils import split_df_rows_on_splits
@@ -167,12 +168,18 @@ class ExtractStage(IngestStage):
             data_path = protocol + PROTOCOL_SEP + path
 
             # read contents from file
-            df_in = self._source_file_to_df(
-                data_path,
-                do_after_load=extract_config.do_after_load,
-                load_func=extract_config.load_func,
-                **(extract_config.loading_params)
-            )
+            try:
+                df_in = self._source_file_to_df(
+                    data_path,
+                    do_after_load=extract_config.do_after_load,
+                    load_func=extract_config.load_func,
+                    **(extract_config.loading_params)
+                )
+            except ConfigValidationError as e:
+                raise type(e)(
+                    f'In extract config {extract_config.config_filepath}'
+                    f' : {str(e)}'
+                )
 
             self.logger.debug(
                 "Loaded DataFrame with dimensions %s", df_in.shape
@@ -253,18 +260,20 @@ class ExtractStage(IngestStage):
         if load_func:
             try:
                 df = load_func(f, **load_args)
+                if not isinstance(df, pandas.DataFrame):
+                    err = (
+                        "Custom load_func must return a pandas.DataFrame"
+                    )
             except Exception as e:
                 err = f"In load_func {load_func.__name__} : {str(e)}"
         else:
             err = (
-                f"Could not determine appropriate loader for '{file_path}'"
+                f"Could not determine appropriate loader for '{file_path}'."
+                "\nYou may need to define a custom load_func function."
             )
 
         if err:
-            msg = (
-                f"{err}'.\nYou may need to define a custom load_func function."
-            )
-            raise ConfigValidationError(msg)
+            raise ConfigValidationError(err)
 
         df = self._clean_up_df(df)
 
