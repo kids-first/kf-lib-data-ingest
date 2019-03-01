@@ -1,4 +1,5 @@
 import os
+import logging
 
 ROOT_DIR = os.path.dirname(__file__)
 
@@ -13,7 +14,7 @@ TARGET_SERVICE_CONFIG_PATH = os.path.join(ROOT_DIR,
                                           'target_apis',
                                           'kids_first.py')
 DEFAULT_LOG_FILENAME = 'ingest.log'
-DEFAULT_LOG_LEVEL = 'info'
+DEFAULT_LOG_LEVEL = logging.INFO
 DEFAULT_LOG_OVERWRITE_OPT = True
 
 INGEST_PKG_TEMPLATE_NAME = 'my_study'

@@ -1,4 +1,5 @@
 import os
+import logging
 
 from kf_lib_data_ingest.etl.configuration.base_config import YamlConfig
 from kf_lib_data_ingest.config import (
@@ -83,6 +84,9 @@ class DatasetIngestConfig(YamlConfig):
             if ('logging' in self.contents and
                     (param in self.contents['logging'])):
                 value = self.contents['logging'][param]
+                if param == 'log_level':
+                    value = logging._nameToLevel.get(value.upper(),
+                                                     DEFAULT_LOG_LEVEL)
                 setattr(self, param, value)
             # Set default
             else:

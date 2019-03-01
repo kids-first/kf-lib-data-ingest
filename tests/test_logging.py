@@ -1,4 +1,5 @@
 import os
+import logging
 import time
 
 import pytest
@@ -14,7 +15,6 @@ from conftest import (
     TEST_DATA_DIR,
     KIDS_FIRST_CONFIG
 )
-from kf_lib_data_ingest.etl.configuration.log import LOG_LEVELS
 from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
 from kf_lib_data_ingest import cli
 
@@ -115,7 +115,7 @@ def test_cli_log_overrides(caplog):
     """
     # Pytest caplog fixture is set to WARNING by default. Set to DEBUG so
     # we can capture log messages
-    caplog.set_level(LOG_LEVELS.get('debug'))
+    caplog.set_level(logging._nameToLevel.get('DEBUG'))
 
     # Run with no override, log level should be info
     runner = CliRunner()
@@ -162,5 +162,5 @@ def _check_log_levels(log_text, levels):
     Check that no log msg in `log_text` has any of the log levels in `levels`
     """
     for line in log_text.split('\n'):
-        level = line.split('-')[-1].lower()
-        assert level not in {'debug', 'notset'}
+        level = line.split('-')[-1]
+        assert level.lower() not in levels

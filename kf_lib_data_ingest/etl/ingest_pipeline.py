@@ -4,10 +4,7 @@ import os
 from collections import OrderedDict
 from pprint import pformat
 
-from kf_lib_data_ingest.config import (
-    DEFAULT_TARGET_URL,
-    DEFAULT_LOG_LEVEL
-)
+from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
 from kf_lib_data_ingest.etl.configuration.dataset_ingest_config import (
     DatasetIngestConfig,
 )
@@ -40,7 +37,7 @@ class DataIngestPipeline(object):
 
     def run(self, target_api_config_path, auto_transform=False,
             use_async=False, target_url=DEFAULT_TARGET_URL,
-            log_level=None):
+            log_level_name=None):
         """
         Entry point for data ingestion. Run ingestion in the top level
         exception handler so that exceptions are logged.
@@ -52,8 +49,21 @@ class DataIngestPipeline(object):
         args, _, _, values = inspect.getargvalues(frame)
         kwargs = {arg: values[arg] for arg in args[2:]}
 
-        # Create and setup logger
-        self._create_logger(self.data_ingest_config, kwargs)
+        # Get log params from dataset_ingest_config
+        log_dir = self.data_ingest_config.log_dir
+        log_kwargs = {param: getattr(self.data_ingest_config, param)
+                      for param in ['overwrite_log', 'log_level']}
+
+        # Apply any log parameter overrides
+
+        log_level_name = kwargs.pop('log_level_name')
+        log_level = logging._nameToLevel.get(str(log_level_name).upper())
+        if log_level:
+            log_kwargs['log_level'] = log_level
+
+        # Setup logger
+        setup_logger(log_dir, **log_kwargs)
+        self.logger = logging.getLogger(__name__)
 
         # Log the start of the run with ingestion parameters
         run_msg = ('BEGIN data ingestion.\n\t-- Ingestion params --\n\t{}'
@@ -70,33 +80,6 @@ class DataIngestPipeline(object):
 
         # Log the end of the run
         self.logger.info('END data ingestion')
-
-    def _create_logger(self, dataset_ingest_config, cli_options):
-        """
-        Create and setup logging for ingest
-
-        Log parameters from the CLI options override log parameters in the
-        dataset_ingest_config which override any library defaults defined
-        in kf_lib_data_ingest.config.
-
-        :param data_ingest_config: the DatasetIngestConfig for the ingest
-        pipeline
-        :param run_kwargs: CLI options which got passed as kwargs to the
-        run method
-        """
-        # Get log params from dataset_ingest_config
-        log_dir = self.data_ingest_config.log_dir
-        opt_log_params = {param: getattr(self.data_ingest_config, param)
-                          for param in ['overwrite_log', 'log_level']}
-
-        # Apply CLI overrides
-        log_level = cli_options.pop('log_level')
-        if log_level:
-            opt_log_params['log_level'] = log_level
-
-        # Setup logger
-        setup_logger(log_dir, **opt_log_params)
-        self.logger = logging.getLogger(__name__)
 
     def _run(self, target_api_config_path, auto_transform=False,
              use_async=False, target_url=DEFAULT_TARGET_URL):
