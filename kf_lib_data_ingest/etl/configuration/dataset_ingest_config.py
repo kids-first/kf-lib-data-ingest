@@ -71,9 +71,6 @@ class DatasetIngestConfig(YamlConfig):
                 os.mkdir(log_dir)
             return log_dir
 
-        def _get_log_level(log_level_str):
-            return getattr(logging, log_level_str.upper())
-
         # Log params with defaults
         log_params = {
             'log_dir': _default_log_dir,
@@ -88,7 +85,8 @@ class DatasetIngestConfig(YamlConfig):
                     (param in self.contents['logging'])):
                 value = self.contents['logging'][param]
                 if param == 'log_level':
-                    value = _get_log_level(value)
+                    value = logging._nameToLevel.get(value.upper(),
+                                                     DEFAULT_LOG_LEVEL)
                 setattr(self, param, value)
             # Set default
             else:

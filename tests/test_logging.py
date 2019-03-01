@@ -1,7 +1,9 @@
 import os
+import logging
 import time
 
 import pytest
+from click.testing import CliRunner
 
 from kf_lib_data_ingest.config import (
     DEFAULT_LOG_FILENAME,
@@ -14,6 +16,7 @@ from conftest import (
     KIDS_FIRST_CONFIG
 )
 from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
+from kf_lib_data_ingest import cli
 
 target_api_config_path = KIDS_FIRST_CONFIG
 default_log_dir = os.path.join(TEST_DATA_DIR, 'test_study', 'logs')
@@ -103,9 +106,25 @@ def test_log_level(ingest_pipeline):
     log_filepath = os.path.join(ingest_pipeline.data_ingest_config.log_dir,
                                 DEFAULT_LOG_FILENAME)
     with open(log_filepath, 'r') as logfile:
-        for line in logfile.readlines():
-            level = line.split('-')[-1].lower()
-            assert level not in {'info', 'debug', 'notset'}
+        _check_log_levels(logfile.read(), {'info', 'debug', 'notset'})
+
+
+def test_cli_log_overrides(caplog):
+    """
+    Test that CLI option log_level overrides log_level in data_ingest_config
+    """
+    # Pytest caplog fixture is set to WARNING by default. Set to DEBUG so
+    # we can capture log messages
+    caplog.set_level(logging._nameToLevel.get('DEBUG'))
+
+    # Run with no override, log level should be info
+    runner = CliRunner()
+    runner.invoke(cli.ingest, [])
+    _check_log_levels(caplog.text, {'debug', 'notset'})
+
+    # Run with cli option override, log level should be warning
+    runner.invoke(cli.ingest, ['--log_level', 'warning'])
+    _check_log_levels(caplog.text, {'info', 'debug', 'notset'})
 
 
 def test_log_exceptions(ingest_pipeline):
@@ -136,3 +155,12 @@ def test_log_exceptions(ingest_pipeline):
         with open(log_filepath, 'r') as logfile:
             last_line = logfile.readlines()[-1]
             assert 'Exception' in last_line
+
+
+def _check_log_levels(log_text, levels):
+    """
+    Check that no log msg in `log_text` has any of the log levels in `levels`
+    """
+    for line in log_text.split('\n'):
+        level = line.split('-')[-1]
+        assert level.lower() not in levels

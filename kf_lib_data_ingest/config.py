@@ -1,6 +1,5 @@
-import logging
-import logging.handlers
 import os
+import logging
 
 ROOT_DIR = os.path.dirname(__file__)
 

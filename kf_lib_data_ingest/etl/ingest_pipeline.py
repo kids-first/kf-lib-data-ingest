@@ -2,6 +2,7 @@ import inspect
 import logging
 import os
 from collections import OrderedDict
+from pprint import pformat
 
 from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
 from kf_lib_data_ingest.etl.configuration.dataset_ingest_config import (
@@ -35,31 +36,52 @@ class DataIngestPipeline(object):
                                               'output')
 
     def run(self, target_api_config_path, auto_transform=False,
-            use_async=False, target_url=DEFAULT_TARGET_URL):
+            use_async=False, target_url=DEFAULT_TARGET_URL,
+            log_level_name=None):
         """
         Entry point for data ingestion. Run ingestion in the top level
         exception handler so that exceptions are logged.
 
-        See _run method for param description
+        :param target_api_config_path: Path to the target api config file
+        :param auto_transform: Boolean specifies whether to use automatic
+        graph-based transformation or user guided transformation
+        :param use_async: Boolean specifies whether to do ingest
+        asynchronously or synchronously
+        :param target_url: URL of the target API, into which data will be
+        loaded. Use default if none is supplied
+        :param log_level_name: case insensitive name of log level
+        (i.e. info, debug, etc) to control logging output.
+        See keys in logging._nameToLevel dict for all possible options
         """
-        # Create logger
-        self._get_log_params(self.data_ingest_config)
+        # Get args, kwargs
+        frame = inspect.currentframe()
+        args, _, _, values = inspect.getargvalues(frame)
+        kwargs = {arg: values[arg] for arg in args[2:]}
+
+        # Get log params from dataset_ingest_config
+        log_dir = self.data_ingest_config.log_dir
+        log_kwargs = {param: getattr(self.data_ingest_config, param)
+                      for param in ['overwrite_log', 'log_level']}
+
+        # Apply any log parameter overrides
+        log_level_name = kwargs.pop('log_level_name')
+        log_level = logging._nameToLevel.get(str(log_level_name).upper())
+        if log_level:
+            log_kwargs['log_level'] = log_level
+
+        # Setup logger
+        setup_logger(log_dir, **log_kwargs)
         self.logger = logging.getLogger(__name__)
 
         # Log the start of the run with ingestion parameters
-        frame = inspect.currentframe()
-        args, _, _, values = inspect.getargvalues(frame)
-        param_string = '\n\t'.join(['{} = {}'.format(arg, values[arg])
-                                    for arg in args[1:]])
         run_msg = ('BEGIN data ingestion.\n\t-- Ingestion params --\n\t{}'
-                   .format(param_string))
+                   .format(pformat(kwargs)))
         self.logger.info(run_msg)
 
         # Top level exception handler
         # Catch exception, log it to file and console, and exit
         try:
-            self._run(target_api_config_path, auto_transform, use_async,
-                      target_url)
+            self._run(target_api_config_path, **kwargs)
         except Exception as e:
             logging.exception(e)
             exit(1)
@@ -67,33 +89,12 @@ class DataIngestPipeline(object):
         # Log the end of the run
         self.logger.info('END data ingestion')
 
-    def _get_log_params(self, data_ingest_config):
-        """
-        Get log params from data_ingest_config
-
-        :param data_ingest_config a DatasetIngestConfig object containing
-        log parameters
-        """
-        # Get log dir
-        log_dir = data_ingest_config.log_dir
-
-        # Get optional log params
-        opt_log_params = {param: getattr(data_ingest_config, param)
-                          for param in ['overwrite_log', 'log_level']}
-
-        # Setup logger
-        setup_logger(log_dir, **opt_log_params)
-
     def _run(self, target_api_config_path, auto_transform=False,
              use_async=False, target_url=DEFAULT_TARGET_URL):
         """
         Runs the ingest pipeline
 
-        :param target_api_config_path: Path to the target api config file
-        :param use_async: Boolean specifies whether to do ingest
-        asynchronously or synchronously
-        :param target_url: URL of the target API, into which data will be
-        loaded. Use default if none is supplied
+        See run method for description of keyword args
         """
         # Create an ordered dict of all ingest stages and their parameters
         self.stage_dict = OrderedDict()
