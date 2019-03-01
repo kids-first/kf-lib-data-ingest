@@ -42,7 +42,16 @@ class DataIngestPipeline(object):
         Entry point for data ingestion. Run ingestion in the top level
         exception handler so that exceptions are logged.
 
-        See _run method for param description
+        :param target_api_config_path: Path to the target api config file
+        :param auto_transform: Boolean specifies whether to use automatic
+        graph-based transformation or user guided transformation
+        :param use_async: Boolean specifies whether to do ingest
+        asynchronously or synchronously
+        :param target_url: URL of the target API, into which data will be
+        loaded. Use default if none is supplied
+        :param log_level_name: case insensitive name of log level
+        (i.e. info, debug, etc) to control logging output.
+        See keys in logging._nameToLevel dict for all possible options
         """
         # Get args, kwargs
         frame = inspect.currentframe()
@@ -55,7 +64,6 @@ class DataIngestPipeline(object):
                       for param in ['overwrite_log', 'log_level']}
 
         # Apply any log parameter overrides
-
         log_level_name = kwargs.pop('log_level_name')
         log_level = logging._nameToLevel.get(str(log_level_name).upper())
         if log_level:
@@ -86,11 +94,7 @@ class DataIngestPipeline(object):
         """
         Runs the ingest pipeline
 
-        :param target_api_config_path: Path to the target api config file
-        :param use_async: Boolean specifies whether to do ingest
-        asynchronously or synchronously
-        :param target_url: URL of the target API, into which data will be
-        loaded. Use default if none is supplied
+        See run method for description of keyword args
         """
         # Create an ordered dict of all ingest stages and their parameters
         self.stage_dict = OrderedDict()
