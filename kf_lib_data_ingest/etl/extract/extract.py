@@ -179,7 +179,7 @@ class ExtractStage(IngestStage):
                 raise type(e)(
                     f'In extract config {extract_config.config_filepath}'
                     f' : {str(e)}'
-                ).with_traceback(sys.exc_info()[2])
+                )
 
             self.logger.debug(
                 "Loaded DataFrame with dimensions %s", df_in.shape
