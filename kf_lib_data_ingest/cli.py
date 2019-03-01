@@ -6,7 +6,11 @@ import inspect
 
 import click
 
-from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
+from kf_lib_data_ingest.config import (
+    DEFAULT_TARGET_URL,
+    DEFAULT_LOG_LEVEL
+)
+from kf_lib_data_ingest.etl.configuration.log import LOG_LEVELS
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
@@ -23,6 +27,9 @@ def cli():
 
 
 @click.command()
+@click.option('--log_level', type=click.Choice(LOG_LEVELS.keys()),
+              default=DEFAULT_LOG_LEVEL, show_default=True,
+              help='The level of log messages')
 @click.option('--use_async',
               default=False,
               is_flag=True,
@@ -39,7 +46,7 @@ def cli():
               help='Target service URL where data will be loaded into')
 @click.argument('dataset_ingest_config_path',
                 type=click.Path(exists=True, file_okay=True, dir_okay=True))
-def ingest(dataset_ingest_config_path, target_url, use_async):
+def ingest(dataset_ingest_config_path, target_url, use_async, log_level):
     """
     Run the Kids First data ingest pipeline.
 

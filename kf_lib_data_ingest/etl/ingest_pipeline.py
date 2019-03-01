@@ -2,8 +2,12 @@ import inspect
 import logging
 import os
 from collections import OrderedDict
+from pprint import pformat
 
-from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
+from kf_lib_data_ingest.config import (
+    DEFAULT_TARGET_URL,
+    DEFAULT_LOG_LEVEL
+)
 from kf_lib_data_ingest.etl.configuration.dataset_ingest_config import (
     DatasetIngestConfig,
 )
@@ -35,31 +39,31 @@ class DataIngestPipeline(object):
                                               'output')
 
     def run(self, target_api_config_path, auto_transform=False,
-            use_async=False, target_url=DEFAULT_TARGET_URL):
+            use_async=False, target_url=DEFAULT_TARGET_URL,
+            log_level=None):
         """
         Entry point for data ingestion. Run ingestion in the top level
         exception handler so that exceptions are logged.
 
         See _run method for param description
         """
-        # Create logger
-        self._get_log_params(self.data_ingest_config)
-        self.logger = logging.getLogger(__name__)
-
-        # Log the start of the run with ingestion parameters
+        # Get args, kwargs
         frame = inspect.currentframe()
         args, _, _, values = inspect.getargvalues(frame)
-        param_string = '\n\t'.join(['{} = {}'.format(arg, values[arg])
-                                    for arg in args[1:]])
+        kwargs = {arg: values[arg] for arg in args[2:]}
+
+        # Create and setup logger
+        self._create_logger(self.data_ingest_config, kwargs)
+
+        # Log the start of the run with ingestion parameters
         run_msg = ('BEGIN data ingestion.\n\t-- Ingestion params --\n\t{}'
-                   .format(param_string))
+                   .format(pformat(kwargs)))
         self.logger.info(run_msg)
 
         # Top level exception handler
         # Catch exception, log it to file and console, and exit
         try:
-            self._run(target_api_config_path, auto_transform, use_async,
-                      target_url)
+            self._run(target_api_config_path, **kwargs)
         except Exception as e:
             logging.exception(e)
             exit(1)
@@ -67,22 +71,32 @@ class DataIngestPipeline(object):
         # Log the end of the run
         self.logger.info('END data ingestion')
 
-    def _get_log_params(self, data_ingest_config):
+    def _create_logger(self, dataset_ingest_config, cli_options):
         """
-        Get log params from data_ingest_config
+        Create and setup logging for ingest
 
-        :param data_ingest_config a DatasetIngestConfig object containing
-        log parameters
+        Log parameters from the CLI options override log parameters in the
+        dataset_ingest_config which override any library defaults defined
+        in kf_lib_data_ingest.config.
+
+        :param data_ingest_config: the DatasetIngestConfig for the ingest
+        pipeline
+        :param run_kwargs: CLI options which got passed as kwargs to the
+        run method
         """
-        # Get log dir
-        log_dir = data_ingest_config.log_dir
-
-        # Get optional log params
-        opt_log_params = {param: getattr(data_ingest_config, param)
+        # Get log params from dataset_ingest_config
+        log_dir = self.data_ingest_config.log_dir
+        opt_log_params = {param: getattr(self.data_ingest_config, param)
                           for param in ['overwrite_log', 'log_level']}
+
+        # Apply CLI overrides
+        log_level = cli_options.pop('log_level')
+        if log_level:
+            opt_log_params['log_level'] = log_level
 
         # Setup logger
         setup_logger(log_dir, **opt_log_params)
+        self.logger = logging.getLogger(__name__)
 
     def _run(self, target_api_config_path, auto_transform=False,
              use_async=False, target_url=DEFAULT_TARGET_URL):
