@@ -2,6 +2,7 @@ import os
 import time
 
 import pytest
+from click.testing import CliRunner
 
 from kf_lib_data_ingest.config import (
     DEFAULT_LOG_FILENAME,
@@ -13,7 +14,9 @@ from conftest import (
     TEST_DATA_DIR,
     KIDS_FIRST_CONFIG
 )
+from kf_lib_data_ingest.etl.configuration.log import LOG_LEVELS
 from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
+from kf_lib_data_ingest import cli
 
 target_api_config_path = KIDS_FIRST_CONFIG
 default_log_dir = os.path.join(TEST_DATA_DIR, 'test_study', 'logs')

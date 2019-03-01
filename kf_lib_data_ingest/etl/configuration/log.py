@@ -1,5 +1,6 @@
 import datetime
 import logging
+import logging.handlers
 import os
 import time
 
@@ -8,6 +9,26 @@ from kf_lib_data_ingest.config import (
     DEFAULT_LOG_LEVEL,
     DEFAULT_LOG_FILENAME
 )
+
+
+def _log_level_dict():
+    """
+    Create log levels dict, where a key is the string representation of
+    log level and a value is the int representation of the level.
+
+    Log levels dict is used in cli.py to provide the enumeration of acceptable
+    choices for --log_level param.
+    """
+    # Log levels dict from logging
+    log_levels = logging._levelToName
+    # Remove the `noset` level, we don't need that
+    log_levels.pop(0)
+
+    return {v.lower(): k for k, v in log_levels.items()}
+
+
+LOG_LEVELS = _log_level_dict()
+DEFAULT_LOG_LEVEL_INT = LOG_LEVELS[DEFAULT_LOG_LEVEL]
 
 
 def create_default_logger(logger_name, log_level=logging.DEBUG):
@@ -65,7 +86,8 @@ def setup_logger(log_dir, overwrite_log=DEFAULT_LOG_OVERWRITE_OPT,
 
     # Set log level and handlers
     root = logging.getLogger()
-    root.setLevel(log_level)
+    root.setLevel(LOG_LEVELS.get(str(log_level).lower(),
+                                 DEFAULT_LOG_LEVEL_INT))
     root.addHandler(fileHandler)
     root.addHandler(consoleHandler)
 
