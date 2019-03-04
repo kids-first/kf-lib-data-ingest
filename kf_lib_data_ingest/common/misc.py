@@ -9,6 +9,7 @@ from pandas import isnull
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
+from requests.exceptions import ConnectionError
 import yaml
 
 from kf_lib_data_ingest.common.type_safety import assert_safe_type
@@ -175,3 +176,119 @@ def requests_retry_session(
     session.mount('https://', adapter)
 
     return session
+
+
+def get_swagger_schema(url, entity_names,
+                       cached_schema_filepath=None, logger=None):
+    """
+    Get schemas for entities in the target API using the API's swagger endpoint
+
+    Will extract parts of the swagger response to create the output dict
+
+    Example swagger response:
+    {
+        'info': {
+            'version': '1.9.0',
+            'description':  'stuff',
+            ...
+        },
+        'definitions': {
+            'Participant': {
+                ...
+            },
+            'Biospecimen': {
+                ...
+            },
+            'BiospecimenResponse': {
+                ...
+            }
+            ...
+        }
+    }
+
+    Will turn into the output:
+
+    {
+        'target_service': https://kf-api-dataservice.kidsfirstdrc.org,
+        'version': 1.9.0,
+        'definitions': {
+            'participant': {
+                ...
+            },
+            'biospecimen': {
+                ...
+            },
+            ...
+        }
+    }
+
+    Items in entity_names must be snake cased versions of existing keys in
+    swagger 'definitions'.
+
+    See https://petstore.swagger.io/v2/swagger.json for example
+    definitions content/structure
+
+    :param url: URL to a target service that implements a Swagger API and
+    has a /swagger endpoint
+    :param entity_names: list of snake cased names of entities to extract from
+    swagger definitions
+    :param cached_schema_filepath: file path to a JSON file containing a
+    saved version of the target service's schema.
+    :param logger: logger to use when reporting errors
+    :returns output: a dict with the schema definition and version
+    """
+    output = None
+    err = None
+    common_msg = 'Unable to retrieve target schema from target service!'
+    schema_url = f'{url}/swagger'
+
+    # Try to get schemas and version from the target service
+    try:
+
+        response = requests_retry_session().get(schema_url)
+
+    except ConnectionError as e:
+
+        err = f'{common_msg}\nCaused by {str(e)}'
+
+    else:
+        if response.status_code == 200:
+            # API Version
+            version = response.json()['info']['version']
+            # Schemas
+            defs = response.json()['definitions']
+            schemas = {
+                k: defs[to_camel_case(k)]
+                for k in entity_names
+                if to_camel_case(k) in defs
+            }
+            # Make output
+            output = {
+                'target_service': url,
+                'definitions': schemas,
+                'version': version
+            }
+            # Update cache file
+            write_json(output, cached_schema_filepath)
+        else:
+            err = f'{common_msg}\nCaused by unexpected response(s):'
+            if response.status_code != 200:
+                err += f'\nFrom {schema_url}/swagger:\n{response.text}'
+
+    if err:
+        # Read from cached file if it exists
+        if not cached_schema_filepath:
+            cached_schema_filepath = os.path.join(os.getcwd(),
+                                                  'cached_schema.json')
+        if os.path.isfile(cached_schema_filepath):
+            return read_json(cached_schema_filepath)
+        else:
+            err += ('\nTried loading from cache '
+                    f'but could not find file: {cached_schema_filepath}')
+        # Report error
+        if logger:
+            logger.warning(err)
+        else:
+            print(err)
+
+    return output
