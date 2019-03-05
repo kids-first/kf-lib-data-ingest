@@ -14,8 +14,13 @@ from kf_lib_data_ingest.common.type_safety import (
 )
 from kf_lib_data_ingest.common.misc import (
     read_json,
-    write_json
+    write_json,
+    get_swagger_schema
 )
+from kf_lib_data_ingest.config import (
+    DEFAULT_TARGET_URL
+)
+from kf_lib_data_ingest.common import constants
 from kf_lib_data_ingest.etl.configuration.target_api_config import (
     TargetAPIConfig
 )
@@ -26,7 +31,7 @@ from kf_lib_data_ingest.etl.transform.guided import GuidedTransformer
 
 class TransformStage(IngestStage):
     def __init__(self, target_api_config_path,
-                 target_api_url=None, ingest_output_dir=None,
+                 target_api_url=DEFAULT_TARGET_URL, ingest_output_dir=None,
                  transform_function_path=None):
 
         super().__init__(ingest_output_dir=ingest_output_dir)
@@ -111,6 +116,70 @@ class TransformStage(IngestStage):
         except TypeError as e:
             raise InvalidIngestStageParameters from e
 
+    def handle_nulls(self, target_instances, target_schema):
+        """
+        Convert null property values in `target_instances` to acceptable values
+        based on the type of property as defined in target schema.
+
+        See kf_lib_data_ingest.common.misc.get_swagger_schema for expected
+        format of target_schema
+
+        `target_instances` is a dict keyed by the `target_concepts` defined in
+        this module. The values are lists of dicts, where a dict in the list
+        takes on the same form as the dicts in `target_concepts`.
+
+        :param target_instances: a dict of lists containing dicts
+        :param target_schema: the target service entity schemas
+        :returns target_instances: Updated version of input
+        """
+        version = target_schema.get('version')
+        self.logger.info(f'Do null processing using target schema '
+                         f'{target_schema.get("target_service")}, '
+                         f'version {pformat(version)}')
+        schemas = target_schema.get('definitions')
+
+        for target_concept, list_of_instances in target_instances.items():
+            # Get schema for target concept
+            schema = schemas.get(target_concept)
+            if not schema:
+                self.logger.info(
+                    f'Skip handle nulls for {target_concept}. No schema '
+                    'was found.')
+            # Convert nulls
+            for i, instance in enumerate(list_of_instances):
+                for attr, value in instance['properties'].items():
+                    if value is not None:
+                        continue
+
+                    property_def = schema['properties'].get(attr)
+                    mapped_value = None
+                    if not property_def:
+                        self.logger.warning(
+                            'No property definition found for '
+                            f'{target_concept}.{attr} in target schema '
+                            'This property may not exist '
+                            'anymore in the target service.'
+                        )
+                    else:
+                        if property_def['type'] == 'string':
+                            mapped_value = constants.COMMON.NOT_REPORTED
+                            # Note - the dataservice should tell us if the
+                            # format of the string is `date-time`, then we
+                            # could do:
+                            #   property_def.get('format') == 'date-time'.
+                            # Right now it doesn't do this.
+                            # That's what we should use to determine what null
+                            # value to use. For now, we're just using the name
+                            # of the attribute
+                            if 'date' in attr:
+                                mapped_value = None
+                        else:
+                            mapped_value = None
+
+                    instance['properties'][attr] = mapped_value
+
+        return target_instances
+
     def _run(self, data_dict):
         """
         Transform the tabular mapped data into a dict of lists.
@@ -125,6 +194,17 @@ class TransformStage(IngestStage):
         # Insert unique key columns before running transformation
         insert_unique_keys(data_dict)
 
+        # Guided or auto transformation
         target_instances = self.transformer.run(data_dict)
+
+        # Null processing
+        target_api_schema = get_swagger_schema(self.target_api_url,
+                                               list(target_instances.keys()),
+                                               logger=self.logger)
+        if target_api_schema:
+            self.handle_nulls(target_instances, target_api_schema)
+        else:
+            self.logger.warning('Skipping null processing because no target '
+                                'schema was found')
 
         return target_instances
