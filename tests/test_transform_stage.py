@@ -1,6 +1,5 @@
 
 import pytest
-import json
 import pandas as pd
 
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
@@ -34,7 +33,7 @@ def df():
                           CONCEPT.PARTICIPANT.RACE: RACE.ASIAN}])
 
 
-def test_invalid_run_parameters(transform_stage):
+def test_invalid_run_parameters(transform_stage, **kwargs):
     """
     Test running transform with invalid run params
     """

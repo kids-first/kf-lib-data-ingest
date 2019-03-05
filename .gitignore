@@ -112,3 +112,5 @@ venv.bak/
 # stage serialization output
 output/
 
+# cached schema file
+cached_schema.json

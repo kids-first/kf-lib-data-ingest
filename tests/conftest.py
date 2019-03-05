@@ -1,13 +1,15 @@
 import os
 import shutil
 import pytest
+from unittest import mock
 
-
+from kf_lib_data_ingest.common.misc import read_json
 from kf_lib_data_ingest.etl.configuration.target_api_config import (
     TargetAPIConfig
 )
 from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
 from kf_lib_data_ingest.etl.transform.transform import TransformStage
+from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
 TEST_ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 TEST_DATA_DIR = os.path.join(TEST_ROOT_DIR, 'data')
 TEST_INGEST_OUTPUT_DIR = os.path.join(TEST_DATA_DIR,
@@ -75,14 +77,32 @@ def ingest_pipeline():
 
 @pytest.fixture(scope='function')
 def target_api_config():
+    """
+    Re-usable fixture for tests. Use this one for all tests that need
+    the transform stage and you don't want to worry about setting it up.
+    """
     return TargetAPIConfig(KIDS_FIRST_CONFIG)
 
 
 @pytest.fixture(scope='function')
 def transform_stage():
+    """
+    Re-usable fixture for tests. Use this one for all tests that need
+    the transform stage and you don't want to worry about setting it up.
+    """
+    # Before test setup
+    # Mock get_open_api_v2_schema to always return the schema
+    mock_dataservice_schema = read_json(
+        os.path.join(TEST_DATA_DIR, 'mock_dataservice_schema.json'))
+    patcher = mock.patch(
+        'kf_lib_data_ingest.common.misc.get_open_api_v2_schema',
+        return_value=mock_dataservice_schema)
+    patcher.start()
     yield TransformStage(KIDS_FIRST_CONFIG,
+                         target_api_url=DEFAULT_TARGET_URL,
                          ingest_output_dir=TEST_INGEST_OUTPUT_DIR,
                          transform_function_path=TRANSFORM_MODULE_PATH)
 
-    # Test teardown
+    # After test teardown
+    patcher.stop()
     delete_ingest_outputs(TEST_INGEST_OUTPUT_DIR)

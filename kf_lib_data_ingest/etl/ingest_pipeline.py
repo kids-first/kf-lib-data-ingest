@@ -114,7 +114,8 @@ class DataIngestPipeline(object):
                     self.ingest_config_dir, os.path.relpath(transform_fp))
 
         self.stage_dict['t'] = (TransformStage, target_api_config_path,
-                                self.ingest_output_dir, transform_fp)
+                                target_url, self.ingest_output_dir,
+                                transform_fp)
 
         # Load stage
         self.stage_dict['l'] = (
