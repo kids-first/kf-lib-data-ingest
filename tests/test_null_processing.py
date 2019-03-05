@@ -113,6 +113,13 @@ def test_get_kf_schema(caplog, tmpdir, target_api_config, **kwargs):
     assert output.get('version')
     assert output.get('target_service')
 
+    # Test cached schema file created in default loc
+    mock.get(schema_url, json=mock_dataservice_schema)
+    output = get_open_api_v2_schema(
+        KIDSFIRST_DATASERVICE_PROD_URL,
+        target_api_config.concept_schemas.keys())
+    assert os.path.isfile(os.path.realpath('./cached_schema.json'))
+
 
 @requests_mock.Mocker(kw='mock')
 def test_handle_nulls(caplog, tmpdir, target_instances, transform_stage,

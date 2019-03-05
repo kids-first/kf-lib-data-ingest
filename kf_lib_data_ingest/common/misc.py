@@ -248,6 +248,11 @@ def get_open_api_v2_schema(url, entity_names,
     common_msg = 'Unable to retrieve target schema from target service!'
     schema_url = f'{url}/swagger'
 
+    # Create default cached_schema filepath
+    if not cached_schema_filepath:
+        cached_schema_filepath = os.path.join(os.getcwd(),
+                                              'cached_schema.json')
+
     # Try to get schemas and version from the target service
     try:
 
@@ -282,10 +287,6 @@ def get_open_api_v2_schema(url, entity_names,
                 err += f'\nFrom {schema_url}/swagger:\n{response.text}'
 
     if err:
-        # Read from cached file if it exists
-        if not cached_schema_filepath:
-            cached_schema_filepath = os.path.join(os.getcwd(),
-                                                  'cached_schema.json')
         if os.path.isfile(cached_schema_filepath):
             return read_json(cached_schema_filepath)
         else:
