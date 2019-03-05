@@ -54,7 +54,7 @@ operations = [
         out_col=CONCEPT.FAMILY.ID
     ),
     value_map(
-        m=lambda x: x not in {'1333', '2044'},  # these families are mangled
+        m=lambda x: x in {'1333', '2044'},  # these families are mangled
         in_col='Family Group ID',
         out_col=CONCEPT.FAMILY.HIDDEN
     ),
