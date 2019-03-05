@@ -127,6 +127,31 @@ def test_target_concept_attr(kids_first_config):
         assert f'{target_concept}.{attr}' in str(e)
 
 
+@pytest.mark.parametrize('link_name',
+                         [('does_not_exist_concept_id'),
+                          ('participant_wrong_suffix')
+                          ])
+def test_bad_link_name(link_name, kids_first_config):
+    """
+    Test for improperly named links
+    """
+    # Pick a target_concept that has links
+    target_concepts = kids_first_config.contents.target_concepts
+    links = target_concepts['participant']['links']
+
+    # Invalid link
+    links[link_name] = CONCEPT.PARTICIPANT.ID
+
+    # Test
+    with pytest.raises(ValueError) as e:
+        try:
+            kids_first_config._validate_target_concept_attr_mappings()
+        except ValueError as e:
+            assert link_name in str(e)
+            assert 'All links must be of the form' in str(e)
+            raise
+
+
 def test_mapped_target_concept_attr(kids_first_config):
     """
     Test for non-string type of a target concept attribute
