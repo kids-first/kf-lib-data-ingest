@@ -156,7 +156,7 @@ target_concepts = {
     'genomic_file': {
         'standard_concept': CONCEPT.GENOMIC_FILE,
         'links': {
-            'sequencing_experiment': CONCEPT.SEQUENCING.UNIQUE_KEY
+            'sequencing_experiment_id': CONCEPT.SEQUENCING.UNIQUE_KEY
         },
         'properties': {
             "external_id": CONCEPT.GENOMIC_FILE.UNIQUE_KEY,
@@ -179,7 +179,7 @@ target_concepts = {
     'read_group': {
         'standard_concept': CONCEPT.READ_GROUP,
         'links': {
-            'genomic_file': CONCEPT.GENOMIC_FILE.UNIQUE_KEY
+            'genomic_file_id': CONCEPT.GENOMIC_FILE.UNIQUE_KEY
         },
         'properties': {
             "external_id": CONCEPT.READ_GROUP.UNIQUE_KEY,
