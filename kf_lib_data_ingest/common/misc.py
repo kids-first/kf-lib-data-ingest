@@ -134,9 +134,9 @@ def multisplit(string: str, delimiters: list):
     return re.split(regexPattern, string)
 
 
-def to_camel_case(snake_str):
+def upper_camel_case(snake_str):
     """
-    Convert snake case str to camel case
+    Convert a snake case str to upper camel case
     """
     words = snake_str.split('_')
     return ''.join([w.title() for w in words])
@@ -178,14 +178,22 @@ def requests_retry_session(
     return session
 
 
-def get_swagger_schema(url, entity_names,
-                       cached_schema_filepath=None, logger=None):
+def get_open_api_v2_schema(url, entity_names,
+                           cached_schema_filepath=None, logger=None):
     """
-    Get schemas for entities in the target API using the API's swagger endpoint
+    Get schemas for entities in the target API using {url}/swagger
+    endpoint. Will extract parts of the {url}/swagger response to create the
+    output dict
 
-    Will extract parts of the swagger response to create the output dict
+    It is expected that swagger endpoint implements the OpenAPI v2.0
+    spec. This method currently supports parsing of responses
+    with a JSON mime-type.
 
-    Example swagger response:
+    See link below for more details on the spec:
+
+    https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md
+
+    Example response from /swagger endpoint:
     {
         'info': {
             'version': '1.9.0',
@@ -222,16 +230,14 @@ def get_swagger_schema(url, entity_names,
         }
     }
 
-    Items in entity_names must be snake cased versions of existing keys in
+    Items in `entity_names` must be snake cased versions of existing keys in
     swagger 'definitions'.
 
-    See https://petstore.swagger.io/v2/swagger.json for example
-    definitions content/structure
+    See https://github.com/OAI/OpenAPI-Specification/blob/master/examples/v2.0/json/petstore.json # noqa E501
 
-    :param url: URL to a target service that implements a Swagger API and
-    has a /swagger endpoint
+    :param url: URL to a target service
     :param entity_names: list of snake cased names of entities to extract from
-    swagger definitions
+    swagger 'definitions' dict
     :param cached_schema_filepath: file path to a JSON file containing a
     saved version of the target service's schema.
     :param logger: logger to use when reporting errors
@@ -258,9 +264,9 @@ def get_swagger_schema(url, entity_names,
             # Schemas
             defs = response.json()['definitions']
             schemas = {
-                k: defs[to_camel_case(k)]
+                k: defs[upper_camel_case(k)]
                 for k in entity_names
-                if to_camel_case(k) in defs
+                if upper_camel_case(k) in defs
             }
             # Make output
             output = {

@@ -15,7 +15,7 @@ from kf_lib_data_ingest.common.type_safety import (
 from kf_lib_data_ingest.common.misc import (
     read_json,
     write_json,
-    get_swagger_schema
+    get_open_api_v2_schema
 )
 from kf_lib_data_ingest.config import (
     DEFAULT_TARGET_URL
@@ -121,7 +121,7 @@ class TransformStage(IngestStage):
         Convert null property values in `target_instances` to acceptable values
         based on the type of property as defined in target schema.
 
-        See kf_lib_data_ingest.common.misc.get_swagger_schema for expected
+        See kf_lib_data_ingest.common.misc.get_open_api_v2_schema for expected
         format of target_schema
 
         `target_instances` is a dict keyed by the `target_concepts` defined in
@@ -252,9 +252,11 @@ class TransformStage(IngestStage):
         target_instances = self.transformer.run(data_dict)
 
         # Null processing
-        target_api_schema = get_swagger_schema(self.target_api_url,
-                                               list(target_instances.keys()),
-                                               logger=self.logger)
+        target_api_schema = get_open_api_v2_schema(
+            self.target_api_url,
+            list(target_instances.keys()),
+            logger=self.logger
+        )
         if target_api_schema:
             self.handle_nulls(target_instances, target_api_schema)
         else:

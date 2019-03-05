@@ -9,7 +9,7 @@ from kf_lib_data_ingest.common import constants
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
 from kf_lib_data_ingest.common.misc import (
     read_json,
-    get_swagger_schema
+    get_open_api_v2_schema
 )
 from kf_lib_data_ingest.config import KIDSFIRST_DATASERVICE_PROD_URL
 
@@ -57,7 +57,7 @@ def target_instances(transform_stage):
 @requests_mock.Mocker(kw='mock')
 def test_get_kf_schema_server_down(caplog, tmpdir, **kwargs):
     """
-    Test kf_lib_data_ingest.target_apis.get_swagger_schema
+    Test kf_lib_data_ingest.target_apis.get_open_api_v2_schema
 
     Test retrieval when server is down and no cached schema exists yet
     """
@@ -70,7 +70,7 @@ def test_get_kf_schema_server_down(caplog, tmpdir, **kwargs):
 
     # Test retrieval when server is down and no cached schema exists
     cached_schema_file = os.path.join(tmpdir, 'cached_schema.json')
-    output = get_swagger_schema(
+    output = get_open_api_v2_schema(
         url, [], cached_schema_filepath=cached_schema_file, logger=logger)
     assert output is None
     assert 'Unable to retrieve target schema' in caplog.text
@@ -80,7 +80,7 @@ def test_get_kf_schema_server_down(caplog, tmpdir, **kwargs):
 @requests_mock.Mocker(kw='mock')
 def test_get_kf_schema(caplog, tmpdir, target_api_config, **kwargs):
     """
-    Test kf_lib_data_ingest.common.misc.get_swagger_schema
+    Test kf_lib_data_ingest.common.misc.get_open_api_v2_schema
 
     Test retrieval when server is up and no cached schema exists
     Test retrieval when servier is down and cached schema exists
@@ -94,7 +94,7 @@ def test_get_kf_schema(caplog, tmpdir, target_api_config, **kwargs):
 
     # Test server up, no cache file exists
     cached_schema_file = os.path.join(tmpdir, 'cached_schema.json')
-    output = get_swagger_schema(
+    output = get_open_api_v2_schema(
         KIDSFIRST_DATASERVICE_PROD_URL,
         target_api_config.concept_schemas.keys(),
         cached_schema_filepath=cached_schema_file)
@@ -105,7 +105,7 @@ def test_get_kf_schema(caplog, tmpdir, target_api_config, **kwargs):
 
     # Test retrieval when server is down and cached schema exists
     mock.get(schema_url, status_code=500)
-    output = get_swagger_schema(
+    output = get_open_api_v2_schema(
         KIDSFIRST_DATASERVICE_PROD_URL,
         target_api_config.concept_schemas.keys(),
         cached_schema_filepath=cached_schema_file)
@@ -126,7 +126,7 @@ def test_handle_nulls(caplog, tmpdir, target_instances, transform_stage,
 
     # Get schemas
     cached_schema_file = os.path.join(tmpdir, 'cached_schema.json')
-    schema = get_swagger_schema(
+    schema = get_open_api_v2_schema(
         KIDSFIRST_DATASERVICE_PROD_URL,
         transform_stage.target_api_config.concept_schemas.keys(),
         cached_schema_filepath=cached_schema_file)

@@ -91,11 +91,12 @@ def transform_stage():
     the transform stage and you don't want to worry about setting it up.
     """
     # Before test setup
-    # Mock get_swagger_schema to always return the schema
+    # Mock get_open_api_v2_schema to always return the schema
     mock_dataservice_schema = read_json(
         os.path.join(TEST_DATA_DIR, 'mock_dataservice_schema.json'))
-    patcher = mock.patch('kf_lib_data_ingest.common.misc.get_swagger_schema',
-                         return_value=mock_dataservice_schema)
+    patcher = mock.patch(
+        'kf_lib_data_ingest.common.misc.get_open_api_v2_schema',
+        return_value=mock_dataservice_schema)
     patcher.start()
     yield TransformStage(KIDS_FIRST_CONFIG,
                          target_api_url=DEFAULT_TARGET_URL,
