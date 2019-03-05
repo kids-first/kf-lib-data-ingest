@@ -4,19 +4,39 @@ import pytest
 import pandas
 import requests_mock
 
+from kf_lib_data_ingest.etl.transform.transform import TransformStage
+from kf_lib_data_ingest.common import constants
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
-from kf_lib_data_ingest.common.misc import read_json
-from kf_lib_data_ingest.target_apis import kids_first
+from kf_lib_data_ingest.common.misc import (
+    read_json,
+    get_swagger_schema
+)
 from kf_lib_data_ingest.config import KIDSFIRST_DATASERVICE_PROD_URL
 
-from conftest import TEST_DATA_DIR
+from conftest import (
+    TEST_DATA_DIR,
+    TEST_INGEST_OUTPUT_DIR,
+    KIDS_FIRST_CONFIG,
+    TRANSFORM_MODULE_PATH
+)
 
-status_url = f'{KIDSFIRST_DATASERVICE_PROD_URL}/status'
 schema_url = f'{KIDSFIRST_DATASERVICE_PROD_URL}/swagger'
-mock_dataservice_status = read_json(
-    os.path.join(TEST_DATA_DIR, 'mock_dataservice_status.json'))
 mock_dataservice_schema = read_json(
     os.path.join(TEST_DATA_DIR, 'mock_dataservice_schema.json'))
+
+logger = logging.getLogger('test_logger')
+
+
+@pytest.fixture(scope='function')
+def transform_stage():
+    """
+    A plain old transform stage with no mocking setup yet. We need this
+    for these tests, since each test will add the desired mocking behavior
+    for requesting schemas
+    """
+    yield TransformStage(KIDS_FIRST_CONFIG,
+                         ingest_output_dir=TEST_INGEST_OUTPUT_DIR,
+                         transform_function_path=TRANSFORM_MODULE_PATH)
 
 
 @pytest.fixture(scope='function')
@@ -37,13 +57,12 @@ def target_instances(transform_stage):
 @requests_mock.Mocker(kw='mock')
 def test_get_kf_schema_server_down(caplog, tmpdir, **kwargs):
     """
-    Test kf_lib_data_ingest.target_apis.kids_first._get_kidsfirst_schema
+    Test kf_lib_data_ingest.target_apis.get_swagger_schema
 
     Test retrieval when server is down and no cached schema exists yet
     """
     url = 'http://localhost:1234'
     mock = kwargs['mock']
-    mock.get(f'{url}/status', status_code=500)
     mock.get(f'{url}/swagger', status_code=500)
 
     # Set pytest to capture log events at level INFO or higher
@@ -51,63 +70,75 @@ def test_get_kf_schema_server_down(caplog, tmpdir, **kwargs):
 
     # Test retrieval when server is down and no cached schema exists
     cached_schema_file = os.path.join(tmpdir, 'cached_schema.json')
-    output = kids_first._get_kidsfirst_schema(
-        url, cached_schema_filepath=cached_schema_file)
+    output = get_swagger_schema(
+        url, [], cached_schema_filepath=cached_schema_file, logger=logger)
     assert output is None
     assert 'Unable to retrieve target schema' in caplog.text
     assert not os.path.isfile(cached_schema_file)
 
 
 @requests_mock.Mocker(kw='mock')
-def test_get_kf_schema(caplog, tmpdir, **kwargs):
+def test_get_kf_schema(caplog, tmpdir, target_api_config, **kwargs):
     """
-    Test kf_lib_data_ingest.target_apis.kids_first._get_kidsfirst_schema
+    Test kf_lib_data_ingest.common.misc.get_swagger_schema
 
     Test retrieval when server is up and no cached schema exists
     Test retrieval when servier is down and cached schema exists
     """
     # Setup mock responses
     mock = kwargs['mock']
-    mock.get(status_url, json=mock_dataservice_status)
     mock.get(schema_url, json=mock_dataservice_schema)
 
     # Set pytest to capture log events at level INFO or higher
     caplog.set_level(logging.INFO)
 
-    # Test
+    # Test server up, no cache file exists
     cached_schema_file = os.path.join(tmpdir, 'cached_schema.json')
-    output = kids_first._get_kidsfirst_schema(
+    output = get_swagger_schema(
         KIDSFIRST_DATASERVICE_PROD_URL,
+        target_api_config.concept_schemas.keys(),
         cached_schema_filepath=cached_schema_file)
     assert output.get('definitions')
     assert output.get('version')
+    assert output.get('target_service')
     assert os.path.isfile(cached_schema_file)
 
     # Test retrieval when server is down and cached schema exists
-    mock.get(status_url, status_code=500)
-    output = kids_first._get_kidsfirst_schema(
+    mock.get(schema_url, status_code=500)
+    output = get_swagger_schema(
         KIDSFIRST_DATASERVICE_PROD_URL,
+        target_api_config.concept_schemas.keys(),
         cached_schema_filepath=cached_schema_file)
     assert output.get('definitions')
     assert output.get('version')
+    assert output.get('target_service')
 
 
 @requests_mock.Mocker(kw='mock')
-def test_handle_nulls(caplog, target_instances, **kwargs):
+def test_handle_nulls(caplog, tmpdir, target_instances, transform_stage,
+                      **kwargs):
     """
-    Test kf_lib_data_ingest.target_apis.kids_first.handle_nulls
+    Test kf_lib_data_ingest.etl.transform.transform.handle_nulls
     """
     # Setup mock responses
     mock = kwargs['mock']
-    mock.get(status_url, json=mock_dataservice_status)
     mock.get(schema_url, json=mock_dataservice_schema)
 
-    target_instances = kids_first.handle_nulls(target_instances)
+    # Get schemas
+    cached_schema_file = os.path.join(tmpdir, 'cached_schema.json')
+    schema = get_swagger_schema(
+        KIDSFIRST_DATASERVICE_PROD_URL,
+        transform_stage.target_api_config.concept_schemas.keys(),
+        cached_schema_filepath=cached_schema_file)
+
+    # Handle nulls
+    target_instances = transform_stage.handle_nulls(target_instances,
+                                                    schema)
     expected = {
         # a boolean
         'is_proband': None,
         # a string
-        'race': kids_first.VALUE_FOR_NULL_STR,
+        'race': constants.COMMON.NOT_REPORTED,
         # an int/float
         'age_at_event_days': None,
         # a datetime
