@@ -35,6 +35,7 @@ Ingest Pipeline
 ===============
 
 .. figure:: _static/images/ingest-pipeline.png
+   :target: _images/ingest-pipeline.png
    :alt: Ingest Pipeline Overview
 
    Overview of the ingest pipeline
