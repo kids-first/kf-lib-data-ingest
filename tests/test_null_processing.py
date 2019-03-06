@@ -34,9 +34,9 @@ def transform_stage():
     for these tests, since each test will add the desired mocking behavior
     for requesting schemas
     """
-    yield TransformStage(KIDS_FIRST_CONFIG,
-                         ingest_output_dir=TEST_INGEST_OUTPUT_DIR,
-                         transform_function_path=TRANSFORM_MODULE_PATH)
+    return TransformStage(KIDS_FIRST_CONFIG,
+                          ingest_output_dir=TEST_INGEST_OUTPUT_DIR,
+                          transform_function_path=TRANSFORM_MODULE_PATH)
 
 
 @pytest.fixture(scope='function')
@@ -52,6 +52,22 @@ def target_instances(transform_stage):
         })
     }
     return transform_stage.transformer._standard_to_target(dfs)
+
+
+@pytest.fixture(scope='function')
+@requests_mock.Mocker(kw='mock')
+def schema(tmpdir, target_api_config, **kwargs):
+    # Setup mock responses
+    mock = kwargs['mock']
+    mock.get(schema_url, json=mock_dataservice_schema)
+
+    cached_schema_file = os.path.join(tmpdir, 'cached_schema.json')
+    output = get_open_api_v2_schema(
+        KIDSFIRST_DATASERVICE_PROD_URL,
+        target_api_config.concept_schemas.keys(),
+        cached_schema_filepath=cached_schema_file)
+
+    return output
 
 
 @requests_mock.Mocker(kw='mock')
@@ -121,26 +137,17 @@ def test_get_kf_schema(caplog, tmpdir, target_api_config, **kwargs):
     assert os.path.isfile(os.path.realpath('./cached_schema.json'))
 
 
-@requests_mock.Mocker(kw='mock')
-def test_handle_nulls(caplog, tmpdir, target_instances, transform_stage,
-                      **kwargs):
+def test_handle_nulls(caplog, transform_stage, target_instances, schema):
     """
     Test kf_lib_data_ingest.etl.transform.transform.handle_nulls
+
+    Normal operation
     """
-    # Setup mock responses
-    mock = kwargs['mock']
-    mock.get(schema_url, json=mock_dataservice_schema)
+    # Set pytest to capture log events at level INFO or higher
+    caplog.set_level(logging.INFO)
 
-    # Get schemas
-    cached_schema_file = os.path.join(tmpdir, 'cached_schema.json')
-    schema = get_open_api_v2_schema(
-        KIDSFIRST_DATASERVICE_PROD_URL,
-        transform_stage.target_api_config.concept_schemas.keys(),
-        cached_schema_filepath=cached_schema_file)
-
-    # Handle nulls
-    target_instances = transform_stage.handle_nulls(target_instances,
-                                                    schema)
+    # Test normal operation
+    transform_stage.handle_nulls(target_instances, schema)
     expected = {
         # a boolean
         'is_proband': None,
@@ -157,3 +164,41 @@ def test_handle_nulls(caplog, tmpdir, target_instances, transform_stage,
             for attr, value in instance.get('properties', {}).items():
                 if attr in expected:
                     assert value == expected[attr]
+
+
+def test_handle_nulls_no_schema(caplog, transform_stage, target_instances,
+                                schema):
+    """
+    Test kf_lib_data_ingest.etl.transform.transform.handle_nulls
+
+    When no schema exists for a target_concept, 'participant'
+    """
+    # Set pytest to capture log events at level INFO or higher
+    caplog.set_level(logging.INFO)
+
+    # Handle nulls
+    schema['definitions'].pop('participant')
+    transform_stage.handle_nulls(target_instances, schema)
+    assert ('Skip handle nulls for participant. No schema was found.' in
+            caplog.text)
+
+
+def test_handle_nulls_no_prop_def(caplog, transform_stage, target_instances,
+                                  schema):
+    """
+    Test kf_lib_data_ingest.etl.transform.transform.handle_nulls
+
+    When no property def exists in schema for a property, participant.gender
+    """
+    # Set pytest to capture log events at level INFO or higher
+    caplog.set_level(logging.INFO)
+
+    # Test setup
+    schema['definitions']['participant']['properties'].pop('gender')
+    target_instances['participant'][0]['properties']['gender'] = None
+
+    # Handle nulls
+    transform_stage.handle_nulls(target_instances, schema)
+    assert ('No property definition found for '
+            f'participant.gender in target schema ' in
+            caplog.text)
