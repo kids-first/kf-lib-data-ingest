@@ -199,12 +199,12 @@ class TransformStage(IngestStage):
                 self.logger.info(
                     f'Skip handle nulls for {target_concept}. No schema '
                     'was found.')
+                continue
             # Convert nulls
             for i, instance in enumerate(list_of_instances):
                 for attr, value in instance['properties'].items():
                     if value is not None:
                         continue
-
                     property_def = schema['properties'].get(attr)
                     mapped_value = None
                     if not property_def:
@@ -229,6 +229,10 @@ class TransformStage(IngestStage):
                                 mapped_value = None
                         else:
                             mapped_value = None
+
+                    self.logger.debug(
+                        f'Mapping {target_concept}.{attr} value {value} to '
+                        f'{mapped_value}')
 
                     instance['properties'][attr] = mapped_value
 

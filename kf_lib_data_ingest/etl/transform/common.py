@@ -4,6 +4,7 @@ modules in the kf_lib_data_ingest.etl.transform package
 """
 import logging
 from copy import deepcopy
+from pprint import pformat
 
 from kf_lib_data_ingest.common.concept_schema import (
     concept_from,
@@ -92,8 +93,10 @@ def insert_unique_keys(df_dict, unique_key_composition=DEFAULT_KEY_COMP):
     :returns df_dict: a modified version of the input, with UNIQUE_KEY columns
     added to each DataFrame
     """
+    logger.info('Begin unique key creation for standard concepts ...')
     for extract_config_url, (source_file_url, df) in df_dict.items():
         # Insert unique key columns
+        logger.info(f'Creating unique keys for {source_file_url}...')
         df = _add_unique_key_cols(df, unique_key_composition)
 
         # If no unique key columns are present raise an error.
@@ -192,6 +195,11 @@ def _add_unique_key_cols(df, unique_key_composition):
             lambda row: VALUE_DELIMITER.join([str(row[c])
                                               for c in unique_key_cols
                                               if c in df.columns]), axis=1)
+    unique_concepts_found = [col for col in df.columns
+                             if col.endswith(UNIQUE_ID_ATTR)]
+    logger.info(f'Found {len(unique_concepts_found)} standard concepts in '
+                f'table:\n{pformat(unique_concepts_found)}'
+                )
 
     return df
 
