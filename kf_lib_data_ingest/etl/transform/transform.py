@@ -240,19 +240,27 @@ class TransformStage(IngestStage):
 
                     instance['properties'][attr] = mapped_value
 
-    def _source_to_target_ids(self, id_cache, target_instances):
+    def _unique_keys_to_target_ids(self, id_cache, target_instances):
         """
-        Translate source data IDs to target service IDs by looking source
-        data IDs up in the ID cache.
+        This method preps `target_instances` for the load stage by
+        translating the instances' unique keys, created in
+        `insert_unique_keys`, to identifiers assigned by the target service
+        in a previous ingest run.
 
-        Insert results of lookups in `target_instances` so it is ready
-        for the load stage.
+        Each time a new concept instance is created in the target service,
+        the ingest pipeline saves a record of the created instance's ID from
+        the target service and the instance's unique key. These records are
+        stored in the UID cache.
 
-        If the load stage sees that the target ID value for an instance is
-        None, then it will know to create a NEW instance.
+        The translation happens by looking up the instance's unique key
+        in the UID cache.
 
-        If the load stage sees that the target ID value for an instance is
-        not None, then it will know that this instance exists in the target
+        Then later on, if the load stage sees that the target service ID for
+        an instance is None, it will know to create a NEW instance in the
+        target service.
+
+        If the load stage sees that the target service ID for an instance is
+        not None, it will know that this instance exists in the target
         service and it will UPDATE the instance.
 
         Before ID translation, `target_instances` might look like:
@@ -262,8 +270,8 @@ class TransformStage(IngestStage):
                     'endpoint': '/biospecimens',
                     'id': 'b1',
                     'links': {
-                        'participant_id': 'p1',
-                        'sequencing_center_id': 'Baylor'
+                        'participant_id': 'p1',          <- Exists in target service # noqa E501
+                        'sequencing_center_id': 'Baylor' <- Exists in target service # noqa E501
                     },
                     'properties': {
                         'analyte_type': 'dna',
@@ -281,16 +289,16 @@ class TransformStage(IngestStage):
                     'endpoint': '/biospecimens',
                     'id': {
                         'source': 'b1',
-                        'target': None
+                        'target': None                  <- Not in target service yet # noqa E501
                     },
                     'links': {
                         'participant_id': {
                             'source': 'p1',
-                            'target': 'PT_00001111'
+                            'target': 'PT_00001111'     <- Found in UID cache
                         },
                         'sequencing_center_id': {
                             'source': 'Baylor',
-                            'target': 'SC_00001111'
+                            'target': 'SC_00001111'     <- Found in UID cache
                         }
                     },
                     'properties': {
@@ -302,13 +310,17 @@ class TransformStage(IngestStage):
                 ]
             }
 
-        :param id_cache: source to target ID cache. See `load_id_cache` method
+        :param id_cache: unique ID cache. See `load_id_cache` method
         :param target_instances: dict containing target instance dicts. See
         `_run` method
         :returns target_instances: modified version of `target_instances` input
-        containing source to target ID translations
+        containing lookups of target service IDs
         """
-        self.logger.info('Translating source IDs to target IDs')
+        if not id_cache:
+            self.logger.warning('Creating new UID cache ...')
+
+        self.logger.info(
+            'Translating unique keys to target service IDs')
         for target_concept, instances in target_instances.items():
             for instance in instances:
                 # id
@@ -363,12 +375,17 @@ class TransformStage(IngestStage):
             self.logger.warning('Skipping null processing because no target '
                                 'schema was found')
 
-        # Source to target ID translation
-        id_cache = read_json(self.id_cache_filepath, default={})
-        if not id_cache:
+        # Prep for load stage
+        # Translate unique keys to existing target service ids
+        # Tells load stage whether to create new or update existing entity
+        try:
+            id_cache = read_json(self.id_cache_filepath)
+        except FileNotFoundError as e:
             self.logger.warning(
-                f'ID cache file not found {self.id_cache_filepath}')
-        self._source_to_target_ids(id_cache,
-                                   target_instances)
+                f'UID cache file does not exist: {self.id_cache_filepath}')
+            id_cache = {}
+
+        self._unique_keys_to_target_ids(id_cache,
+                                        target_instances)
 
         return target_instances

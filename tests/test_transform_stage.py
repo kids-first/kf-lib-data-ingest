@@ -190,9 +190,9 @@ def test_no_key_comp_defined():
         assert 'key composition not defined' in str(e)
 
 
-def test_source_to_target_conversion(transform_stage):
+def test_unique_key_to_target_id(caplog, transform_stage):
     """
-    Test kf_lib_data_ingest.etl.transform.transform.source_to_target_ids
+    Test kf_lib_data_ingest.etl.transform.transform.unique_keys_to_target_ids
     """
     id_cache = {
         'biospecimen': {
@@ -221,8 +221,8 @@ def test_source_to_target_conversion(transform_stage):
              }}
         ]
     }
-    data_out = transform_stage._source_to_target_ids(id_cache,
-                                                     deepcopy(data_in))
+    data_out = transform_stage._unique_keys_to_target_ids(id_cache,
+                                                          deepcopy(data_in))
 
     for target_concept, instances in data_out.items():
         for i, instance in enumerate(instances):
@@ -235,3 +235,8 @@ def test_source_to_target_conversion(transform_stage):
                 assert source_id == data_in[target_concept][i]['id']
                 expected = id_cache[target_concept].get(source_id, None)
                 assert instance['id']['target'] == expected
+
+    # No cache exists yet
+    data_out = transform_stage._unique_keys_to_target_ids(
+        {}, deepcopy(data_in))
+    assert 'Creating new UID cache' in caplog.text

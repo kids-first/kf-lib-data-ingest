@@ -1,4 +1,5 @@
 import os
+import logging
 import shutil
 import pytest
 from unittest import mock
@@ -85,11 +86,14 @@ def target_api_config():
 
 
 @pytest.fixture(scope='function')
-def transform_stage():
+def transform_stage(caplog):
     """
     Re-usable fixture for tests. Use this one for all tests that need
     the transform stage and you don't want to worry about setting it up.
     """
+    # Set pytest to capture log events at level INFO or higher
+    caplog.set_level(logging.INFO)
+
     # Before test setup
     # Mock get_open_api_v2_schema to always return the schema
     mock_dataservice_schema = read_json(
