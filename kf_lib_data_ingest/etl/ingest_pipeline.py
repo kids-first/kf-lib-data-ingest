@@ -116,11 +116,11 @@ class DataIngestPipeline(object):
                 transform_fp = os.path.join(
                     self.ingest_config_dir, os.path.relpath(transform_fp))
 
-        id_cache_filepath = os.path.join(self.ingest_config_dir,
-                                         DEFAULT_ID_CACHE_FILENAME)
+        uid_cache_filepath = os.path.join(self.ingest_config_dir,
+                                          DEFAULT_ID_CACHE_FILENAME)
         self.stage_dict['t'] = (TransformStage, target_api_config_path,
                                 target_url, self.ingest_output_dir,
-                                transform_fp)
+                                transform_fp, uid_cache_filepath)
 
         # Load stage
         self.stage_dict['l'] = (

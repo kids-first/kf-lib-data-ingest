@@ -33,15 +33,15 @@ from kf_lib_data_ingest.config import (
 class TransformStage(IngestStage):
     def __init__(self, target_api_config_path,
                  target_api_url=DEFAULT_TARGET_URL, ingest_output_dir=None,
-                 transform_function_path=None, id_cache_filepath=None):
+                 transform_function_path=None, uid_cache_filepath=None):
 
         super().__init__(ingest_output_dir=ingest_output_dir)
 
         self.target_api_url = target_api_url
         self.target_api_config = TargetAPIConfig(target_api_config_path)
-        self.id_cache_filepath = (id_cache_filepath or
-                                  os.path.join(os.getcwd(),
-                                               DEFAULT_ID_CACHE_FILENAME))
+        self.uid_cache_filepath = (uid_cache_filepath or
+                                   os.path.join(os.getcwd(),
+                                                DEFAULT_ID_CACHE_FILENAME))
 
         if not transform_function_path:
             # ** Temporary - until auto transform is further developed **
@@ -240,7 +240,7 @@ class TransformStage(IngestStage):
 
                     instance['properties'][attr] = mapped_value
 
-    def _unique_keys_to_target_ids(self, id_cache, target_instances):
+    def _unique_keys_to_target_ids(self, uid_cache, target_instances):
         """
         This method preps `target_instances` for the load stage by
         translating the instances' unique keys, created in
@@ -310,21 +310,18 @@ class TransformStage(IngestStage):
                 ]
             }
 
-        :param id_cache: unique ID cache. See `load_id_cache` method
+        :param uid_cache: unique ID cache. See `load_uid_cache` method
         :param target_instances: dict containing target instance dicts. See
         `_run` method
         :returns target_instances: modified version of `target_instances` input
         containing lookups of target service IDs
         """
-        if not id_cache:
-            self.logger.warning('Creating new UID cache ...')
-
         self.logger.info(
             'Translating unique keys to target service IDs')
         for target_concept, instances in target_instances.items():
             for instance in instances:
                 # id
-                cache = id_cache.get(target_concept, {})
+                cache = uid_cache.get(target_concept, {})
                 source_id = instance['id']
                 instance['id'] = {
                     'target': cache.get(source_id),
@@ -333,7 +330,7 @@ class TransformStage(IngestStage):
                 # links
                 links = {}
                 for link_name, value in instance['links'].items():
-                    cache = id_cache.get(link_name.split('_id')[0], {})
+                    cache = uid_cache.get(link_name.split('_id')[0], {})
                     links.update(
                         {
                             link_name: {
@@ -379,13 +376,13 @@ class TransformStage(IngestStage):
         # Translate unique keys to existing target service ids
         # Tells load stage whether to create new or update existing entity
         try:
-            id_cache = read_json(self.id_cache_filepath)
+            uid_cache = read_json(self.uid_cache_filepath)
         except FileNotFoundError as e:
             self.logger.warning(
-                f'UID cache file does not exist: {self.id_cache_filepath}')
-            id_cache = {}
+                f'UID cache file does not exist: {self.uid_cache_filepath}')
+            uid_cache = {}
 
-        self._unique_keys_to_target_ids(id_cache,
+        self._unique_keys_to_target_ids(uid_cache,
                                         target_instances)
 
         return target_instances

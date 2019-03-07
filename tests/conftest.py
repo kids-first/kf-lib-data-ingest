@@ -92,7 +92,7 @@ def transform_stage(caplog):
     the transform stage and you don't want to worry about setting it up.
     """
     # Set pytest to capture log events at level INFO or higher
-    caplog.set_level(logging.INFO)
+    caplog.set_level(logging.DEBUG)
 
     # Before test setup
     # Mock get_open_api_v2_schema to always return the schema
