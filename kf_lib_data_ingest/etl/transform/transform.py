@@ -424,16 +424,16 @@ class TransformStage(IngestStage):
         concept instances of the same type and drop them
 
         3. Each time a new concept instance is created in the target service,
-        the ingest pipeline saves a record of the created instance's ID from the
-        target service and the instance's UNIQUE_KEY. These records are stored
-        in the ID cache.
+           the ingest pipeline saves a record of the created instance's ID from
+           the target service and the instance's UNIQUE_KEY. These records are
+           stored in the ID cache.
 
         The ID cache is used for determining whether to create or update an
-        entity in the target service each time the ingest pipeline runs.
-        When ingest pipeline runs again for the same dataset, it will lookup the
+        entity in the target service each time the ingest pipeline runs. When
+        ingest pipeline runs again for the same dataset, it will lookup the
         concept instance's UNIQUE_KEY in the ID cache to see if there is an
-        existing target service ID for the instance. If there is, an update will
-        be performed. If not, a new instance will be created.
+        existing target service ID for the instance. If there is, an update
+        will be performed. If not, a new instance will be created.
 
         Construction
         ------------
@@ -441,41 +441,42 @@ class TransformStage(IngestStage):
         (i.e. CONCEPT.PARTICIPANT.ID) assigned to the concept instance in the
         source data by the data provider.
 
-        But some concepts don't have an explicit identifier that was given
-        by the data provider. These are usually event type concepts such as
-        DIAGNOSIS and PHENOTYPE observation events. For example, `Participant P1
-        was diagnosed with Ewing's Sarcoma on date X.` is a DIAGNOSIS event concept
+        But some concepts don't have an explicit identifier that was given by
+        the data provider. These are usually event type concepts such as
+        DIAGNOSIS and PHENOTYPE observation events. For example, `Participant
+        P1 was diagnosed with Ewing's Sarcoma on date X.` is a DIAGNOSIS event
+        concept
 
         For these concepts, a unique identifier must somehow be formed using
         existing columns in the data (a.k.a other concept attributes).
 
-        Continuing with the above example, we can uniquely identify the DIAGNOSIS
-        event by combining the UNIQUE_KEY of the PARTICIPANT who has been given
-        the DIAGNOSIS, the name of the DIAGNOSIS, and the some sort of datetime
-        of the event
+        Continuing with the above example, we can uniquely identify the
+        DIAGNOSIS event by combining the UNIQUE_KEY of the PARTICIPANT who has
+        been given the DIAGNOSIS, the name of the DIAGNOSIS, and the some sort
+        of datetime of the event
 
         Example - DIAGNOSIS.UNIQUE_KEY
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         Composition Formula =
 
-            PARTICIPANT.UNIQUE_KEY + DIAGNOSIS.NAME + DIAGNOSIS.EVENT_AGE_IN_DAYS
+            PARTICIPANT.UNIQUE_KEY + DIAGNOSIS.NAME + DIAGNOSIS.EVENT_AGE_IN_DAYS     # noqa E501
 
         Value of DIAGNOSIS.UNIQUE_KEY =
 
             P1-Ewings-Sarcoma-500
 
-        The rules for composing UNIQUE_KEYs are defined in `unique_key_composition`
-        input parameter, and if not supplied, the default will be loaded from
-        kf_lib_data_ingest.common.concept_schema.
+        The rules for composing UNIQUE_KEYs are defined in
+        `unique_key_composition` input parameter, and if not supplied, the
+        default will be loaded from kf_lib_data_ingest.common.concept_schema.
 
         :param df_dict: a dict of Pandas DataFrames. A key is an extract config
         URL and a value is a tuple of (source file url, DataFrame).
         :param unique_key_composition: a dict where a key is a standard concept
         string and a value is a list of required columns needed to compose
         a unique key for the concept
-        :returns df_dict: a modified version of the input, with UNIQUE_KEY columns
-        added to each DataFrame
+        :returns df_dict: a modified version of the input, with UNIQUE_KEY
+        columns added to each DataFrame
         """
         self.logger.info('Begin unique key creation for standard concepts ...')
         for extract_config_url, (source_file_url, df) in df_dict.items():
@@ -488,15 +489,19 @@ class TransformStage(IngestStage):
             # identify concepts in the data. In the case of auto transform
             # this means no ConceptNodes can be created and inserted into the
             # ConceptGraph.
-            is_any_unique_keys = any([concept_attr_from(col) == UNIQUE_ID_ATTR
-                                    for col in df.columns])
+            is_any_unique_keys = any(
+                [
+                    concept_attr_from(col) == UNIQUE_ID_ATTR
+                    for col in df.columns
+                ]
+            )
             if not is_any_unique_keys:
                 raise ValueError(
                     'No unique keys were created for table! There must '
-                    'be at least 1 unique key column in a table. Zero unique keys '
-                    'in a table means there is no way to identify any concept '
-                    f'instances. Source of error is {extract_config_url} : '
-                    f'{source_file_url}'
+                    'be at least 1 unique key column in a table. Zero unique '
+                    'keys in a table means there is no way to identify any '
+                    ' concept instances. Source of error is '
+                    f'{extract_config_url} : {source_file_url}'
                 )
 
     def _add_unique_key_cols(self, df, unique_key_composition):
@@ -509,8 +514,8 @@ class TransformStage(IngestStage):
         columns required to compose the UNIQUE_KEY for that concept exist in
         the DataFrame.
 
-        The rules for composition are defined in unique_key_composition.
-        See kf_lib_data_ingest.common.concept_schema._create_unique_key_composition
+        The rules for composition are defined in unique_key_composition. See
+        kf_lib_data_ingest.common.concept_schema._create_unique_key_composition
         for details on structure and content.
 
         The value of a UNIQUE_KEY will be a delimited string containing the
@@ -558,9 +563,11 @@ class TransformStage(IngestStage):
             unique_key_cols = []
             required = set()
             optional = set()
-            self._unique_key_cols(concept_name,
-                            df, unique_key_composition,
-                            unique_key_cols, required, optional)
+            self._unique_key_cols(
+                concept_name,
+                df, unique_key_composition,
+                unique_key_cols, required, optional
+            )
 
             # Missing required column needed to make the unique key
             missing_req_cols = [col for col in required
@@ -575,14 +582,23 @@ class TransformStage(IngestStage):
             # Insert unique key column for the concept
             unique_key_col = f'{concept_name}{DELIMITER}{UNIQUE_ID_ATTR}'
             df[unique_key_col] = df.apply(
-                lambda row: VALUE_DELIMITER.join([str(row[c])
-                                                for c in unique_key_cols
-                                                if c in df.columns]), axis=1)
-        unique_concepts_found = [col for col in df.columns
-                                if col.endswith(UNIQUE_ID_ATTR)]
-        self.logger.info(f'Found {len(unique_concepts_found)} standard concepts in '
-                    f'table:\n{pformat(unique_concepts_found)}'
-                    )
+                lambda row: VALUE_DELIMITER.join(
+                    [
+                        str(row[c])
+                        for c in unique_key_cols
+                        if c in df.columns
+                    ]
+                ),
+                axis=1
+            )
+        unique_concepts_found = [
+            col for col in df.columns
+            if col.endswith(UNIQUE_ID_ATTR)
+        ]
+        self.logger.info(
+            f'Found {len(unique_concepts_found)} standard concepts in '
+            f'table:\n{pformat(unique_concepts_found)}'
+        )
 
         return df
 
@@ -617,17 +633,17 @@ class TransformStage(IngestStage):
             }
 
         If we want to make the unique key for DIAGNOSIS, then at a minimum the
-        required columns (PARTICIPANT|ID, DIAGNOSIS|NAME) must be present in the
-        DataFrame. If any of the optional columns are also present, they will be
-        used to make the unique key too.
+        required columns (PARTICIPANT|ID, DIAGNOSIS|NAME) must be present in
+        the DataFrame. If any of the optional columns are also present, they
+        will be used to make the unique key too.
 
         :param concept_name: a string and the name of the concept for which a
         unique key will be made
         :param df: a Pandas DataFrame
         :param unique_key_cols: the output list of columns needed to build the
         unique key column for a concept.
-        :param required_cols: the required subset of columns needed to build the
-        unique key column for a concept.
+        :param required_cols: the required subset of columns needed to build
+        the unique key column for a concept.
         :param optional_cols: the additional columns that can be
         used in the construction of the unique key if they are present
         """
@@ -637,8 +653,10 @@ class TransformStage(IngestStage):
 
         # If key cols don't exist for a concept, then we have made a dev
         # error in concept_schema.py
-        assert key_comp, ('Unique key composition not defined in concept '
-                        f'schema for concept {concept_name}!')
+        assert key_comp, (
+            'Unique key composition not defined in concept '
+            f'schema for concept {concept_name}!'
+        )
 
         # If unique key col for this concept already exists return that
         unique_key_col = f'{concept_name}{DELIMITER}{UNIQUE_ID_ATTR}'
@@ -655,9 +673,11 @@ class TransformStage(IngestStage):
         for key_col in key_cols:
             if concept_attr_from(key_col) == UNIQUE_ID_ATTR:
                 # The col is a unique key so recurse
-                self._unique_key_cols(concept_from(key_col),
-                                df, unique_key_composition,
-                                unique_key_cols, required_cols, optional_cols)
+                self._unique_key_cols(
+                    concept_from(key_col),
+                    df, unique_key_composition,
+                    unique_key_cols, required_cols, optional_cols
+                )
             else:
                 # Add to list of cols needed to make unique key
                 unique_key_cols.append(key_col)
