@@ -28,19 +28,7 @@ logger = logging.getLogger('test_logger')
 
 
 @pytest.fixture(scope='function')
-def transform_stage():
-    """
-    A plain old transform stage with no mocking setup yet. We need this
-    for these tests, since each test will add the desired mocking behavior
-    for requesting schemas
-    """
-    return TransformStage(KIDS_FIRST_CONFIG,
-                          ingest_output_dir=TEST_INGEST_OUTPUT_DIR,
-                          transform_function_path=TRANSFORM_MODULE_PATH)
-
-
-@pytest.fixture(scope='function')
-def target_instances(transform_stage):
+def target_instances(guided_transform_stage):
     dfs = {
         'participant': pandas.DataFrame({
             CONCEPT.PARTICIPANT.UNIQUE_KEY: ['p1', 'p2', 'p2'],
@@ -51,7 +39,7 @@ def target_instances(transform_stage):
             CONCEPT.BIOSPECIMEN.ANALYTE: ['dna', 'rna', 'dna']
         })
     }
-    return transform_stage.transformer._standard_to_target(dfs)
+    return guided_transform_stage._standard_to_target(dfs)
 
 
 @pytest.fixture(scope='function')
@@ -137,7 +125,7 @@ def test_get_kf_schema(caplog, tmpdir, target_api_config, **kwargs):
     assert os.path.isfile(os.path.realpath('./cached_schema.json'))
 
 
-def test_handle_nulls(caplog, transform_stage, target_instances, schema):
+def test_handle_nulls(caplog, guided_transform_stage, target_instances, schema):
     """
     Test kf_lib_data_ingest.etl.transform.transform.handle_nulls
 
@@ -147,7 +135,7 @@ def test_handle_nulls(caplog, transform_stage, target_instances, schema):
     caplog.set_level(logging.INFO)
 
     # Test normal operation
-    transform_stage.handle_nulls(target_instances, schema)
+    guided_transform_stage.handle_nulls(target_instances, schema)
     expected = {
         # a boolean
         'is_proband': None,
@@ -166,7 +154,7 @@ def test_handle_nulls(caplog, transform_stage, target_instances, schema):
                     assert value == expected[attr]
 
 
-def test_handle_nulls_no_schema(caplog, transform_stage, target_instances,
+def test_handle_nulls_no_schema(caplog, guided_transform_stage, target_instances,
                                 schema):
     """
     Test kf_lib_data_ingest.etl.transform.transform.handle_nulls
@@ -178,12 +166,12 @@ def test_handle_nulls_no_schema(caplog, transform_stage, target_instances,
 
     # Handle nulls
     schema['definitions'].pop('participant')
-    transform_stage.handle_nulls(target_instances, schema)
+    guided_transform_stage.handle_nulls(target_instances, schema)
     assert ('Skip handle nulls for participant. No schema was found.' in
             caplog.text)
 
 
-def test_handle_nulls_no_prop_def(caplog, transform_stage, target_instances,
+def test_handle_nulls_no_prop_def(caplog, guided_transform_stage, target_instances,
                                   schema):
     """
     Test kf_lib_data_ingest.etl.transform.transform.handle_nulls
@@ -198,7 +186,7 @@ def test_handle_nulls_no_prop_def(caplog, transform_stage, target_instances,
     target_instances['participant'][0]['properties']['gender'] = None
 
     # Handle nulls
-    transform_stage.handle_nulls(target_instances, schema)
+    guided_transform_stage.handle_nulls(target_instances, schema)
     assert ('No property definition found for '
             f'participant.gender in target schema ' in
             caplog.text)

@@ -6,22 +6,13 @@ source data tables.
 import logging
 
 from kf_lib_data_ingest.etl.transform.standard_model.model import StandardModel
+from kf_lib_data_ingest.etl.transform.transform import TransformStage
 
 
-class AutoTransformer():
-    def __init__(self, target_api_config):
-        self.logger = logging.getLogger(type(self).__name__)
-        self.target_api_config = target_api_config
-
-    def run(self, data_dict):
+class AutoTransformStage(TransformStage):
+    def _do_transform(self, data_dict):
         """
-        Transform the tabular mapped data into a unified standard form,
-        then transform again from the standard form into a dict of lists.
-        Keys are target entity types and values are lists of target entity
-        dicts.
-
-        :param data_dict: a dict containing the mapped source data which
-        follows the format outlined in _validate_run_parameters.
+        See TransformStage._do_transform
         """
         self.logger.info('Begin auto transformation ...')
 

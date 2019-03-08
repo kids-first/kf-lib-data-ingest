@@ -14,7 +14,8 @@ from kf_lib_data_ingest.etl.configuration.dataset_ingest_config import (
 from kf_lib_data_ingest.etl.configuration.log import setup_logger
 from kf_lib_data_ingest.etl.extract.extract import ExtractStage
 from kf_lib_data_ingest.etl.load.load import LoadStage
-from kf_lib_data_ingest.etl.transform.transform import TransformStage
+from kf_lib_data_ingest.etl.transform.auto import AutoTransformStage
+from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
 
 # TODO
 # Allow a run argument that contains the desired stages to run
@@ -118,9 +119,20 @@ class DataIngestPipeline(object):
 
         uid_cache_filepath = os.path.join(self.ingest_config_dir,
                                           DEFAULT_ID_CACHE_FILENAME)
-        self.stage_dict['t'] = (TransformStage, target_api_config_path,
-                                target_url, self.ingest_output_dir,
-                                transform_fp, uid_cache_filepath)
+
+        if not transform_fp:
+            # ** Temporary - until auto transform is further developed **
+            raise FileNotFoundError(
+                'Transform module file has not been created yet! '
+                'You must define a transform function in order for ingest '
+                'to continue.')
+            # self.stage_dict['t'] = (
+            #     AutoTransformStage, target_api_config_path, target_url,
+            #     self.ingest_output_dir, uid_cache_filepath)
+        else:
+            self.stage_dict['t'] = (
+                GuidedTransformStage, transform_fp, target_api_config_path,
+                target_url, self.ingest_output_dir, uid_cache_filepath)
 
         # Load stage
         self.stage_dict['l'] = (
