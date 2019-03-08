@@ -252,6 +252,28 @@ class TargetAPIConfig(PyModuleConfig):
                             f'attribute {mapped_attr} for target attr '
                             f'{target_concept}.{target_attr} does not exist')
 
+                # Are all link keys formatted correctly and
+                # Do all link keys point to existing target concepts
+                if 'links' not in target_concept_dict:
+                    continue
+                for link_name in target_concept_dict['links']:
+                    parts = link_name.rsplit('_id')
+                    if len(parts) <= 1:
+                        linked_target_concept = None
+                    else:
+                        linked_target_concept = parts[0]
+
+                    if linked_target_concept not in target_concepts:
+                        raise ValueError(
+                            f'Improperly named link: "{link_name}" in '
+                            f'{self.config_filepath}: '
+                            f'target_concepts.{target_concept}.links '
+                            'All links must be of the form: '
+                            '<target_concept>_id, where <target_concept> is '
+                            'an existing target concept defined in '
+                            f'{self.config_filepath}'
+                        )
+
     def _validate_endpoints(self):
         """
         Check that all endpoints are strings

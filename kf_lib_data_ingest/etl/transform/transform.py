@@ -17,9 +17,6 @@ from kf_lib_data_ingest.common.misc import (
     write_json,
     get_open_api_v2_schema
 )
-from kf_lib_data_ingest.config import (
-    DEFAULT_TARGET_URL
-)
 from kf_lib_data_ingest.common import constants
 from kf_lib_data_ingest.etl.configuration.target_api_config import (
     TargetAPIConfig
@@ -27,17 +24,24 @@ from kf_lib_data_ingest.etl.configuration.target_api_config import (
 from kf_lib_data_ingest.etl.transform.common import insert_unique_keys
 from kf_lib_data_ingest.etl.transform.auto import AutoTransformer
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformer
+from kf_lib_data_ingest.config import (
+    DEFAULT_TARGET_URL,
+    DEFAULT_ID_CACHE_FILENAME
+)
 
 
 class TransformStage(IngestStage):
     def __init__(self, target_api_config_path,
                  target_api_url=DEFAULT_TARGET_URL, ingest_output_dir=None,
-                 transform_function_path=None):
+                 transform_function_path=None, uid_cache_filepath=None):
 
         super().__init__(ingest_output_dir=ingest_output_dir)
 
         self.target_api_url = target_api_url
         self.target_api_config = TargetAPIConfig(target_api_config_path)
+        self.uid_cache_filepath = (uid_cache_filepath or
+                                   os.path.join(os.getcwd(),
+                                                DEFAULT_ID_CACHE_FILENAME))
 
         if not transform_function_path:
             # ** Temporary - until auto transform is further developed **
@@ -236,6 +240,107 @@ class TransformStage(IngestStage):
 
                     instance['properties'][attr] = mapped_value
 
+    def _unique_keys_to_target_ids(self, uid_cache, target_instances):
+        """
+        This method preps `target_instances` for the load stage by
+        translating the instances' unique keys, created in
+        `insert_unique_keys`, to identifiers assigned by the target service
+        in a previous ingest run.
+
+        Each time a new concept instance is created in the target service,
+        the ingest pipeline saves a record of the created instance's ID from
+        the target service and the instance's unique key. These records are
+        stored in the UID cache.
+
+        The translation happens by looking up the instance's unique key
+        in the UID cache.
+
+        Then later on, if the load stage sees that the target service ID for
+        an instance is None, it will know to create a NEW instance in the
+        target service.
+
+        If the load stage sees that the target service ID for an instance is
+        not None, it will know that this instance exists in the target
+        service and it will UPDATE the instance.
+
+        Before ID translation, `target_instances` might look like:
+
+            { 'biospecimen': [
+                {
+                    'endpoint': '/biospecimens',
+                    'id': 'b1',
+                    'links': {
+                        'participant_id': 'p1',          <- Exists in target service # noqa E501
+                        'sequencing_center_id': 'Baylor' <- Exists in target service # noqa E501
+                    },
+                    'properties': {
+                        'analyte_type': 'dna',
+                        ...
+                    }
+                },
+                ...
+                ]
+            }
+
+        After ID translation, `target_instances would look like:
+
+            { 'biospecimen': [
+                {
+                    'endpoint': '/biospecimens',
+                    'id': {
+                        'source': 'b1',
+                        'target': None                  <- Not in target service yet # noqa E501
+                    },
+                    'links': {
+                        'participant_id': {
+                            'source': 'p1',
+                            'target': 'PT_00001111'     <- Found in UID cache
+                        },
+                        'sequencing_center_id': {
+                            'source': 'Baylor',
+                            'target': 'SC_00001111'     <- Found in UID cache
+                        }
+                    },
+                    'properties': {
+                        'analyte_type': 'dna',
+                        ...
+                    }
+                },
+                ...
+                ]
+            }
+
+        :param uid_cache: unique ID cache. See `load_uid_cache` method
+        :param target_instances: dict containing target instance dicts. See
+        `_run` method
+        :returns target_instances: modified version of `target_instances` input
+        containing lookups of target service IDs
+        """
+        self.logger.info(
+            'Translating unique keys to target service IDs')
+        for target_concept, instances in target_instances.items():
+            for instance in instances:
+                # id
+                cache = uid_cache.get(target_concept, {})
+                source_id = instance['id']
+                instance['id'] = {
+                    'target': cache.get(source_id),
+                    'source': source_id
+                }
+                # links
+                links = {}
+                for link_name, value in instance['links'].items():
+                    cache = uid_cache.get(link_name.split('_id')[0], {})
+                    links.update(
+                        {
+                            link_name: {
+                                'target': cache.get(value),
+                                'source': value
+                            }
+                        }
+                    )
+                instance['links'] = links
+
         return target_instances
 
     def _run(self, data_dict):
@@ -252,7 +357,7 @@ class TransformStage(IngestStage):
         # Insert unique key columns before running transformation
         insert_unique_keys(data_dict)
 
-        # Guided or auto transformation
+        # Transform from standard concepts to target concepts
         target_instances = self.transformer.run(data_dict)
 
         # Null processing
@@ -266,5 +371,18 @@ class TransformStage(IngestStage):
         else:
             self.logger.warning('Skipping null processing because no target '
                                 'schema was found')
+
+        # Prep for load stage
+        # Translate unique keys to existing target service ids
+        # Tells load stage whether to create new or update existing entity
+        try:
+            uid_cache = read_json(self.uid_cache_filepath)
+        except FileNotFoundError as e:
+            self.logger.warning(
+                f'UID cache file does not exist: {self.uid_cache_filepath}')
+            uid_cache = {}
+
+        self._unique_keys_to_target_ids(uid_cache,
+                                        target_instances)
 
         return target_instances

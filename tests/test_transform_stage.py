@@ -1,6 +1,7 @@
-
+import os
 import pytest
 import pandas as pd
+from copy import deepcopy
 
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
 from kf_lib_data_ingest.common.concept_schema import (
@@ -183,7 +184,66 @@ def test_no_key_comp_defined():
                         CONCEPT.GENOMIC_FILE.ID: 'G1'}])
 
     # No key composition defined for concept
+    save = unique_key_composition[CONCEPT.PARTICIPANT._CONCEPT_NAME]
     del unique_key_composition[CONCEPT.PARTICIPANT._CONCEPT_NAME]
     with pytest.raises(AssertionError) as e:
         _add_unique_key_cols(df, unique_key_composition)
         assert 'key composition not defined' in str(e)
+    unique_key_composition[CONCEPT.PARTICIPANT._CONCEPT_NAME] = save
+
+
+def test_unique_key_to_target_id(caplog, transform_stage):
+    """
+    Test kf_lib_data_ingest.etl.transform.transform.unique_keys_to_target_ids
+    """
+    uid_cache = {
+        'biospecimen': {
+            'b2': 'BS_00000002'
+        }
+    }
+    data_in = {
+        'biospecimen':
+        [
+            {'id': 'b1',  # should resolve to None
+             'links': {
+                 'participant_id': 'p1',  # should resolve to None
+                 'sequencing_center_id': None
+             }},
+            {'id': 'b2',  # should resolve to BS_00000002
+             'links': {
+                 'participant_id': 'p1',  # should resolve to None
+                 'sequencing_center_id': None
+             }}
+        ],
+        'participant':
+        [
+            {'id': 'p1',  # should resolve to None
+             'links': {
+                 'study_id': 's1'  # should resolve to None
+             }}
+        ]
+    }
+    data_out = transform_stage._unique_keys_to_target_ids(uid_cache,
+                                                          deepcopy(data_in))
+
+    for target_concept, instances in data_out.items():
+        for i, instance in enumerate(instances):
+            if target_concept not in uid_cache:
+                assert (instance['id']['source'] ==
+                        data_in[target_concept][i]['id'])
+                assert instance['id']['target'] is None
+            else:
+                source_id = instance['id']['source']
+                assert source_id == data_in[target_concept][i]['id']
+                expected = uid_cache[target_concept].get(source_id, None)
+                assert instance['id']['target'] == expected
+
+
+def test_no_uid_cache(caplog, tmpdir, df, transform_stage):
+    """
+    Test transform no UID cache
+    """
+    nonexist_id_cache_file = os.path.join(tmpdir, 'uid_cache.json')
+    transform_stage.uid_cache_filepath = nonexist_id_cache_file
+    transform_stage.run({'foo': ('bar', df)})
+    assert 'UID cache file does not exist' in caplog.text
