@@ -4,7 +4,6 @@ a user supplied transform function which specifies how the source data tables
 should be merged in order to yield a single table per target service entity.
 """
 from collections import defaultdict
-import logging
 from pprint import pformat
 
 import pandas
@@ -16,14 +15,14 @@ from kf_lib_data_ingest.common.type_safety import (
 from kf_lib_data_ingest.etl.configuration.transform_module import (
     TransformModule
 )
-from kf_lib_data_ingest.etl.transform.common import UNIQUE_ID_ATTR
+from kf_lib_data_ingest.common.concept_schema import UNIQUE_ID_ATTR
+from kf_lib_data_ingest.etl.transform.transform import TransformStage
 
 
-class GuidedTransformer():
-    def __init__(self, target_api_config, transform_function_path):
-        self.logger = logging.getLogger(type(self).__name__)
+class GuidedTransformStage(TransformStage):
+    def __init__(self, transform_function_path, *args, **kwargs):
         self.transform_module = TransformModule(transform_function_path)
-        self.target_api_config = target_api_config
+        super().__init__(*args, **kwargs)
 
     def _apply_transform_funct(self, data_dict):
         """
@@ -167,18 +166,11 @@ class GuidedTransformer():
 
         return target_instances
 
-    def run(self, data_dict):
+    def _do_transform(self, data_dict):
         """
-        Transform the tabular mapped data into a unified standard form,
-        then transform again from the standard form into a dict of lists.
-        Keys are target entity types and values are lists of target entity
-        dicts.
+        See TransformStage._do_transform
+        """
 
-        :param data_dict: the output (a dict of mapped DataFrames) from
-        ExtractStage.run. See TransformStage._validate_run_parameters for
-        a more detailed description.
-        :type data_dict: dict
-        """
         # Apply user transform func
         target_concept_df_dict = self._apply_transform_funct(data_dict)
 

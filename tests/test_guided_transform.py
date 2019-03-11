@@ -8,7 +8,7 @@ from kf_lib_data_ingest.etl.configuration.base_config import (
 from kf_lib_data_ingest.etl.configuration.transform_module import (
     TransformModule
 )
-from kf_lib_data_ingest.etl.transform.guided import GuidedTransformer
+from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
 
 from conftest import TRANSFORM_MODULE_PATH
@@ -17,7 +17,7 @@ from conftest import TRANSFORM_MODULE_PATH
 @pytest.fixture(scope='function')
 def dfs():
     """
-    Mock input to GuidedTransformer.run
+    Mock input to GuidedTransformStage.run
     """
     return {
         'family': pd.DataFrame({
@@ -45,17 +45,16 @@ def transform_module():
     return TransformModule(TRANSFORM_MODULE_PATH)
 
 
-def test_standard_to_target_transform(caplog, dfs, transform_stage):
+def test_standard_to_target_transform(caplog, dfs, guided_transform_stage):
     """
-    Test GuidedTransformer._standard_to_target transformation
+    Test GuidedTransformStage._standard_to_target transformation
     """
     # Pytest caplog fixture is set to WARNING by default. Set to INFO so
-    # we can capture log messages in GuidedTransformer._standard_to_target
+    # we can capture log messages in GuidedTransformStage._standard_to_target
     caplog.set_level(logging.INFO)
 
     # Transform
-    guided_transformer = transform_stage.transformer
-    target_instances = guided_transformer._standard_to_target(dfs)
+    target_instances = guided_transform_stage._standard_to_target(dfs)
 
     # Check that output only contains concepts that had data and unique key
     output_concepts = set(target_instances.keys())
@@ -78,7 +77,7 @@ def test_standard_to_target_transform(caplog, dfs, transform_stage):
 
     # Check log output
     no_data_concepts = (
-        set(transform_stage.target_api_config.concept_schemas.keys())
+        set(guided_transform_stage.target_api_config.concept_schemas.keys())
         .symmetric_difference(set(expected_concepts))
     )
     no_table_msg = 'No table found for target concept:'
@@ -118,7 +117,7 @@ def test_no_transform_module(target_api_config):
     specified, a ConfigValidationError is raised
     """
     with pytest.raises(ConfigValidationError) as e:
-        GuidedTransformer(target_api_config, None)
+        GuidedTransformStage(None)
         assert 'Guided transformation requires a' in str(e)
 
 
@@ -127,15 +126,13 @@ def test_no_transform_module(target_api_config):
                           ({'foo': pd.DataFrame()}, KeyError),
                           ({'participant': None}, TypeError)
                           ])
-def test_bad_ret_vals_transform_funct(transform_stage, ret_val, error):
+def test_bad_ret_vals_transform_funct(guided_transform_stage, ret_val, error):
     """
     Test wrong return values from transform function
     """
-    tf = transform_stage.transformer
-
     def f(df_dict):
         return ret_val
 
-    tf.transform_module.transform_function = f
+    guided_transform_stage.transform_module.transform_function = f
     with pytest.raises(error):
-        tf._apply_transform_funct({})
+        guided_transform_stage._apply_transform_funct({})
