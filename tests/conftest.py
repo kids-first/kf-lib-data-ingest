@@ -90,49 +90,31 @@ def target_api_config():
 def guided_transform_stage(caplog):
     """
     Re-usable fixture for tests. Use this one for all tests that need
-    the transform stage and you don't want to worry about setting it up.
+    the guided transform stage and you don't want to worry about setting it up.
     """
     # Set pytest to capture log events at level INFO or higher
     caplog.set_level(logging.DEBUG)
 
-    # Before test setup
-    # Mock get_open_api_v2_schema to always return the schema
-    mock_dataservice_schema = read_json(
-        os.path.join(TEST_DATA_DIR, 'mock_dataservice_schema.json'))
-    patcher = mock.patch(
-        'kf_lib_data_ingest.common.misc.get_open_api_v2_schema',
-        return_value=mock_dataservice_schema)
-    patcher.start()
     yield GuidedTransformStage(
         TRANSFORM_MODULE_PATH, KIDS_FIRST_CONFIG,
         target_api_url=DEFAULT_TARGET_URL,
         ingest_output_dir=TEST_INGEST_OUTPUT_DIR)
 
-    # After test teardown
-    patcher.stop()
     delete_ingest_outputs(TEST_INGEST_OUTPUT_DIR)
+
 
 @pytest.fixture(scope='function')
 def auto_transform_stage(caplog):
     """
     Re-usable fixture for tests. Use this one for all tests that need
-    the transform stage and you don't want to worry about setting it up.
+    the auto transform stage and you don't want to worry about setting it up.
     """
     # Set pytest to capture log events at level INFO or higher
     caplog.set_level(logging.DEBUG)
 
-    # Before test setup
-    # Mock get_open_api_v2_schema to always return the schema
-    mock_dataservice_schema = read_json(
-        os.path.join(TEST_DATA_DIR, 'mock_dataservice_schema.json'))
-    patcher = mock.patch(
-        'kf_lib_data_ingest.common.misc.get_open_api_v2_schema',
-        return_value=mock_dataservice_schema)
-    patcher.start()
     yield AutoTransformStage(
         KIDS_FIRST_CONFIG,
         target_api_url=DEFAULT_TARGET_URL,
         ingest_output_dir=TEST_INGEST_OUTPUT_DIR)
-    # After test teardown
-    patcher.stop()
+
     delete_ingest_outputs(TEST_INGEST_OUTPUT_DIR)

@@ -21,7 +21,7 @@ from kf_lib_data_ingest.etl.transform.standard_model.graph import (
 
 
 @pytest.fixture(scope='function')
-def data_df_dict(guided_transform_stage):
+def data_df_dict(auto_transform_stage):
     """
     Create an input data dict to populate the standard model.
 
@@ -53,7 +53,7 @@ def data_df_dict(guided_transform_stage):
                (f'file:///study/configs/{k}.py', pd.DataFrame(v))
                for k, v in data.items()}
 
-    guided_transform_stage._insert_unique_keys(df_dict)
+    auto_transform_stage._insert_unique_keys(df_dict)
 
     return df_dict
 
@@ -80,7 +80,7 @@ def model(data_df_dict):
 
 
 @pytest.fixture(scope='function')
-def random_data_df_dict(guided_transform_stage):
+def random_data_df_dict(auto_transform_stage):
     """
     Create composite table containing random participant, family, biospecimen
     data appropriately formatted for populating standard concept model.
@@ -110,7 +110,7 @@ def random_data_df_dict(guided_transform_stage):
     df_dict = {f's3://bucket/key/clinical.csv':
                (f'file:///study/configs/clinical.py', clinical)}
 
-    guided_transform_stage._insert_unique_keys(df_dict)
+    auto_transform_stage._insert_unique_keys(df_dict)
 
     return df_dict
 

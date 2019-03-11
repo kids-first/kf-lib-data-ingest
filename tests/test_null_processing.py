@@ -125,7 +125,9 @@ def test_get_kf_schema(caplog, tmpdir, target_api_config, **kwargs):
     assert os.path.isfile(os.path.realpath('./cached_schema.json'))
 
 
-def test_handle_nulls(caplog, guided_transform_stage, target_instances, schema):
+def test_handle_nulls(
+    caplog, guided_transform_stage, target_instances, schema
+):
     """
     Test kf_lib_data_ingest.etl.transform.transform.handle_nulls
 
@@ -154,8 +156,9 @@ def test_handle_nulls(caplog, guided_transform_stage, target_instances, schema):
                     assert value == expected[attr]
 
 
-def test_handle_nulls_no_schema(caplog, guided_transform_stage, target_instances,
-                                schema):
+def test_handle_nulls_no_schema(
+    caplog, guided_transform_stage, target_instances, schema
+):
     """
     Test kf_lib_data_ingest.etl.transform.transform.handle_nulls
 
@@ -171,8 +174,9 @@ def test_handle_nulls_no_schema(caplog, guided_transform_stage, target_instances
             caplog.text)
 
 
-def test_handle_nulls_no_prop_def(caplog, guided_transform_stage, target_instances,
-                                  schema):
+def test_handle_nulls_no_prop_def(
+    caplog, guided_transform_stage, target_instances, schema
+):
     """
     Test kf_lib_data_ingest.etl.transform.transform.handle_nulls
 

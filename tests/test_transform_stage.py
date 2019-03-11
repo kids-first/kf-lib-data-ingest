@@ -227,8 +227,9 @@ def test_unique_key_to_target_id(caplog, guided_transform_stage):
              }}
         ]
     }
-    data_out = guided_transform_stage._unique_keys_to_target_ids(uid_cache,
-                                                          deepcopy(data_in))
+    data_out = guided_transform_stage._unique_keys_to_target_ids(
+        uid_cache, deepcopy(data_in)
+    )
 
     for target_concept, instances in data_out.items():
         for i, instance in enumerate(instances):

@@ -3,8 +3,6 @@ Module for 'auto' transforming source data into target service entities.
 Auto transformation does not require guidance from the user on how to merge
 source data tables.
 """
-import logging
-
 from kf_lib_data_ingest.etl.transform.standard_model.model import StandardModel
 from kf_lib_data_ingest.etl.transform.transform import TransformStage
 

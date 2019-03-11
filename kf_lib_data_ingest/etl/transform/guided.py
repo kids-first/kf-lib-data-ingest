@@ -4,7 +4,6 @@ a user supplied transform function which specifies how the source data tables
 should be merged in order to yield a single table per target service entity.
 """
 from collections import defaultdict
-import logging
 from pprint import pformat
 
 import pandas
