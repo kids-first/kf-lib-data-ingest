@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/source/_static/images/logo.png">
+  <img src="/docs/source/_static/images/logo.svg" alt="Kids First Data Ingest Library" width="660px">
 </p>
 <p align="center">
   <a href="https://github.com/kids-first/kf-lib-data-ingest/blob/master/LICENSE"><img src="https://img.shields.io/github/license/kids-first/kf-lib-data-ingest.svg?style=for-the-badge"></a>
