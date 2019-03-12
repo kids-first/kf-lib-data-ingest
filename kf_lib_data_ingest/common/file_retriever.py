@@ -7,6 +7,7 @@ import cgi
 import logging
 import shutil
 import tempfile
+from urllib.parse import urlparse
 
 import boto3
 import botocore
@@ -120,14 +121,16 @@ def _web_save(protocol, source_loc, dest_obj, auth=None, logger=None):
             else:
                 filename = cdisp_params.get('filename')
 
-            # Header did not provide filename
             if filename:
                 dest_obj.original_name = filename
             else:
-                logging.warning(f'{url} returned unexpected '
-                                f'Content-Disposition {content_disposition}. '
-                                'Content-Disposition should specify '
-                                '"attachment and have a defined <filename>"')
+                # Header did not provide filename
+                logging.warning(f'{url} returned unhelpful or missing '
+                                'Content-Disposition header '
+                                f'{content_disposition}. '
+                                'HTTP(S) file responses should include a '
+                                'Content-Disposition header specifying '
+                                'filename.')
 
             for chunk in response.iter_content(chunk_size=8192):
                 if chunk:
@@ -226,7 +229,8 @@ class FileRetriever(object):
                     auth=auth, logger=self.logger
                 )
                 if not hasattr(self._files[url], 'original_name'):
-                    self._files[url].original_name = url
+                    filename = urlparse(url).path.rsplit('/', 1)[-1]
+                    self._files[url].original_name = filename
 
             self._files[url].seek(0)
             return self._files[url]
