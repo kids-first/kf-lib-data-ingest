@@ -136,7 +136,8 @@ def _web_save(protocol, source_loc, dest_dir, delete, auth=None, logger=None):
                     dest_obj.write(chunk)
 
         else:
-            logger.warning(f"Could not download {url}")
+            logger.warning(f'Could not download {url}. Caused by '
+                           f'{response.text}')
 
     return dest_obj
 
