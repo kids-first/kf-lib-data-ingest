@@ -192,8 +192,8 @@ class ExtractStage(IngestStage):
 
             # split value lists into separate rows
             df_out = split_df_rows_on_splits(
-                                                df_out.reset_index()
-                                            ).set_index('index')
+                df_out.reset_index()
+            ).set_index('index')
             del df_out.index.name
 
             # standardize values again after operations
@@ -234,17 +234,17 @@ class ExtractStage(IngestStage):
         :returns: A pandas dataframe containing the requested data
         """
         self.logger.debug("Retrieving source file %s", file_path)
-        f = self.FR.get(file_path).name
+        f = self.FR.get(file_path)
 
         err = None
         if load_func:
             self.logger.info("Using custom load_func function.")
         else:
-            if file_path.endswith(('.xlsx', '.xls')):
+            if f.original_name.endswith(('.xlsx', '.xls')):
                 load_args['dtype'] = str
                 load_args['na_filter'] = False
                 load_func = read_excel_file
-            elif file_path.endswith(('.tsv', '.csv')):
+            elif f.original_name.endswith(('.tsv', '.csv')):
                 load_args['sep'] = (
                     load_args.pop('delimiter', None) or
                     load_args.pop('sep', None)
@@ -253,13 +253,13 @@ class ExtractStage(IngestStage):
                 load_args['dtype'] = str
                 load_args['na_filter'] = False
                 load_func = pandas.read_csv
-            elif file_path.endswith('.json'):
+            elif f.original_name.endswith('.json'):
                 load_func = pandas.read_json
                 load_args['convert_dates'] = False
 
         if load_func:
             try:
-                df = load_func(f, **load_args)
+                df = load_func(f.name, **load_args)
                 if not isinstance(df, pandas.DataFrame):
                     err = (
                         "Custom load_func must return a pandas.DataFrame"
