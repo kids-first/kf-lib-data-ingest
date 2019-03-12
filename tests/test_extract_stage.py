@@ -2,6 +2,7 @@ import os
 
 import pandas
 import pytest
+import requests_mock
 
 from conftest import TEST_DATA_DIR
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
@@ -11,26 +12,28 @@ from kf_lib_data_ingest.etl.configuration.base_config import (
 )
 from kf_lib_data_ingest.etl.extract.extract import ExtractStage
 
+TEST_FILE_PATH = os.path.join(TEST_DATA_DIR, 'data.csv')
+
 study_1 = os.path.join(TEST_DATA_DIR, 'test_study')
 expected_results = {
     study_1: {
         os.path.join(study_1, 'extract_configs', 'simple_tsv_example1.py'):
             os.path.join(
                 study_1, 'extract_outputs', 'simple_tsv_example1_output.tsv'
-            ),
+        ),
         os.path.join(study_1, 'extract_configs', 'simple_tsv_example2.py'):
             os.path.join(
                 study_1, 'extract_outputs', 'simple_tsv_example2_output.tsv'
-            ),
+        ),
         os.path.join(study_1, 'extract_configs', 'unsimple_xlsx_example1.py'):
             os.path.join(
                 study_1, 'extract_outputs', 'unsimple_xlsx_example1_output.tsv'
-            ),
+        ),
         os.path.join(study_1, 'extract_configs', 'split_rows_tsv_example1.py'):
             os.path.join(
                 study_1,
                 'extract_outputs', 'split_rows_tsv_example1_output.tsv'
-            )
+        )
     }
 }
 
@@ -47,10 +50,10 @@ def rectify_cols_and_datatypes(A, B):
     # account for datatype mismatches induced by loading the expected
     # result directly from a file
     A = A.applymap(
-            lambda x: numeric_to_str(x, replace_na=True, na='')
+        lambda x: numeric_to_str(x, replace_na=True, na='')
     )
     B = B.applymap(
-            lambda x: numeric_to_str(x, replace_na=True, na='')
+        lambda x: numeric_to_str(x, replace_na=True, na='')
     )
 
     for col in A.columns:
@@ -94,8 +97,22 @@ def test_extracts():
             pandas.testing.assert_frame_equal(A, B)
 
 
-def test_bad_file_types():
+@requests_mock.Mocker(kw='mock')
+def test_bad_file_types(**kwargs):
     es = ExtractStage(None, None)
+    mock = kwargs['mock']
+
+    # no type
+    filename = os.path.basename(TEST_FILE_PATH)
+    url = f'http://localhost:1234/{filename}/download'
+    with open(TEST_FILE_PATH, "rb") as tf:
+        mock.get(url, content=tf.read(), status_code=200)
+    with pytest.raises(ConfigValidationError):
+        try:
+            es._source_file_to_df(url)
+        except ConfigValidationError as e:
+            assert "Could not determine appropriate loader" in str(e)
+            raise
 
     # unknown type
     with pytest.raises(ConfigValidationError):
