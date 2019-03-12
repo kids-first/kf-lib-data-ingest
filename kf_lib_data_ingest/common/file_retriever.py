@@ -8,6 +8,7 @@ import logging
 import os
 import shutil
 import tempfile
+from urllib.parse import urlparse
 
 import boto3
 import botocore
@@ -85,7 +86,7 @@ def _s3_save(protocol, source_loc, dest_obj, auth=None, logger=None):
     raise botocore.exceptions.NoCredentialsError()  # never got the file
 
 
-def _web_save(protocol, source_loc, dest_dir, delete, auth=None, logger=None):
+def _web_save(protocol, source_loc, dest_obj, auth=None, logger=None):
     """
     Get contents of a file from a web server to a local file-like object.
 
@@ -108,7 +109,7 @@ def _web_save(protocol, source_loc, dest_dir, delete, auth=None, logger=None):
     """
     logger = logger or logging.getLogger(__name__)
     url = protocol + PROTOCOL_SEP + source_loc
-    dest_obj = None
+
     with requests.get(url, auth=auth, stream=True) as response:
         if response.status_code == 200:
             # Get filename from Content-Disposition header
@@ -124,14 +125,16 @@ def _web_save(protocol, source_loc, dest_dir, delete, auth=None, logger=None):
             else:
                 filename = cdisp_params.get('filename')
 
-            # Header did not provide filename
             if filename:
                 dest_obj.original_name = filename
             else:
-                logging.warning(f'{url} returned unexpected '
-                                f'Content-Disposition {content_disposition}. '
-                                'Content-Disposition should specify '
-                                '"attachment and have a defined <filename>"')
+                # Header did not provide filename
+                logging.warning(f'{url} returned unhelpful or missing '
+                                'Content-Disposition header '
+                                f'{content_disposition}. '
+                                'HTTP(S) file responses should include a '
+                                'Content-Disposition header specifying '
+                                'filename.')
 
             for chunk in response.iter_content(chunk_size=8192):
                 if chunk:
@@ -230,7 +233,8 @@ class FileRetriever(object):
                     auth=auth, logger=self.logger
                 )
                 if not hasattr(self._files[url], 'original_name'):
-                    self._files[url].original_name = url
+                    filename = urlparse(url).path.rsplit('/', 1)[-1]
+                    self._files[url].original_name = filename
 
             self._files[url].seek(0)
             return self._files[url]

@@ -97,7 +97,8 @@ def test_get_web(caplog, storage_dir, use_storage_dir, cleanup_at_exit,
             _test_get_file(url, storage_dir,
                            use_storage_dir, cleanup_at_exit,
                            should_file_exist, expected_file_ext='')
-    assert f'{url} returned unexpected Content-Disposition' in caplog.text
+    assert f'{url}' in caplog.text
+    assert 'Content-Disposition' in caplog.text
 
 
 @pytest.mark.parametrize('use_storage_dir,cleanup_at_exit,should_file_exist',
