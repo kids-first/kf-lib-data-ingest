@@ -3,10 +3,10 @@ FileRetriever is a class for downloading the contents of remote files using
 whatever mechanism is appropriate for the given protocol.
 """
 
+import cgi
 import logging
 import shutil
 import tempfile
-from abc import ABC
 
 import boto3
 import botocore
@@ -88,6 +88,10 @@ def _web_save(protocol, source_loc, dest_obj, auth=None, logger=None):
     """
     Get contents of a file from a web server to a local file-like object.
 
+    Preserves the name of the original file if Content-Disposition
+    header is provided in the response.
+    See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition # noqa E501
+
     :param protocol: URL protocol identifier
     :type protocol: str
     :param source_loc: address or path
@@ -102,9 +106,36 @@ def _web_save(protocol, source_loc, dest_obj, auth=None, logger=None):
     logger = logger or logging.getLogger(__name__)
     url = protocol + PROTOCOL_SEP + source_loc
     with requests.get(url, auth=auth, stream=True) as response:
-        for chunk in response.iter_content(chunk_size=8192):
-            if chunk:
-                dest_obj.write(chunk)
+        if response.status_code == 200:
+            # Get filename from Content-Disposition header
+            content_disposition = response.headers.get('Content-Disposition',
+                                                       '')
+            _, cdisp_params = cgi.parse_header(content_disposition)
+            filename = cdisp_params.get('filename*')
+            # RFC 5987 ext-parameter is actually more complicated than this,
+            # but this should get us 90% there, and the rfc6266 python lib is
+            # broken after PEP 479. *sigh* - Avi K
+            if filename and filename.lower.startswith('utf-8'):
+                filename = filename.split("'", 2)[2].decode('utf-8')
+            else:
+                filename = cdisp_params.get('filename')
+
+            # Header did not provide filename
+            if filename:
+                dest_obj.original_name = filename
+            else:
+                logging.warning(f'{url} returned unexpected '
+                                f'Content-Disposition {content_disposition}. '
+                                'Content-Disposition should specify '
+                                '"attachment and have a defined <filename>"')
+
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    dest_obj.write(chunk)
+
+        else:
+            logger.warning(f'Could not download {url}. Caused by '
+                           f'{response.text}')
 
 
 def _file_save(protocol, source_loc, dest_obj, auth=None, logger=None):
@@ -194,6 +225,8 @@ class FileRetriever(object):
                     protocol, path, self._files[url],
                     auth=auth, logger=self.logger
                 )
+                if not hasattr(self._files[url], 'original_name'):
+                    self._files[url].original_name = url
 
             self._files[url].seek(0)
             return self._files[url]
