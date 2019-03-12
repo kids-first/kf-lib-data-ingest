@@ -4,9 +4,9 @@ whatever mechanism is appropriate for the given protocol.
 """
 
 import logging
+import os
 import shutil
 import tempfile
-from abc import ABC
 
 import boto3
 import botocore
@@ -84,27 +84,61 @@ def _s3_save(protocol, source_loc, dest_obj, auth=None, logger=None):
     raise botocore.exceptions.NoCredentialsError()  # never got the file
 
 
-def _web_save(protocol, source_loc, dest_obj, auth=None, logger=None):
+def _web_save(protocol, source_loc, dest_dir, delete, auth=None, logger=None):
     """
     Get contents of a file from a web server to a local file-like object.
+
+    Preserves the file extension of the original file if Content-Disposition
+    header is provided in request.
+    See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition # noqa E501
 
     :param protocol: URL protocol identifier
     :type protocol: str
     :param source_loc: address or path
     :type source_loc: str
-    :param dest_obj: Receives the data downloaded from the source file
-    :type dest_obj: File-like object
+    :param dest_dir: Directory where temp file will be downloaded
+    :type dest_dir: str
+    :param delete: Flag indicating whether or not to delete file after download
+    :type delete: bool
     :param auth: optional requests-compatible auth object
     :type auth: http://docs.python-requests.org/en/master/user/authentication/
 
-    :returns: None, the data goes to dest_obj
+    :returns: the file-like object containing the downloaded data
     """
     logger = logger or logging.getLogger(__name__)
     url = protocol + PROTOCOL_SEP + source_loc
+    dest_obj = None
     with requests.get(url, auth=auth, stream=True) as response:
-        for chunk in response.iter_content(chunk_size=8192):
-            if chunk:
-                dest_obj.write(chunk)
+        if response.status_code == 200:
+            # Get filename and extension from Content-Disposition header
+            file_ext = None
+            content_disposition = response.headers.get('Content-Disposition',
+                                                       '')
+            parts = content_disposition.split(';')
+
+            # Header did not provide filename
+            if len(parts) < 2:
+                logging.warning(f'{url} returned unexpected '
+                                f'Content-Disposition {content_disposition}. '
+                                'Content-Disposition should specify '
+                                '"attachment and have a defined <filename>"')
+            else:
+                _, filename = tuple(parts)
+                file_ext = os.path.splitext(filename)[-1]
+
+            # Create new dest_obj with the file_ext as the suffix
+            dest_obj = tempfile.NamedTemporaryFile(dir=dest_dir,
+                                                   delete=delete,
+                                                   suffix=file_ext)
+
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    dest_obj.write(chunk)
+
+        else:
+            logger.warning(f"Could not download {url}")
+
+    return dest_obj
 
 
 def _file_save(protocol, source_loc, dest_obj, auth=None, logger=None):
@@ -182,18 +216,31 @@ class FileRetriever(object):
         # I think there may be a better way to handle exceptional cleanup. -Avi
         try:
             if url not in self._files:
-                # Temporary file object that optionally deletes itself at the
-                # end of FileRetriever instance scope (if the enclosing folder
-                # isn't already being deleted)
-                self._files[url] = tempfile.NamedTemporaryFile(
-                    dir=self.storage_dir,
-                    delete=self.cleanup_at_exit and not self.__tmpdir
-                )
-                # Fetch the remote data
-                FileRetriever._getters[protocol](
-                    protocol, path, self._files[url],
-                    auth=auth, logger=self.logger
-                )
+                # Settings for temporary file object that optionally deletes
+                # itself at the end of FileRetriever instance scope
+                # (if the enclosing folder isn't already being deleted)
+                delete = self.cleanup_at_exit and not self.__tmpdir
+
+                # Invoke http getter
+                # Note - Temp file must be created inside _web_save since we
+                # won't know file ext until after file is requested
+                if (protocol == 'http') or (protocol == 'https'):
+                    self._files[url] = FileRetriever._getters[protocol](
+                        protocol, path, self.storage_dir, delete,
+                        auth=auth, logger=self.logger
+                    )
+                # Invoke non-http getter
+                else:
+                    file_ext = os.path.splitext(url)[-1]
+                    self._files[url] = tempfile.NamedTemporaryFile(
+                        dir=self.storage_dir,
+                        delete=delete,
+                        suffix=file_ext  # preserve original file ext
+                    )
+                    FileRetriever._getters[protocol](
+                        protocol, path, self._files[url],
+                        auth=auth, logger=self.logger
+                    )
 
             self._files[url].seek(0)
             return self._files[url]
