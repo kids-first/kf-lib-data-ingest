@@ -86,7 +86,7 @@ def test_get_web(caplog, storage_dir, use_storage_dir, cleanup_at_exit,
         with requests_mock.Mocker() as m:
             m.get(url, content=tf.read(),
                   headers={'Content-Disposition':
-                           f'attachment; {TEST_FILENAME}'})
+                           f'attachment; filename={TEST_FILENAME}'})
             _test_get_file(url, storage_dir,
                            use_storage_dir, cleanup_at_exit,
                            should_file_exist, expected_file_ext=file_ext)
@@ -147,7 +147,7 @@ def _test_get_file(url, storage_dir, use_storage_dir, cleanup_at_exit,
                            cleanup_at_exit=cleanup_at_exit)
         local_copy = fr.get(url)
 
-        assert os.path.splitext(local_copy.name)[-1] == expected_file_ext
+        assert local_copy.original_name.endswith(expected_file_ext)
 
         assert(tf.read() == local_copy.read())
         _assert_file(os.path.realpath(fr.storage_dir), local_copy.name)
