@@ -74,18 +74,31 @@ def test_s3_file(s3_file, storage_dir, use_storage_dir, cleanup_at_exit,
 @pytest.mark.parametrize('use_storage_dir,cleanup_at_exit,should_file_exist',
                          TEST_PARAMS
                          )
-def test_get_web(storage_dir, use_storage_dir, cleanup_at_exit,
+def test_get_web(caplog, storage_dir, use_storage_dir, cleanup_at_exit,
                  should_file_exist):
     """
     Test file retrieval via http
     """
-    url = f'http://{TEST_FILENAME}'
+    # With Content-Disposition header containing file ext
+    url = f'http://{os.path.basename(TEST_FILENAME)}/download'
+    file_ext = os.path.splitext(TEST_FILENAME)[-1]
+    with open(TEST_FILE_PATH, "rb") as tf:
+        with requests_mock.Mocker() as m:
+            m.get(url, content=tf.read(),
+                  headers={'Content-Disposition':
+                           f'attachment; filename={TEST_FILENAME}'})
+            _test_get_file(url, storage_dir,
+                           use_storage_dir, cleanup_at_exit,
+                           should_file_exist, expected_file_ext=file_ext)
+    # Without Content-Disposition header
     with open(TEST_FILE_PATH, "rb") as tf:
         with requests_mock.Mocker() as m:
             m.get(url, content=tf.read())
             _test_get_file(url, storage_dir,
                            use_storage_dir, cleanup_at_exit,
-                           should_file_exist)
+                           should_file_exist, expected_file_ext='')
+    assert f'{url}' in caplog.text
+    assert 'Content-Disposition' in caplog.text
 
 
 @pytest.mark.parametrize('use_storage_dir,cleanup_at_exit,should_file_exist',
@@ -120,10 +133,13 @@ def test_invalid_urls(url):
 
 
 def _test_get_file(url, storage_dir, use_storage_dir, cleanup_at_exit,
-                   should_file_exist):
+                   should_file_exist, expected_file_ext=None):
     """
     Test file retrieval
     """
+    if expected_file_ext is None:
+        expected_file_ext = os.path.splitext(url)[-1]
+
     if not use_storage_dir:
         storage_dir = None
 
@@ -131,6 +147,8 @@ def _test_get_file(url, storage_dir, use_storage_dir, cleanup_at_exit,
         fr = FileRetriever(storage_dir=storage_dir,
                            cleanup_at_exit=cleanup_at_exit)
         local_copy = fr.get(url)
+
+        assert local_copy.original_name.endswith(expected_file_ext)
 
         assert(tf.read() == local_copy.read())
         _assert_file(os.path.realpath(fr.storage_dir), local_copy.name)
