@@ -164,10 +164,12 @@
 <span class="sd">whatever mechanism is appropriate for the given protocol.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">cgi</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">ABC</span>
+<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="k">import</span> <span class="n">urlparse</span>
 
 <span class="kn">import</span> <span class="nn">boto3</span>
 <span class="kn">import</span> <span class="nn">botocore</span>
@@ -249,6 +251,10 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get contents of a file from a web server to a local file-like object.</span>
 
+<span class="sd">    Preserves the name of the original file if Content-Disposition</span>
+<span class="sd">    header is provided in the response.</span>
+<span class="sd">    See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition # noqa E501</span>
+
 <span class="sd">    :param protocol: URL protocol identifier</span>
 <span class="sd">    :type protocol: str</span>
 <span class="sd">    :param source_loc: address or path</span>
@@ -262,10 +268,40 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
     <span class="n">url</span> <span class="o">=</span> <span class="n">protocol</span> <span class="o">+</span> <span class="n">PROTOCOL_SEP</span> <span class="o">+</span> <span class="n">source_loc</span>
+
     <span class="k">with</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">auth</span><span class="o">=</span><span class="n">auth</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">iter_content</span><span class="p">(</span><span class="n">chunk_size</span><span class="o">=</span><span class="mi">8192</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">chunk</span><span class="p">:</span>
-                <span class="n">dest_obj</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+            <span class="c1"># Get filename from Content-Disposition header</span>
+            <span class="n">content_disposition</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Content-Disposition&#39;</span><span class="p">,</span>
+                                                       <span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">cdisp_params</span> <span class="o">=</span> <span class="n">cgi</span><span class="o">.</span><span class="n">parse_header</span><span class="p">(</span><span class="n">content_disposition</span><span class="p">)</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">cdisp_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;filename*&#39;</span><span class="p">)</span>
+            <span class="c1"># RFC 5987 ext-parameter is actually more complicated than this,</span>
+            <span class="c1"># but this should get us 90% there, and the rfc6266 python lib is</span>
+            <span class="c1"># broken after PEP 479. *sigh* - Avi K</span>
+            <span class="k">if</span> <span class="n">filename</span> <span class="ow">and</span> <span class="n">filename</span><span class="o">.</span><span class="n">lower</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">):</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">cdisp_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;filename&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
+                <span class="n">dest_obj</span><span class="o">.</span><span class="n">original_name</span> <span class="o">=</span> <span class="n">filename</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Header did not provide filename</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{url}</span><span class="s1"> returned unhelpful or missing &#39;</span>
+                                <span class="s1">&#39;Content-Disposition header &#39;</span>
+                                <span class="n">f</span><span class="s1">&#39;</span><span class="si">{content_disposition}</span><span class="s1">. &#39;</span>
+                                <span class="s1">&#39;HTTP(S) file responses should include a &#39;</span>
+                                <span class="s1">&#39;Content-Disposition header specifying &#39;</span>
+                                <span class="s1">&#39;filename.&#39;</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">iter_content</span><span class="p">(</span><span class="n">chunk_size</span><span class="o">=</span><span class="mi">8192</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">chunk</span><span class="p">:</span>
+                    <span class="n">dest_obj</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Could not download </span><span class="si">{url}</span><span class="s1">. Caused by &#39;</span>
+                           <span class="n">f</span><span class="s1">&#39;</span><span class="si">{response.text}</span><span class="s1">&#39;</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_file_save</span><span class="p">(</span><span class="n">protocol</span><span class="p">,</span> <span class="n">source_loc</span><span class="p">,</span> <span class="n">dest_obj</span><span class="p">,</span> <span class="n">auth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -355,6 +391,9 @@
                     <span class="n">protocol</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files</span><span class="p">[</span><span class="n">url</span><span class="p">],</span>
                     <span class="n">auth</span><span class="o">=</span><span class="n">auth</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
                 <span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_files</span><span class="p">[</span><span class="n">url</span><span class="p">],</span> <span class="s1">&#39;original_name&#39;</span><span class="p">):</span>
+                    <span class="n">filename</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_files</span><span class="p">[</span><span class="n">url</span><span class="p">]</span><span class="o">.</span><span class="n">original_name</span> <span class="o">=</span> <span class="n">filename</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_files</span><span class="p">[</span><span class="n">url</span><span class="p">]</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files</span><span class="p">[</span><span class="n">url</span><span class="p">]</span>
