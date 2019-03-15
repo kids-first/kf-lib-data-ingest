@@ -98,14 +98,12 @@ def _web_save(protocol, source_loc, dest_obj, auth=None, logger=None):
     :type protocol: str
     :param source_loc: address or path
     :type source_loc: str
-    :param dest_dir: Directory where temp file will be downloaded
-    :type dest_dir: str
-    :param delete: Flag indicating whether or not to delete file after download
-    :type delete: bool
+    :param dest_obj: Receives the data downloaded from the source file
+    :type dest_obj: File-like object
     :param auth: optional requests-compatible auth object
     :type auth: http://docs.python-requests.org/en/master/user/authentication/
 
-    :returns: the file-like object containing the downloaded data
+    :returns: None, the data goes to dest_obj
     """
     logger = logger or logging.getLogger(__name__)
     url = protocol + PROTOCOL_SEP + source_loc
