@@ -8,6 +8,7 @@ from pprint import pformat
 import pandas
 from tabulate import tabulate
 
+from kf_lib_data_ingest.common.concept_schema import str_to_CONCEPT
 from kf_lib_data_ingest.common.datafile_readers import read_excel_file
 from kf_lib_data_ingest.common.file_retriever import (
     PROTOCOL_SEP,
@@ -433,6 +434,18 @@ class ExtractStage(IngestStage):
                 columns=['key', 'expected', 'found', 'pass']
             )
             for key, expected in self.expected_counts.items():
+
+                # Accept both concepts and attributes, but automatically
+                # translate lone concepts as meaning id or else unique_key if
+                # one of those was discovered in the data.
+                if key not in counted:
+                    if key in str_to_CONCEPT:
+                        concept = str_to_CONCEPT[key]
+                        if concept.ID in counted:
+                            key = concept.ID
+                        elif concept.UNIQUE_KEY in counted:
+                            key = concept.UNIQUE_KEY
+
                 found = uniques.get(key)
                 if expected == found:
                     passed = '✅'
