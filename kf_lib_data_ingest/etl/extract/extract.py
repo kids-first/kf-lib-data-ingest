@@ -387,9 +387,9 @@ class ExtractStage(IngestStage):
         # return dictionary of all dataframes keyed by extract config paths
         return output
 
-    def _postrun_accounting(self, run_output):
+    def _postrun_analysis(self, run_output):
         """
-        See the docstring for IngestStage._postrun_accounting.
+        See the docstring for IngestStage._postrun_analysis.
         """
         # Storage for where all of the values for each concept key are found
         # counted = {
