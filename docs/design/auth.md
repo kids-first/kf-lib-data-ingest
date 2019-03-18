@@ -49,9 +49,9 @@ With OAuth2 the following flow would take place:
 ## OAuth 2 Grant Type
 Can ingest app use Client Credentials grant type?
 Auth0 recommends Client Credentials grant type for machine to machine auth.
-Use cases for this grant type include "CLIs, daemons, or services".
+Use cases for this grant type include CLIs, daemons, or services.
 
-### How will auth type, credentials, and auth provider be associated with extract configs?
+### How will auth type, credentials, and auth provider be supplied to ingest app?
 Right now only the source data file URL is stored in the extract config for a
 particular file. If the file URL requires auth of any kind how should that
 be specified/encoded?
@@ -64,38 +64,59 @@ providers (Ego, Auth0, whatever else), ingest app will also need to know
 which OAuth 2 provider to authenticate with when fetching an OAuth2 protected
 resource.
 
-### Example Extract Configs w Auth Info
+### Auth Configuration
 
-For basic auth protected file
+```yaml
+authentication:
+    http://www.example.com/files:
+        type: basic
+        variable_names:
+            username: EXAMPLE_SERVICE_UNAME
+            password: EXAMPLE_SERVICE_PW        
+
+    http://api.com/files:
+        type: OAuth2
+        variable_names:
+            provider: EGO_URL
+            client_id: CLIENT_ID_EGO
+            client_secret: CLIENT_SECRET_EGO
 ```
-# boyd_subject_sample.py
+- Putting this in the extract configs would be redundant and not appropriate
+- Could go into ingest package config but even that may be redundant and would
+require the ingest package developer to specify things they maybe should not
+have to worry about
 
-source_data_url = 'http://www.example.com/files/myfile_id'
+### App Config File
+This could be defined inside an app level config file, and passed into the
+ingest app at runtime. If its not specified, a default app config file thats
+part of the library could be used.
 
-authentication = {
-    'type': basic,
-    'environment_vars': {
-        'username': 'EXAMPLE_SERVICE_UNAME',
-        'password': 'EXAMPLE_SERVICE_PW'
-    }
+Other things that might later go in here: the target API config to use,
+the concept schema to use, etc.
 
-}
+```
+kidsfirst ingest <ingest package> --app_config <path to my_app_config.yaml>
+
+kidsfirst ingest <ingest package>  # results in default app_config.yaml being used
 ```
 
-For an OAuth 2 protected file
-```
-# boyd_subject_sample.py
+### Auth Environment Vars Not Set
 
-source_data_url = 'http://api/download/study/SD_00001111/file/SF_NH4353C5'
-authentication = {
-    'type': OAuth2
-    'environment_vars': {
-        'provider': 'EGO_URL',
-        'client_id': 'CLIENT_ID_EGO',
-        'client_secret': 'CLIENT_SECRET_EGO'
-    }
-}
-```
+**Production Mode**
+
+Before ingestion, the vars in `variable_names` will be read in from Vault and written
+to shell variables or some runtime config object accessible to pipeline during run.
+
+During ingestion, if the variables' values are empty,
+it will result in an error and stop ingestion.
+
+**Development/Testing Mode**
+
+Before ingestion, the vars in `variable_names` will be read in from the environment and written
+to shell variables or some runtime config object accessible to pipeline during run.
+
+During ingestion, if the variables' values are empty,
+it will result in an error and stop ingestion
 
 ## OAuth 2 Client Registration
 
@@ -105,13 +126,6 @@ authentication = {
     - A short description of the application
     - etc
 - What should ingest app supply for these things?
-- In the case of OAuth 2, if the `environment_vars` are empty when read in,
-should this mean that ingest app hasn't registered with the OAuth 2 provider?
-- If so, should it trigger an OAuth 2 client registration with the provider
-at ingest runtime? OR
-- Should it result in an error because its expected that ingest app should
-have already registered with any anticipated OAuth 2 providers?
-
 
 ### How will auth affect FileRetriever?
 We will probably need an auth.py Python module which processes the
