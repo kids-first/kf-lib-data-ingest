@@ -391,11 +391,15 @@ class ExtractStage(IngestStage):
     def _postrun_analysis(self, run_output):
         """
         See the docstring for IngestStage._postrun_analysis.
+
+        In ExtractStage._postrun_analysis we verify that we found as many
+        unique values of each attribute as we expected to find.
         """
-        # Storage for where all of the values for each concept key are found
+        # A dict where concept values map to a list of all source files
+        # containing them
         # counted = {
-        #     a_key: {
-        #         a1: [file1, file2],
+        #     a_key: {  # e.g. PARTICIPANT.ID
+        #         a1: [file1, file2],  # e.g. PARTICIPANT.ID a1 is in files 1&2
         #         ...
         #     },
         #     ...
