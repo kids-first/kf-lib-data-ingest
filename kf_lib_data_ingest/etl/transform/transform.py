@@ -218,10 +218,15 @@ class TransformStage(IngestStage):
                     'was found.')
                 continue
             # Convert nulls
+            conversions = dict()
             for i, instance in enumerate(list_of_instances):
                 for attr, value in instance['properties'].items():
                     if value is not None:
                         continue
+                    if attr in conversions:
+                        instance['properties'][attr] = conversions[attr]
+                        continue
+
                     property_def = schema['properties'].get(attr)
                     mapped_value = None
                     if not property_def:
@@ -250,6 +255,7 @@ class TransformStage(IngestStage):
                     self.logger.debug(
                         f'Mapping {target_concept}.{attr} value {value} to '
                         f'{mapped_value}')
+                    conversions[attr] = mapped_value
 
                     instance['properties'][attr] = mapped_value
 
