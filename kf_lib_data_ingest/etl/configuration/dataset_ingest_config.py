@@ -54,6 +54,7 @@ class DatasetIngestConfig(YamlConfig):
         self.investigator = self.contents.get('investigator')
         self.target_service_entities = self.contents.get(
             'target_service_entities')
+        self.expected_counts = self.contents.get('expected_counts')
 
     def _set_log_params(self):
         """

@@ -104,7 +104,7 @@ def test_stage_read_write(ValidIngestStage):
     # Test output is written and read when stage_cache_dir is defined
     stage = ValidIngestStage(ingest_output_dir=TEST_INGEST_OUTPUT_DIR)
     run_input = 'hello world'
-    run_output = stage.run(run_input)
+    run_output, _, _ = stage.run(run_input)
     assert stage.read_output() == run_output
 
 
