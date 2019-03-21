@@ -4,6 +4,7 @@ a user supplied transform function which specifies how the mapped
 source data tables should be merged into a single table containing all of the
 mapped source data
 """
+import os
 from collections import defaultdict
 
 import pandas
@@ -20,6 +21,22 @@ class GuidedTransformStage(TransformStage):
     def __init__(self, transform_function_path, *args, **kwargs):
         self.transform_module = TransformModule(transform_function_path)
         super().__init__(*args, **kwargs)
+
+    def _write_output(self, output):
+        """
+        Write normal transform stage output (see TransformStage._write_output)
+        and also the write out the dataframe from the user defined transform
+        function (output from _apply_transform_funct).
+
+        :param output: See TransformStage._write_output
+        :type output: dict
+        """
+        fp = os.path.join(self.stage_cache_dir, 'transform_func_df.tsv')
+        self.logger.info(f'Writing intermediate data - output of user defined'
+                         f' transform func to {fp}')
+        self.transform_func_df.to_csv(fp, sep='\t', index=True)
+
+        super()._write_output(output)
 
     def _apply_transform_funct(self, data_dict):
         """
@@ -46,6 +63,7 @@ class GuidedTransformStage(TransformStage):
 
         # Validation of transform function output
         assert_safe_type(merged_df, pandas.DataFrame)
+        self.transform_func_df = merged_df
 
         return merged_df
 
