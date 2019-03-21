@@ -1,17 +1,14 @@
 """
 Module for transforming source data into target service entities via
-a user supplied transform function which specifies how the source data tables
-should be merged in order to yield a single table per target service entity.
+a user supplied transform function which specifies how the mapped
+source data tables should be merged into a single table containing all of the
+mapped source data
 """
 from collections import defaultdict
-from pprint import pformat
 
 import pandas
 
-from kf_lib_data_ingest.common.type_safety import (
-    assert_safe_type,
-    assert_all_safe_type
-)
+from kf_lib_data_ingest.common.type_safety import assert_safe_type
 from kf_lib_data_ingest.etl.configuration.transform_module import (
     TransformModule
 )
@@ -45,44 +42,27 @@ class GuidedTransformStage(TransformStage):
 
         # Apply user supplied transform function
         transform_funct = self.transform_module.transform_function
-        entity_df_dict = transform_funct(df_dict)
+        merged_df = transform_funct(df_dict)
 
-        # -- Validation of transform function output --
-        # Must return a dict of dataframes
-        assert_safe_type(entity_df_dict, dict)
-        assert_all_safe_type(entity_df_dict.values(), pandas.DataFrame)
+        # Validation of transform function output
+        assert_safe_type(merged_df, pandas.DataFrame)
 
-        # Keys must be valid target service entities
-        target_concepts = set(self.target_api_config.concept_schemas.keys())
-        error = KeyError(f"Error in transform_function's "
-                         f"return value, file: {filepath}. Keys in dict "
-                         "must be valid target_concepts. Must be one of: \n"
-                         f"{pformat(target_concepts)}")
-        if not entity_df_dict.keys():
-            raise error
-        for key in entity_df_dict.keys():
-            if key not in target_concepts:
-                raise error
+        return merged_df
 
-        return entity_df_dict
-
-    def _standard_to_target(self, entity_df_dict):
+    def _standard_to_target(self, all_data_df):
         """
-        Convert a dict of standard concept DataFrames into a dict of lists of
-        dicts. The list of dicts represent lists of target concept instances.
+        Convert a DataFrame containing all of the mapped source data into a
+        dict of lists of dicts. The list of dicts represent lists of target
+        concept instances.
 
         For example,
 
         This:
 
-        {
-            'participant':
-
-                |CONCEPT.PARTICIPANT.ID | CONCEPT.PARTICIPANT.GENDER|
-                |-----------------------|---------------------------|
-                |        P1             |            Female         |
-                |        P2             |            Male           |
-        }
+        |CONCEPT.PARTICIPANT.ID | CONCEPT.PARTICIPANT.GENDER| CONCEPT.BIOSPECIMEN.ID| # noqa E5501
+        |-----------------------|---------------------------|-----------------------| # noqa E5501
+        |        P1             |            Female         |            B1         | # noqa E5501
+        |        P2             |            Male           |            B2         | # noqa E5501
 
         Turns into:
 
@@ -91,20 +71,36 @@ class GuidedTransformStage(TransformStage):
                 {
                     'id': 'P1',
                     'properties': {
-                        'gender': 'Female'
+                        'gender': 'Female',
+                         ...
                     }
                 },
                 {
                     'id': 'P2',
                     'properties': {
                         'gender': 'Male'
+                         ...
+                    }
+                }
+            ],
+            'biospecimen': [
+                {
+                    'id': 'B1',
+                    'properties': {
+                         ...
+                    }
+                },
+                {
+                    'id': 'B2',
+                    'properties': {
+                         ...
                     }
                 }
             ]
         }
 
-        :param entity_df_dict: the output of the user transform function
-        :type entity_df_dict: dict
+        :param all_data_df: the output of the user transform function
+        :type all_data_df: pandas.DataFrame
         :returns target_instances: dict (keyed by target concept) of lists
         of dicts (target concept instances)
         """
@@ -115,26 +111,17 @@ class GuidedTransformStage(TransformStage):
         for (target_concept,
              config) in self.target_api_config.concept_schemas.items():
 
-            # Get DataFrame for the target_concept
-            df = entity_df_dict.get(target_concept)
-
-            # No data exists for the target_concept
-            if df is None:
-                self.logger.info('No table found for target concept: '
-                                 f'{target_concept}, skipping transformation')
-                continue
-
             # Unique key for the target concept must exist
             standard_concept = config.get('standard_concept')
             std_concept_ukey = getattr(standard_concept, UNIQUE_ID_ATTR)
-            if std_concept_ukey not in df.columns:
+            if std_concept_ukey not in all_data_df.columns:
                 self.logger.info(
                     'No unique key found in table for target '
                     f'concept: {target_concept}. Skip instance creation')
                 continue
 
             # Drop duplicates using unique key of std concept
-            df = df.drop_duplicates(subset=std_concept_ukey)
+            df = all_data_df.drop_duplicates(subset=std_concept_ukey)
 
             # Build target instances for target_concept (i.e. participant)
             total = df.shape[0]
@@ -172,12 +159,18 @@ class GuidedTransformStage(TransformStage):
         """
 
         # Apply user transform func
-        target_concept_df_dict = self._apply_transform_funct(data_dict)
+        all_data_df = self._apply_transform_funct(data_dict)
 
         # Insert unique key columns
-        self._insert_unique_keys(data_dict)
+        self._insert_unique_keys(
+            {
+                self.transform_module.config_filepath: (
+                    'Transform Module Output: all_data_df',
+                    all_data_df)
+            }
+        )
 
         # Transform from standard concepts to target concepts
-        target_instances = self._standard_to_target(target_concept_df_dict)
+        target_instances = self._standard_to_target(all_data_df)
 
         return target_instances
