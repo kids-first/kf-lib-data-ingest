@@ -174,6 +174,9 @@ class GuidedTransformStage(TransformStage):
         # Apply user transform func
         target_concept_df_dict = self._apply_transform_funct(data_dict)
 
+        # Insert unique key columns
+        self._insert_unique_keys(data_dict)
+
         # Transform from standard concepts to target concepts
         target_instances = self._standard_to_target(target_concept_df_dict)
 

@@ -374,9 +374,6 @@ class TransformStage(IngestStage):
         of lists containing dicts - representing target concept instances.
         """
 
-        # Insert unique key columns before running transformation
-        self._insert_unique_keys(data_dict)
-
         target_instances = self._do_transform(data_dict)
 
         # Null processing

@@ -13,6 +13,8 @@ class AutoTransformStage(TransformStage):
         See TransformStage._do_transform
         """
         self.logger.info('Begin auto transformation ...')
+        # Insert unique key columns before running transformation
+        self._insert_unique_keys(data_dict)
 
         # Insert mapped dataframes into the standard model
         model = StandardModel(logger=self.logger)
