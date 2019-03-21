@@ -106,10 +106,12 @@ def guided_transform_stage(caplog):
     )
 
     patcher.start()
-    yield GuidedTransformStage(
-        TRANSFORM_MODULE_PATH, KIDS_FIRST_CONFIG,
-        target_api_url=DEFAULT_TARGET_URL,
-        ingest_output_dir=TEST_INGEST_OUTPUT_DIR)
+    yield GuidedTransformStage(os.path.join(TEST_DATA_DIR,
+                                            'test_study',
+                                            'transform_module_simple.py'),
+                               KIDS_FIRST_CONFIG,
+                               target_api_url=DEFAULT_TARGET_URL,
+                               ingest_output_dir=TEST_INGEST_OUTPUT_DIR)
     patcher.stop()
 
     delete_ingest_outputs(TEST_INGEST_OUTPUT_DIR)

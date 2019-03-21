@@ -35,11 +35,14 @@ def target_instances(guided_transform_stage):
             CONCEPT.PARTICIPANT.GENDER: ['Female', 'Male', 'Female']
         }),
         'biospecimen': pandas.DataFrame({
+            CONCEPT.PARTICIPANT.UNIQUE_KEY: ['p1', 'p2', 'p2'],
             CONCEPT.BIOSPECIMEN.UNIQUE_KEY: ['b1', 'b2', 'b3'],
             CONCEPT.BIOSPECIMEN.ANALYTE: ['dna', 'rna', 'dna']
         })
     }
-    return guided_transform_stage._standard_to_target(dfs)
+    all_data_df = pandas.merge(dfs['participant'], dfs['biospecimen'],
+                               on=CONCEPT.PARTICIPANT.UNIQUE_KEY)
+    return guided_transform_stage._standard_to_target(all_data_df)
 
 
 @pytest.fixture(scope='function')
