@@ -1,6 +1,7 @@
 """
 Utility functions to improve Pandas's rough edges and deficiencies.
 """
+import logging
 import re
 
 import numpy
@@ -9,6 +10,8 @@ import pandas
 from kf_lib_data_ingest.common.misc import multisplit
 from kf_lib_data_ingest.common.type_safety import assert_safe_type
 
+logger = logging.getLogger(__name__)
+
 
 class Split:
     """Object for use with split_df_rows_on_splits to differentiate between
@@ -16,6 +19,7 @@ class Split:
 
     Replaces lists with a Split object containing the list.
     """
+
     def __init__(self, things):
         assert_safe_type(things, list)
         self.things = things
@@ -211,7 +215,8 @@ def safe_pandas_replace(data, mappings, regex=False):
     return output
 
 
-def merge_wo_duplicates(left, right, **kwargs):
+def merge_wo_duplicates(left, right, left_name=None, right_name=None,
+                        **kwargs):
     """
     Merge two dataframes and return a dataframe with no duplicate columns.
 
@@ -224,6 +229,9 @@ def merge_wo_duplicates(left, right, **kwargs):
     :type right: Pandas.DataFrame
     :param kwargs: keyword args expected by Pandas.merge function
     """
+    left_name = left_name or 'Left'
+    right_name = right_name or 'Right'
+
     def resolve_duplicates(df, suffixes):
         l_suffix = suffixes[0]
         r_suffix = suffixes[1]
@@ -244,8 +252,19 @@ def merge_wo_duplicates(left, right, **kwargs):
         return df
 
     merged = pandas.merge(left, right, **kwargs)
+    reduced = resolve_duplicates(merged, kwargs.pop('suffixes', ('_x', '_y')))
 
-    return resolve_duplicates(merged, kwargs.pop('suffixes', ('_x', '_y')))
+    msg = (
+        f'*** {kwargs.get("how", "inner").title()} merge {left_name} with '
+        f'{right_name}***\n'
+        f'-- {left_name} DataFrame Uniques --\n{left.nunique()}\n'
+        f'-- {right_name} DataFrame Uniques --\n{right.nunique()}\n'
+        f'-- Merged DataFrame Uniques --\n{reduced.nunique()}'
+
+    )
+    logger.info(msg)
+
+    return reduced
 
 
 def outer_merge(df1, df2, with_merge_detail_dfs=True, **kwargs):
@@ -274,7 +293,10 @@ def outer_merge(df1, df2, with_merge_detail_dfs=True, **kwargs):
     """
     kwargs['how'] = 'outer'
     kwargs['indicator'] = with_merge_detail_dfs
-    outer = merge_wo_duplicates(df1, df2, **kwargs)
+    outer = merge_wo_duplicates(df1, df2,
+                                left_name=kwargs.pop('left_name', None),
+                                right_name=kwargs.pop('right_name', None),
+                                **kwargs)
 
     if with_merge_detail_dfs:
         detail_dfs = [outer[outer['_merge'] == keyword]
