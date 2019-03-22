@@ -154,7 +154,7 @@ def upper_camel_case(snake_str):
 
 def requests_retry_session(
         session=None, total=3, read=3, connect=0, status=3,
-        backoff_factor=5, status_forcelist=(502, 503, 504)
+        backoff_factor=5, status_forcelist=(500, 502, 503, 504)
 ):
     """
     Send an http request and retry on failures or redirects
