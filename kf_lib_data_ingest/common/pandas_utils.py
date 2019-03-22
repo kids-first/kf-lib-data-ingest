@@ -1,6 +1,7 @@
 """
 Utility functions to improve Pandas's rough edges and deficiencies.
 """
+from inspect import signature
 import logging
 import re
 
@@ -225,6 +226,12 @@ def merge_wo_duplicates(left, right, left_name=None, right_name=None,
 
     :param left: left dataframe
     :type left: Pandas.DataFrame
+    :param left_name: Optional name of left DataFrame to use in logging
+    the DataFrame's uniques using nunique()
+    :type left_name: str
+    :param right_name: Optional name of right DataFrame to use in logging
+    the DataFrame's uniques using nunique()
+    :type right_name: str
     :param right: right dataframe
     :type right: Pandas.DataFrame
     :param kwargs: keyword args expected by Pandas.merge function
@@ -254,8 +261,9 @@ def merge_wo_duplicates(left, right, left_name=None, right_name=None,
     merged = pandas.merge(left, right, **kwargs)
     reduced = resolve_duplicates(merged, kwargs.pop('suffixes', ('_x', '_y')))
 
+    default_how = signature(pandas.merge).parameters['how'].default
     msg = (
-        f'*** {kwargs.get("how", "inner").title()} merge {left_name} with '
+        f'*** {kwargs.get("how", default_how).title()} merge {left_name} with '
         f'{right_name}***\n'
         f'-- {left_name} DataFrame Uniques --\n{left.nunique()}\n'
         f'-- {right_name} DataFrame Uniques --\n{right.nunique()}\n'
@@ -267,7 +275,8 @@ def merge_wo_duplicates(left, right, left_name=None, right_name=None,
     return reduced
 
 
-def outer_merge(df1, df2, with_merge_detail_dfs=True, **kwargs):
+def outer_merge(df1, df2, with_merge_detail_dfs=True, left_name=None,
+                right_name=None, **kwargs):
     """
     Do Pandas outer merge, return merge result and 3 additional dfs if
     with_merge_details=True. The 3 merge detail dataframes are useful for
@@ -287,6 +296,11 @@ def outer_merge(df1, df2, with_merge_detail_dfs=True, **kwargs):
     :param with_merge_detail_dfs: boolean specifying whether to output
     additional dataframes
     :type with_merge_details: boolean
+    :param left_name: Name to use in log statements pertaining to df1
+    :type left_name: str
+    :param left_name: Name to use in log statements pertaining to df2
+    :type left_name: str
+    the DataFrame's uniques using nunique()
     :param kwargs: keyword args expected by Pandas.merge
     :type kwargs: dict
     :returns: 1 dataframe or tuple of 4 dataframes
@@ -294,8 +308,8 @@ def outer_merge(df1, df2, with_merge_detail_dfs=True, **kwargs):
     kwargs['how'] = 'outer'
     kwargs['indicator'] = with_merge_detail_dfs
     outer = merge_wo_duplicates(df1, df2,
-                                left_name=kwargs.pop('left_name', None),
-                                right_name=kwargs.pop('right_name', None),
+                                left_name=left_name,
+                                right_name=right_name,
                                 **kwargs)
 
     if with_merge_detail_dfs:

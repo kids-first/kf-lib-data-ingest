@@ -63,7 +63,6 @@ class GuidedTransformStage(TransformStage):
 
         # Validation of transform function output
         assert_safe_type(merged_df, pandas.DataFrame)
-        self.transform_func_df = merged_df
 
         return merged_df
 
@@ -77,10 +76,10 @@ class GuidedTransformStage(TransformStage):
 
         This:
 
-        |CONCEPT.PARTICIPANT.ID | CONCEPT.PARTICIPANT.GENDER| CONCEPT.BIOSPECIMEN.ID| # noqa E5501
-        |-----------------------|---------------------------|-----------------------| # noqa E5501
-        |        P1             |            Female         |            B1         | # noqa E5501
-        |        P2             |            Male           |            B2         | # noqa E5501
+        |CONCEPT.PARTICIPANT.UNIQUE_KEY | CONCEPT.PARTICIPANT.GENDER| CONCEPT.BIOSPECIMEN.UNIQUE_KEY| # noqa E501
+        |-------------------------------|---------------------------|-------------------------------| # noqa E501
+        |        P1                     |            Female         |            B1                 | # noqa E501
+        |        P2                     |            Male           |            B2                 | # noqa E501
 
         Turns into:
 
@@ -117,7 +116,8 @@ class GuidedTransformStage(TransformStage):
             ]
         }
 
-        :param all_data_df: the output of the user transform function
+        :param all_data_df: the output of the user transform function after
+        unique keys have been inserted
         :type all_data_df: pandas.DataFrame
         :returns target_instances: dict (keyed by target concept) of lists
         of dicts (target concept instances)
@@ -177,18 +177,18 @@ class GuidedTransformStage(TransformStage):
         """
 
         # Apply user transform func
-        all_data_df = self._apply_transform_funct(data_dict)
+        self.transform_func_df = self._apply_transform_funct(data_dict)
 
         # Insert unique key columns
         self._insert_unique_keys(
             {
                 self.transform_module.config_filepath: (
                     'Transform Module Output: all_data_df',
-                    all_data_df)
+                    self.transform_func_df)
             }
         )
 
         # Transform from standard concepts to target concepts
-        target_instances = self._standard_to_target(all_data_df)
+        target_instances = self._standard_to_target(self.transform_func_df)
 
         return target_instances
