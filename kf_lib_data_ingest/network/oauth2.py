@@ -52,13 +52,15 @@ def get_service_token(provider_domain, audience, client_id,
 
     if response.status_code != 200:
         logger.error(f'Could not fetch access token from {oauth_token_url}! '
-                     f'Caused by {pformat(response.text)}')
+                     f'Caused by {pformat(response.text)}, status_code: '
+                     f'{response.status_code}')
         return token
 
     resp_body = response.json()
-    token = resp_body.pop('access_token')
+    token = resp_body.pop('access_token', None)
     if not token:
-        logger.error(f'Unexpected response content from {oauth_token_url}')
+        logger.error(f'Unexpected response content from {oauth_token_url}, '
+                     f'status_code: {response.status_code}')
         return
 
     logger.info(f'Successfully fetched token,\n{pformat(resp_body)}')
@@ -66,11 +68,11 @@ def get_service_token(provider_domain, audience, client_id,
     return token
 
 
-def get(url, provider_domain=None, audience=None, client_id=None,
-        client_secret=None, **kwargs):
+def get_file(url, dest_obj, provider_domain=None, audience=None,
+             client_id=None, client_secret=None, **kwargs):
     """
-    Get an OAuth2 protected resource at URL, `url`. Forward `kwargs` to
-    kf_lib_data_ingest.network.utils.get
+    Get an OAuth2 protected file at URL, `url`. Forward `kwargs` to
+    kf_lib_data_ingest.network.utils.get_file
 
     Get the service token first, then fetch the resources using the
     service access token.
@@ -101,12 +103,13 @@ def get(url, provider_domain=None, audience=None, client_id=None,
     headers = kwargs.pop('headers', {})
     headers.update({'Authorization': f'Bearer {token}'})
     kwargs['headers'] = headers
-    response = utils.get(url, **kwargs)
+    response = utils.get_file(url, dest_obj, **kwargs)
 
     if response.status_code == 200:
+        logger.info('Successfully authenticated and fetched protected file')
         return response
     else:
-        logger.error(f'Could not get {url}! Caused by '
-                     f'{response.status_code}, {response.text}')
+        logger.error(f'Could not get {url}! Caused by {response.text}, '
+                     f'status_code: {response.status_code}')
 
     return response

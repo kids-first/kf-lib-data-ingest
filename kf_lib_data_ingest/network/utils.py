@@ -3,24 +3,15 @@ Common network (HTTP, TCP, whatever) related functionality
 """
 import cgi
 import logging
-import os
 
 import requests
-
-from kf_lib_data_ingest.common.misc import timestamp_str
 
 logger = logging.getLogger(__name__)
 
 
-def get(url, dest_obj=None, **kwargs):
+def get_file(url, dest_obj, **kwargs):
     """
-    Use Python requests library to send a GET request to `url` with keyword
-    args, `kwargs`. If `kwargs` contains `stream=True`, then download the
-    response content to `dest_obj`, a file-like object.
-
-    If `dest_obj` is not supplied, download to a file in the current working
-    dir. Name the file `<ISO 8601 formatted timestamp>_downloaded_file`.
-    See kf_lib_data_ingest.common.misc.timestamp_str for timestamp format.
+    Get the file at `url` and write to `dest_obj`, a file-like obj
 
     :param url: the URL to send the GET request to
     :type url: str
@@ -31,15 +22,10 @@ def get(url, dest_obj=None, **kwargs):
     :returns response: requests.Response object
     """
 
+    kwargs['stream'] = True
     response = requests.get(url, **kwargs)
 
     if response.status_code == 200:
-        # Regular resource
-        if not kwargs.get('stream'):
-            logger.info(f'Success! Fetched {url}')
-            return response
-
-        # File type resource
         # Get filename from Content-Disposition header
         content_disposition = response.headers.get('Content-Disposition', '')
         _, cdisp_params = cgi.parse_header(content_disposition)
@@ -52,9 +38,6 @@ def get(url, dest_obj=None, **kwargs):
         else:
             filename = cdisp_params.get('filename')
 
-        dest_obj = dest_obj or open(
-            os.path.join(os.getcwd(), f'{timestamp_str()}_downloaded_file'))
-
         if filename:
             dest_obj.original_name = filename
         else:
@@ -66,10 +49,10 @@ def get(url, dest_obj=None, **kwargs):
                             'Content-Disposition header specifying '
                             'filename.')
 
-        logger.info(f'Resource is a file, downloading it to {filename}...')
         for chunk in response.iter_content(chunk_size=8192):
             if chunk:
                 dest_obj.write(chunk)
+        dest_obj.seek(0)
         response.close()
 
     else:
