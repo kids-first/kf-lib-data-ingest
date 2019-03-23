@@ -5,14 +5,14 @@ whatever mechanism is appropriate for the given protocol.
 
 import cgi
 import logging
-import os
 import shutil
 import tempfile
 from urllib.parse import urlparse
 
 import boto3
 import botocore
-import requests
+
+from kf_lib_data_ingest.network import utils
 
 logging.getLogger('boto3').setLevel(logging.WARNING)
 logging.getLogger('botocore').setLevel(logging.WARNING)
@@ -107,39 +107,12 @@ def _web_save(protocol, source_loc, dest_obj, auth=None, logger=None):
     logger = logger or logging.getLogger(__name__)
     url = protocol + PROTOCOL_SEP + source_loc
 
-    with requests.get(url, auth=auth, stream=True) as response:
-        if response.status_code == 200:
-            # Get filename from Content-Disposition header
-            content_disposition = response.headers.get('Content-Disposition',
-                                                       '')
-            _, cdisp_params = cgi.parse_header(content_disposition)
-            filename = cdisp_params.get('filename*')
-            # RFC 5987 ext-parameter is actually more complicated than this,
-            # but this should get us 90% there, and the rfc6266 python lib is
-            # broken after PEP 479. *sigh* - Avi K
-            if filename and filename.lower.startswith('utf-8'):
-                filename = filename.split("'", 2)[2].decode('utf-8')
-            else:
-                filename = cdisp_params.get('filename')
-
-            if filename:
-                dest_obj.original_name = filename
-            else:
-                # Header did not provide filename
-                logging.warning(f'{url} returned unhelpful or missing '
-                                'Content-Disposition header '
-                                f'{content_disposition}. '
-                                'HTTP(S) file responses should include a '
-                                'Content-Disposition header specifying '
-                                'filename.')
-
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    dest_obj.write(chunk)
-
-        else:
-            logger.warning(f'Could not download {url}. Caused by '
-                           f'{response.text}')
+    # Fetch protected file using auth from kwargs
+    if auth:
+        return utils.get(url, dest_obj=dest_obj, stream=True, auth=auth)
+    # Fetch unprotected file
+    else:
+        utils.get(url, dest_obj=dest_obj, stream=True)
 
 
 def _file_save(protocol, source_loc, dest_obj, auth=None, logger=None):
