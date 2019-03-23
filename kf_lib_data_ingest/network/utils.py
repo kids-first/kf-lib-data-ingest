@@ -1,3 +1,6 @@
+"""
+Common network (HTTP, TCP, whatever) related functionality
+"""
 import cgi
 import logging
 import os
@@ -11,18 +14,20 @@ logger = logging.getLogger(__name__)
 
 def get(url, dest_obj=None, **kwargs):
     """
-    Use requests library to send a GET request to `url` with keyword args
-    If kwargs contains the keyword arg `stream`=True, then download the
+    Use Python requests library to send a GET request to `url` with keyword
+    args, `kwargs`. If `kwargs` contains `stream=True`, then download the
     response content to `dest_obj`, a file-like object.
 
     If `dest_obj` is not supplied, download to a file in the current working
-    dir called `<ISO 8601 formatted timestamp>_downloaded_file`.
+    dir. Name the file `<ISO 8601 formatted timestamp>_downloaded_file`.
     See kf_lib_data_ingest.common.misc.timestamp_str for timestamp format.
 
     :param url: the URL to send the GET request to
     :type url: str
     :param dest_obj: a file-like object that receives the data downloaded
     :type dest_obj: a file-like object
+    :param kwargs: keyword args forwarded to requests.get
+    :type kwargs: dict
     :returns response: requests.Response object
     """
 
