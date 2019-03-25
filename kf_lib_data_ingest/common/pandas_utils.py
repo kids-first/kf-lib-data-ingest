@@ -1,9 +1,10 @@
 """
 Utility functions to improve Pandas's rough edges and deficiencies.
 """
-from inspect import signature
 import logging
 import re
+from collections import defaultdict
+from inspect import signature
 
 import numpy
 import pandas
@@ -262,11 +263,21 @@ def merge_wo_duplicates(left, right, left_name=None, right_name=None,
     reduced = resolve_duplicates(merged, kwargs.pop('suffixes', ('_x', '_y')))
 
     default_how = signature(pandas.merge).parameters['how'].default
+
+    # Hopefully this will help us know that we didn't lose anything important
+    # in the merge
+    collective_uniques = defaultdict(set)
+    for c in left.columns:
+        collective_uniques[c] |= set(left[c])
+    for c in right.columns:
+        collective_uniques[c] |= set(right[c])
+    collective_uniques = pandas.DataFrame(
+        {c: [len(v)] for c, v in collective_uniques.items()}
+    )
     msg = (
         f'*** {kwargs.get("how", default_how).title()} merge {left_name} with '
         f'{right_name}***\n'
-        f'-- {left_name} DataFrame Uniques --\n{left.nunique()}\n'
-        f'-- {right_name} DataFrame Uniques --\n{right.nunique()}\n'
+        f'-- Left+Right Collective Uniques --\n{collective_uniques}\n'
         f'-- Merged DataFrame Uniques --\n{reduced.nunique()}'
 
     )
