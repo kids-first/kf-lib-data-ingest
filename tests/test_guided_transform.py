@@ -10,17 +10,19 @@ from kf_lib_data_ingest.etl.configuration.transform_module import (
 )
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
+from kf_lib_data_ingest.common.pandas_utils import outer_merge
 
 from conftest import TRANSFORM_MODULE_PATH
 
 
 @pytest.fixture(scope='function')
-def dfs():
+def all_data_df():
     """
-    Mock input to GuidedTransformStage.run
+    Mock input to GuidedTransformStage._standard_to_target
     """
-    return {
+    dfs = {
         'family': pd.DataFrame({
+            CONCEPT.PARTICIPANT.UNIQUE_KEY: ['p1', 'p2', 'p2'],
             CONCEPT.FAMILY.UNIQUE_KEY: ['f1', 'f2', 'f3']
         }),
         'participant': pd.DataFrame({
@@ -28,13 +30,26 @@ def dfs():
             CONCEPT.PARTICIPANT.GENDER: ['Female', 'Male', 'Female']
         }),
         'biospecimen': pd.DataFrame({
+            CONCEPT.PARTICIPANT.UNIQUE_KEY: ['p1', 'p2', 'p2'],
             CONCEPT.BIOSPECIMEN.UNIQUE_KEY: ['b1', 'b2', 'b3'],
             CONCEPT.BIOSPECIMEN.ANALYTE: ['dna', 'rna', 'dna']
         }),
         'sequencing_experiment': pd.DataFrame({
+            CONCEPT.BIOSPECIMEN.UNIQUE_KEY: ['b1', 'b2', 'b3'],
             CONCEPT.SEQUENCING.LIBRARY_NAME: ['lib1', 'lib2', 'lib3']
-        }),
+        })
     }
+
+    all_data_df = outer_merge(dfs['family'], dfs['participant'],
+                              on=CONCEPT.PARTICIPANT.UNIQUE_KEY,
+                              with_merge_detail_dfs=False)
+    all_data_df = outer_merge(all_data_df, dfs['biospecimen'],
+                              on=CONCEPT.PARTICIPANT.UNIQUE_KEY,
+                              with_merge_detail_dfs=False)
+    all_data_df = outer_merge(all_data_df, dfs['sequencing_experiment'],
+                              on=CONCEPT.BIOSPECIMEN.UNIQUE_KEY,
+                              with_merge_detail_dfs=False)
+    return all_data_df
 
 
 @pytest.fixture(scope='function')
@@ -45,7 +60,8 @@ def transform_module():
     return TransformModule(TRANSFORM_MODULE_PATH)
 
 
-def test_standard_to_target_transform(caplog, dfs, guided_transform_stage):
+def test_standard_to_target_transform(caplog, all_data_df,
+                                      guided_transform_stage):
     """
     Test GuidedTransformStage._standard_to_target transformation
     """
@@ -54,7 +70,7 @@ def test_standard_to_target_transform(caplog, dfs, guided_transform_stage):
     caplog.set_level(logging.INFO)
 
     # Transform
-    target_instances = guided_transform_stage._standard_to_target(dfs)
+    target_instances = guided_transform_stage._standard_to_target(all_data_df)
 
     # Check that output only contains concepts that had data and unique key
     output_concepts = set(target_instances.keys())
@@ -67,8 +83,7 @@ def test_standard_to_target_transform(caplog, dfs, guided_transform_stage):
         if target_concept == 'participant':
             assert len(instances) == 2
         else:
-            input_rows = dfs.get(target_concept).shape[0]
-            assert input_rows == len(instances)
+            assert 3 == len(instances)
 
         for instance in instances:
             assert instance.get('id')
@@ -80,15 +95,9 @@ def test_standard_to_target_transform(caplog, dfs, guided_transform_stage):
         set(guided_transform_stage.target_api_config.concept_schemas.keys())
         .symmetric_difference(set(expected_concepts))
     )
-    no_table_msg = 'No table found for target concept:'
     no_unique_key_msg = 'No unique key found in table for target concept:'
     for c in no_data_concepts:
-        if c == 'sequencing_experiment':
-            expected_log = f'{no_unique_key_msg} {c}'
-        else:
-            expected_log = f'{no_table_msg} {c}'
-
-        assert expected_log in caplog.text
+        assert f'{no_unique_key_msg} {c}' in caplog.text
 
 
 def test_transform_module(transform_module):
@@ -123,8 +132,7 @@ def test_no_transform_module(target_api_config):
 
 @pytest.mark.parametrize('ret_val, error',
                          [(None, TypeError),
-                          ({'foo': pd.DataFrame()}, KeyError),
-                          ({'participant': None}, TypeError)
+                          ('foo', TypeError)
                           ])
 def test_bad_ret_vals_transform_funct(guided_transform_stage, ret_val, error):
     """

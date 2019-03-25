@@ -62,6 +62,9 @@ def test_read_write(guided_transform_stage, df):
         # Compare using DataFrames
         assert pd.DataFrame(other_data).equals(pd.DataFrame(data))
 
+    assert os.path.isfile(os.path.join(guided_transform_stage.stage_cache_dir,
+                                       'transform_func_df.tsv'))
+
 
 def test_unique_keys(guided_transform_stage, df):
     """

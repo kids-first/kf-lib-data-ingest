@@ -1,12 +1,20 @@
 """
 Tests for kf_lib_data_ingest/common/pandas_utils.py
 """
+import logging
 
 import pandas
 import numpy
 import pytest
 
 from kf_lib_data_ingest.common import pandas_utils
+
+
+@pytest.fixture(scope='function')
+def info_caplog(caplog):
+    # Set pytest to capture log events at level INFO or higher
+    caplog.set_level(logging.INFO)
+    return caplog
 
 
 @pytest.fixture(scope='function')
@@ -56,19 +64,23 @@ def test_safe_pandas_replace_no_cascade():
     ).equals(pandas.Series(['2', '3', '4']))
 
 
-def test_merge_wo_duplicates(dfs):
+def test_merge_wo_duplicates(info_caplog, dfs):
     df1 = dfs[0]
     df2 = dfs[1]
 
     # Test when all cols match
     expected_df = df1.copy()
-    merged = pandas_utils.merge_wo_duplicates(df1, df2, on='A', how='outer')
+    merged = pandas_utils.merge_wo_duplicates(df1, df2, left_name='df1',
+                                              right_name='df2',
+                                              on='A', how='outer')
     assert merged.equals(expected_df)
+    assert 'Outer merge df1 with df2' in info_caplog.text
 
     # Same as above, but with custom suffixes
     merged = pandas_utils.merge_wo_duplicates(
         df1, df2, on='A', how='outer', suffixes=('__left__', '__right__'))
     assert merged.equals(expected_df)
+    assert 'Outer merge Left with Right' in info_caplog.text
 
     # Test when NaNs result from outer merge
     df2.at[2, 'A'] = 'bloo'
@@ -76,16 +88,23 @@ def test_merge_wo_duplicates(dfs):
     merged = pandas_utils.merge_wo_duplicates(df1, df2, on='A', how='outer')
     assert merged.equals(expected_df)
 
+    # Test default behavior
+    pandas_utils.merge_wo_duplicates(df1, df2, on='A')
+    assert 'Inner merge Left with Right' in info_caplog.text
 
-def test_outer_merge(dfs):
+
+def test_outer_merge(info_caplog, dfs):
     df1 = dfs[0]
     df2 = dfs[1]
     df2.at[2, 'A'] = 'bloo'
 
-    ret_val = pandas_utils.outer_merge(df1, df2, on='A')
+    ret_val = pandas_utils.outer_merge(df1, df2,
+                                       left_name='df1',
+                                       right_name='df2', on='A')
     merged, in_both, left_only, right_only = ret_val
     expected = df1.copy().append(df2.tail(1), ignore_index=True)
 
+    assert 'Outer merge df1 with df2' in info_caplog.text
     assert len(ret_val) == 4
     assert expected.equals(merged)
     assert in_both.equals(df1.head(2))
@@ -94,5 +113,6 @@ def test_outer_merge(dfs):
 
     df = pandas_utils.outer_merge(df1, df2, on='A',
                                   with_merge_detail_dfs=False)
+    assert 'Outer merge Left with Right' in info_caplog.text
     assert isinstance(df, pandas.DataFrame)
     assert expected.equals(df)
