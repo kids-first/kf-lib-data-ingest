@@ -23,27 +23,16 @@ from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
 
 class DataIngestPipeline(object):
 
-    def __init__(self, dataset_ingest_config_path):
+    def __init__(
+        self, dataset_ingest_config_path, target_api_config_path=None,
+        auto_transform=False, use_async=False, target_url=DEFAULT_TARGET_URL,
+        log_level_name=None, log_dir=None, overwrite_log=None
+    ):
         """
         Setup data ingest pipeline. Create the config object and setup logging
 
         :param dataset_ingest_config_path: Path to config file containing all
         parameters for data ingest.
-        """
-        self.data_ingest_config = DatasetIngestConfig(
-            dataset_ingest_config_path)
-        self.ingest_config_dir = os.path.dirname(
-            self.data_ingest_config.config_filepath)
-        self.ingest_output_dir = os.path.join(self.ingest_config_dir,
-                                              'output')
-
-    def run(self, target_api_config_path, auto_transform=False,
-            use_async=False, target_url=DEFAULT_TARGET_URL,
-            log_level_name=None):
-        """
-        Entry point for data ingestion. Run ingestion in the top level
-        exception handler so that exceptions are logged.
-
         :param target_api_config_path: Path to the target api config file
         :param auto_transform: Boolean specifies whether to use automatic
         graph-based transformation or user guided transformation
@@ -54,66 +43,59 @@ class DataIngestPipeline(object):
         :param log_level_name: case insensitive name of log level
         (i.e. info, debug, etc) to control logging output.
         See keys in logging._nameToLevel dict for all possible options
+        :param log_dir: override for setting the directory to put logs in
+        :param overwrite_log: override for whether to persist the previous log
         """
+        self.data_ingest_config = DatasetIngestConfig(
+            dataset_ingest_config_path)
+        self.ingest_config_dir = os.path.dirname(
+            self.data_ingest_config.config_filepath)
+        self.ingest_output_dir = os.path.join(self.ingest_config_dir, 'output')
+
+        self.target_api_config_path = target_api_config_path
+        self.auto_transform = auto_transform  # False
+        self.use_async = use_async  # False
+        self.target_url = target_url  # DEFAULT_TARGET_URL
+
         # Get args, kwargs
         frame = inspect.currentframe()
         args, _, _, values = inspect.getargvalues(frame)
         kwargs = {arg: values[arg] for arg in args[2:]}
 
         # Get log params from dataset_ingest_config
-        log_dir = self.data_ingest_config.log_dir
+        log_dir = log_dir or self.data_ingest_config.log_dir
         log_kwargs = {param: getattr(self.data_ingest_config, param)
                       for param in ['overwrite_log', 'log_level']}
 
+        if overwrite_log is not None:
+            log_kwargs['overwrite_log'] = overwrite_log
+
         # Apply any log parameter overrides
-        log_level_name = kwargs.pop('log_level_name')
         log_level = logging._nameToLevel.get(str(log_level_name).upper())
         if log_level:
             log_kwargs['log_level'] = log_level
 
         # Setup logger
-        setup_logger(log_dir, **log_kwargs)
-        self.logger = logging.getLogger(__name__)
+        self.log_file_path = setup_logger(log_dir, **log_kwargs)
+        self.logger = logging.getLogger(type(self).__name__)
+        self.logger.info(
+            '-- Ingest Params --\n\t{}'.format(pformat(kwargs))
+        )
 
-        # Log the start of the run with ingestion parameters
-        run_msg = ('BEGIN data ingestion.\n\t-- Ingestion params --\n\t{}'
-                   .format(pformat(kwargs)))
-        self.logger.info(run_msg)
+    def _iterate_stages(self):
+        # Extract stage #######################################################
 
-        # Top level exception handler
-        # Catch exception, log it to file and console, and exit
-        try:
-            self._run(target_api_config_path, **kwargs)
-        except Exception as e:
-            msg = str(e) + '\nExiting.'
-            logging.exception(e)
-            exit(1)
-
-        # Log the end of the run
-        self.logger.info('END data ingestion')
-
-    def _run(self, target_api_config_path, auto_transform=False,
-             use_async=False, target_url=DEFAULT_TARGET_URL):
-        """
-        Runs the ingest pipeline
-
-        See run method for description of keyword args
-        """
-        # Create an ordered dict of all ingest stages and their parameters
-        self.stage_dict = OrderedDict()
-
-        # Extract stage
-        self.stage_dict['e'] = (
-            ExtractStage,
+        yield ExtractStage(
             self.ingest_output_dir,
             self.data_ingest_config.extract_config_paths,
             self.data_ingest_config.expected_counts
         )
 
-        # Transform stage
+        # Transform stage #####################################################
+
         transform_fp = None
         # Create file path to transform function Python module
-        if not auto_transform:
+        if not self.auto_transform:
             transform_fp = self.data_ingest_config.transform_function_path
             if transform_fp:
                 transform_fp = os.path.join(
@@ -126,27 +108,45 @@ class DataIngestPipeline(object):
                 'Transform module file has not been created yet! '
                 'You must define a transform function in order for ingest '
                 'to continue.')
-            # self.stage_dict['t'] = (
-            #     AutoTransformStage, target_api_config_path, target_url,
-            #     self.ingest_output_dir)
+            #
+            # yield AutoTransformStage(
+            #     self.target_api_config_path, self.target_url,
+            #     self.ingest_output_dir
+            # )
         else:
-            self.stage_dict['t'] = (
-                GuidedTransformStage, transform_fp, target_api_config_path,
-                target_url, self.ingest_output_dir)
+            yield GuidedTransformStage(
+                transform_fp, self.target_api_config_path, self.target_url,
+                self.ingest_output_dir
+            )
 
-        # Load stage
-        self.stage_dict['l'] = (
-            LoadStage, target_api_config_path,
-            target_url, self.data_ingest_config.target_service_entities,
-            self.ingest_config_dir, use_async)
+        # Load stage ##########################################################
 
-        # Iterate over stages and execute them
-        output = None
-        for key, params in self.stage_dict.items():
-            # Instantiate an instance of the ingest stage
-            stage = params[0](*(params[1:]))
-            # First stage is always extract
-            if key == 'e':
-                output, checks_passed, accounting_data = stage.run()
-            else:
-                output, checks_passed, accounting_data = stage.run(output)
+        yield LoadStage(
+            self.target_api_config_path, self.target_url,
+            self.data_ingest_config.target_service_entities,
+            uid_cache_dir=self.ingest_output_dir, use_async=self.use_async
+        )
+
+    def run(self):
+        """
+        Entry point for data ingestion. Run ingestion in the top level
+        exception handler so that exceptions are logged.
+        """
+        self.logger.info('BEGIN data ingestion.')
+        # Top level exception handler
+        # Catch exception, log it to file and console, and exit
+        try:
+            # Iterate over stages and execute them
+            output = None
+            for s in self._iterate_stages():
+                if not output:  # First stage gets no input
+                    output, checks_passed, accounting_data = s.run()
+                else:
+                    output, checks_passed, accounting_data = s.run(output)
+        except Exception as e:
+            msg = str(e) + '\nExiting.'
+            self.logger.exception(e)
+            exit(1)
+
+        # Log the end of the run
+        self.logger.info('END data ingestion')
