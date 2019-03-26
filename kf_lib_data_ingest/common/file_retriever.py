@@ -104,20 +104,20 @@ def _web_save(protocol, source_loc, dest_obj, auth=None, auth_config=None,
 
     Authentication
     --------------
-    If `auth` is provided, use that to get the resource - this is
-    essentially basic auth
+    Currently supports the following authentication schemes:
+        - HTTP Basic Authentication
+        - OAuth 2 Authentication
 
-    If `auth_config` is provided, then determine authentication scheme by
-    `url` inspection. Look for `url` in the keys of the `auth_config` dict.
-    If found, then select auth config for this url, and load in the correct
-    auth parameters required by the auth scheme from the environment.
+    If `auth` is provided, use that to get the resource - this is
+    essentially HTTP basic auth
+
+    If `auth_config` is provided, inspect the URL to select the authentication
+    scheme and its configuration dict from `auth_config`
+    See kf_lib_data_ingest.network.utils.select_auth_scheme for details on
+    format of `auth_config` and the auth scheme selection method.
 
     If neither `auth` nor `auth_config` are provided then assume the resource
     requires no auth. Just send a get request to fetch it
-
-    Currently supports the following authentication schemes:
-        - Basic Authentication
-        - OAuth 2 Authentication
 
     :param protocol: URL protocol identifier
     :type protocol: str
@@ -139,13 +139,7 @@ def _web_save(protocol, source_loc, dest_obj, auth=None, auth_config=None,
     # Fetch a protected file using auth scheme determined by URL inspection
     # Use auth parameters from auth config for the selected auth scheme
     if auth_config:
-        # Select auth scheme and it's config
-        selected_cfg = None
-        if auth_config:
-            for key, cfg in auth_config.items():
-                if url.startswith(key):
-                    selected_cfg = cfg
-                    break
+        selected_cfg = utils.select_auth_scheme(url, auth_config)
 
         # If no auth config for URL, fallback to fetch an unprotected file
         if not selected_cfg:
@@ -153,30 +147,30 @@ def _web_save(protocol, source_loc, dest_obj, auth=None, auth_config=None,
             utils.get_file(url, dest_obj)
             return
 
-        logger.info(
-            f'Selected `{cfg["type"]}` authentication scheme to fetch {url}')
-        var_names = cfg['variable_names']
-
+        auth_scheme = selected_cfg['type']
+        var_names = selected_cfg['variable_names']
+        logger.info(f'Selected `{auth_scheme}` authentication to fetch {url}')
         # Basic auth
-        if selected_cfg['type'] == 'basic':
+        if auth_scheme == 'basic':
             auth = HTTPBasicAuth(os.environ.get(var_names.get('username')),
                                  os.environ.get(var_names.get('password')))
             utils.get_file(url, dest_obj, auth=auth)
 
         # OAuth 2
-        elif selected_cfg['type'] == 'oauth2':
+        elif auth_scheme == 'oauth2':
             kwargs = {
-                'provider_domain': os.environ.get(
-                    var_names.get('provider_domain')),
-                'audience': os.environ.get(var_names.get('audience')),
-                'client_id': os.environ.get(var_names.get('client_id')),
-                'client_secret': os.environ.get(var_names.get('client_secret'))
+                var_name: os.environ.get(var_names.get(var_name))
+                for var_name in ['provider_domain',
+                                 'audience',
+                                 'client_id',
+                                 'client_secret']
             }
             oauth2.get_file(url, dest_obj, **kwargs)
 
     else:
         # Fetch protected file using auth from kwargs
         if auth:
+            logger.info(f'Using `basic` authentication scheme to fetch {url}')
             utils.get_file(url, dest_obj, auth=auth)
         # Fetch unprotected file
         else:

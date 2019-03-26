@@ -60,3 +60,55 @@ def get_file(url, dest_obj, **kwargs):
                        f'{response.text}')
 
     return response
+
+
+def select_auth_scheme(url, auth_config):
+    """
+    Select authentication scheme by inspecting `url`. If `url` starts with
+    any of the keys in auth_config, return the value of the first key match.
+
+    Authentication schemes along with their required parameters are stored in
+    `auth_config`.
+
+    `auth_config` looks something like:
+
+        {
+            'http://api.com/files': {
+                'type': 'basic',
+                'variable_names': {
+                    'username': 'MY_FILES_API_UNAME',
+                    'password': 'MY_FILES_API_PW'
+                }
+            },
+            'https://kf-api-study-creator.kids-first.io/download': {
+                'type': 'oauth2',
+                'variable_names': {
+                    'client_id': 'STUDY_CREATOR_CLIENT_ID',
+                    'client_secret': 'STUDY_CREATOR_CLIENT_ID',
+                    'provider_domain': 'STUDY_CREATOR_AUTH0_DOMAIN',
+                    'audience': 'STUDY_CREATOR_API_IDENTIFIER',
+                }
+            }
+        }
+
+
+    `type` is the authentication scheme
+
+    `variable_names` is a key value list where a key is a required auth
+    parameter for the authentication scheme and the value is the name of an
+    environment variable where the parameter value is stored.
+
+    :param url: the URL to be inspected
+    :type url: str
+    :param auth_config: configuration dict of auth schemes and parameters
+    :type auth_config: dict
+
+    :returns selected_cfg: configuration dict of the selected auth scheme
+    """
+    selected_cfg = None
+    if auth_config:
+        for key, cfg in auth_config.items():
+            if url.startswith(key):
+                selected_cfg = cfg
+                break
+    return selected_cfg
