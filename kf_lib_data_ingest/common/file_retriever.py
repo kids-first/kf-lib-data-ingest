@@ -18,16 +18,6 @@ from kf_lib_data_ingest.network import (
     oauth2
 )
 
-# Setup console handler
-consoleHandler = logging.StreamHandler()
-
-# Set log level and handlers
-root = logging.getLogger()
-root.setLevel(logging.INFO)
-root.addHandler(consoleHandler)
-
-logger = logging.getLogger(__name__)
-
 logging.getLogger('boto3').setLevel(logging.WARNING)
 logging.getLogger('botocore').setLevel(logging.WARNING)
 logging.getLogger('s3transfer').setLevel(logging.WARNING)
