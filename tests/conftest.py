@@ -3,6 +3,7 @@ import logging
 import shutil
 import pytest
 from unittest import mock
+import requests_mock
 
 from kf_lib_data_ingest.common.misc import read_json
 from kf_lib_data_ingest.etl.configuration.target_api_config import (
@@ -29,7 +30,7 @@ TEST_INGEST_CONFIG = os.path.join(TEST_DATA_DIR, 'test_study',
 
 COMMAND_LINE_ERROR_CODE = 2
 
-TEST_AUTHO0_DOMAIN = 'natashasingh.auth0.com'
+TEST_AUTH0_DOMAIN = 'natashasingh.auth0.com'
 TEST_AUTH0_AUD = 'https://test-api.kids-first.io/files'
 TEST_CLIENT_ID = 'jvpfU40lDRRaRSMEZ0C9FKm379H176W6'
 TEST_CLIENT_SECRET = 'B0v9vADfY9A7KQFxYxkoMHySuL6l6v7_eQb7s-3tv3MSSY4Pwtkmrv_vJ6VDbbpB'
@@ -38,6 +39,9 @@ TEST_CLIENT_SECRET = 'B0v9vADfY9A7KQFxYxkoMHySuL6l6v7_eQb7s-3tv3MSSY4Pwtkmrv_vJ6
 mock_dataservice_schema = read_json(
     os.path.join(TEST_DATA_DIR, 'mock_dataservice_schema.json')
 )
+
+m = requests_mock.Mocker()
+m.register_uri('POST', 'https://natashasingh.auth0.com', real_http=True)
 
 
 def delete_dir_contents(dir):

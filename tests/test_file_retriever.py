@@ -1,12 +1,20 @@
 import os
+import logging
 
 import boto3
 import pytest
 import requests_mock
 from moto import mock_s3
+from requests.auth import HTTPBasicAuth
 
 from kf_lib_data_ingest.common.file_retriever import FileRetriever
-from conftest import TEST_DATA_DIR
+from conftest import (
+    TEST_AUTH0_DOMAIN,
+    TEST_AUTH0_AUD,
+    TEST_CLIENT_ID,
+    TEST_CLIENT_SECRET,
+    TEST_DATA_DIR
+)
 
 TEST_S3_BUCKET = "s3_bucket"
 TEST_S3_PREFIX = "mock_folder"
@@ -30,7 +38,7 @@ def storage_dir(tmpdir_factory):
     return tmpdir_factory.mktemp('retrieved_files')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
 def s3_file():
     """
     Mock bucket creation, file upload. Return path to file on s3.
@@ -55,6 +63,37 @@ def s3_file():
 
     # Teardown
     mock_s3().stop()
+
+
+@pytest.fixture(scope='function')
+def auth_config():
+    auth_config = {
+        'https://api.com/foo': {
+            'type': 'basic',
+            'variable_names': {
+                'username': 'FOO_SERVICE_UNAME',
+                'password': 'FOO_SERVICE_PW'
+            }
+        },
+        'https://test-api.kids-first.io/files/download': {
+            'type': 'oauth2',
+            'variable_names': {
+                'provider_domain': 'TEST_AUTH0_DOMAIN',
+                'audience': 'TEST_AUTH0_AUD',
+                'client_id': 'TEST_CLIENT_ID',
+                'client_secret': 'TEST_CLIENT_SECRET'
+            }
+        }
+
+    }
+    os.environ['FOO_SERVICE_UNAME'] = 'username'
+    os.environ['FOO_SERVICE_PW'] = 'password'
+    os.environ['TEST_AUTH0_DOMAIN'] = TEST_AUTH0_DOMAIN
+    os.environ['TEST_AUTH0_AUD'] = TEST_AUTH0_AUD
+    os.environ['TEST_CLIENT_ID'] = TEST_CLIENT_ID
+    os.environ['TEST_CLIENT_SECRET'] = TEST_CLIENT_SECRET
+
+    return auth_config
 
 
 @pytest.mark.parametrize('use_storage_dir,cleanup_at_exit,should_file_exist',
@@ -101,6 +140,37 @@ def test_get_web(caplog, storage_dir, use_storage_dir, cleanup_at_exit,
     assert 'Content-Disposition' in caplog.text
 
 
+@pytest.mark.parametrize(
+    'url, auth, use_auth_config, expected_log', [
+        ('http://www.example.com', None, False, ''),
+        ('https://api.com/foo/1', None, True,
+         'Selected `basic` authentication'),
+        ('https://api.com/foo/1', HTTPBasicAuth('username', 'password'),
+         False, 'Using `basic` authentication'),
+        ('https://another-api.com/files', None, True,
+         'Authentication scheme not found'),
+        ('https://test-api.kids-first.io/files/download/file_id',
+         None, True, 'Selected `oauth2` authentication')
+    ])
+def test_get_web_w_auth(caplog, tmpdir, auth_config,
+                        url, auth, use_auth_config, expected_log):
+
+    caplog.set_level(logging.INFO)
+    with open(TEST_FILE_PATH, "rb") as tf:
+        with requests_mock.Mocker(real_http=True) as m:
+            m.get(url, content=tf.read())
+
+            get_kwargs = {
+                'auth': auth
+            }
+            if use_auth_config:
+                get_kwargs['auth_config'] = auth_config
+
+            _test_get_file(url, tmpdir, True, False, True,
+                           expected_file_ext='', **get_kwargs)
+            assert expected_log in caplog.text
+
+
 @pytest.mark.parametrize('use_storage_dir,cleanup_at_exit,should_file_exist',
                          TEST_PARAMS
                          )
@@ -133,7 +203,7 @@ def test_invalid_urls(url):
 
 
 def _test_get_file(url, storage_dir, use_storage_dir, cleanup_at_exit,
-                   should_file_exist, expected_file_ext=None):
+                   should_file_exist, expected_file_ext=None, **get_kwargs):
     """
     Test file retrieval
     """
@@ -146,7 +216,7 @@ def _test_get_file(url, storage_dir, use_storage_dir, cleanup_at_exit,
     with open(TEST_FILE_PATH, "rb") as tf:
         fr = FileRetriever(storage_dir=storage_dir,
                            cleanup_at_exit=cleanup_at_exit)
-        local_copy = fr.get(url)
+        local_copy = fr.get(url, **get_kwargs)
 
         assert local_copy.original_name.endswith(expected_file_ext)
 

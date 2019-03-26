@@ -1,13 +1,12 @@
 import os
 import logging
-import tempfile
 
 import pytest
 import requests_mock
 
 from kf_lib_data_ingest.network import oauth2
 from conftest import (
-    TEST_AUTHO0_DOMAIN,
+    TEST_AUTH0_DOMAIN,
     TEST_AUTH0_AUD,
     TEST_CLIENT_ID,
     TEST_CLIENT_SECRET,
@@ -24,13 +23,13 @@ def info_caplog(caplog):
 
 @pytest.mark.parametrize(
     'provider_domain, audience, client_id, client_secret, expected_status, expected_log',
-    [(TEST_AUTHO0_DOMAIN, TEST_AUTH0_AUD, TEST_CLIENT_ID, TEST_CLIENT_SECRET,
+    [(TEST_AUTH0_DOMAIN, TEST_AUTH0_AUD, TEST_CLIENT_ID, TEST_CLIENT_SECRET,
       200, 'Successfully fetched token'),
-     (TEST_AUTHO0_DOMAIN, TEST_AUTH0_AUD, '', '',
+     (TEST_AUTH0_DOMAIN, TEST_AUTH0_AUD, '', '',
       None, 'Client ID and secret are required'),
-     (TEST_AUTHO0_DOMAIN, TEST_AUTH0_AUD, None, None,
+     (TEST_AUTH0_DOMAIN, TEST_AUTH0_AUD, None, None,
       None, 'Client ID and secret are required'),
-     (TEST_AUTHO0_DOMAIN, 'foo', TEST_CLIENT_ID, TEST_CLIENT_SECRET,
+     (TEST_AUTH0_DOMAIN, 'foo', TEST_CLIENT_ID, TEST_CLIENT_SECRET,
       403, 'Could not fetch access token')
      ])
 def test_get_service_token(info_caplog, provider_domain, audience, client_id,
@@ -60,12 +59,12 @@ def test_bad_token_response(info_caplog):
     """
 
     with requests_mock.Mocker() as m:
-        m.post(f'https://{TEST_AUTHO0_DOMAIN}/oauth/token',
+        m.post(f'https://{TEST_AUTH0_DOMAIN}/oauth/token',
                json={'expires_in': 5,
                      'scope': 'download:file',
                      'token_type': 'Bearer'})
 
-        token = oauth2.get_service_token(TEST_AUTHO0_DOMAIN,
+        token = oauth2.get_service_token(TEST_AUTH0_DOMAIN,
                                          TEST_AUTH0_AUD,
                                          TEST_CLIENT_ID,
                                          TEST_CLIENT_SECRET)
@@ -98,7 +97,7 @@ def test_get_file(info_caplog, tmpdir, url, expected_status, expected_log,
         m.get(url, **kwargs)
 
         token_kwargs = {
-            'provider_domain': TEST_AUTHO0_DOMAIN,
+            'provider_domain': TEST_AUTH0_DOMAIN,
             'audience': TEST_AUTH0_AUD,
             'client_id': TEST_CLIENT_ID,
             'client_secret': TEST_CLIENT_SECRET
