@@ -94,20 +94,5 @@ def create_new_ingest(dest_dir=None):
     new_ingest_pkg(dest_dir)
 
 
-@click.command()
-def extract():
-    pass
-
-
-@click.command()
-def transform():
-    pass
-
-
-@click.command()
-def load():
-    pass
-
-
 cli.add_command(ingest)
 cli.add_command(create_new_ingest)

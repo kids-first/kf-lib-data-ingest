@@ -1,10 +1,9 @@
 import inspect
 import logging
 import os
-from collections import OrderedDict
 from pprint import pformat
 
-from kf_lib_data_ingest.common.concept_schema import CONCEPT
+from kf_lib_data_ingest.common.type_safety import assert_safe_type
 from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
 from kf_lib_data_ingest.etl.configuration.dataset_ingest_config import (
     DatasetIngestConfig
@@ -24,7 +23,7 @@ from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
 class DataIngestPipeline(object):
 
     def __init__(
-        self, dataset_ingest_config_path, target_api_config_path=None,
+        self, dataset_ingest_config_path, target_api_config_path,
         auto_transform=False, use_async=False, target_url=DEFAULT_TARGET_URL,
         log_level_name=None, log_dir=None, overwrite_log=None
     ):
@@ -33,34 +32,48 @@ class DataIngestPipeline(object):
 
         :param dataset_ingest_config_path: Path to config file containing all
         parameters for data ingest.
+        :type  dataset_ingest_config_path: str
         :param target_api_config_path: Path to the target api config file
-        :param auto_transform: Boolean specifies whether to use automatic
-        graph-based transformation or user guided transformation
-        :param use_async: Boolean specifies whether to do ingest
-        asynchronously or synchronously
-        :param target_url: URL of the target API, into which data will be
-        loaded. Use default if none is supplied
-        :param log_level_name: case insensitive name of log level
-        (i.e. info, debug, etc) to control logging output.
-        See keys in logging._nameToLevel dict for all possible options
-        :param log_dir: override for setting the directory to put logs in
-        :param overwrite_log: override for whether to persist the previous log
+        :type target_api_config_path: str
+        :param auto_transform: Whether to use automatic graph-based
+        transformation, defaults to False (user guided transformation)
+        :type auto_transform: bool, optional
+        :param use_async: Whether to load asynchronously, defaults to False
+        :type use_async: bool, optional
+        :param target_url: The target API URL, defaults to DEFAULT_TARGET_URL
+        :type target_url: str, optional
+        :param log_level_name: Override the logging level (e.g. 'debug'),
+        defaults to None (don't override)
+        :type log_level_name: str, optional
+        :param log_dir: Override the logfile directory,
+        defaults to None (don't override)
+        :type log_dir: str, optional
+        :param overwrite_log: Override whether to persist the previous log,
+        defaults to None (don't override)
+        :type overwrite_log: bool, optional
         """
+
+        assert_safe_type(dataset_ingest_config_path, str)
+        assert_safe_type(target_api_config_path, str)
+        assert_safe_type(auto_transform, bool)
+        assert_safe_type(use_async, bool)
+        assert_safe_type(target_url, str)
+        assert_safe_type(log_level_name, None, str)
+        assert_safe_type(log_dir, None, str)
+        assert_safe_type(overwrite_log, None, bool)
+
         self.data_ingest_config = DatasetIngestConfig(
-            dataset_ingest_config_path)
+            dataset_ingest_config_path
+        )
         self.ingest_config_dir = os.path.dirname(
-            self.data_ingest_config.config_filepath)
+            self.data_ingest_config.config_filepath
+        )
         self.ingest_output_dir = os.path.join(self.ingest_config_dir, 'output')
 
         self.target_api_config_path = target_api_config_path
-        self.auto_transform = auto_transform  # False
-        self.use_async = use_async  # False
-        self.target_url = target_url  # DEFAULT_TARGET_URL
-
-        # Get args, kwargs
-        frame = inspect.currentframe()
-        args, _, _, values = inspect.getargvalues(frame)
-        kwargs = {arg: values[arg] for arg in args[2:]}
+        self.auto_transform = auto_transform
+        self.use_async = use_async
+        self.target_url = target_url
 
         # Get log params from dataset_ingest_config
         log_dir = log_dir or self.data_ingest_config.log_dir
@@ -78,6 +91,11 @@ class DataIngestPipeline(object):
         # Setup logger
         self.log_file_path = setup_logger(log_dir, **log_kwargs)
         self.logger = logging.getLogger(type(self).__name__)
+
+        # Log args, kwargs
+        frame = inspect.currentframe()
+        args, _, _, values = inspect.getargvalues(frame)
+        kwargs = {arg: values[arg] for arg in args[2:]}
         self.logger.info(
             '-- Ingest Params --\n\t{}'.format(pformat(kwargs))
         )
@@ -144,8 +162,8 @@ class DataIngestPipeline(object):
                 else:
                     output, checks_passed, accounting_data = s.run(output)
         except Exception as e:
-            msg = str(e) + '\nExiting.'
-            self.logger.exception(e)
+            self.logger.exception(str(e))
+            self.logger.info('Exiting.')
             exit(1)
 
         # Log the end of the run

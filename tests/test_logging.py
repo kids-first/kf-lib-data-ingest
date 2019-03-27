@@ -1,18 +1,10 @@
 import logging
 import os
-import time
 
 import pytest
 from click.testing import CliRunner
 
-from conftest import (
-    KIDS_FIRST_CONFIG,
-    TEST_DATA_DIR,
-    TEST_LOG_DIR,
-    TEST_ROOT_DIR,
-    make_ingest_pipeline,
-    delete_dir
-)
+from conftest import TEST_LOG_DIR, make_ingest_pipeline
 from kf_lib_data_ingest import cli
 from kf_lib_data_ingest.config import (
     DEFAULT_LOG_FILENAME,
@@ -40,25 +32,18 @@ def test_defaults(ingest_pipeline):
     assert os.path.isfile(log_filepath) is True
 
 
-def test_log_dir():
+def test_log_dir(tmpdir):
     """
     Test non-default log dir
     """
-    # Custom log dir
-    log_dir = os.path.join(TEST_ROOT_DIR, 'mylogs')
-    delete_dir(log_dir)
-    os.mkdir(log_dir)
-
-    ingest_pipeline = make_ingest_pipeline(log_dir=log_dir)
+    log_dir = tmpdir.mkdir('my_logs')
+    ingest_pipeline = make_ingest_pipeline(log_dir=log_dir.strpath)
 
     # Run and generate logs
     ingest_pipeline.run()
 
     # User supplied log dir should exist
     assert len(os.listdir(log_dir)) == 1
-
-    # Delete the entire log directory
-    delete_dir(log_dir)
 
 
 def test_overwrite_log(ingest_pipeline):
@@ -134,7 +119,10 @@ def test_log_exceptions(ingest_pipeline):
             raise Exception('An exception occurred during ingestion!')
 
     # Create pipeline instance
-    p = NewPipeline(ingest_pipeline.data_ingest_config.config_filepath)
+    p = NewPipeline(
+        ingest_pipeline.data_ingest_config.config_filepath,
+        ingest_pipeline.target_api_config_path
+    )
     p.data_ingest_config.contents['logging'] = {
         'overwrite_log': True
     }
