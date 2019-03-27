@@ -5,10 +5,7 @@ from collections import OrderedDict
 from pprint import pformat
 
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
-from kf_lib_data_ingest.config import (
-    DEFAULT_TARGET_URL,
-    DEFAULT_ID_CACHE_FILENAME
-)
+from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
 from kf_lib_data_ingest.etl.configuration.dataset_ingest_config import (
     DatasetIngestConfig
 )
@@ -123,9 +120,6 @@ class DataIngestPipeline(object):
                     self.ingest_config_dir, os.path.relpath(transform_fp)
                 )
 
-        uid_cache_filepath = os.path.join(self.ingest_config_dir,
-                                          DEFAULT_ID_CACHE_FILENAME)
-
         if not transform_fp:
             # ** Temporary - until auto transform is further developed **
             raise FileNotFoundError(
@@ -134,17 +128,17 @@ class DataIngestPipeline(object):
                 'to continue.')
             # self.stage_dict['t'] = (
             #     AutoTransformStage, target_api_config_path, target_url,
-            #     self.ingest_output_dir, uid_cache_filepath)
+            #     self.ingest_output_dir)
         else:
             self.stage_dict['t'] = (
                 GuidedTransformStage, transform_fp, target_api_config_path,
-                target_url, self.ingest_output_dir, uid_cache_filepath)
+                target_url, self.ingest_output_dir)
 
         # Load stage
         self.stage_dict['l'] = (
             LoadStage, target_api_config_path,
-            target_url, use_async,
-            self.data_ingest_config.target_service_entities)
+            target_url, self.data_ingest_config.target_service_entities,
+            self.ingest_config_dir, use_async)
 
         # Iterate over stages and execute them
         output = None
