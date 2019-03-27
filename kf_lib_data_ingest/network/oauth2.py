@@ -1,7 +1,5 @@
 """
 Module for requests using OAuth 2 based authentication/authorization
-Supported http methods:
-    GET
 """
 
 import logging
@@ -13,15 +11,15 @@ from kf_lib_data_ingest.network import utils
 logger = logging.getLogger(__name__)
 
 
-def get_service_token(provider_domain, audience, client_id,
-                      client_secret):
+def get_service_token(provider_domain, audience, client_id, client_secret):
     """
     Get OAuth 2 access token for the given `client_id`, `client_secret`
     from the OAuth2 provider, `provider_domain`, using the
     Client Credentials grant type
 
     :param provider_domain: the OAuth2 provider's domain name
-    :type provider_domain: str (i.e. kidsfirst.auth0.org)
+    (i.e. kidsfirst.auth0.org)
+    :type provider_domain: str
     :param audience: the https URL of the endpoint we're trying to
     access (i.e. https://kf-api-study-creator.kidsfirst.io/files/download)
     :type audience: str
@@ -30,6 +28,7 @@ def get_service_token(provider_domain, audience, client_id,
     :param client_secret: the client secret for this application
     issued by the provider
     :type client_secret: str
+
     :returns token: the access token string
     """
     token = None
@@ -51,13 +50,16 @@ def get_service_token(provider_domain, audience, client_id,
     response = requests.post(oauth_token_url, json=body)
 
     if response.status_code != 200:
-        logger.error(f'Could not fetch access token from {oauth_token_url}! '
-                     f'Caused by {pformat(response.text)}, status_code: '
-                     f'{response.status_code}')
+        logger.error(
+            f'Could not fetch access token from {oauth_token_url}! '
+            f'Caused by {response.text}, status_code: {response.status_code}')
+
         return token
 
     resp_body = response.json()
+
     token = resp_body.pop('access_token', None)
+
     if not token:
         logger.error(f'Unexpected response content from {oauth_token_url}, '
                      f'status_code: {response.status_code}')
@@ -74,8 +76,7 @@ def get_file(url, dest_obj, provider_domain=None, audience=None,
     Get an OAuth2 protected file at URL, `url`. Forward `kwargs` to
     kf_lib_data_ingest.network.utils.get_file
 
-    Get the service token first, then fetch the resources using the
-    service access token.
+    Get the service token first, then fetch the resources using the token.
 
     :param url: the URL of the resource to fetch
     :type url: str
@@ -86,6 +87,7 @@ def get_file(url, dest_obj, provider_domain=None, audience=None,
     :param kwargs: keyword args that will be forwarded to
     kf_lib_data_ingest.network.utils.get
     :type kwargs: dict
+
     :returns response: the requests.Response object
     """
     # Get access token to request resource

@@ -52,6 +52,7 @@ def get_file(url, dest_obj, **kwargs):
         for chunk in response.iter_content(chunk_size=8192):
             if chunk:
                 dest_obj.write(chunk)
+
         dest_obj.seek(0)
         response.close()
 

@@ -15,6 +15,7 @@ from conftest import (
     TEST_CLIENT_SECRET,
     TEST_DATA_DIR
 )
+from mocks import OAuth2Mocker
 
 TEST_S3_BUCKET = "s3_bucket"
 TEST_S3_PREFIX = "mock_folder"
@@ -157,7 +158,8 @@ def test_get_web_w_auth(caplog, tmpdir, auth_config,
 
     caplog.set_level(logging.INFO)
     with open(TEST_FILE_PATH, "rb") as tf:
-        with requests_mock.Mocker(real_http=True) as m:
+        with requests_mock.Mocker() as m:
+            OAuth2Mocker().create_service_token_mock(m)
             m.get(url, content=tf.read())
 
             get_kwargs = {

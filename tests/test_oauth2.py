@@ -2,9 +2,8 @@ import os
 import logging
 
 import pytest
-import requests_mock
 
-from kf_lib_data_ingest.network import oauth2
+from mocks import OAuth2Mocker
 from conftest import (
     TEST_AUTH0_DOMAIN,
     TEST_AUTH0_AUD,
@@ -41,10 +40,11 @@ def test_get_service_token(info_caplog, provider_domain, audience, client_id,
     2, 3 - Missing client_id and client_secret
     4 - Wrong API Audience, Access denied
     """
-    token = oauth2.get_service_token(provider_domain,
-                                     audience,
-                                     client_id,
-                                     client_secret)
+    token = OAuth2Mocker().get_service_token(provider_domain,
+                                             audience,
+                                             client_id,
+                                             client_secret,
+                                             status_code=expected_status)
     if expected_status == 200:
         assert token
     else:
@@ -57,19 +57,20 @@ def test_bad_token_response(info_caplog):
     Test bad token response. All inputs to oauth2.get_service_token are
     correct but the access token is missing
     """
-
-    with requests_mock.Mocker() as m:
-        m.post(f'https://{TEST_AUTH0_DOMAIN}/oauth/token',
-               json={'expires_in': 5,
-                     'scope': 'download:file',
-                     'token_type': 'Bearer'})
-
-        token = oauth2.get_service_token(TEST_AUTH0_DOMAIN,
-                                         TEST_AUTH0_AUD,
-                                         TEST_CLIENT_ID,
-                                         TEST_CLIENT_SECRET)
-        assert not token
-        assert 'Unexpected response content' in info_caplog.text
+    mock_kwargs = {
+        'json': {
+            'expires_in': 5,
+            'scope': 'download:file',
+            'token_type': 'Bearer'
+        }
+    }
+    token = OAuth2Mocker().get_service_token(TEST_AUTH0_DOMAIN,
+                                             TEST_AUTH0_AUD,
+                                             TEST_CLIENT_ID,
+                                             TEST_CLIENT_SECRET,
+                                             **mock_kwargs)
+    assert not token
+    assert 'Unexpected response content' in info_caplog.text
 
 
 @pytest.mark.parametrize(
@@ -78,23 +79,19 @@ def test_bad_token_response(info_caplog):
         (TEST_AUTH0_AUD, 200, 'Successfully authenticated'),
         (TEST_AUTH0_AUD, 403, 'Could not get')
     ])
-@requests_mock.Mocker(kw='mock', real_http=True)
 def test_get_file(info_caplog, tmpdir, url, expected_status, expected_log,
                   **kwargs):
     """
     Test oauth2.get_file()
     """
-    m = kwargs['mock']
     with open(TEST_FILE_PATH, 'rb') as f:
         expected_content = f.read()
-        kwargs = {
+        mock_kwargs = {
             'status_code': expected_status,
             'content': None
         }
         if expected_status == 200:
-            kwargs['content'] = expected_content
-
-        m.get(url, **kwargs)
+            mock_kwargs['content'] = expected_content
 
         token_kwargs = {
             'provider_domain': TEST_AUTH0_DOMAIN,
@@ -102,10 +99,12 @@ def test_get_file(info_caplog, tmpdir, url, expected_status, expected_log,
             'client_id': TEST_CLIENT_ID,
             'client_secret': TEST_CLIENT_SECRET
         }
-
         fp = os.path.join(tmpdir, 'downloaded_file')
+
         with open(fp, 'w+b') as dest_obj:
-            response = oauth2.get_file(url, dest_obj, **token_kwargs)
+            response = OAuth2Mocker().get_file(url, dest_obj,
+                                               **token_kwargs,
+                                               **mock_kwargs)
 
             assert expected_status == response.status_code
             assert expected_log in info_caplog.text
