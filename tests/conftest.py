@@ -23,6 +23,10 @@ KIDS_FIRST_CONFIG = os.path.join(os.path.dirname(os.path.dirname(__file__)),
 TRANSFORM_MODULE_PATH = os.path.join(TEST_DATA_DIR,
                                      'test_study',
                                      'transform_module.py')
+TEST_LOG_DIR = os.path.join(TEST_DATA_DIR, 'test_study', 'logs')
+TEST_INGEST_CONFIG = os.path.join(TEST_DATA_DIR, 'test_study',
+                                  'dataset_ingest_config.yml')
+
 COMMAND_LINE_ERROR_CODE = 2
 
 # Mock get_open_api_v2_schema to always return the schema
@@ -31,38 +35,42 @@ mock_dataservice_schema = read_json(
 )
 
 
-def delete_logs(log_dir):
+def delete_dir_contents(dir):
     """
-    Delete contents of log dir
+    Delete contents of a dir
     """
-    for filename in os.listdir(log_dir):
-        file_path = os.path.join(log_dir, filename)
-        if os.path.isfile(file_path):
-            os.remove(file_path)
+    if os.path.isdir(dir):
+        for filename in os.listdir(dir):
+            file_path = os.path.join(dir, filename)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
 
 
-def delete_ingest_outputs(output_dir):
-    # Delete the entire ingest outputs directory
-    if os.path.exists(output_dir):
-        shutil.rmtree(output_dir)
+def delete_dir(dir):
+    """
+    Delete an entire dir
+    """
+    if os.path.exists(dir):
+        shutil.rmtree(dir)
 
 
-def make_ingest_pipeline(config_filepath=None):
+def make_ingest_pipeline(
+    config_filepath=None, log_dir=None, overwrite_log=None
+):
     """
     Create ingest pipeline as test dependency
     """
     # Create ingest pipeline
     if not config_filepath:
-        config_filepath = os.path.join(TEST_DATA_DIR,
-                                       'test_study',
-                                       'dataset_ingest_config.yml')
+        config_filepath = TEST_INGEST_CONFIG
 
-    p = DataIngestPipeline(config_filepath)
+    if not log_dir:
+        log_dir = TEST_LOG_DIR
 
-    # Delete any existing log files
-    delete_logs(p.data_ingest_config.log_dir)
-
-    return p
+    return DataIngestPipeline(
+        config_filepath, target_api_config_path=KIDS_FIRST_CONFIG,
+        log_dir=log_dir, overwrite_log=overwrite_log
+    )
 
 
 @pytest.fixture(scope='function')
@@ -70,16 +78,16 @@ def ingest_pipeline():
     """
     Ingest pipeline fixture
     """
+    # Delete any existing log files
+    delete_dir_contents(TEST_LOG_DIR)
+
     p = make_ingest_pipeline()
 
     yield p
 
     # Teardown
-    # Delete the entire log directory
-    if os.path.exists(p.data_ingest_config.log_dir):
-        shutil.rmtree(p.data_ingest_config.log_dir)
-
-    delete_ingest_outputs(p.ingest_output_dir)
+    delete_dir(p.data_ingest_config.log_dir)
+    delete_dir(p.ingest_output_dir)
 
 
 @pytest.fixture(scope='function')
@@ -114,7 +122,7 @@ def guided_transform_stage(caplog):
                                ingest_output_dir=TEST_INGEST_OUTPUT_DIR)
     patcher.stop()
 
-    delete_ingest_outputs(TEST_INGEST_OUTPUT_DIR)
+    delete_dir(TEST_INGEST_OUTPUT_DIR)
 
 
 @pytest.fixture(scope='function')
@@ -138,4 +146,4 @@ def auto_transform_stage(caplog):
         ingest_output_dir=TEST_INGEST_OUTPUT_DIR)
     patcher.stop()
 
-    delete_ingest_outputs(TEST_INGEST_OUTPUT_DIR)
+    delete_dir(TEST_INGEST_OUTPUT_DIR)
