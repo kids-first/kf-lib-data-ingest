@@ -29,7 +29,7 @@ def import_module_from_file(filepath):
 
 def read_yaml(filepath):
     with open(filepath, 'r') as yaml_file:
-        return yaml.load(yaml_file)
+        return yaml.load(yaml_file, Loader=yaml.FullLoader)
 
 
 def read_json(filepath, default=None):
