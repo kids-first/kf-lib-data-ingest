@@ -5,7 +5,7 @@ import pytest
 from click.testing import CliRunner
 
 from conftest import TEST_LOG_DIR, make_ingest_pipeline
-from kf_lib_data_ingest import cli
+from kf_lib_data_ingest.app import cli
 from kf_lib_data_ingest.config import (
     DEFAULT_LOG_FILENAME,
     DEFAULT_LOG_LEVEL,

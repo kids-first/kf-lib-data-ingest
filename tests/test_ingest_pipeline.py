@@ -3,7 +3,7 @@ import shutil
 
 from click.testing import CliRunner
 
-from kf_lib_data_ingest import cli
+from kf_lib_data_ingest.app import cli
 from conftest import (
     TEST_DATA_DIR,
     TRANSFORM_MODULE_PATH
