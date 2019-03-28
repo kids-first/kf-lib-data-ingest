@@ -97,7 +97,7 @@ class DataIngestPipeline(object):
         args, _, _, values = inspect.getargvalues(frame)
         kwargs = {arg: values[arg] for arg in args[2:]}
         self.logger.info(
-            '-- Ingest Params --\n\t{}'.format(pformat(kwargs))
+            f'-- Ingest Params --\n{pformat(kwargs)}'
         )
 
     def _iterate_stages(self):
