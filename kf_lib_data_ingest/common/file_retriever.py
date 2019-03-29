@@ -110,6 +110,7 @@ def _web_save(protocol, source_loc, dest_obj, auth=None, auth_config=None,
     --------------
     Currently supports the following authentication schemes:
         - HTTP Basic Authentication
+        - Token Authentication
         - OAuth 2 Authentication
 
     If `auth_config` is provided, inspect the URL to select the authentication

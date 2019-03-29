@@ -81,6 +81,12 @@ def select_auth_scheme(url, auth_config):
                     'password': 'MY_FILES_API_PW'
                 }
             },
+            'http://api.com/files': {
+                'type': 'token',
+                'variable_names': {
+                    'token': 'FILES_API_TOKEN',
+                }
+            },
             'https://kf-api-study-creator.kids-first.io/download': {
                 'type': 'oauth2',
                 'variable_names': {

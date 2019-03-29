@@ -1,5 +1,9 @@
 import os
 import logging
+from urllib.parse import (
+    urljoin,
+    urlencode
+)
 
 import boto3
 import pytest
@@ -84,6 +88,19 @@ def auth_config():
                 'client_id': 'TEST_CLIENT_ID',
                 'client_secret': 'TEST_CLIENT_SECRET'
             }
+        },
+        'https://kf-study-creator.kidsfirstdrc.org/download/study': {
+            'type': 'token',
+            'token_location': 'url',
+            'variable_names': {
+                'token': 'TEST_API_TOKEN'
+            }
+        },
+        'https://api.com/bar': {
+            'type': 'token',
+            'variable_names': {
+                'token': 'TEST_API_TOKEN'
+            }
         }
 
     }
@@ -93,6 +110,7 @@ def auth_config():
     os.environ['TEST_AUTH0_AUD'] = TEST_AUTH0_AUD
     os.environ['TEST_CLIENT_ID'] = TEST_CLIENT_ID
     os.environ['TEST_CLIENT_SECRET'] = TEST_CLIENT_SECRET
+    os.environ['TEST_API_TOKEN'] = 'a developer token'
 
     return auth_config
 
@@ -151,7 +169,10 @@ def test_get_web(caplog, storage_dir, use_storage_dir, cleanup_at_exit,
         ('https://another-api.com/files', None, True,
          'Authentication scheme not found'),
         ('https://test-api.kids-first.io/files/download/file_id',
-         None, True, 'Selected `oauth2` authentication')
+         None, True, 'Selected `oauth2` authentication'),
+        ('https://kf-study-creator.kidsfirstdrc.org/download/study',
+         None, True, 'Selected `token` authentication'),
+        ('https://api.com/bar', None, True, 'Selected `token` authentication')
     ])
 def test_get_web_w_auth(caplog, tmpdir, auth_config,
                         url, auth, use_auth_config, expected_log):
@@ -159,17 +180,57 @@ def test_get_web_w_auth(caplog, tmpdir, auth_config,
     caplog.set_level(logging.INFO)
     with open(TEST_FILE_PATH, "rb") as tf:
         with requests_mock.Mocker() as m:
-            OAuth2Mocker().create_service_token_mock(m)
-            m.get(url, content=tf.read())
+            file_content = tf.read()
+            m.get(url, content=file_content)
 
-            get_kwargs = {
-                'auth': auth
-            }
+            get_kwargs = {}
             if use_auth_config:
                 get_kwargs['auth_config'] = auth_config
 
-            _test_get_file(url, tmpdir, True, False, True,
-                           expected_file_ext='', **get_kwargs)
+            # Basic auth or no auth
+            if '`basic`' in expected_log:
+                if auth:
+                    get_kwargs = {
+                        'auth': auth
+                    }
+                _test_get_file(url, tmpdir, True, False, True,
+                               expected_file_ext='', **get_kwargs)
+
+                # Check request headers
+                req_headers = m.request_history[0].headers
+                auth_header = req_headers.get('Authorization')
+                assert auth_header and 'Basic' in auth_header
+
+            # Token auth
+            elif '`token`' in expected_log:
+                token = os.environ.get(
+                    auth_config[url]['variable_names']['token'])
+
+                # Token in query string of url
+                if auth_config[url].get('token_location') == 'url':
+                    token_qs = urlencode({'token': token})
+                    m.get(urljoin(url, token_qs), content=file_content)
+                    _test_get_file(url, tmpdir, True, False, True,
+                                   expected_file_ext='', **get_kwargs)
+                    assert token_qs in m.request_history[0].url
+
+                # Token in Authorization header
+                else:
+                    _test_get_file(url, tmpdir, True, False, True,
+                                   expected_file_ext='', **get_kwargs)
+                    req_headers = m.request_history[0].headers
+                    auth_header = req_headers.get('Authorization')
+                    assert auth_header and f'Token {token}' in auth_header
+
+            # Oauth2 auth
+            elif '`oauth2`' in expected_log:
+                OAuth2Mocker().create_service_token_mock(m)
+                _test_get_file(url, tmpdir, True, False, True,
+                               expected_file_ext='', **get_kwargs)
+            else:
+                _test_get_file(url, tmpdir, True, False, True,
+                               expected_file_ext='', **get_kwargs)
+
             assert expected_log in caplog.text
 
 
