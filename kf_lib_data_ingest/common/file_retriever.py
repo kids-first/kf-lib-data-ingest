@@ -7,7 +7,11 @@ import logging
 import os
 import shutil
 import tempfile
-from urllib.parse import urlparse
+from urllib.parse import (
+    urlparse,
+    urlencode,
+    urljoin
+)
 
 import boto3
 import botocore
@@ -149,11 +153,23 @@ def _web_save(protocol, source_loc, dest_obj, auth=None, auth_config=None,
         auth_scheme = auth_scheme_params['type']
         var_names = auth_scheme_params['variable_names']
         logger.info(f'Selected `{auth_scheme}` authentication to fetch {url}')
+
         # Basic auth
         if auth_scheme == 'basic':
             auth = HTTPBasicAuth(os.environ.get(var_names.get('username')),
                                  os.environ.get(var_names.get('password')))
             utils.get_file(url, dest_obj, auth=auth)
+
+        # Token auth
+        if auth_scheme == 'token':
+            token = os.environ.get(var_names.get('token'))
+
+            if auth_scheme_params.get('token_location', 'header') == 'url':
+                utils.get_file(
+                    urljoin(url, urlencode({'token': token})), dest_obj)
+            else:
+                utils.get_file(
+                    url, dest_obj, headers={'Authorization': f'Token {token}'})
 
         # OAuth 2
         elif auth_scheme == 'oauth2':
