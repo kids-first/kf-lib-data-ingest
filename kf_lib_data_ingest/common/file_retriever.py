@@ -118,8 +118,6 @@ def _web_save(protocol, source_loc, dest_obj, auth=None, auth_config=None,
 
     If `auth_config` is provided, inspect the URL to select the authentication
     scheme and its configuration dict from `auth_config`
-    See kf_lib_data_ingest.network.utils.select_auth_scheme for details on
-    format of `auth_config` and the auth scheme selection method.
 
     If `auth` is provided, use that to get the resource - uses HTTP basic auth
 
@@ -146,7 +144,7 @@ def _web_save(protocol, source_loc, dest_obj, auth=None, auth_config=None,
     # Fetch a protected file using auth scheme determined by URL inspection
     # Use auth parameters from auth config for the selected auth scheme
     if auth_config:
-        auth_scheme_params = utils.select_auth_scheme(url, auth_config)
+        auth_scheme_params = _select_auth_scheme(url, auth_config)
 
         # If no auth config for URL, fallback to fetch an unprotected file
         if not auth_scheme_params:
@@ -217,6 +215,30 @@ def _file_save(protocol, source_loc, dest_obj, auth=None, auth_config=None,
     logger = logger or logging.getLogger(__name__)
     with open(source_loc, "rb") as orig:
         shutil.copyfileobj(orig, dest_obj)
+
+
+def _select_auth_scheme(url, auth_config):
+    """
+    Select authentication scheme by inspecting `url`. If `url` starts with
+    any of the keys in auth_config, return the value, a dict containing
+    necessary parameters for the selected auth scheme, of the first key match.
+
+    See FileRetriever._validate_auth_config for details on auth_config format
+
+    :param url: the URL to be inspected
+    :type url: str
+    :param auth_config: configuration dict of auth schemes and parameters
+    :type auth_config: dict
+
+    :returns selected_cfg: configuration dict of the selected auth scheme
+    """
+    selected_cfg = None
+    if auth_config:
+        for key, cfg in auth_config.items():
+            if url.startswith(key):
+                selected_cfg = cfg
+                break
+    return selected_cfg
 
 
 class FileRetriever(object):
