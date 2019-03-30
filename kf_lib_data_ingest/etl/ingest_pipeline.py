@@ -29,8 +29,9 @@ class DataIngestPipeline(object):
 
     def __init__(
         self, dataset_ingest_config_path, target_api_config_path,
-        auto_transform=False, use_async=False, target_url=DEFAULT_TARGET_URL,
-        log_level_name=None, log_dir=None, overwrite_log=None
+        auth_config=None, auto_transform=False, use_async=False,
+        target_url=DEFAULT_TARGET_URL, log_level_name=None, log_dir=None,
+        overwrite_log=None
     ):
         """
         Setup data ingest pipeline. Create the config object and setup logging
@@ -76,6 +77,7 @@ class DataIngestPipeline(object):
         self.ingest_output_dir = os.path.join(self.ingest_config_dir, 'output')
 
         self.target_api_config_path = target_api_config_path
+        self.auth_config = auth_config
         self.auto_transform = auto_transform
         self.use_async = use_async
         self.target_url = target_url
@@ -110,7 +112,8 @@ class DataIngestPipeline(object):
 
         yield ExtractStage(
             self.ingest_output_dir,
-            self.data_ingest_config.extract_config_paths
+            self.data_ingest_config.extract_config_paths,
+            self.auth_config
         )
 
         # Transform stage #####################################################

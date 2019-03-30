@@ -9,12 +9,14 @@ import click
 
 from kf_lib_data_ingest.config import (
     DEFAULT_TARGET_URL,
-    DEFAULT_LOG_LEVEL,
-    TARGET_SERVICE_CONFIG_PATH
+    DEFAULT_LOG_LEVEL
 )
+from kf_lib_data_ingest.app import settings
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 DEFAULT_LOG_LEVEL_NAME = logging._levelToName.get(DEFAULT_LOG_LEVEL)
+
+app_settings = settings.setup()
 
 
 @click.group(context_settings=CONTEXT_SETTINGS)
@@ -25,7 +27,6 @@ def cli():
     This method does not need to be implemented. cli is the root group that all
     subcommands will implicitly be part of.
     """
-    pass
 
 
 @click.command()
@@ -69,9 +70,11 @@ def ingest(dataset_ingest_config_path, target_url, use_async, log_level_name):
     args, _, _, values = inspect.getargvalues(frame)
     kwargs = {arg: values[arg] for arg in args[1:]}
 
+    kwargs['auth_config'] = app_settings.auth_config
+
     # Run ingest
     perfection = DataIngestPipeline(
-        dataset_ingest_config_path, TARGET_SERVICE_CONFIG_PATH, **kwargs
+        dataset_ingest_config_path, app_settings.target_api_config, **kwargs
     ).run()
 
     if not perfection:
