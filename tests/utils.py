@@ -47,12 +47,14 @@ def _make_request_data(study_kf_id, filepath):
     return m
 
 
-def upload_files(study_id, data_dir, host=None, port=None, auth_params=None):
-    host = host or DEFAULT_HOST
-    port = port or DEFAULT_PORT
-    endpoint = f'http://{host}:{port}/graphql'
-    data_dir = os.path.realpath(data_dir)
+def upload_files(study_id, data_dir, url=None, host=None, port=None,
+                 auth_params=None):
+    if not url:
+        host = host or DEFAULT_HOST
+        port = port or DEFAULT_PORT
+        url = f'http://{host}:{port}/graphql'
 
+    data_dir = os.path.realpath(data_dir)
     headers = {}
     if auth_params:
         token = oauth2.get_service_token(auth_params.get('provider_domain'),
@@ -71,7 +73,7 @@ def upload_files(study_id, data_dir, host=None, port=None, auth_params=None):
 
         m = _make_request_data(study_id, filepath)
         headers.update({'Content-Type': m.content_type})
-        response = requests.post(endpoint, data=m, headers=headers)
+        response = requests.post(url, data=m, headers=headers)
 
         if response.status_code == 200:
             content = response.json()
@@ -84,6 +86,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("study_id", help='Kids First ID of existing study')
     parser.add_argument("data_dir", help='Directory of files to upload')
+    parser.add_argument("--url", help="URL")
     parser.add_argument("--host", help="Host")
     parser.add_argument("--port", help="Port")
     args = parser.parse_args()
@@ -96,4 +99,4 @@ if __name__ == '__main__':
     }
 
     upload_files(args.study_id, args.data_dir, host=args.host, port=args.port,
-                 auth_params=auth_params)
+                 auth_params=auth_params, url=args.url)

@@ -27,6 +27,7 @@ def cli():
     This method does not need to be implemented. cli is the root group that all
     subcommands will implicitly be part of.
     """
+    pass
 
 
 @click.command()
