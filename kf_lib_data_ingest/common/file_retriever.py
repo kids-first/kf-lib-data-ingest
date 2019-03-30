@@ -9,14 +9,17 @@ import shutil
 import tempfile
 from urllib.parse import (
     urlparse,
-    urlencode,
-    urljoin
+    urlencode
 )
 
 import boto3
 import botocore
 from requests.auth import HTTPBasicAuth
 
+from kf_lib_data_ingest.common.type_safety import (
+    assert_safe_type,
+    assert_all_safe_type
+)
 from kf_lib_data_ingest.network import (
     utils,
     oauth2
@@ -167,7 +170,7 @@ def _web_save(protocol, source_loc, dest_obj, auth=None, auth_config=None,
 
             if auth_scheme_params.get('token_location', 'header') == 'url':
                 utils.get_file(
-                    urljoin(url, urlencode({'token': token})), dest_obj)
+                    f"{url}?{urlencode({'token': token})}", dest_obj)
             else:
                 utils.get_file(
                     url, dest_obj, headers={'Authorization': f'Token {token}'})
@@ -229,12 +232,16 @@ class FileRetriever(object):
         "file": _file_save
     }
 
-    def __init__(self, storage_dir=None, cleanup_at_exit=True):
+    def __init__(self, storage_dir=None, cleanup_at_exit=True,
+                 auth_config=None):
         """
         :param storage_dir: optional specific tempfile storage location
         :type storage_dir: str
         :param cleanup_at_exit: should the temp files vanish at exit
         :type cleanup_at_exit: bool
+        :param auth_config: optional dict mapping URL patterns to
+        authentication schemes and environment variables containing necessary
+        auth parameters
         """
         self.logger = logging.getLogger(type(self).__name__)
         self.cleanup_at_exit = cleanup_at_exit
@@ -246,8 +253,9 @@ class FileRetriever(object):
                                                         dir=".")
             self.storage_dir = self.__tmpdir.name
         self._files = {}
+        self.auth_config = auth_config
 
-    def get(self, url, auth=None, auth_config=None):
+    def get(self, url, auth=None):
         """
         Retrieve the contents of a remote file.
 
@@ -255,10 +263,6 @@ class FileRetriever(object):
         :type url: str
         :param auth: auth argument appropriate to type
         :type auth: various
-        :param auth_config: optional dict mapping URL patterns to
-         authentication schemes and environment variables containing necessary
-         auth parameters
-        :type auth_config: dict
 
         :raises LookupError: url is not of one of the handled protocols
         :returns: a file-like object containing the remote file contents
@@ -282,10 +286,20 @@ class FileRetriever(object):
                     dir=self.storage_dir,
                     delete=self.cleanup_at_exit and not self.__tmpdir
                 )
+
+                # Set auth config if there is one and validate it
+                if self.auth_config:
+                    self._validate_auth_config(self.auth_config)
+
                 # Fetch the remote data
+                kwargs = {
+                    'auth': auth,
+                    'logger': self.logger,
+                    'auth_config': self.auth_config
+                }
                 FileRetriever._getters[protocol](
                     protocol, path, self._files[url],
-                    auth=auth, auth_config=auth_config, logger=self.logger
+                    **kwargs
                 )
                 if not hasattr(self._files[url], 'original_name'):
                     filename = urlparse(url).path.rsplit('/', 1)[-1]
@@ -297,3 +311,51 @@ class FileRetriever(object):
             if self.__tmpdir:
                 self.__tmpdir.cleanup()
             raise e
+
+    def _validate_auth_config(self, auth_config):
+        """
+        Validate config dict containing authentication parameters
+
+        `auth_config` looks something like:
+
+            {
+                'http://api.com/files': {
+                    'type': 'basic',
+                    'variable_names': {
+                        'username': 'MY_FILES_API_UNAME',
+                        'password': 'MY_FILES_API_PW'
+                    }
+                },
+                'https://kf-api-study-creator.kids-first.io/download': {
+                    'type': 'oauth2',
+                    'variable_names': {
+                        'client_id': 'STUDY_CREATOR_CLIENT_ID',
+                        'client_secret': 'STUDY_CREATOR_CLIENT_ID',
+                        'provider_domain': 'STUDY_CREATOR_AUTH0_DOMAIN',
+                        'audience': 'STUDY_CREATOR_API_IDENTIFIER',
+                    }
+                }
+            }
+
+
+        `type` is the authentication scheme
+
+        `variable_names` is a key value list where a key is a required auth
+        parameter for the authentication scheme and the value is the name of an
+        environment variable where the parameter value is stored.
+        """
+        # Dict with str keys
+        assert_safe_type(auth_config, dict)
+        assert_all_safe_type(list(auth_config.keys()), str)
+
+        # All sub dicts have type and variable_names w correct types
+        for url, cfg in auth_config.items():
+            auth_scheme = cfg.get('type')
+            assert auth_scheme, ('A dict in Auth config must have `type` key'
+                                 ' to define the authentication scheme')
+            assert_safe_type(auth_scheme, str)
+            var_names = cfg.get('variable_names')
+            assert var_names, ('A dict in auth config must have'
+                               ' `variable_names` to define required auth'
+                               ' parameters')
+            assert_safe_type(var_names, dict)

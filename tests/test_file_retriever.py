@@ -183,18 +183,19 @@ def test_get_web_w_auth(caplog, tmpdir, auth_config,
             file_content = tf.read()
             m.get(url, content=file_content)
 
-            get_kwargs = {}
+            fr_kwargs = {}
             if use_auth_config:
-                get_kwargs['auth_config'] = auth_config
+                fr_kwargs['auth_config'] = auth_config
 
             # Basic auth or no auth
             if '`basic`' in expected_log:
+                get_kwargs = {}
                 if auth:
                     get_kwargs = {
                         'auth': auth
                     }
                 _test_get_file(url, tmpdir, True, False, True,
-                               expected_file_ext='', **get_kwargs)
+                               expected_file_ext='', **fr_kwargs, **get_kwargs)
 
                 # Check request headers
                 req_headers = m.request_history[0].headers
@@ -211,13 +212,13 @@ def test_get_web_w_auth(caplog, tmpdir, auth_config,
                     token_qs = urlencode({'token': token})
                     m.get(urljoin(url, token_qs), content=file_content)
                     _test_get_file(url, tmpdir, True, False, True,
-                                   expected_file_ext='', **get_kwargs)
+                                   expected_file_ext='', **fr_kwargs)
                     assert token_qs in m.request_history[0].url
 
                 # Token in Authorization header
                 else:
                     _test_get_file(url, tmpdir, True, False, True,
-                                   expected_file_ext='', **get_kwargs)
+                                   expected_file_ext='', **fr_kwargs)
                     req_headers = m.request_history[0].headers
                     auth_header = req_headers.get('Authorization')
                     assert auth_header and f'Token {token}' in auth_header
@@ -226,12 +227,50 @@ def test_get_web_w_auth(caplog, tmpdir, auth_config,
             elif '`oauth2`' in expected_log:
                 OAuth2Mocker().create_service_token_mock(m)
                 _test_get_file(url, tmpdir, True, False, True,
-                               expected_file_ext='', **get_kwargs)
+                               expected_file_ext='', **fr_kwargs)
             else:
                 _test_get_file(url, tmpdir, True, False, True,
-                               expected_file_ext='', **get_kwargs)
+                               expected_file_ext='', **fr_kwargs)
 
             assert expected_log in caplog.text
+
+
+@pytest.mark.parametrize(
+    'auth_config, expected_exc',
+    [
+        ('foo', TypeError),
+        ({
+            'url': {
+                'type': 'basic'
+            }
+        }, AssertionError),
+        ({
+            'url': {
+                'variable_names': {}
+            }
+        }, AssertionError),
+        ({
+            'url': {
+                'type': 'auth',
+                'variable_names': {
+                    'foo': 'bar'
+                }
+            }
+        }, None)
+
+    ])
+def test_validate_auth_config(auth_config, expected_exc):
+
+    fr = FileRetriever(cleanup_at_exit=True,
+                       auth_config=auth_config)
+    if expected_exc:
+        with pytest.raises(expected_exc) as e:
+            try:
+                fr._validate_auth_config(auth_config)
+            except expected_exc as e:
+                raise e
+    else:
+        fr._validate_auth_config(auth_config)
 
 
 @pytest.mark.parametrize('use_storage_dir,cleanup_at_exit,should_file_exist',
@@ -266,7 +305,8 @@ def test_invalid_urls(url):
 
 
 def _test_get_file(url, storage_dir, use_storage_dir, cleanup_at_exit,
-                   should_file_exist, expected_file_ext=None, **get_kwargs):
+                   should_file_exist, expected_file_ext=None,
+                   auth_config=None, **get_kwargs):
     """
     Test file retrieval
     """
@@ -278,7 +318,8 @@ def _test_get_file(url, storage_dir, use_storage_dir, cleanup_at_exit,
 
     with open(TEST_FILE_PATH, "rb") as tf:
         fr = FileRetriever(storage_dir=storage_dir,
-                           cleanup_at_exit=cleanup_at_exit)
+                           cleanup_at_exit=cleanup_at_exit,
+                           auth_config=auth_config)
         local_copy = fr.get(url, **get_kwargs)
 
         assert local_copy.original_name.endswith(expected_file_ext)
