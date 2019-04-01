@@ -73,11 +73,10 @@ def ingest(dataset_ingest_config_path, target_url, use_async, log_level_name):
     target_api_config_path = os.path.join(
         root_dir, 'target_apis', 'kids_first.py')
 
-    # Construct ingest pipeline
-    p = DataIngestPipeline(dataset_ingest_config_path)
-
     # Run ingest
-    p.run(target_api_config_path, **kwargs)
+    DataIngestPipeline(
+        dataset_ingest_config_path, target_api_config_path, **kwargs
+    ).run()
 
 
 @click.command(name='new')
@@ -93,21 +92,6 @@ def create_new_ingest(dest_dir=None):
     """
     from kf_lib_data_ingest.factory.generate import new_ingest_pkg
     new_ingest_pkg(dest_dir)
-
-
-@click.command()
-def extract():
-    pass
-
-
-@click.command()
-def transform():
-    pass
-
-
-@click.command()
-def load():
-    pass
 
 
 cli.add_command(ingest)

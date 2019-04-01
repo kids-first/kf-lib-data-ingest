@@ -1,25 +1,17 @@
-import os
 import logging
-import time
+import os
 
 import pytest
 from click.testing import CliRunner
 
+from conftest import TEST_LOG_DIR, make_ingest_pipeline
+from kf_lib_data_ingest import cli
 from kf_lib_data_ingest.config import (
     DEFAULT_LOG_FILENAME,
     DEFAULT_LOG_LEVEL,
     DEFAULT_LOG_OVERWRITE_OPT
 )
-from conftest import (
-    TEST_ROOT_DIR,
-    TEST_DATA_DIR,
-    KIDS_FIRST_CONFIG
-)
 from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
-from kf_lib_data_ingest import cli
-
-target_api_config_path = KIDS_FIRST_CONFIG
-default_log_dir = os.path.join(TEST_DATA_DIR, 'test_study', 'logs')
 
 
 def test_defaults(ingest_pipeline):
@@ -29,30 +21,26 @@ def test_defaults(ingest_pipeline):
 
     # Test that default log params were set on config
     log_dir = ingest_pipeline.data_ingest_config.log_dir
-    assert log_dir == default_log_dir
+    assert log_dir == TEST_LOG_DIR
     assert ingest_pipeline.data_ingest_config.log_level == DEFAULT_LOG_LEVEL
     assert (ingest_pipeline.data_ingest_config.overwrite_log ==
             DEFAULT_LOG_OVERWRITE_OPT)
 
     # Test that ingest.log was created
-    ingest_pipeline.run(target_api_config_path)
-    log_filepath = os.path.join(default_log_dir, DEFAULT_LOG_FILENAME)
+    ingest_pipeline.run()
+    log_filepath = os.path.join(TEST_LOG_DIR, DEFAULT_LOG_FILENAME)
     assert os.path.isfile(log_filepath) is True
 
 
-def test_log_dir(ingest_pipeline):
+def test_log_dir(tmpdir):
     """
     Test non-default log dir
     """
-    # Create log dir
-    log_dir = os.path.join(TEST_ROOT_DIR, 'mylogs')
-    os.mkdir(log_dir)
-    # Update data ingest config
-    ingest_pipeline.data_ingest_config.contents['logging'] = {
-        'log_dir': log_dir}
-    ingest_pipeline.data_ingest_config._set_log_params()
+    log_dir = tmpdir.mkdir('my_logs')
+    ingest_pipeline = make_ingest_pipeline(log_dir=log_dir.strpath)
+
     # Run and generate logs
-    ingest_pipeline.run(target_api_config_path)
+    ingest_pipeline.run()
 
     # User supplied log dir should exist
     assert len(os.listdir(log_dir)) == 1
@@ -63,29 +51,20 @@ def test_overwrite_log(ingest_pipeline):
     Test that overwriting the default log file works
     """
     log_dir = ingest_pipeline.data_ingest_config.log_dir
-    assert len(os.listdir(log_dir)) == 0
-
-    # Run and generate logs
-    ingest_pipeline.run(target_api_config_path)
 
     # Check for default log file
     assert len(os.listdir(log_dir)) == 1
-    log_filepath = os.path.join(log_dir, DEFAULT_LOG_FILENAME)
-    assert os.path.isfile(log_filepath) is True
+    assert os.path.isfile(ingest_pipeline.log_file_path) is True
 
     # No new files should be created
-    ingest_pipeline.run(target_api_config_path)
+    ingest_pipeline.run()
     assert len(os.listdir(log_dir)) == 1
 
-    # Update data ingest config
-    ingest_pipeline.data_ingest_config.contents['logging'] = {
-        'overwrite_log': False}
-    ingest_pipeline.data_ingest_config._set_log_params()
-
-    # Test that new logs are created on each run
-    time.sleep(1)
-    ingest_pipeline.run(target_api_config_path)
-    assert len(os.listdir(default_log_dir)) == 2
+    # Test that new logs are created on each pipeline with overwrite_false
+    make_ingest_pipeline(overwrite_log=False)
+    assert len(os.listdir(log_dir)) == 2
+    make_ingest_pipeline(overwrite_log=False)
+    assert len(os.listdir(log_dir)) == 3
 
 
 def test_log_level(ingest_pipeline):
@@ -100,7 +79,7 @@ def test_log_level(ingest_pipeline):
     ingest_pipeline.data_ingest_config._set_log_params()
 
     # Run and generate log
-    ingest_pipeline.run(target_api_config_path)
+    ingest_pipeline.run()
 
     # Check log content
     log_filepath = os.path.join(ingest_pipeline.data_ingest_config.log_dir,
@@ -140,7 +119,10 @@ def test_log_exceptions(ingest_pipeline):
             raise Exception('An exception occurred during ingestion!')
 
     # Create pipeline instance
-    p = NewPipeline(ingest_pipeline.data_ingest_config.config_filepath)
+    p = NewPipeline(
+        ingest_pipeline.data_ingest_config.config_filepath,
+        ingest_pipeline.target_api_config_path
+    )
     p.data_ingest_config.contents['logging'] = {
         'overwrite_log': True
     }
@@ -148,7 +130,7 @@ def test_log_exceptions(ingest_pipeline):
 
     # Exception is thrown and log should include exception
     with pytest.raises(Exception):
-        p.run(target_api_config_path)
+        p.run()
         log_filepath = os.path.join(p.data_ingest_config.log_dir,
                                     DEFAULT_LOG_FILENAME)
 

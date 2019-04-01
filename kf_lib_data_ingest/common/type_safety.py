@@ -141,6 +141,7 @@ def function(x):
     return inspect.isfunction(x) or inspect.isbuiltin(x)
 
 
+is_function = function  # simple alias for clarity
 _basic_types = {int, float, bool, str, bytes}
 
 

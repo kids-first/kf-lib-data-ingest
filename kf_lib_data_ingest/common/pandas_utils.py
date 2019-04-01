@@ -1,13 +1,18 @@
 """
 Utility functions to improve Pandas's rough edges and deficiencies.
 """
+import logging
 import re
+from collections import defaultdict
+from inspect import signature
 
 import numpy
 import pandas
 
 from kf_lib_data_ingest.common.misc import multisplit
 from kf_lib_data_ingest.common.type_safety import assert_safe_type
+
+logger = logging.getLogger(__name__)
 
 
 class Split:
@@ -16,6 +21,7 @@ class Split:
 
     Replaces lists with a Split object containing the list.
     """
+
     def __init__(self, things):
         assert_safe_type(things, list)
         self.things = things
@@ -211,7 +217,8 @@ def safe_pandas_replace(data, mappings, regex=False):
     return output
 
 
-def merge_wo_duplicates(left, right, **kwargs):
+def merge_wo_duplicates(left, right, left_name=None, right_name=None,
+                        **kwargs):
     """
     Merge two dataframes and return a dataframe with no duplicate columns.
 
@@ -220,10 +227,19 @@ def merge_wo_duplicates(left, right, **kwargs):
 
     :param left: left dataframe
     :type left: Pandas.DataFrame
+    :param left_name: Optional name of left DataFrame to use in logging
+    the DataFrame's uniques using nunique()
+    :type left_name: str
+    :param right_name: Optional name of right DataFrame to use in logging
+    the DataFrame's uniques using nunique()
+    :type right_name: str
     :param right: right dataframe
     :type right: Pandas.DataFrame
     :param kwargs: keyword args expected by Pandas.merge function
     """
+    left_name = left_name or 'Left'
+    right_name = right_name or 'Right'
+
     def resolve_duplicates(df, suffixes):
         l_suffix = suffixes[0]
         r_suffix = suffixes[1]
@@ -244,11 +260,34 @@ def merge_wo_duplicates(left, right, **kwargs):
         return df
 
     merged = pandas.merge(left, right, **kwargs)
+    reduced = resolve_duplicates(merged, kwargs.pop('suffixes', ('_x', '_y')))
 
-    return resolve_duplicates(merged, kwargs.pop('suffixes', ('_x', '_y')))
+    default_how = signature(pandas.merge).parameters['how'].default
+
+    # Hopefully this will help us know that we didn't lose anything important
+    # in the merge
+    collective_uniques = defaultdict(set)
+    for c in left.columns:
+        collective_uniques[c] |= set(left[c])
+    for c in right.columns:
+        collective_uniques[c] |= set(right[c])
+    collective_uniques = pandas.DataFrame(
+        {c: [len(v)] for c, v in collective_uniques.items()}
+    )
+    msg = (
+        f'*** {kwargs.get("how", default_how).title()} merge {left_name} with '
+        f'{right_name}***\n'
+        f'-- Left+Right Collective Uniques --\n{collective_uniques}\n'
+        f'-- Merged DataFrame Uniques --\n{reduced.nunique()}'
+
+    )
+    logger.info(msg)
+
+    return reduced
 
 
-def outer_merge(df1, df2, with_merge_detail_dfs=True, **kwargs):
+def outer_merge(df1, df2, with_merge_detail_dfs=True, left_name=None,
+                right_name=None, **kwargs):
     """
     Do Pandas outer merge, return merge result and 3 additional dfs if
     with_merge_details=True. The 3 merge detail dataframes are useful for
@@ -268,13 +307,21 @@ def outer_merge(df1, df2, with_merge_detail_dfs=True, **kwargs):
     :param with_merge_detail_dfs: boolean specifying whether to output
     additional dataframes
     :type with_merge_details: boolean
+    :param left_name: Name to use in log statements pertaining to df1
+    :type left_name: str
+    :param left_name: Name to use in log statements pertaining to df2
+    :type left_name: str
+    the DataFrame's uniques using nunique()
     :param kwargs: keyword args expected by Pandas.merge
     :type kwargs: dict
     :returns: 1 dataframe or tuple of 4 dataframes
     """
     kwargs['how'] = 'outer'
     kwargs['indicator'] = with_merge_detail_dfs
-    outer = merge_wo_duplicates(df1, df2, **kwargs)
+    outer = merge_wo_duplicates(df1, df2,
+                                left_name=left_name,
+                                right_name=right_name,
+                                **kwargs)
 
     if with_merge_detail_dfs:
         detail_dfs = [outer[outer['_merge'] == keyword]

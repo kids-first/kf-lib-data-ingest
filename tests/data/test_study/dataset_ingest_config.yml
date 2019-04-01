@@ -25,6 +25,10 @@ extract_config_dir: 'extract_configs'
 
 transform_function_path: 'transform_module.py'
 
+expected_counts:
+  'CONCEPT|BIOSPECIMEN': 60
+  'CONCEPT|PARTICIPANT|ID': 25
+
 study:
     kf_id: 'SD_MEOWMEOW'
     external_id: 'phs0001999'

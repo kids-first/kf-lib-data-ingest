@@ -8,12 +8,14 @@ https://kids-first.github.io/kf-lib-data-ingest/ for information on
 implementing transform_function.
 """
 
-import pandas as pd
+# Use these merge funcs, not pandas.merge
+from kf_lib_data_ingest.common.pandas_utils import (
+    outer_merge,
+    merge_without_duplicates
+)
 
 
 def transform_function(mapped_df_dict):
-    entity_dataframes = {
-        'participant': pd.DataFrame()
-    }
+    # Expected to return a single merged dataframe
 
-    return entity_dataframes
+    return list(mapped_df_dict.values())[0]

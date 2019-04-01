@@ -155,6 +155,9 @@ def compile_schema():
     return property_paths
 
 
+str_to_CONCEPT = {}
+
+
 def _set_cls_attrs(node, prev_node, property_path, property_paths):
     """
     Recursive method to traverse a class hierarchy and set class attributes
@@ -201,8 +204,10 @@ def _set_cls_attrs(node, prev_node, property_path, property_paths):
         # The concept name path string if the attribute is _CONCEPT_NAME
         if node == '_CONCEPT_NAME':
             setattr(prev_node, node, concept_name_str)
+            str_to_CONCEPT[concept_name_str] = prev_node
         else:
             setattr(prev_node, node, property_path_str)
+
         # Add property string to list of property path strings
         property_paths.add(property_path_str)
 
@@ -336,14 +341,14 @@ def concept_from(concept_attribute_str):
     """
     Extract the concept from the concept attribute string
     """
-    return DELIMITER.join(concept_attribute_str.split(DELIMITER)[0:-1])
+    return concept_attribute_str.rsplit(DELIMITER, 1)[0]
 
 
 def concept_attr_from(concept_attribute_str):
     """
     Extract the concept attribute from the concept attribute string
     """
-    return concept_attribute_str.split(DELIMITER)[-1]
+    return concept_attribute_str.rsplit(DELIMITER, 1)[1]
 
 
 unique_key_composition = _create_unique_key_composition()

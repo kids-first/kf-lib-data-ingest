@@ -53,7 +53,7 @@ def test_read_write(guided_transform_stage, df):
     extract_output = {'extract_config_url': ('source_url', df)}
 
     # Transform outputs json
-    output = guided_transform_stage.run(extract_output)
+    output, _, _ = guided_transform_stage.run(extract_output)
     recycled_output = guided_transform_stage.read_output()
 
     for target_entity, data in output.items():
@@ -61,6 +61,9 @@ def test_read_write(guided_transform_stage, df):
         other_data = recycled_output[target_entity]
         # Compare using DataFrames
         assert pd.DataFrame(other_data).equals(pd.DataFrame(data))
+
+    assert os.path.isfile(os.path.join(guided_transform_stage.stage_cache_dir,
+                                       'transform_func_df.tsv'))
 
 
 def test_unique_keys(guided_transform_stage, df):
@@ -194,61 +197,3 @@ def test_no_key_comp_defined(guided_transform_stage):
         guided_transform_stage._add_unique_key_cols(df, unique_key_composition)
         assert 'key composition not defined' in str(e)
     unique_key_composition[CONCEPT.PARTICIPANT._CONCEPT_NAME] = save
-
-
-def test_unique_key_to_target_id(caplog, guided_transform_stage):
-    """
-    Test kf_lib_data_ingest.etl.transform.transform.unique_keys_to_target_ids
-    """
-    uid_cache = {
-        'biospecimen': {
-            'b2': 'BS_00000002'
-        }
-    }
-    data_in = {
-        'biospecimen':
-        [
-            {'id': 'b1',  # should resolve to None
-             'links': {
-                 'participant_id': 'p1',  # should resolve to None
-                 'sequencing_center_id': None
-             }},
-            {'id': 'b2',  # should resolve to BS_00000002
-             'links': {
-                 'participant_id': 'p1',  # should resolve to None
-                 'sequencing_center_id': None
-             }}
-        ],
-        'participant':
-        [
-            {'id': 'p1',  # should resolve to None
-             'links': {
-                 'study_id': 's1'  # should resolve to None
-             }}
-        ]
-    }
-    data_out = guided_transform_stage._unique_keys_to_target_ids(
-        uid_cache, deepcopy(data_in)
-    )
-
-    for target_concept, instances in data_out.items():
-        for i, instance in enumerate(instances):
-            if target_concept not in uid_cache:
-                assert (instance['id']['source'] ==
-                        data_in[target_concept][i]['id'])
-                assert instance['id']['target'] is None
-            else:
-                source_id = instance['id']['source']
-                assert source_id == data_in[target_concept][i]['id']
-                expected = uid_cache[target_concept].get(source_id, None)
-                assert instance['id']['target'] == expected
-
-
-def test_no_uid_cache(caplog, tmpdir, df, guided_transform_stage):
-    """
-    Test transform no UID cache
-    """
-    nonexist_id_cache_file = os.path.join(tmpdir, 'uid_cache.json')
-    guided_transform_stage.uid_cache_filepath = nonexist_id_cache_file
-    guided_transform_stage.run({'foo': ('bar', df)})
-    assert 'UID cache file does not exist' in caplog.text
