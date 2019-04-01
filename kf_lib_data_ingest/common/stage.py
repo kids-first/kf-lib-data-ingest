@@ -47,19 +47,32 @@ class IngestStage(ABC):
     def _run(self, *args, **kwargs):
         pass
 
-    def _postrun_analysis(self, run_output):
+    def _postrun_tally(self, run_output):
         """
-        Performs post-run accounting and other analysis. Here is where we'll
-        perform whichever automatic data consistency checks we can do
-        immediately after the current stage is done. Checks that can only be
-        comprehensively performed after later stages will not happen here.
+        Tallies counts in run output.
 
         :param run_output: the output returned by the _run() method
-        :return: boolean True if all accounting checks passed, else False
-        :return: some meaningful data structure of what has been accounted
-        :return: a human-readable message string describing the analysis
+        :return: A dict where 1) concept values map to a list of the sources
+        containing them and 2) concept values map to lists of linked concept
+        values
+
+        tally = {
+            'sources': {
+                a_key: {  # e.g. PARTICIPANT.ID
+                    a1: [f1, f2],  # e.g. PARTICIPANT.ID==a1 in files f1 & f2
+                    ...
+                },
+                ...
+            },
+            'links': {
+                a_key_b_key: { #  e.g. PARTICIPANT.ID and BIOSPECIMEN.ID
+                    a1: [b1, b2], # Participant a1 linked to specimens b1 & b2
+                    ...
+                }
+            }
+        }
         """
-        return True, None, None
+        return {'sources': None, 'links': None}
 
     @abstractmethod
     def _validate_run_parameters(self, *args, **kwargs):
@@ -133,11 +146,6 @@ class IngestStage(ABC):
         # Write output of stage to disk
         self.write_output(output)
 
-        all_checks_passed, accounting_data, accounting_message = (
-            self._postrun_analysis(output)
-        )
-        self.logger.info(
-            f'{type(self).__name__} Accounting\n\n{accounting_message}\n'
-        )
+        output_tally = self._postrun_tally(output)
 
-        return output, all_checks_passed, accounting_data
+        return output, output_tally

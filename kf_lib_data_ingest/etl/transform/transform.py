@@ -282,6 +282,13 @@ class TransformStage(IngestStage):
 
         return target_instances
 
+    def _postrun_tally(self, run_output):
+        """
+        See the docstring for IngestStage._postrun_tally.
+        """
+        # TODO: Implement after transform (or an intermediate stage) is fixed
+        # to produce output using CONCEPT keys, instead of target service keys.
+
     def _insert_unique_keys(
         self, df_dict, unique_key_composition=DEFAULT_KEY_COMP
     ):

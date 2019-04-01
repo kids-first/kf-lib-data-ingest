@@ -6,9 +6,7 @@ from math import gcd
 from pprint import pformat
 
 import pandas
-from tabulate import tabulate
 
-from kf_lib_data_ingest.common.concept_schema import str_to_CONCEPT
 from kf_lib_data_ingest.common.datafile_readers import read_excel_file
 from kf_lib_data_ingest.common.file_retriever import (
     PROTOCOL_SEP,
@@ -44,7 +42,7 @@ def lcm(number_list):
 
 class ExtractStage(IngestStage):
     def __init__(
-        self, stage_cache_dir, extract_config_paths, expected_counts=None
+        self, stage_cache_dir, extract_config_paths
     ):
         super().__init__(stage_cache_dir)
         if isinstance(extract_config_paths, list):
@@ -54,10 +52,6 @@ class ExtractStage(IngestStage):
         elif isinstance(extract_config_paths, str):
             self.extract_configs = [ExtractConfig(extract_config_paths)]
 
-        assert_safe_type(expected_counts, None, dict)
-        if isinstance(expected_counts, dict):
-            assert_all_safe_type(expected_counts.values(), int)
-        self.expected_counts = expected_counts
         self.FR = FileRetriever()
 
     def _output_path(self):
@@ -388,86 +382,27 @@ class ExtractStage(IngestStage):
         # return dictionary of all dataframes keyed by extract config paths
         return output
 
-    def _postrun_analysis(self, run_output):
+    def _postrun_tally(self, run_output):
         """
-        See the docstring for IngestStage._postrun_analysis.
-
-        In ExtractStage._postrun_analysis we verify that we found as many
-        unique values of each attribute as we expected to find.
+        See the docstring for IngestStage._postrun_tally.
         """
-        # A dict where concept values map to a list of all source files
-        # containing them
-        # counted = {
-        #     a_key: {  # e.g. PARTICIPANT.ID
-        #         a1: [file1, file2],  # e.g. PARTICIPANT.ID a1 is in files 1&2
-        #         ...
-        #     },
-        #     ...
-        # }
-        counted = defaultdict(
+        sources = defaultdict(
+            lambda: defaultdict(set)
+        )
+        links = defaultdict(
             lambda: defaultdict(set)
         )
 
         for config_path, (data_file, df) in run_output.items():
             for key in df.columns:
                 for val in df[key]:
-                    counted[key][val].add(data_file)
+                    sources[key][val].add(data_file)
+            for keyA in df.columns:
+                for keyB in df.columns:
+                    if keyB != keyA:
+                        for i in range(len(df)):
+                            links[keyA + keyB][df[keyA].iloc[i]].add(
+                                df[keyB].iloc[i]
+                            )
 
-        uniques = {
-            key: len(unique_vals) for key, unique_vals in counted.items()
-        }
-
-        # display unique counts
-
-        message = ['UNIQUE COUNTS']
-        message.append(
-            pformat(uniques)
-        )
-        message.append('')
-
-        # check expected counts
-
-        all_checks_passed = True
-        message.append('EXPECTED COUNT CHECKS')
-
-        if not self.expected_counts:
-            message.append("No expected counts registered. ❌")
-            all_checks_passed = False
-        else:
-            checks = pandas.DataFrame(
-                columns=['key', 'expected', 'found', 'pass']
-            )
-            for key, expected in self.expected_counts.items():
-
-                # Accept both concepts and attributes, but automatically
-                # translate lone concepts as meaning id or else unique_key if
-                # one of those was discovered in the data.
-                if key not in counted:
-                    if key in str_to_CONCEPT:
-                        concept = str_to_CONCEPT[key]
-                        if concept.ID in counted:
-                            key = concept.ID
-                        elif concept.UNIQUE_KEY in counted:
-                            key = concept.UNIQUE_KEY
-
-                found = uniques.get(key)
-                if expected == found:
-                    passed = '✅'
-                else:
-                    all_checks_passed = False
-                    passed = '❌'
-                checks = checks.append(
-                    {
-                        'key': key, 'expected': expected, 'found': found,
-                        'pass': passed
-                    },
-                    ignore_index=True
-                )
-            message.append(
-                tabulate(
-                    checks,
-                    headers='keys', showindex=False, tablefmt='psql'
-                )
-            )
-
-        return all_checks_passed, counted, '\n'.join(message)
+        return {'sources': sources, 'links': links}

@@ -3,6 +3,7 @@ import logging
 import os
 from pprint import pformat
 
+from kf_lib_data_ingest.common.stage import IngestStage
 from kf_lib_data_ingest.common.type_safety import assert_safe_type
 from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
 from kf_lib_data_ingest.etl.configuration.dataset_ingest_config import (
@@ -11,8 +12,10 @@ from kf_lib_data_ingest.etl.configuration.dataset_ingest_config import (
 from kf_lib_data_ingest.etl.configuration.log import setup_logger
 from kf_lib_data_ingest.etl.extract.extract import ExtractStage
 from kf_lib_data_ingest.etl.load.load import LoadStage
+from kf_lib_data_ingest.etl.stage_analyses import check_counts
 from kf_lib_data_ingest.etl.transform.auto import AutoTransformStage
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
+from kf_lib_data_ingest.etl.transform.transform import TransformStage
 
 # TODO
 # Allow a run argument that contains the desired stages to run
@@ -105,8 +108,7 @@ class DataIngestPipeline(object):
 
         yield ExtractStage(
             self.ingest_output_dir,
-            self.data_ingest_config.extract_config_paths,
-            self.data_ingest_config.expected_counts
+            self.data_ingest_config.extract_config_paths
         )
 
         # Transform stage #####################################################
@@ -155,12 +157,30 @@ class DataIngestPipeline(object):
         # Catch exception, log it to file and console, and exit
         try:
             # Iterate over stages and execute them
+            stage_outputs = {}
+            stage_tallies = {}
             output = None
-            for s in self._iterate_stages():
+            for stage in self._iterate_stages():
                 if not output:  # First stage gets no input
-                    output, checks_passed, accounting_data = s.run()
+                    output, tally = stage.run()
                 else:
-                    output, checks_passed, accounting_data = s.run(output)
+                    output, tally = stage.run(output)
+
+                stage.logger.info("Begin Basic Analysis")
+                met_expectations, message = check_counts(
+                    tally, self.data_ingest_config.expected_counts
+                )
+                stage.logger.info(message)
+                stage.logger.info("End Basic Analysis")
+
+                # Collapse stage subtypes to their bases for storage
+                # (e.g. GuidedTransformStage -> TransformStage)
+                s = type(stage)
+                while s.__base__ != IngestStage:
+                    s = s.__base__
+
+                stage_outputs[s] = output    # pass these to external tests
+                stage_tallies[s] = tally     # pass these to external tests
         except Exception as e:
             self.logger.exception(str(e))
             self.logger.info('Exiting.')
