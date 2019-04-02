@@ -12,7 +12,7 @@ from kf_lib_data_ingest.etl.configuration.dataset_ingest_config import (
 from kf_lib_data_ingest.etl.configuration.log import setup_logger
 from kf_lib_data_ingest.etl.extract.extract import ExtractStage
 from kf_lib_data_ingest.etl.load.load import LoadStage
-from kf_lib_data_ingest.etl.stage_analyses import check_counts
+import kf_lib_data_ingest.etl.stage_analyses as stage_analyses
 from kf_lib_data_ingest.etl.transform.auto import AutoTransformStage
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
 from kf_lib_data_ingest.etl.transform.transform import TransformStage
@@ -153,12 +153,14 @@ class DataIngestPipeline(object):
         exception handler so that exceptions are logged.
         """
         self.logger.info('BEGIN data ingestion.')
+        self.stage_outputs = {}
+        self.stage_tally_sources = {}
+        self.stage_tally_links = {}
+
         # Top level exception handler
         # Catch exception, log it to file and console, and exit
         try:
             # Iterate over stages and execute them
-            stage_outputs = {}
-            stage_tallies = {}
             output = None
             for stage in self._iterate_stages():
                 if not output:  # First stage gets no input
@@ -166,21 +168,14 @@ class DataIngestPipeline(object):
                 else:
                     output, tally = stage.run(output)
 
-                stage.logger.info("Begin Basic Analysis")
-                met_expectations, message = check_counts(
-                    tally, self.data_ingest_config.expected_counts
-                )
-                stage.logger.info(message)
-                stage.logger.info("End Basic Analysis")
-
                 # Collapse stage subtypes to their bases for storage
                 # (e.g. GuidedTransformStage -> TransformStage)
-                s = type(stage)
-                while s.__base__ != IngestStage:
-                    s = s.__base__
+                stage_type = type(stage)
+                while stage_type.__base__ != IngestStage:
+                    stage_type = stage_type.__base__
 
-                stage_outputs[s] = output    # pass these to external tests
-                stage_tallies[s] = tally     # pass these to external tests
+                self.stage_outputs[stage_type] = output
+                self.check_stage_tally(stage_type, stage.logger, tally)
         except Exception as e:
             self.logger.exception(str(e))
             self.logger.info('Exiting.')
@@ -188,3 +183,43 @@ class DataIngestPipeline(object):
 
         # Log the end of the run
         self.logger.info('END data ingestion')
+
+    def check_stage_tally(self, stage_type, logger, tally):
+        """
+        Do some standard stage tally tests
+        """
+
+        logger.info("Begin Basic Analysis")
+
+        passed_all = True
+        if not tally:
+            passed_all = False
+            logger.info('Tally Not Found ❌')
+        else:
+            if not tally.get('sources'):
+                passed_all = False
+                logger.info('Tally Sources Not Found ❌')
+            else:
+                self.stage_tally_sources[stage_type] = tally['sources']
+
+                passed, message = stage_analyses.check_counts(
+                    tally.get('sources'),
+                    self.data_ingest_config.expected_counts
+                )
+                passed_all = passed_all and passed
+                logger.info(message)
+
+                if stage_type == TransformStage:
+                    if ExtractStage in self.stage_tally_sources:
+                        passed, message = stage_analyses.compare_counts(
+                            tally.get('sources'),
+                            self.stage_tally_sources[ExtractStage]
+                        )
+                        passed_all = passed_all and passed
+                        logger.info(message)
+                    else:
+                        passed_all = False
+                        logger.info('No Extract Tally Sources To Compare ❌')
+
+        logger.info("End Basic Analysis")
+        return passed_all

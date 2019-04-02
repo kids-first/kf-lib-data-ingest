@@ -9,21 +9,18 @@ from kf_lib_data_ingest.etl.load.load import LoadStage
 from kf_lib_data_ingest.etl.transform.transform import TransformStage
 
 
-def check_counts(tally, expected_counts):
+def check_counts(tally_sources, expected_counts):
     """
     Verify that we found as many unique values of each attribute as we expected
     to find.
 
     :param tally: structure returned from IngestStage._postrun_tally
     :param expected_counts: dict mapping concept keys to their expected counts
+
+    :return: all checks passed (bool), output message to emit/log (str)
     """
-    if not tally or not tally.get('sources'):
-        return True, 'Tally Not Found ❌'
-
-    tallied = tally['sources']
-
     uniques = {
-        key: len(unique_vals) for key, unique_vals in tallied.items()
+        key: len(unique_vals) for key, unique_vals in tally_sources.items()
     }
 
     # display unique counts
@@ -51,12 +48,12 @@ def check_counts(tally, expected_counts):
             # Accept both concepts and attributes, but automatically
             # translate lone concepts as meaning id or else unique_key if
             # one of those was discovered in the data.
-            if key not in tallied:
+            if key not in tally_sources:
                 if key in str_to_CONCEPT:
                     concept = str_to_CONCEPT[key]
-                    if concept.ID in tallied:
+                    if concept.ID in tally_sources:
                         key = concept.ID
-                    elif concept.UNIQUE_KEY in tallied:
+                    elif concept.UNIQUE_KEY in tally_sources:
                         key = concept.UNIQUE_KEY
 
             found = uniques.get(key)
@@ -80,3 +77,7 @@ def check_counts(tally, expected_counts):
         )
 
     return passed, '\n'.join(message)
+
+
+def compare_counts(tally_sources_one, tally_sources_two):
+    False, "Compare Counts NYI"
