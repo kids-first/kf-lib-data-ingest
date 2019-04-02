@@ -29,7 +29,7 @@ class DataIngestPipeline(object):
 
     def __init__(
         self, dataset_ingest_config_path, target_api_config_path,
-        auth_config=None, auto_transform=False, use_async=False,
+        auth_configs=None, auto_transform=False, use_async=False,
         target_url=DEFAULT_TARGET_URL, log_level_name=None, log_dir=None,
         overwrite_log=None
     ):
@@ -77,7 +77,7 @@ class DataIngestPipeline(object):
         self.ingest_output_dir = os.path.join(self.ingest_config_dir, 'output')
 
         self.target_api_config_path = target_api_config_path
-        self.auth_config = auth_config
+        self.auth_configs = auth_configs
         self.auto_transform = auto_transform
         self.use_async = use_async
         self.target_url = target_url

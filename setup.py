@@ -13,7 +13,7 @@ setup(
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'kidsfirst=kf_lib_data_ingest.cli:cli',
+            'kidsfirst=kf_lib_data_ingest.app.cli:cli',
         ],
     },
     include_package_data=True,

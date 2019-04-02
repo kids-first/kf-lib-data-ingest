@@ -16,7 +16,7 @@ from kf_lib_data_ingest.app import settings
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 DEFAULT_LOG_LEVEL_NAME = logging._levelToName.get(DEFAULT_LOG_LEVEL)
 
-app_settings = settings.setup()
+app_settings = settings.load()
 
 
 @click.group(context_settings=CONTEXT_SETTINGS)
@@ -71,12 +71,17 @@ def ingest(dataset_ingest_config_path, target_url, use_async, log_level_name):
     args, _, _, values = inspect.getargvalues(frame)
     kwargs = {arg: values[arg] for arg in args[1:]}
 
-    kwargs['auth_config'] = app_settings.auth_config
+    kwargs['auth_configs'] = app_settings.AUTH_CONFIGS
 
     # Run ingest
-    perfection = DataIngestPipeline(
-        dataset_ingest_config_path, app_settings.target_api_config, **kwargs
-    ).run()
+    pipeline = DataIngestPipeline(
+        dataset_ingest_config_path, app_settings.TARGET_API_CONFIG, **kwargs
+    )
+
+    pipeline.logger.info(
+        f'Loaded app settings, starting in "{app_settings.APP_MODE}" mode')
+
+    perfection = pipeline.run()
 
     if not perfection:
         logging.getLogger(__name__).error("Ingest Pipeline Failed Validation")

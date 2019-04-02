@@ -60,7 +60,8 @@ def delete_dir(dir):
 
 
 def make_ingest_pipeline(
-    config_filepath=None, log_dir=None, overwrite_log=None
+    config_filepath=None, target_api_config_path=None, log_dir=None,
+    overwrite_log=None, auth_configs=None
 ):
     """
     Create ingest pipeline as test dependency
@@ -72,9 +73,12 @@ def make_ingest_pipeline(
     if not log_dir:
         log_dir = TEST_LOG_DIR
 
+    if not target_api_config_path:
+        target_api_config_path = KIDS_FIRST_CONFIG
+
     return DataIngestPipeline(
-        config_filepath, target_api_config_path=KIDS_FIRST_CONFIG,
-        log_dir=log_dir, overwrite_log=overwrite_log
+        config_filepath, target_api_config_path=target_api_config_path,
+        log_dir=log_dir, overwrite_log=overwrite_log, auth_configs=auth_configs
     )
 
 

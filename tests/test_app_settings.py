@@ -4,37 +4,48 @@ import shutil
 import logging
 
 import pytest
-import requests
 import requests_mock
-from click.testing import CliRunner
 
-from kf_lib_data_ingest.app import cli
 from kf_lib_data_ingest.app import settings
-from conftest import TEST_DATA_DIR
+from conftest import (
+    TEST_DATA_DIR,
+    make_ingest_pipeline
+)
 
 TEST_STUDY_DIR = os.path.join(TEST_DATA_DIR, 'test_study')
 
 
 @pytest.fixture(scope='function')
 def info_caplog(caplog):
+    """
+    pytest capture log output at level=INFO
+    """
     caplog.set_level(logging.INFO)
     return caplog
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
 def extract_config():
     """
-    An extract config with a URL that points to the dev study creator API
-    in DevelopmentSettings.auth_config
+    Return a func pointer to a func that creates an extract config file
+    in test_study/extract_configs
+
+    The extract config to create depends on the app mode
+
+    Delete copy when test finishes
     """
     # Create temp extract config
-    src = os.path.join(TEST_STUDY_DIR,
-                       'extract_config_w_protected_file.py')
     dest = os.path.join(TEST_STUDY_DIR, 'extract_configs',
-                        'extract_config_w_protected_file.py')
-    shutil.copyfile(src, dest)
+                        f'extract_config_protected_file.py')
 
-    yield dest
+    def make_extract_config(app_mode):
+        src = os.path.join(TEST_STUDY_DIR,
+                           f'extract_config_{app_mode}.py')
+        shutil.copyfile(src, dest)
+
+        return dest
+
+    yield make_extract_config
 
     # Delete file after done
     os.remove(dest)
@@ -80,57 +91,73 @@ def _mock_download_file(host, m, filename, expected_content):
                             f'attachment; filename={filename}'})
 
 
-@pytest.mark.parametrize(
-    'app_mode, host',
-    [
-        ('development', 'http://kf-study-creator-dev.kids-first.io'),
-        ('testing', 'http://kf-study-creator-dev.kids-first.io')
-    ]
-)
-def test_dev_modes(info_caplog, app_mode, host, source_data_file,
-                   extract_config, cached_schema):
+@pytest.mark.parametrize('app_mode, host', [
+    ('development', 'http://kf-study-creator-dev.kids-first.io'),
+    ('testing', 'https://kf-study-creator.kidsfirstdrc.org')
+])
+def test_non_prod_app_modes(info_caplog, source_data_file, extract_config,
+                            cached_schema, app_mode, host):
     """
-    Test run ingest in `development` and `testing` mode
+    Test run ingest for non-production app modes
     """
-    os.environ[settings.APP_MODE_ENV_VAR] = app_mode
-    settings.setup()
+    # Make temp extract config for tests
+    extract_config_filepath = extract_config(app_mode)
 
     # Mock request to get protected source file
     with requests_mock.Mocker(real_http=True) as m:
         filename = os.path.basename(source_data_file.name)
         _mock_download_file(host, m, filename, source_data_file.read())
 
-        # Run and test ingest
-        runner = CliRunner()
-        result = runner.invoke(cli.ingest,
-                               [os.path.join(TEST_DATA_DIR, 'test_study')])
-        assert result.exit_code == 0
-        assert 'BEGIN data ingestion' in result.output
-        assert 'END data ingestion' in result.output
+        # Run ingest
+        app_settings = settings.load(app_mode)
+        pipeline = make_ingest_pipeline(
+            config_filepath=os.path.join(TEST_DATA_DIR, 'test_study'),
+            target_api_config_path=app_settings.TARGET_API_CONFIG,
+            auth_configs=app_settings.AUTH_CONFIGS)
+        pipeline.run()
 
         # Ensure the right settings were loaded
+        assert app_settings.APP_MODE == app_mode
         assert 'auth_config' in info_caplog.text
         assert host in info_caplog.text
-        assert "'token': 'KF_STUDY_CREATOR_API_TOKEN'" in info_caplog.text
+        assert 'END data ingestion' in info_caplog.text
 
         # Check file was downloaded and used
         extracted_file = os.path.join(
             TEST_STUDY_DIR, 'output', 'ExtractStage',
-            os.path.basename(extract_config))
+            os.path.basename(extract_config_filepath))
         extracted_file = os.path.splitext(extracted_file)[0] + '.tsv'
         assert os.path.isfile(extracted_file)
 
 
-def test_production_mode():
+def test_prod_app_mode(info_caplog, extract_config):
     """
-    Test run ingest in `production` mode
+    Test run ingest for production (should fail bc we didn't set env vars)
     """
-    # Set environment variables
-    os.environ[settings.APP_MODE_ENV_VAR] = 'production'
+    # Make temp extract config for tests
+    extract_config('production')
 
-    with pytest.raises(requests.exceptions.ConnectionError) as e:
+    # Run and test ingest
+    app_mode = 'production'
+    app_settings = settings.load(app_mode)
+
+    # Pretend that env vars were not set
+    for url, cfg in app_settings.AUTH_CONFIGS.items():
+        for key, val in cfg.items():
+            if key != 'type':
+                cfg[key] = None
+    # Run ingest
+    pipeline = make_ingest_pipeline(
+        config_filepath=os.path.join(TEST_DATA_DIR, 'test_study'),
+        target_api_config_path=app_settings.TARGET_API_CONFIG,
+        auth_configs=app_settings.AUTH_CONFIGS)
+
+    # Ensure the right settings were loaded
+    assert app_settings.APP_MODE == app_mode
+
+    # Ingest should fail since nothing set the required env vars
+    with pytest.raises(SystemExit):
         try:
-            settings.setup()
-            assert 'vault' in str(e)
-        except requests.exceptions.ConnectionError as e:
+            pipeline.run()
+        except SystemExit as e:
             raise e
