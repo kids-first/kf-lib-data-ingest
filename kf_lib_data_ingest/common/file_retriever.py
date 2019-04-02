@@ -4,7 +4,6 @@ whatever mechanism is appropriate for the given protocol.
 """
 
 import logging
-import os
 import shutil
 import tempfile
 from urllib.parse import (
@@ -56,8 +55,7 @@ def split_protocol(url):
     return protocol, path
 
 
-def _s3_save(protocol, source_loc, dest_obj, auth=None, auth_config=None,
-             logger=None):
+def _s3_save(protocol, source_loc, dest_obj, auth_config=None, logger=None):
     """
     Get contents of a file from Amazon S3 to a local file-like object.
 
@@ -67,17 +65,16 @@ def _s3_save(protocol, source_loc, dest_obj, auth=None, auth_config=None,
     :type source_loc: str
     :param dest_obj: Receives the data downloaded from the source file
     :type dest_obj: File-like object
-    :param auth: optional S3 auth profile (defaults to all available profiles)
-    :type auth: str
-    :param auth_config: optional dict mapping URL patterns to authentication
-    schemes and environment variables containing necessary auth parameters
+    :param auth_config: a dict of necessary auth parameters (i.e. aws_profile)
+    If profile not provided, default to all available profiles
     :type auth_config: dict
 
     :returns: None, the data goes to dest_obj
     """
     logger = logger or logging.getLogger(__name__)
-    if auth:
-        aws_profiles = auth
+
+    if auth_config:
+        aws_profiles = auth_config.get('aws_profile')
     else:
         aws_profiles = boto3.Session().available_profiles + [None]
 
@@ -100,8 +97,7 @@ def _s3_save(protocol, source_loc, dest_obj, auth=None, auth_config=None,
     raise botocore.exceptions.NoCredentialsError()  # never got the file
 
 
-def _web_save(protocol, source_loc, dest_obj, auth=None, auth_config=None,
-              logger=None):
+def _web_save(protocol, source_loc, dest_obj, auth_config=None, logger=None):
     """
     Get contents of a file from a web server to a local file-like object.
 
@@ -116,12 +112,10 @@ def _web_save(protocol, source_loc, dest_obj, auth=None, auth_config=None,
         - Token Authentication
         - OAuth 2 Authentication
 
-    If `auth_config` is provided, inspect the URL to select the authentication
-    scheme and its configuration dict from `auth_config`
+    If `auth_config` is provided use the auth scheme and necessary auth
+    parameters in `auth_config` to get the file
 
-    If `auth` is provided, use that to get the resource - uses HTTP basic auth
-
-    If neither `auth` nor `auth_config` are provided then assume the resource
+    If `auth_config` is not provided then assume the file
     requires no auth. Just send a get request to fetch it
 
     :param protocol: URL protocol identifier
@@ -130,10 +124,8 @@ def _web_save(protocol, source_loc, dest_obj, auth=None, auth_config=None,
     :type source_loc: str
     :param dest_obj: Receives the data downloaded from the source file
     :type dest_obj: File-like object
-    :param auth: optional requests-compatible auth object
-    :type auth: http://docs.python-requests.org/en/master/user/authentication/
-    :param auth_config: optional dict mapping URL patterns to authentication
-    schemes and environment variables containing necessary auth parameters
+    :param auth_config: a dict of necessary auth parameters for a particular
+    authentication scheme (i.e basic, oauth2, token, etc)
     :type auth_config: dict
 
     :returns: None, the data goes to dest_obj
@@ -141,32 +133,21 @@ def _web_save(protocol, source_loc, dest_obj, auth=None, auth_config=None,
     logger = logger or logging.getLogger(__name__)
     url = protocol + PROTOCOL_SEP + source_loc
 
-    # Fetch a protected file using auth scheme determined by URL inspection
-    # Use auth parameters from auth config for the selected auth scheme
+    # Fetch a protected file using auth scheme and parameters in auth_config
     if auth_config:
-        auth_scheme_params = _select_auth_scheme(url, auth_config)
-
-        # If no auth config for URL, fallback to fetch an unprotected file
-        if not auth_scheme_params:
-            logger.info(f'Authentication scheme not found for url {url}')
-            utils.get_file(url, dest_obj)
-            return
-
-        auth_scheme = auth_scheme_params['type']
-        var_names = auth_scheme_params['variable_names']
-        logger.info(f'Selected `{auth_scheme}` authentication to fetch {url}')
+        auth_scheme = auth_config['type']
 
         # Basic auth
         if auth_scheme == 'basic':
-            auth = HTTPBasicAuth(os.environ.get(var_names.get('username')),
-                                 os.environ.get(var_names.get('password')))
+            auth = HTTPBasicAuth(auth_config.get('username'),
+                                 auth_config.get('password'))
             utils.get_file(url, dest_obj, auth=auth)
 
         # Token auth
         if auth_scheme == 'token':
-            token = os.environ.get(var_names.get('token'))
+            token = auth_config.get('token')
 
-            if auth_scheme_params.get('token_location', 'header') == 'url':
+            if auth_config.get('token_location') == 'url':
                 utils.get_file(
                     f"{url}?{urlencode({'token': token})}", dest_obj)
             else:
@@ -176,7 +157,7 @@ def _web_save(protocol, source_loc, dest_obj, auth=None, auth_config=None,
         # OAuth 2
         elif auth_scheme == 'oauth2':
             kwargs = {
-                var_name: os.environ.get(var_names.get(var_name))
+                var_name: auth_config.get(var_name)
                 for var_name in ['provider_domain',
                                  'audience',
                                  'client_id',
@@ -184,18 +165,12 @@ def _web_save(protocol, source_loc, dest_obj, auth=None, auth_config=None,
             }
             oauth2.get_file(url, dest_obj, **kwargs)
 
+    # Fetch a file with no auth
     else:
-        # Fetch protected file using auth from kwargs
-        if auth:
-            logger.info(f'Using `basic` authentication scheme to fetch {url}')
-            utils.get_file(url, dest_obj, auth=auth)
-        # Fetch unprotected file
-        else:
-            utils.get_file(url, dest_obj)
+        utils.get_file(url, dest_obj)
 
 
-def _file_save(protocol, source_loc, dest_obj, auth=None, auth_config=None,
-               logger=None):
+def _file_save(protocol, source_loc, dest_obj, auth_config=None, logger=None):
     """
     Get contents of a file from a local file path to a local file-like object.
 
@@ -205,8 +180,6 @@ def _file_save(protocol, source_loc, dest_obj, auth=None, auth_config=None,
     :type source_loc: str
     :param dest_obj: receives the data downloaded from the source file
     :type dest_obj: file-like object
-    :param auth: do not use
-    :type auth: None
     :param auth_config: do not use
     :type auth_config: None
 
@@ -217,7 +190,7 @@ def _file_save(protocol, source_loc, dest_obj, auth=None, auth_config=None,
         shutil.copyfileobj(orig, dest_obj)
 
 
-def _select_auth_scheme(url, auth_config):
+def _select_auth_scheme(url, auth_configs):
     """
     Select authentication scheme by inspecting `url`. If `url` starts with
     any of the keys in auth_config, return the value, a dict containing
@@ -227,14 +200,15 @@ def _select_auth_scheme(url, auth_config):
 
     :param url: the URL to be inspected
     :type url: str
-    :param auth_config: configuration dict of auth schemes and parameters
-    :type auth_config: dict
+    :param auth_configs: optional dict mapping URL patterns to authentication
+    schemes and necessary auth parameters
+    :type auth_configs: dict
 
     :returns selected_cfg: configuration dict of the selected auth scheme
     """
     selected_cfg = None
-    if auth_config:
-        for key, cfg in auth_config.items():
+    if auth_configs:
+        for key, cfg in auth_configs.items():
             if url.startswith(key):
                 selected_cfg = cfg
                 break
@@ -255,15 +229,15 @@ class FileRetriever(object):
     }
 
     def __init__(self, storage_dir=None, cleanup_at_exit=True,
-                 auth_config=None):
+                 auth_configs=None):
         """
         :param storage_dir: optional specific tempfile storage location
         :type storage_dir: str
         :param cleanup_at_exit: should the temp files vanish at exit
         :type cleanup_at_exit: bool
-        :param auth_config: optional dict mapping URL patterns to
-        authentication schemes and environment variables containing necessary
-        auth parameters
+        :param auth_configs: optional dict mapping URL patterns to
+        authentication schemes and necessary auth parameters
+        :type auth_configs: dict
         """
         self.logger = logging.getLogger(type(self).__name__)
         self.cleanup_at_exit = cleanup_at_exit
@@ -275,21 +249,19 @@ class FileRetriever(object):
                                                         dir=".")
             self.storage_dir = self.__tmpdir.name
         self._files = {}
-        self.auth_config = auth_config
+        self.auth_configs = auth_configs
 
-    def get(self, url, auth=None):
+    def get(self, url):
         """
         Retrieve the contents of a remote file.
 
         :param url: full file URL
         :type url: str
-        :param auth: auth argument appropriate to type
-        :type auth: various
 
         :raises LookupError: url is not of one of the handled protocols
         :returns: a file-like object containing the remote file contents
         """
-        self.logger.info("Fetching %s with primary auth '%s'", url, auth)
+        self.logger.info("Fetching %s", url)
         protocol, path = split_protocol(url)
 
         self.logger.info(
@@ -309,19 +281,25 @@ class FileRetriever(object):
                     delete=self.cleanup_at_exit and not self.__tmpdir
                 )
 
-                # Set auth config if there is one and validate it
-                if self.auth_config:
-                    self._validate_auth_config(self.auth_config)
+                # Validate auth configs dict if it exists
+                # Select one auth config based inspection of url
+                auth_config = None
+                if self.auth_configs:
+                    self._validate_auth_configs(self.auth_configs)
+                    auth_config = _select_auth_scheme(url, self.auth_configs)
+
+                if auth_config:
+                    self.logger.info(
+                        f'Selected `{auth_config["type"]}` authentication to '
+                        f'fetch {url}')
+                else:
+                    self.logger.warning(
+                        f'Authentication scheme not found for url {url}')
 
                 # Fetch the remote data
-                kwargs = {
-                    'auth': auth,
-                    'logger': self.logger,
-                    'auth_config': self.auth_config
-                }
                 FileRetriever._getters[protocol](
                     protocol, path, self._files[url],
-                    **kwargs
+                    logger=self.logger, auth_config=auth_config
                 )
                 if not hasattr(self._files[url], 'original_name'):
                     filename = urlparse(url).path.rsplit('/', 1)[-1]
@@ -334,50 +312,44 @@ class FileRetriever(object):
                 self.__tmpdir.cleanup()
             raise e
 
-    def _validate_auth_config(self, auth_config):
+    def _validate_auth_configs(self, auth_configs):
         """
         Validate config dict containing authentication parameters
 
-        `auth_config` looks something like:
+        `auth_configs` looks something like:
 
             {
                 'http://api.com/files': {
                     'type': 'basic',
-                    'variable_names': {
-                        'username': 'MY_FILES_API_UNAME',
-                        'password': 'MY_FILES_API_PW'
+                    'username': 'the username',
+                    'password': 'the password'
                     }
                 },
                 'https://kf-api-study-creator.kids-first.io/download': {
                     'type': 'oauth2',
-                    'variable_names': {
-                        'client_id': 'STUDY_CREATOR_CLIENT_ID',
-                        'client_secret': 'STUDY_CREATOR_CLIENT_ID',
-                        'provider_domain': 'STUDY_CREATOR_AUTH0_DOMAIN',
-                        'audience': 'STUDY_CREATOR_API_IDENTIFIER',
+                    'client_id': 'STUDY_CREATOR_CLIENT_ID',
+                    'client_secret': 'STUDY_CREATOR_CLIENT_ID',
+                    'provider_domain': 'STUDY_CREATOR_AUTH0_DOMAIN',
+                    'audience': 'STUDY_CREATOR_API_IDENTIFIER',
+                },
+                's3://bucket/key': {
+                    'aws_profile': 'default'
                     }
                 }
             }
 
-
         `type` is the authentication scheme
 
-        `variable_names` is a key value list where a key is a required auth
-        parameter for the authentication scheme and the value is the name of an
-        environment variable where the parameter value is stored.
+        :param auth_configs: optional dict mapping URL patterns to
+        authentication schemes and necessary auth parameters
+        :type auth_configs: dict
         """
         # Dict with str keys
-        assert_safe_type(auth_config, dict)
-        assert_all_safe_type(list(auth_config.keys()), str)
+        assert_safe_type(auth_configs, dict)
+        assert_all_safe_type(list(auth_configs.keys()), str)
 
-        # All sub dicts have type and variable_names w correct types
-        for url, cfg in auth_config.items():
+        # All sub dicts have type key
+        for url, cfg in auth_configs.items():
             auth_scheme = cfg.get('type')
-            assert auth_scheme, ('A dict in Auth config must have `type` key'
-                                 ' to define the authentication scheme')
-            assert_safe_type(auth_scheme, str)
-            var_names = cfg.get('variable_names')
-            assert var_names, ('A dict in auth config must have'
-                               ' `variable_names` to define required auth'
-                               ' parameters')
-            assert_safe_type(var_names, dict)
+            assert auth_scheme, ('A dict in `auth_configs` must have `type` '
+                                 'key to define the authentication scheme')

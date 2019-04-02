@@ -71,39 +71,7 @@ def s3_file():
 
 
 @pytest.fixture(scope='function')
-def auth_config():
-    auth_config = {
-        'https://api.com/foo': {
-            'type': 'basic',
-            'variable_names': {
-                'username': 'FOO_SERVICE_UNAME',
-                'password': 'FOO_SERVICE_PW'
-            }
-        },
-        'https://test-api.kids-first.io/files/download': {
-            'type': 'oauth2',
-            'variable_names': {
-                'provider_domain': 'TEST_AUTH0_DOMAIN',
-                'audience': 'TEST_AUTH0_AUD',
-                'client_id': 'TEST_CLIENT_ID',
-                'client_secret': 'TEST_CLIENT_SECRET'
-            }
-        },
-        'https://kf-study-creator.kidsfirstdrc.org/download/study': {
-            'type': 'token',
-            'token_location': 'url',
-            'variable_names': {
-                'token': 'TEST_API_TOKEN'
-            }
-        },
-        'https://api.com/bar': {
-            'type': 'token',
-            'variable_names': {
-                'token': 'TEST_API_TOKEN'
-            }
-        }
-
-    }
+def auth_configs():
     os.environ['FOO_SERVICE_UNAME'] = 'username'
     os.environ['FOO_SERVICE_PW'] = 'password'
     os.environ['TEST_AUTH0_DOMAIN'] = TEST_AUTH0_DOMAIN
@@ -112,7 +80,35 @@ def auth_config():
     os.environ['TEST_CLIENT_SECRET'] = TEST_CLIENT_SECRET
     os.environ['TEST_API_TOKEN'] = 'a developer token'
 
-    return auth_config
+    auth_configs = {
+        'https://api.com/foo': {
+            'type': 'basic',
+            'variable_names': {
+                'username': os.environ.get('FOO_SERVICE_UNAME'),
+                'password': os.environ.get('FOO_SERVICE_PW')
+            }
+        },
+        'https://test-api.kids-first.io/files/download': {
+            'type': 'oauth2',
+            'provider_domain': os.environ.get('TEST_AUTH0_DOMAIN'),
+            'audience': os.environ.get('TEST_AUTH0_AUD'),
+            'client_id': os.environ.get('TEST_CLIENT_ID'),
+            'client_secret': os.environ.get('TEST_CLIENT_SECRET')
+
+        },
+        'https://kf-study-creator.kidsfirstdrc.org/download/study': {
+            'type': 'token',
+            'token_location': 'url',
+            'token': os.environ.get('TEST_API_TOKEN')
+        },
+        'https://api.com/bar': {
+            'type': 'token',
+            'token': os.environ.get('TEST_API_TOKEN')
+        }
+
+    }
+
+    return auth_configs
 
 
 @pytest.mark.parametrize('use_storage_dir,cleanup_at_exit,should_file_exist',
@@ -160,22 +156,22 @@ def test_get_web(caplog, storage_dir, use_storage_dir, cleanup_at_exit,
 
 
 @pytest.mark.parametrize(
-    'url, auth, use_auth_config, expected_log', [
-        ('http://www.example.com', None, False, ''),
-        ('https://api.com/foo/1', None, True,
-         'Selected `basic` authentication'),
-        ('https://api.com/foo/1', HTTPBasicAuth('username', 'password'),
-         False, 'Using `basic` authentication'),
-        ('https://another-api.com/files', None, True,
+    'url, auth_type, expected_log',
+    [
+        ('http://www.example.com', None, ''),
+        ('https://another-api.com/files', 'not found',
          'Authentication scheme not found'),
-        ('https://test-api.kids-first.io/files/download/file_id',
-         None, True, 'Selected `oauth2` authentication'),
-        ('https://kf-study-creator.kidsfirstdrc.org/download/study',
-         None, True, 'Selected `token` authentication'),
-        ('https://api.com/bar', None, True, 'Selected `token` authentication')
+        ('https://api.com/foo/1', 'basic',
+         'Selected `basic` authentication'),
+        ('https://kf-study-creator.kidsfirstdrc.org/download/study', 'token',
+         'Selected `token` authentication'),
+        ('https://api.com/bar', 'token',
+         'Selected `token` authentication'),
+        ('https://test-api.kids-first.io/files/download/file_id', 'oauth2',
+         'Selected `oauth2` authentication')
     ])
-def test_get_web_w_auth(caplog, tmpdir, auth_config,
-                        url, auth, use_auth_config, expected_log):
+def test_get_web_w_auth(caplog, tmpdir, auth_configs, url, auth_type,
+                        expected_log):
 
     caplog.set_level(logging.INFO)
     with open(TEST_FILE_PATH, "rb") as tf:
@@ -183,19 +179,10 @@ def test_get_web_w_auth(caplog, tmpdir, auth_config,
             file_content = tf.read()
             m.get(url, content=file_content)
 
-            fr_kwargs = {}
-            if use_auth_config:
-                fr_kwargs['auth_config'] = auth_config
-
-            # Basic auth or no auth
-            if '`basic`' in expected_log:
-                get_kwargs = {}
-                if auth:
-                    get_kwargs = {
-                        'auth': auth
-                    }
+            # Basic auth
+            if auth_type == 'basic':
                 _test_get_file(url, tmpdir, True, False, True,
-                               expected_file_ext='', **fr_kwargs, **get_kwargs)
+                               expected_file_ext='', auth_configs=auth_configs)
 
                 # Check request headers
                 req_headers = m.request_history[0].headers
@@ -203,74 +190,76 @@ def test_get_web_w_auth(caplog, tmpdir, auth_config,
                 assert auth_header and 'Basic' in auth_header
 
             # Token auth
-            elif '`token`' in expected_log:
-                token = os.environ.get(
-                    auth_config[url]['variable_names']['token'])
+            elif auth_type == 'token':
+                token = auth_configs[url]['token']
 
                 # Token in query string of url
-                if auth_config[url].get('token_location') == 'url':
+                if auth_configs[url].get('token_location') == 'url':
                     token_qs = urlencode({'token': token})
                     m.get(urljoin(url, token_qs), content=file_content)
                     _test_get_file(url, tmpdir, True, False, True,
-                                   expected_file_ext='', **fr_kwargs)
+                                   expected_file_ext='',
+                                   auth_configs=auth_configs)
                     assert token_qs in m.request_history[0].url
 
                 # Token in Authorization header
                 else:
                     _test_get_file(url, tmpdir, True, False, True,
-                                   expected_file_ext='', **fr_kwargs)
+                                   expected_file_ext='',
+                                   auth_configs=auth_configs)
                     req_headers = m.request_history[0].headers
                     auth_header = req_headers.get('Authorization')
-                    assert auth_header and f'Token {token}' in auth_header
+                    assert auth_header
+                    assert f'Token {token}' in auth_header
 
             # Oauth2 auth
-            elif '`oauth2`' in expected_log:
+            elif auth_type == 'oauth2':
                 OAuth2Mocker().create_service_token_mock(m)
                 _test_get_file(url, tmpdir, True, False, True,
-                               expected_file_ext='', **fr_kwargs)
+                               expected_file_ext='', auth_configs=auth_configs)
+
+            # Auth scheme expected but not found
+            elif auth_type == 'not found':
+                _test_get_file(url, tmpdir, True, False, True,
+                               expected_file_ext='',
+                               auth_configs=auth_configs)
+            # No auth required
             else:
                 _test_get_file(url, tmpdir, True, False, True,
-                               expected_file_ext='', **fr_kwargs)
+                               expected_file_ext='')
 
             assert expected_log in caplog.text
 
 
 @pytest.mark.parametrize(
-    'auth_config, expected_exc',
+    'auth_configs, expected_exc',
     [
         ('foo', TypeError),
         ({
             'url': {
-                'type': 'basic'
-            }
-        }, AssertionError),
-        ({
-            'url': {
-                'variable_names': {}
+                'something': {}
             }
         }, AssertionError),
         ({
             'url': {
                 'type': 'auth',
-                'variable_names': {
-                    'foo': 'bar'
-                }
+                'foo': 'bar'
             }
         }, None)
 
     ])
-def test_validate_auth_config(auth_config, expected_exc):
+def test_validate_auth_configs(auth_configs, expected_exc):
 
     fr = FileRetriever(cleanup_at_exit=True,
-                       auth_config=auth_config)
+                       auth_configs=auth_configs)
     if expected_exc:
         with pytest.raises(expected_exc) as e:
             try:
-                fr._validate_auth_config(auth_config)
+                fr._validate_auth_configs(auth_configs)
             except expected_exc as e:
                 raise e
     else:
-        fr._validate_auth_config(auth_config)
+        fr._validate_auth_configs(auth_configs)
 
 
 @pytest.mark.parametrize('use_storage_dir,cleanup_at_exit,should_file_exist',
@@ -306,7 +295,7 @@ def test_invalid_urls(url):
 
 def _test_get_file(url, storage_dir, use_storage_dir, cleanup_at_exit,
                    should_file_exist, expected_file_ext=None,
-                   auth_config=None, **get_kwargs):
+                   auth_configs=None):
     """
     Test file retrieval
     """
@@ -319,8 +308,8 @@ def _test_get_file(url, storage_dir, use_storage_dir, cleanup_at_exit,
     with open(TEST_FILE_PATH, "rb") as tf:
         fr = FileRetriever(storage_dir=storage_dir,
                            cleanup_at_exit=cleanup_at_exit,
-                           auth_config=auth_config)
-        local_copy = fr.get(url, **get_kwargs)
+                           auth_configs=auth_configs)
+        local_copy = fr.get(url)
 
         assert local_copy.original_name.endswith(expected_file_ext)
 
