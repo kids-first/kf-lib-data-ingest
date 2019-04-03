@@ -1,16 +1,17 @@
 import importlib
 import inspect
 import json
+import logging
 import os
 import re
 from itertools import tee
 
-from pandas import isnull
 import requests
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
-from requests.exceptions import ConnectionError
 import yaml
+from pandas import isnull
+from requests.adapters import HTTPAdapter
+from requests.exceptions import ConnectionError
+from requests.packages.urllib3.util.retry import Retry
 
 from kf_lib_data_ingest.common.type_safety import assert_safe_type
 
@@ -150,6 +151,9 @@ def upper_camel_case(snake_str):
     """
     words = snake_str.split('_')
     return ''.join([w.title() for w in words])
+
+
+logging.basicConfig(level=logging.WARNING)
 
 
 def requests_retry_session(
