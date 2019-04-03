@@ -149,6 +149,7 @@ class DataIngestPipeline(object):
         yield LoadStage(
             self.target_api_config_path, self.target_url,
             self.data_ingest_config.target_service_entities,
+            self.data_ingest_config.study['kf_id'],
             uid_cache_dir=self.ingest_output_dir, use_async=self.use_async
         )
 
