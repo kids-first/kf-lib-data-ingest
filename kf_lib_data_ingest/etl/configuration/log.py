@@ -11,23 +11,6 @@ from kf_lib_data_ingest.config import (
 )
 
 
-def create_default_logger(logger_name, log_level=logging.DEBUG):
-    """
-    Create a default logger that outputs to console
-
-    Will mostly be used for testing and when running individual components
-    of the ingest pipeline.
-    """
-    logger = logging.getLogger(logger_name)
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    consoleHandler = logging.StreamHandler()
-    consoleHandler.setFormatter(formatter)
-    logger.setLevel(log_level)
-    logger.addHandler(consoleHandler)
-    return logger
-
-
 def setup_logger(log_dir, overwrite_log=DEFAULT_LOG_OVERWRITE_OPT,
                  log_level=DEFAULT_LOG_LEVEL):
     """
