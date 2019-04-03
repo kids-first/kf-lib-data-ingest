@@ -1,17 +1,16 @@
 import json
+import logging
 from collections import deque
 
 import networkx as nx
 
 from kf_lib_data_ingest.common.concept_schema import (
     DELIMITER,
-    is_identifier,
-    concept_from,
     concept_attr_from,
+    concept_from,
+    is_identifier
 )
-from kf_lib_data_ingest.common.misc import obj_attrs_to_dict
-from kf_lib_data_ingest.common.misc import iterate_pairwise
-from kf_lib_data_ingest.etl.configuration.log import create_default_logger
+from kf_lib_data_ingest.common.misc import iterate_pairwise, obj_attrs_to_dict
 
 
 class ConceptGraph(object):
@@ -122,12 +121,7 @@ class ConceptGraph(object):
         self.id_index = {}
         self. attribute_index = {}
 
-        # Standalone mode
-        if not logger:
-            self.logger = create_default_logger(__name__)
-        # Called from standard_model.populate
-        else:
-            self.logger = logger
+        self.logger = logger or logging.getLogger(type(self).__name__)
 
     def add_or_get_node(self, concept_attribute, value, **kwargs):
         """
