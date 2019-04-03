@@ -237,6 +237,8 @@ def merge_wo_duplicates(left, right, left_name=None, right_name=None,
     :type right: Pandas.DataFrame
     :param kwargs: keyword args expected by Pandas.merge function
     """
+    left = left.astype(object)
+    right = right.astype(object)
     left_name = left_name or 'Left'
     right_name = right_name or 'Right'
 
