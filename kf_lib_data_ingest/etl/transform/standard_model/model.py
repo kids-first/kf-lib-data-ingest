@@ -1,21 +1,15 @@
+import logging
 from copy import deepcopy
 
 import pandas as pd
 
 from kf_lib_data_ingest.etl.transform.standard_model.graph import ConceptGraph
-from kf_lib_data_ingest.etl.configuration.log import create_default_logger
 
 
 class StandardModel(object):
 
     def __init__(self, logger=None):
-        # If we're in stand alone mode (testing)
-        if not logger:
-            self.logger = create_default_logger(__name__)
-        # If this is called from transform stage
-        else:
-            self.logger = logger
-
+        self.logger = logger or logging.getLogger(type(self).__name__)
         self.concept_graph = None
 
     def transform(self, target_api_config, target_concepts_to_transform=None):
