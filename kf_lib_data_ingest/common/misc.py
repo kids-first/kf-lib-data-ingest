@@ -265,8 +265,12 @@ def get_open_api_v2_schema(url, entity_names,
 
     # Try to get schemas and version from the target service
     try:
-
-        response = requests_retry_session().get(schema_url)
+        # ***** TODO remove connect=0, its a temporary hack!!! ***** #
+        # Before connect=0, any non-mocked calls to unreachable APIs
+        # like dataservice were causing tests to hang. What we really need
+        # to do is remove this flag and do integration tests with a
+        # live dataservice server - Natasha
+        response = requests_retry_session(connect=0).get(schema_url)
 
     except ConnectionError as e:
 
