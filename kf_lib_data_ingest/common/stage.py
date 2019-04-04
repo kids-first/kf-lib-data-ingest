@@ -47,7 +47,7 @@ class IngestStage(ABC):
     def _run(self, *args, **kwargs):
         pass
 
-    def _postrun_discovery(self, run_output):
+    def _postrun_concept_discovery(self, run_output):
         """
         Builds a dict which stores:
             - All unique standard concept attributes (e.g. each PARTICIPANT.ID)
@@ -152,6 +152,6 @@ class IngestStage(ABC):
         # Write output of stage to disk
         self.write_output(output)
 
-        output_tally = self._postrun_discovery(output)
+        output_tally = self._postrun_concept_discovery(output)
 
         return output, output_tally
