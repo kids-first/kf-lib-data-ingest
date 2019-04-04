@@ -232,34 +232,29 @@ def test_get_web_w_auth(caplog, tmpdir, auth_configs, url, auth_type,
 
 
 @pytest.mark.parametrize(
-    'auth_configs, expected_exc',
+    'auth_config, expected_exc',
     [
         ('foo', TypeError),
         ({
-            'url': {
-                'something': {}
-            }
+            'something': {}
         }, AssertionError),
         ({
-            'url': {
-                'type': 'auth',
-                'foo': 'bar'
-            }
+            'type': 'auth',
+            'foo': 'bar'
         }, None)
 
     ])
-def test_validate_auth_configs(auth_configs, expected_exc):
+def test_validate_auth_configs(auth_config, expected_exc):
 
-    fr = FileRetriever(cleanup_at_exit=True,
-                       auth_configs=auth_configs)
+    fr = FileRetriever(cleanup_at_exit=True)
     if expected_exc:
         with pytest.raises(expected_exc) as e:
             try:
-                fr._validate_auth_configs(auth_configs)
+                fr._validate_auth_config(auth_config)
             except expected_exc as e:
                 raise e
     else:
-        fr._validate_auth_configs(auth_configs)
+        fr._validate_auth_config(auth_config)
 
 
 @pytest.mark.parametrize('use_storage_dir,cleanup_at_exit,should_file_exist',

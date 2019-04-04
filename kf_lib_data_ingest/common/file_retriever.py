@@ -196,23 +196,18 @@ def _select_auth_scheme(url, auth_configs):
     any of the keys in auth_config, return the value, a dict containing
     necessary parameters for the selected auth scheme, of the first key match.
 
-    See FileRetriever._validate_auth_config for details on auth_config format
-
     :param url: the URL to be inspected
     :type url: str
     :param auth_configs: optional dict mapping URL patterns to authentication
     schemes and necessary auth parameters
     :type auth_configs: dict
 
-    :returns selected_cfg: configuration dict of the selected auth scheme
+    :returns cfg: configuration dict of the selected auth scheme
     """
-    selected_cfg = None
     if auth_configs:
         for key, cfg in auth_configs.items():
             if url.startswith(key):
-                selected_cfg = cfg
-                break
-    return selected_cfg
+                return cfg
 
 
 class FileRetriever(object):
@@ -231,6 +226,33 @@ class FileRetriever(object):
     def __init__(self, storage_dir=None, cleanup_at_exit=True,
                  auth_configs=None):
         """
+        Construct FileRetriever instance
+
+        `auth_configs` looks something like:
+            {
+                'http://api.com/files': {
+                    'type': 'basic',
+                    'username': 'the username',
+                    'password': 'the password'
+                    }
+                },
+                'https://kf-api-study-creator.kids-first.io/download': {
+                    'type': 'oauth2',
+                    'client_id': 'STUDY_CREATOR_CLIENT_ID',
+                    'client_secret': 'STUDY_CREATOR_CLIENT_ID',
+                    'provider_domain': 'STUDY_CREATOR_AUTH0_DOMAIN',
+                    'audience': 'STUDY_CREATOR_API_IDENTIFIER',
+                },
+                's3://bucket/key': {
+                    'aws_profile': 'default'
+                    }
+                }
+            }
+
+        The `type` key specifies the authentication scheme to use when fetching
+        a particular URL. Getters in FileRetriever._getters are responsible
+        for interpreting particular auth config dicts in `auth_configs`.
+
         :param storage_dir: optional specific tempfile storage location
         :type storage_dir: str
         :param cleanup_at_exit: should the temp files vanish at exit
@@ -251,12 +273,18 @@ class FileRetriever(object):
         self._files = {}
         self.auth_configs = auth_configs
 
-    def get(self, url):
+        if self.auth_configs:
+            assert_safe_type(auth_configs, dict)
+
+    def get(self, url, auth_config=None):
         """
         Retrieve the contents of a remote file.
 
         :param url: full file URL
         :type url: str
+        :param auth_config: optional dict containing necessary authentication
+        parameters needed to fetch URL
+        :type auth_config: dict
 
         :raises LookupError: url is not of one of the handled protocols
         :returns: a file-like object containing the remote file contents
@@ -281,14 +309,13 @@ class FileRetriever(object):
                     delete=self.cleanup_at_exit and not self.__tmpdir
                 )
 
-                # Validate auth configs dict if it exists
                 # Select one auth config based inspection of url
-                auth_config = None
-                if self.auth_configs:
-                    self._validate_auth_configs(self.auth_configs)
+                if self.auth_configs and not auth_config:
                     auth_config = _select_auth_scheme(url, self.auth_configs)
 
+                # Validate auth_config if it exists
                 if auth_config:
+                    self._validate_auth_config(auth_config)
                     self.logger.info(
                         f'Selected `{auth_config["type"]}` authentication to '
                         f'fetch {url}')
@@ -312,44 +339,20 @@ class FileRetriever(object):
                 self.__tmpdir.cleanup()
             raise e
 
-    def _validate_auth_configs(self, auth_configs):
+    def _validate_auth_config(self, auth_config):
         """
-        Validate config dict containing authentication parameters
+        Validate config dict containing authentication parameters needed to
+        access a particular URL.
 
-        `auth_configs` looks something like:
-
-            {
-                'http://api.com/files': {
-                    'type': 'basic',
-                    'username': 'the username',
-                    'password': 'the password'
-                    }
-                },
-                'https://kf-api-study-creator.kids-first.io/download': {
-                    'type': 'oauth2',
-                    'client_id': 'STUDY_CREATOR_CLIENT_ID',
-                    'client_secret': 'STUDY_CREATOR_CLIENT_ID',
-                    'provider_domain': 'STUDY_CREATOR_AUTH0_DOMAIN',
-                    'audience': 'STUDY_CREATOR_API_IDENTIFIER',
-                },
-                's3://bucket/key': {
-                    'aws_profile': 'default'
-                    }
-                }
-            }
-
-        `type` is the authentication scheme
+        `auth_config` must be a dict with str key values, and have a
+        key called `type`
 
         :param auth_configs: optional dict mapping URL patterns to
         authentication schemes and necessary auth parameters
         :type auth_configs: dict
         """
-        # Dict with str keys
-        assert_safe_type(auth_configs, dict)
-        assert_all_safe_type(list(auth_configs.keys()), str)
-
-        # All sub dicts have type key
-        for url, cfg in auth_configs.items():
-            auth_scheme = cfg.get('type')
-            assert auth_scheme, ('A dict in `auth_configs` must have `type` '
-                                 'key to define the authentication scheme')
+        assert_safe_type(auth_config, dict)
+        assert_all_safe_type(list(auth_config.keys()), str)
+        auth_scheme = auth_config.get('type')
+        assert auth_scheme, ('An `auth_config` dict must have `type` '
+                             'key to define the authentication scheme')
