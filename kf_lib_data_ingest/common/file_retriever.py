@@ -141,17 +141,17 @@ def _web_save(protocol, source_loc, dest_obj, auth_config=None, logger=None):
         if auth_scheme == 'basic':
             auth = HTTPBasicAuth(auth_config.get('username'),
                                  auth_config.get('password'))
-            utils.get_file(url, dest_obj, auth=auth)
+            utils.http_get_file(url, dest_obj, auth=auth)
 
         # Token auth
         if auth_scheme == 'token':
             token = auth_config.get('token')
 
             if auth_config.get('token_location') == 'url':
-                utils.get_file(
+                utils.http_get_file(
                     f"{url}?{urlencode({'token': token})}", dest_obj)
             else:
-                utils.get_file(
+                utils.http_get_file(
                     url, dest_obj, headers={'Authorization': f'Token {token}'})
 
         # OAuth 2
@@ -167,7 +167,7 @@ def _web_save(protocol, source_loc, dest_obj, auth_config=None, logger=None):
 
     # Fetch a file with no auth
     else:
-        utils.get_file(url, dest_obj)
+        utils.http_get_file(url, dest_obj)
 
 
 def _file_save(protocol, source_loc, dest_obj, auth_config=None, logger=None):
@@ -283,7 +283,7 @@ class FileRetriever(object):
         :param url: full file URL
         :type url: str
         :param auth_config: optional dict containing necessary authentication
-        parameters needed to fetch URL
+         parameters needed to fetch URL
         :type auth_config: dict
 
         :raises LookupError: url is not of one of the handled protocols

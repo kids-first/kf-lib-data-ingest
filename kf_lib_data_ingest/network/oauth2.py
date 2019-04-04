@@ -3,9 +3,9 @@ Module for requests using OAuth 2 based authentication/authorization
 """
 
 import logging
-import requests
 from pprint import pformat
 
+from kf_lib_data_ingest.common.misc import requests_retry_session
 from kf_lib_data_ingest.network import utils
 
 logger = logging.getLogger(__name__)
@@ -47,7 +47,8 @@ def get_service_token(provider_domain, audience, client_id, client_secret):
     logging.info(f'Fetching token from {oauth_token_url} to access '
                  f'{audience} resources')
 
-    response = requests.post(oauth_token_url, json=body)
+    response = requests_retry_session(connect=1).post(oauth_token_url,
+                                                      json=body)
 
     if response.status_code != 200:
         logger.error(
@@ -74,7 +75,7 @@ def get_file(url, dest_obj, provider_domain=None, audience=None,
              client_id=None, client_secret=None, **kwargs):
     """
     Get an OAuth2 protected file at URL, `url`. Forward `kwargs` to
-    kf_lib_data_ingest.network.utils.get_file
+    kf_lib_data_ingest.network.utils.http_get_file
 
     Get the service token first, then fetch the resources using the token.
 
@@ -96,7 +97,7 @@ def get_file(url, dest_obj, provider_domain=None, audience=None,
                               client_id,
                               client_secret)
 
-    # Something went wrong w getting token
+    # Something went wrong with getting token
     # Error messages already logged in get_service_token, just return None
     if not token:
         return None
@@ -105,7 +106,7 @@ def get_file(url, dest_obj, provider_domain=None, audience=None,
     headers = kwargs.pop('headers', {})
     headers.update({'Authorization': f'Bearer {token}'})
     kwargs['headers'] = headers
-    response = utils.get_file(url, dest_obj, **kwargs)
+    response = utils.http_get_file(url, dest_obj, **kwargs)
 
     if response.status_code == 200:
         logger.info('Successfully authenticated and fetched protected file')

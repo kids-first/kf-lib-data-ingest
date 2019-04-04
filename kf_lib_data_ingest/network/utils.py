@@ -4,12 +4,12 @@ Common network (HTTP, TCP, whatever) related functionality
 import cgi
 import logging
 
-import requests
+from kf_lib_data_ingest.common.misc import requests_retry_session
 
 logger = logging.getLogger(__name__)
 
 
-def get_file(url, dest_obj, **kwargs):
+def http_get_file(url, dest_obj, **kwargs):
     """
     Get the file at `url` and write to `dest_obj`, a file-like obj
 
@@ -23,7 +23,7 @@ def get_file(url, dest_obj, **kwargs):
     """
 
     kwargs['stream'] = True
-    response = requests.get(url, **kwargs)
+    response = requests_retry_session(connect=1).get(url, **kwargs)
 
     if response.status_code == 200:
         # Get filename from Content-Disposition header
