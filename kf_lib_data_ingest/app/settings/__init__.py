@@ -9,8 +9,8 @@ App has 3 operation modes:
 The app mode can be changed via the environment variable `KF_INGEST_APP_MODE`
 If this variable is not set, then default to `development` mode
 
-Settings for a mode are encapsulated in a Python module named `{app_mode}.py`
-inside this package.
+Default settings for each mode are encapsulated in Python modules
+inside this package, each named `{app_mode}.py`.
 
 In `development` mode
 ---------------------
@@ -45,21 +45,30 @@ from kf_lib_data_ingest.common.misc import import_module_from_file
 APP_MODE_ENV_VAR = 'KF_INGEST_APP_MODE'
 
 
-def load(app_mode=None):
+def load(app_settings_filepath=None):
     """
-    Select and import the appropriate app settings module based on the value of
-    `app_mode` if set or the environment variable `KF_INGEST_APP_MODE`
+    Import the app settings Python module
 
-    :param app_mode: mode of operation for app
+    If `app_settings_filepath` is not supplied, load the appropriate
+    default settings module based on the value of the environment variable
+    `KF_INGEST_APP_MODE`.
+
+    :param app_settings_filepath: path to app settings Python module
     :type app_mode: str
 
-    :returns selected settings module
+    :returns imported settings module
     """
-    if not app_mode:
-        app_mode = os.environ.get(APP_MODE_ENV_VAR, 'development')
+    # App mode of operation
+    app_mode = os.environ.get(APP_MODE_ENV_VAR) or 'development'
 
-    fp = os.path.join(os.path.dirname(__file__), app_mode) + '.py'
-    app_settings = import_module_from_file(fp)
+    # Load default app settings for the app mode
+    if not app_settings_filepath:
+        app_settings_filepath = os.path.join(
+            os.path.dirname(__file__), app_mode) + '.py'
+
+    # Import module
+    app_settings = import_module_from_file(app_settings_filepath)
     setattr(app_settings, 'APP_MODE', app_mode)
+    setattr(app_settings, 'FILEPATH', app_settings_filepath)
 
     return app_settings
