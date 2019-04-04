@@ -17,6 +17,9 @@ def ValidIngestStage():
         def _run(self, foo):
             return foo
 
+        def _postrun_concept_discovery(self, run_output):
+            pass
+
         def _validate_run_parameters(self, foo):
             if not foo:
                 raise InvalidIngestStageParameters
@@ -56,6 +59,9 @@ def test_invalid_run_parameters():
     # Test that InvalidIngestStageParameters excp raised on invalid run params
     class ValidIngestStage(IngestStage):
         def _run(self, foo):
+            pass
+
+        def _postrun_concept_discovery(self, run_output):
             pass
 
         def _validate_run_parameters(self, foo):

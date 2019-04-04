@@ -70,6 +70,9 @@ class LoadStage(IngestStage):
         # class
         pass
 
+    def _postrun_concept_discovery(self, run_output):
+        pass  # TODO
+
     def _run(self, target_entities):
         # TODO: revisit maybe?
         for entity_type, entities in target_entities.items():

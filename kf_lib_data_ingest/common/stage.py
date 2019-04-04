@@ -47,6 +47,7 @@ class IngestStage(ABC):
     def _run(self, *args, **kwargs):
         pass
 
+    @abstractmethod
     def _postrun_concept_discovery(self, run_output):
         """
         Builds a dict which stores:

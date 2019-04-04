@@ -175,18 +175,28 @@ class DataIngestPipeline(object):
                 while stage_type.__base__ != IngestStage:
                     stage_type = stage_type.__base__
 
-                write_json(
-                    concept_discovery_dict,
-                    os.path.join(
-                        self.ingest_output_dir,
-                        stage_type.__name__ + '_concept_discovery.json'
-                    )
-                )
-
                 self.stage_outputs[stage_type] = output
-                self.validate_stage_counts(
-                    stage_type, stage.logger, concept_discovery_dict
-                )
+
+                if concept_discovery_dict:
+                    write_json(
+                        concept_discovery_dict,
+                        os.path.join(
+                            self.ingest_output_dir,
+                            stage_type.__name__ + '_concept_discovery.json'
+                        )
+                    )
+
+                    self.stage_discovery_sources[stage_type] = (
+                        concept_discovery_dict.get('sources')
+                    )
+                    self.stage_discovery_links[stage_type] = (
+                        concept_discovery_dict.get('links')
+                    )
+
+                    stage.logger.info("Begin Basic Stage Output Validation")
+                    self.check_stage_counts(stage_type, stage.logger)
+                    stage.logger.info("End Basic Stage Output Validation")
+
         except Exception as e:
             self.logger.exception(str(e))
             self.logger.info('Exiting.')
@@ -195,48 +205,43 @@ class DataIngestPipeline(object):
         # Log the end of the run
         self.logger.info('END data ingestion')
 
-    def validate_stage_counts(
-        self, stage_type, logger, concept_discovery_dict
-    ):
+    def check_stage_counts(self, stage_type, logger):
         """
-        Do some standard stage discovery tests
+        Do some standard basic stage output tests like assessing whether there
+        are as many unique values discovered for a given key as anticipated and
+        also whether any values were lost between Extract and Transform.
         """
+        discovery_sources = self.stage_discovery_sources[stage_type]
 
-        logger.info("Begin stage output data validation")
+        # Missing data
+        if not discovery_sources:
+            logger.info('Discovery Data Sources Not Found ❌')
+            return False
 
         passed_all = True
-        if not concept_discovery_dict:
-            passed_all = False
-            logger.info('Discovery Data Not Found ❌')
-        else:
-            if not concept_discovery_dict.get('sources'):
-                passed_all = False
-                logger.info('Discovery Data Sources Not Found ❌')
-            else:
-                self.stage_discovery_sources[stage_type] = (
-                    concept_discovery_dict['sources']
-                )
 
-                passed, message = stage_analyses.check_counts(
-                    concept_discovery_dict.get('sources'),
-                    self.data_ingest_config.expected_counts
+        # Do stage counts validation
+        passed, message = stage_analyses.check_counts(
+            discovery_sources, self.data_ingest_config.expected_counts
+        )
+        passed_all = passed_all and passed
+        logger.info(message)
+
+        # Compare stage counts to make sure we didn't lose values between
+        # Extract and Transform
+        if stage_type == TransformStage:
+            if ExtractStage in self.stage_discovery_sources:
+                passed, message = stage_analyses.compare_counts(
+                    discovery_sources,
+                    self.stage_discovery_sources[ExtractStage]
                 )
                 passed_all = passed_all and passed
                 logger.info(message)
+            else:
+                # Missing data
+                passed_all = False
+                logger.info(
+                    'No Extract Discovery Data Sources To Compare ❌'
+                )
 
-                if stage_type == TransformStage:
-                    if ExtractStage in self.stage_discovery_sources:
-                        passed, message = stage_analyses.compare_counts(
-                            concept_discovery_dict.get('sources'),
-                            self.stage_discovery_sources[ExtractStage]
-                        )
-                        passed_all = passed_all and passed
-                        logger.info(message)
-                    else:
-                        passed_all = False
-                        logger.info(
-                            'No Extract Discovery Data Sources To Compare ❌'
-                        )
-
-        logger.info("End Basic Analysis")
         return passed_all

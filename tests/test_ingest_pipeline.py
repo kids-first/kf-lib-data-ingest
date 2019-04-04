@@ -39,6 +39,17 @@ def test_ingest():
     assert 'BEGIN data ingestion' in result.output
     assert 'END data ingestion' in result.output
 
+    # Make sure that post-extract counts run
+    assert (
+        'ExtractStage - INFO - Begin Basic Stage Output Validation'
+        in result.output
+    )
+    assert 'ExtractStage - INFO - UNIQUE COUNTS' in result.output
+    assert (
+        '| CONCEPT|BIOSPECIMEN|ID |         60 |      60 | ✅      |'
+        in result.output
+    )
+
 
 def test_ingest_no_transform_module(tmpdir):
     """

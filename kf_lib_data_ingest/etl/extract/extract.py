@@ -382,9 +382,9 @@ class ExtractStage(IngestStage):
         # return dictionary of all dataframes keyed by extract config paths
         return output
 
-    def _postrun_discovery(self, run_output):
+    def _postrun_concept_discovery(self, run_output):
         """
-        See the docstring for IngestStage._postrun_discovery.
+        See the docstring for IngestStage._postrun_concept_discovery
         """
         sources = defaultdict(
             lambda: defaultdict(set)
