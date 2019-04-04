@@ -32,7 +32,11 @@ def cli():
 @click.option('--app_settings', 'app_settings_filepath',
               type=click.Path(exists=True, file_okay=True, dir_okay=False),
               help=('Path to an ingest app settings file. If not specified, '
-                    'will use default app settings.'))
+                    'will use default app settings for the current app mode, '
+                    'which is specified by environment variable: '
+                    f'{settings.APP_MODE_ENV_VAR}. '
+                    'See kf_lib_data_ingest.app.settings for default settings '
+                    'files'))
 @click.option('--log_level', 'log_level_name', type=click.Choice(
     map(str.lower, logging._nameToLevel.keys())),
     help=('Controls level of log messages to output. If not supplied via CLI, '

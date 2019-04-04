@@ -7,7 +7,7 @@ from kf_lib_data_ingest.app.settings.base import *
 import os
 
 AUTH_CONFIGS = {
-    'https://kf-study-creator.kidsfirstdrc.org/download/study': {
+    'https://kf-study-creator.kids-first.io/download/study': {
         'type': 'oauth2',
         'provider_domain': os.environ.get('KF_AUTH0_DOMAIN'),
         'audience': os.environ.get('KF_STUDY_CREATOR_AUTH0_AUD'),
