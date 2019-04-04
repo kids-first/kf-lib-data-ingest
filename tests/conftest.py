@@ -29,6 +29,11 @@ TEST_INGEST_CONFIG = os.path.join(TEST_DATA_DIR, 'test_study',
 
 COMMAND_LINE_ERROR_CODE = 2
 
+TEST_AUTH0_DOMAIN = 'natashasingh.auth0.com'
+TEST_AUTH0_AUD = 'https://test-api.kids-first.io/files'
+TEST_CLIENT_ID = 'jvpfU40lDRRaRSMEZ0C9FKm379H176W6'
+TEST_CLIENT_SECRET = 'B0v9vADfY9A7KQFxYxkoMHySuL6l6v7_eQb7s-3tv3MSSY4Pwtkmrv_vJ6VDbbpB'
+
 # Mock get_open_api_v2_schema to always return the schema
 mock_dataservice_schema = read_json(
     os.path.join(TEST_DATA_DIR, 'mock_dataservice_schema.json')

@@ -3,16 +3,26 @@ FileRetriever is a class for downloading the contents of remote files using
 whatever mechanism is appropriate for the given protocol.
 """
 
-import cgi
 import logging
-import os
 import shutil
 import tempfile
-from urllib.parse import urlparse
+from urllib.parse import (
+    urlparse,
+    urlencode
+)
 
 import boto3
 import botocore
-import requests
+from requests.auth import HTTPBasicAuth
+
+from kf_lib_data_ingest.common.type_safety import (
+    assert_safe_type,
+    assert_all_safe_type
+)
+from kf_lib_data_ingest.network import (
+    utils,
+    oauth2
+)
 
 logging.getLogger('boto3').setLevel(logging.WARNING)
 logging.getLogger('botocore').setLevel(logging.WARNING)
@@ -45,7 +55,7 @@ def split_protocol(url):
     return protocol, path
 
 
-def _s3_save(protocol, source_loc, dest_obj, auth=None, logger=None):
+def _s3_save(protocol, source_loc, dest_obj, auth_config=None, logger=None):
     """
     Get contents of a file from Amazon S3 to a local file-like object.
 
@@ -55,14 +65,16 @@ def _s3_save(protocol, source_loc, dest_obj, auth=None, logger=None):
     :type source_loc: str
     :param dest_obj: Receives the data downloaded from the source file
     :type dest_obj: File-like object
-    :param auth: optional S3 auth profile (defaults to all available profiles)
-    :type auth: str
+    :param auth_config: a dict of necessary auth parameters (i.e. aws_profile)
+    If profile not provided, default to all available profiles
+    :type auth_config: dict
 
     :returns: None, the data goes to dest_obj
     """
     logger = logger or logging.getLogger(__name__)
-    if auth:
-        aws_profiles = auth
+
+    if auth_config:
+        aws_profiles = auth_config.get('aws_profile')
     else:
         aws_profiles = boto3.Session().available_profiles + [None]
 
@@ -85,7 +97,7 @@ def _s3_save(protocol, source_loc, dest_obj, auth=None, logger=None):
     raise botocore.exceptions.NoCredentialsError()  # never got the file
 
 
-def _web_save(protocol, source_loc, dest_obj, auth=None, logger=None):
+def _web_save(protocol, source_loc, dest_obj, auth_config=None, logger=None):
     """
     Get contents of a file from a web server to a local file-like object.
 
@@ -93,56 +105,72 @@ def _web_save(protocol, source_loc, dest_obj, auth=None, logger=None):
     header is provided in the response.
     See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition # noqa E501
 
+    Authentication
+    --------------
+    Currently supports the following authentication schemes:
+        - HTTP Basic Authentication
+        - Token Authentication
+        - OAuth 2 Authentication
+
+    If `auth_config` is provided use the auth scheme and necessary auth
+    parameters in `auth_config` to get the file
+
+    If `auth_config` is not provided then assume the file
+    requires no auth. Just send a get request to fetch it
+
     :param protocol: URL protocol identifier
     :type protocol: str
     :param source_loc: address or path
     :type source_loc: str
     :param dest_obj: Receives the data downloaded from the source file
     :type dest_obj: File-like object
-    :param auth: optional requests-compatible auth object
-    :type auth: http://docs.python-requests.org/en/master/user/authentication/
+    :param auth_config: a dict of necessary auth parameters for a particular
+    authentication scheme (i.e basic, oauth2, token, etc)
+    :type auth_config: dict
 
     :returns: None, the data goes to dest_obj
     """
     logger = logger or logging.getLogger(__name__)
     url = protocol + PROTOCOL_SEP + source_loc
 
-    with requests.get(url, auth=auth, stream=True) as response:
-        if response.status_code == 200:
-            # Get filename from Content-Disposition header
-            content_disposition = response.headers.get('Content-Disposition',
-                                                       '')
-            _, cdisp_params = cgi.parse_header(content_disposition)
-            filename = cdisp_params.get('filename*')
-            # RFC 5987 ext-parameter is actually more complicated than this,
-            # but this should get us 90% there, and the rfc6266 python lib is
-            # broken after PEP 479. *sigh* - Avi K
-            if filename and filename.lower.startswith('utf-8'):
-                filename = filename.split("'", 2)[2].decode('utf-8')
+    # Fetch a protected file using auth scheme and parameters in auth_config
+    if auth_config:
+        auth_scheme = auth_config['type']
+
+        # Basic auth
+        if auth_scheme == 'basic':
+            auth = HTTPBasicAuth(auth_config.get('username'),
+                                 auth_config.get('password'))
+            utils.http_get_file(url, dest_obj, auth=auth)
+
+        # Token auth
+        if auth_scheme == 'token':
+            token = auth_config.get('token')
+
+            if auth_config.get('token_location') == 'url':
+                utils.http_get_file(
+                    f"{url}?{urlencode({'token': token})}", dest_obj)
             else:
-                filename = cdisp_params.get('filename')
+                utils.http_get_file(
+                    url, dest_obj, headers={'Authorization': f'Token {token}'})
 
-            if filename:
-                dest_obj.original_name = filename
-            else:
-                # Header did not provide filename
-                logging.warning(f'{url} returned unhelpful or missing '
-                                'Content-Disposition header '
-                                f'{content_disposition}. '
-                                'HTTP(S) file responses should include a '
-                                'Content-Disposition header specifying '
-                                'filename.')
+        # OAuth 2
+        elif auth_scheme == 'oauth2':
+            kwargs = {
+                var_name: auth_config.get(var_name)
+                for var_name in ['provider_domain',
+                                 'audience',
+                                 'client_id',
+                                 'client_secret']
+            }
+            oauth2.get_file(url, dest_obj, **kwargs)
 
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    dest_obj.write(chunk)
-
-        else:
-            logger.warning(f'Could not download {url}. Caused by '
-                           f'{response.text}')
+    # Fetch a file with no auth
+    else:
+        utils.http_get_file(url, dest_obj)
 
 
-def _file_save(protocol, source_loc, dest_obj, auth=None, logger=None):
+def _file_save(protocol, source_loc, dest_obj, auth_config=None, logger=None):
     """
     Get contents of a file from a local file path to a local file-like object.
 
@@ -152,14 +180,34 @@ def _file_save(protocol, source_loc, dest_obj, auth=None, logger=None):
     :type source_loc: str
     :param dest_obj: receives the data downloaded from the source file
     :type dest_obj: file-like object
-    :param auth: do not use
-    :type auth: None
+    :param auth_config: do not use
+    :type auth_config: None
 
     :returns: None, the data goes to dest_obj
     """
     logger = logger or logging.getLogger(__name__)
     with open(source_loc, "rb") as orig:
         shutil.copyfileobj(orig, dest_obj)
+
+
+def _select_auth_scheme(url, auth_configs):
+    """
+    Select authentication scheme by inspecting `url`. If `url` starts with
+    any of the keys in auth_config, return the value, a dict containing
+    necessary parameters for the selected auth scheme, of the first key match.
+
+    :param url: the URL to be inspected
+    :type url: str
+    :param auth_configs: optional dict mapping URL patterns to authentication
+    schemes and necessary auth parameters
+    :type auth_configs: dict
+
+    :returns cfg: configuration dict of the selected auth scheme
+    """
+    if auth_configs:
+        for key, cfg in auth_configs.items():
+            if url.startswith(key):
+                return cfg
 
 
 class FileRetriever(object):
@@ -175,12 +223,43 @@ class FileRetriever(object):
         "file": _file_save
     }
 
-    def __init__(self, storage_dir=None, cleanup_at_exit=True):
+    def __init__(self, storage_dir=None, cleanup_at_exit=True,
+                 auth_configs=None):
         """
+        Construct FileRetriever instance
+
+        `auth_configs` looks something like:
+            {
+                'http://api.com/files': {
+                    'type': 'basic',
+                    'username': 'the username',
+                    'password': 'the password'
+                    }
+                },
+                'https://kf-api-study-creator.kids-first.io/download': {
+                    'type': 'oauth2',
+                    'client_id': 'STUDY_CREATOR_CLIENT_ID',
+                    'client_secret': 'STUDY_CREATOR_CLIENT_ID',
+                    'provider_domain': 'STUDY_CREATOR_AUTH0_DOMAIN',
+                    'audience': 'STUDY_CREATOR_API_IDENTIFIER',
+                },
+                's3://bucket/key': {
+                    'aws_profile': 'default'
+                    }
+                }
+            }
+
+        The `type` key specifies the authentication scheme to use when fetching
+        a particular URL. Getters in FileRetriever._getters are responsible
+        for interpreting particular auth config dicts in `auth_configs`.
+
         :param storage_dir: optional specific tempfile storage location
         :type storage_dir: str
         :param cleanup_at_exit: should the temp files vanish at exit
         :type cleanup_at_exit: bool
+        :param auth_configs: optional dict mapping URL patterns to
+        authentication schemes and necessary auth parameters
+        :type auth_configs: dict
         """
         self.logger = logging.getLogger(type(self).__name__)
         self.cleanup_at_exit = cleanup_at_exit
@@ -192,20 +271,25 @@ class FileRetriever(object):
                                                         dir=".")
             self.storage_dir = self.__tmpdir.name
         self._files = {}
+        self.auth_configs = auth_configs
 
-    def get(self, url, auth=None):
+        if self.auth_configs:
+            assert_safe_type(auth_configs, dict)
+
+    def get(self, url, auth_config=None):
         """
         Retrieve the contents of a remote file.
 
         :param url: full file URL
         :type url: str
-        :param auth: auth argument appropriate to type
-        :type auth: various
+        :param auth_config: optional dict containing necessary authentication
+         parameters needed to fetch URL
+        :type auth_config: dict
 
         :raises LookupError: url is not of one of the handled protocols
         :returns: a file-like object containing the remote file contents
         """
-        self.logger.info("Fetching %s with primary auth '%s'", url, auth)
+        self.logger.info("Fetching %s", url)
         protocol, path = split_protocol(url)
 
         self.logger.info(
@@ -224,10 +308,25 @@ class FileRetriever(object):
                     dir=self.storage_dir,
                     delete=self.cleanup_at_exit and not self.__tmpdir
                 )
+
+                # Select one auth config based inspection of url
+                if self.auth_configs and not auth_config:
+                    auth_config = _select_auth_scheme(url, self.auth_configs)
+
+                # Validate auth_config if it exists
+                if auth_config:
+                    self._validate_auth_config(auth_config)
+                    self.logger.info(
+                        f'Selected `{auth_config["type"]}` authentication to '
+                        f'fetch {url}')
+                else:
+                    self.logger.warning(
+                        f'Authentication scheme not found for url {url}')
+
                 # Fetch the remote data
                 FileRetriever._getters[protocol](
                     protocol, path, self._files[url],
-                    auth=auth, logger=self.logger
+                    logger=self.logger, auth_config=auth_config
                 )
                 if not hasattr(self._files[url], 'original_name'):
                     filename = urlparse(url).path.rsplit('/', 1)[-1]
@@ -239,3 +338,21 @@ class FileRetriever(object):
             if self.__tmpdir:
                 self.__tmpdir.cleanup()
             raise e
+
+    def _validate_auth_config(self, auth_config):
+        """
+        Validate config dict containing authentication parameters needed to
+        access a particular URL.
+
+        `auth_config` must be a dict with str key values, and have a
+        key called `type`
+
+        :param auth_configs: optional dict mapping URL patterns to
+        authentication schemes and necessary auth parameters
+        :type auth_configs: dict
+        """
+        assert_safe_type(auth_config, dict)
+        assert_all_safe_type(list(auth_config.keys()), str)
+        auth_scheme = auth_config.get('type')
+        assert auth_scheme, ('An `auth_config` dict must have `type` '
+                             'key to define the authentication scheme')
