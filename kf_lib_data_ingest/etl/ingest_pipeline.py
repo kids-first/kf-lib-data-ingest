@@ -202,7 +202,7 @@ class DataIngestPipeline(object):
         Do some standard stage discovery tests
         """
 
-        logger.info("Begin Basic Analysis")
+        logger.info("Begin stage output data validation")
 
         passed_all = True
         if not concept_discovery_dict:
