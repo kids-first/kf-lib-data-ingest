@@ -165,9 +165,9 @@ class DataIngestPipeline(object):
             output = None
             for stage in self._iterate_stages():
                 if not output:  # First stage gets no input
-                    output, discovery = stage.run()
+                    output, concept_discovery_dict = stage.run()
                 else:
-                    output, discovery = stage.run(output)
+                    output, concept_discovery_dict = stage.run(output)
 
                 # Collapse stage subtypes to their bases for storage
                 # (e.g. GuidedTransformStage -> TransformStage)
@@ -176,15 +176,17 @@ class DataIngestPipeline(object):
                     stage_type = stage_type.__base__
 
                 write_json(
-                    discovery,
+                    concept_discovery_dict,
                     os.path.join(
                         self.ingest_output_dir,
-                        stage_type.__name__ + '_discovery.json'
+                        stage_type.__name__ + '_concept_discovery.json'
                     )
                 )
 
                 self.stage_outputs[stage_type] = output
-                self.validate_stage_counts(stage_type, stage.logger, discovery)
+                self.validate_stage_counts(
+                    stage_type, stage.logger, concept_discovery_dict
+                )
         except Exception as e:
             self.logger.exception(str(e))
             self.logger.info('Exiting.')
@@ -193,7 +195,9 @@ class DataIngestPipeline(object):
         # Log the end of the run
         self.logger.info('END data ingestion')
 
-    def validate_stage_counts(self, stage_type, logger, discovery):
+    def validate_stage_counts(
+        self, stage_type, logger, concept_discovery_dict
+    ):
         """
         Do some standard stage discovery tests
         """
@@ -201,18 +205,20 @@ class DataIngestPipeline(object):
         logger.info("Begin Basic Analysis")
 
         passed_all = True
-        if not discovery:
+        if not concept_discovery_dict:
             passed_all = False
             logger.info('Discovery Data Not Found ❌')
         else:
-            if not discovery.get('sources'):
+            if not concept_discovery_dict.get('sources'):
                 passed_all = False
                 logger.info('Discovery Data Sources Not Found ❌')
             else:
-                self.stage_discovery_sources[stage_type] = discovery['sources']
+                self.stage_discovery_sources[stage_type] = (
+                    concept_discovery_dict['sources']
+                )
 
                 passed, message = stage_analyses.check_counts(
-                    discovery.get('sources'),
+                    concept_discovery_dict.get('sources'),
                     self.data_ingest_config.expected_counts
                 )
                 passed_all = passed_all and passed
@@ -221,7 +227,7 @@ class DataIngestPipeline(object):
                 if stage_type == TransformStage:
                     if ExtractStage in self.stage_discovery_sources:
                         passed, message = stage_analyses.compare_counts(
-                            discovery.get('sources'),
+                            concept_discovery_dict.get('sources'),
                             self.stage_discovery_sources[ExtractStage]
                         )
                         passed_all = passed_all and passed

@@ -152,6 +152,6 @@ class IngestStage(ABC):
         # Write output of stage to disk
         self.write_output(output)
 
-        output_tally = self._postrun_concept_discovery(output)
+        concept_discovery_dict = self._postrun_concept_discovery(output)
 
-        return output, output_tally
+        return output, concept_discovery_dict
