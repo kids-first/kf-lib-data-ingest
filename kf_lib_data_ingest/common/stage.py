@@ -47,16 +47,17 @@ class IngestStage(ABC):
     def _run(self, *args, **kwargs):
         pass
 
-    def _postrun_tally(self, run_output):
+    def _postrun_discovery(self, run_output):
         """
-        Tallies counts in run output.
+        Builds a dict which stores:
+            - All unique standard concept attributes (e.g. each PARTICIPANT.ID)
+            found in the stage output mapped to lists of the places they appear
+            - All unique pairs of standard concept attributes found in the
+            stage output (e.g. which BIOSPECIMEN.IDs are connected to which
+            PARTICIPANT.IDs etc)
 
-        :param run_output: the output returned by the _run() method
-        :return: A dict where 1) concept values map to a list of the sources
-        containing them and 2) concept values map to lists of linked concept
-        values
-
-        tally = {
+        dict template
+        {
             'sources': {
                 a_key: {  # e.g. PARTICIPANT.ID
                     a1: [f1, f2],  # e.g. PARTICIPANT.ID==a1 in files f1 & f2
@@ -71,6 +72,11 @@ class IngestStage(ABC):
                 }
             }
         }
+
+        :param run_output: the output returned by the _run() method
+        :return: A dict where 1) concept values map to a list of the sources
+        containing them and 2) concept values map to lists of linked concept
+        values
         """
         return {'sources': None, 'links': None}
 
@@ -146,6 +152,6 @@ class IngestStage(ABC):
         # Write output of stage to disk
         self.write_output(output)
 
-        output_tally = self._postrun_tally(output)
+        output_tally = self._postrun_discovery(output)
 
         return output, output_tally

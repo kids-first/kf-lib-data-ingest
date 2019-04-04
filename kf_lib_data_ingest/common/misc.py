@@ -11,6 +11,7 @@ from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 from requests.exceptions import ConnectionError
 import yaml
+import jsonpickle
 
 from kf_lib_data_ingest.common.type_safety import assert_safe_type
 
@@ -42,15 +43,18 @@ def read_json(filepath, default=None):
     """
     if (default is not None) and (not os.path.isfile(filepath)):
         return default
-
     with open(filepath, 'r') as json_file:
-        return json.load(json_file)
+        json_str = json_file.read()
+    return jsonpickle.decode(json_str)
 
 
 def write_json(data, filepath):
+    json_str = json.loads(jsonpickle.encode(data))
     with open(filepath, 'w') as json_file:
-        json.dump(data, json_file, sort_keys=True, indent=4,
-                  separators=(',', ':'))
+        json.dump(
+            json_str,
+            json_file, sort_keys=True, indent=4, separators=(',', ':')
+        )
 
 
 def iterate_pairwise(iterable):

@@ -3,6 +3,8 @@ import logging
 import os
 from pprint import pformat
 
+import kf_lib_data_ingest.etl.stage_analyses as stage_analyses
+from kf_lib_data_ingest.common.misc import write_json
 from kf_lib_data_ingest.common.stage import IngestStage
 from kf_lib_data_ingest.common.type_safety import assert_safe_type
 from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
@@ -12,7 +14,6 @@ from kf_lib_data_ingest.etl.configuration.dataset_ingest_config import (
 from kf_lib_data_ingest.etl.configuration.log import setup_logger
 from kf_lib_data_ingest.etl.extract.extract import ExtractStage
 from kf_lib_data_ingest.etl.load.load import LoadStage
-import kf_lib_data_ingest.etl.stage_analyses as stage_analyses
 from kf_lib_data_ingest.etl.transform.auto import AutoTransformStage
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
 from kf_lib_data_ingest.etl.transform.transform import TransformStage
@@ -154,8 +155,8 @@ class DataIngestPipeline(object):
         """
         self.logger.info('BEGIN data ingestion.')
         self.stage_outputs = {}
-        self.stage_tally_sources = {}
-        self.stage_tally_links = {}
+        self.stage_discovery_sources = {}
+        self.stage_discovery_links = {}
 
         # Top level exception handler
         # Catch exception, log it to file and console, and exit
@@ -164,9 +165,9 @@ class DataIngestPipeline(object):
             output = None
             for stage in self._iterate_stages():
                 if not output:  # First stage gets no input
-                    output, tally = stage.run()
+                    output, discovery = stage.run()
                 else:
-                    output, tally = stage.run(output)
+                    output, discovery = stage.run(output)
 
                 # Collapse stage subtypes to their bases for storage
                 # (e.g. GuidedTransformStage -> TransformStage)
@@ -174,8 +175,16 @@ class DataIngestPipeline(object):
                 while stage_type.__base__ != IngestStage:
                     stage_type = stage_type.__base__
 
+                write_json(
+                    discovery,
+                    os.path.join(
+                        self.ingest_output_dir,
+                        stage_type.__name__ + '_discovery.json'
+                    )
+                )
+
                 self.stage_outputs[stage_type] = output
-                self.check_stage_tally(stage_type, stage.logger, tally)
+                self.validate_stage_counts(stage_type, stage.logger, discovery)
         except Exception as e:
             self.logger.exception(str(e))
             self.logger.info('Exiting.')
@@ -184,42 +193,44 @@ class DataIngestPipeline(object):
         # Log the end of the run
         self.logger.info('END data ingestion')
 
-    def check_stage_tally(self, stage_type, logger, tally):
+    def validate_stage_counts(self, stage_type, logger, discovery):
         """
-        Do some standard stage tally tests
+        Do some standard stage discovery tests
         """
 
         logger.info("Begin Basic Analysis")
 
         passed_all = True
-        if not tally:
+        if not discovery:
             passed_all = False
-            logger.info('Tally Not Found ❌')
+            logger.info('Discovery Data Not Found ❌')
         else:
-            if not tally.get('sources'):
+            if not discovery.get('sources'):
                 passed_all = False
-                logger.info('Tally Sources Not Found ❌')
+                logger.info('Discovery Data Sources Not Found ❌')
             else:
-                self.stage_tally_sources[stage_type] = tally['sources']
+                self.stage_discovery_sources[stage_type] = discovery['sources']
 
                 passed, message = stage_analyses.check_counts(
-                    tally.get('sources'),
+                    discovery.get('sources'),
                     self.data_ingest_config.expected_counts
                 )
                 passed_all = passed_all and passed
                 logger.info(message)
 
                 if stage_type == TransformStage:
-                    if ExtractStage in self.stage_tally_sources:
+                    if ExtractStage in self.stage_discovery_sources:
                         passed, message = stage_analyses.compare_counts(
-                            tally.get('sources'),
-                            self.stage_tally_sources[ExtractStage]
+                            discovery.get('sources'),
+                            self.stage_discovery_sources[ExtractStage]
                         )
                         passed_all = passed_all and passed
                         logger.info(message)
                     else:
                         passed_all = False
-                        logger.info('No Extract Tally Sources To Compare ❌')
+                        logger.info(
+                            'No Extract Discovery Data Sources To Compare ❌'
+                        )
 
         logger.info("End Basic Analysis")
         return passed_all

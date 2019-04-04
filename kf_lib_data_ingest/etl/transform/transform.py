@@ -282,9 +282,9 @@ class TransformStage(IngestStage):
 
         return target_instances
 
-    def _postrun_tally(self, run_output):
+    def _postrun_discovery(self, run_output):
         """
-        See the docstring for IngestStage._postrun_tally.
+        See the docstring for IngestStage._postrun_discovery.
         """
         # TODO: Implement after transform (or an intermediate stage) is fixed
         # to produce output using CONCEPT keys, instead of target service keys.
