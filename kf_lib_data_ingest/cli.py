@@ -1,16 +1,14 @@
 """
 Entry point for the Kids First Data Ingest Client
 """
-import os
 import inspect
 import logging
+import os
+import sys
 
 import click
 
-from kf_lib_data_ingest.config import (
-    DEFAULT_TARGET_URL,
-    DEFAULT_LOG_LEVEL
-)
+from kf_lib_data_ingest.config import DEFAULT_LOG_LEVEL, DEFAULT_TARGET_URL
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 DEFAULT_LOG_LEVEL_NAME = logging._levelToName.get(DEFAULT_LOG_LEVEL)
@@ -74,9 +72,12 @@ def ingest(dataset_ingest_config_path, target_url, use_async, log_level_name):
         root_dir, 'target_apis', 'kids_first.py')
 
     # Run ingest
-    DataIngestPipeline(
+    err = DataIngestPipeline(
         dataset_ingest_config_path, target_api_config_path, **kwargs
     ).run()
+
+    if err:
+        sys.exit(1)
 
 
 @click.command(name='new')

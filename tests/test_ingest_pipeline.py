@@ -35,7 +35,7 @@ def test_ingest():
     runner = CliRunner()
     result = runner.invoke(cli.ingest, [ingest_config_path])
 
-    assert result.exit_code == 0
+    assert result.exit_code == 1
     assert 'BEGIN data ingestion' in result.output
     assert 'END data ingestion' in result.output
 

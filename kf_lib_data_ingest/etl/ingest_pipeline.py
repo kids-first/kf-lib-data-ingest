@@ -1,6 +1,7 @@
 import inspect
 import logging
 import os
+import sys
 from pprint import pformat
 
 import kf_lib_data_ingest.etl.stage_analyses as stage_analyses
@@ -157,6 +158,7 @@ class DataIngestPipeline(object):
         self.stage_outputs = {}
         self.stage_discovery_sources = {}
         self.stage_discovery_links = {}
+        passed = True
 
         # Top level exception handler
         # Catch exception, log it to file and console, and exit
@@ -194,16 +196,19 @@ class DataIngestPipeline(object):
                     )
 
                     stage.logger.info("Begin Basic Stage Output Validation")
-                    self.check_stage_counts(stage_type, stage.logger)
+                    passed = (
+                        passed
+                        and self.check_stage_counts(stage_type, stage.logger)
+                    )
                     stage.logger.info("End Basic Stage Output Validation")
-
         except Exception as e:
             self.logger.exception(str(e))
             self.logger.info('Exiting.')
-            exit(1)
+            sys.exit(1)
 
         # Log the end of the run
         self.logger.info('END data ingestion')
+        return not passed
 
     def check_stage_counts(self, stage_type, logger):
         """
