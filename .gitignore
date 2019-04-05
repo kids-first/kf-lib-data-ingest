@@ -114,3 +114,6 @@ output/
 
 # cached schema file
 cached_schema.json
+
+test_graph.gml
+
