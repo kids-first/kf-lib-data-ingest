@@ -39,8 +39,13 @@ def read_json(filepath, default=None, use_jsonpickle=True):
     does not exist, then return default.
 
     :param filepath: path to JSON file
-    :param default: default return value if file is not found
-    :param use_jsonpickle: whether to allow pickling of JSON-incompatible types
+    :type filepath: str
+    :param default: default return value if file not found, defaults to None
+    :type default: any, optional
+    :param use_jsonpickle: pickle JSON-incompatible types, defaults to True
+    :type use_jsonpickle: bool, optional
+    :return: your data
+    :rtype: dict
     """
     if (default is not None) and (not os.path.isfile(filepath)):
         return default
@@ -53,21 +58,26 @@ def read_json(filepath, default=None, use_jsonpickle=True):
             return json.load(json_file)
 
 
-def write_json(data, filepath, use_jsonpickle=True):
-    """
+def write_json(data, filepath, use_jsonpickle=True, **kwargs):
+    r"""
     Write Python dict to JSON file.
 
-    :param data: your python dict
-    :param filepath: path for new JSON file
-    :param use_jsonpickle: whether to allow pickling of JSON-incompatible types
+    :param data: your data
+    :type data: dict
+    :param filepath: where to write your JSON file
+    :type filepath: str
+    :param use_jsonpickle: pickle JSON-incompatible types, defaults to True
+    :type use_jsonpickle: bool, optional
+    :param \**kwargs: keyword arguments to pass to json.dump
     """
+    if 'indent' not in kwargs:
+        kwargs['indent'] = 4
+    if 'sort_keys' not in kwargs:
+        kwargs['sort_keys'] = True
     with open(filepath, 'w') as json_file:
         if use_jsonpickle:
             data = json.loads(jsonpickle.encode(data))
-        json.dump(
-            data,
-            json_file, sort_keys=True, indent=4, separators=(',', ':')
-        )
+        json.dump(data, json_file, **kwargs)
 
 
 def iterate_pairwise(iterable):
