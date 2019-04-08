@@ -72,11 +72,11 @@ def ingest(dataset_ingest_config_path, target_url, use_async, log_level_name):
         root_dir, 'target_apis', 'kids_first.py')
 
     # Run ingest
-    err = DataIngestPipeline(
+    perfection = DataIngestPipeline(
         dataset_ingest_config_path, target_api_config_path, **kwargs
     ).run()
 
-    if err:
+    if not perfection:
         sys.exit(1)
 
 

@@ -208,7 +208,7 @@ class DataIngestPipeline(object):
 
         # Log the end of the run
         self.logger.info('END data ingestion')
-        return not passed
+        return passed
 
     def check_stage_counts(self, stage_type, logger):
         """
