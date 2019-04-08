@@ -21,7 +21,8 @@ from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
 from kf_lib_data_ingest.common.misc import (
     get_open_api_v2_schema,
     read_json,
-    write_json
+    write_json,
+    numeric_to_str
 )
 from kf_lib_data_ingest.common.stage import IngestStage
 from kf_lib_data_ingest.common.type_safety import (
@@ -473,17 +474,25 @@ class TransformStage(IngestStage):
             unique_key_col = f'{concept_name}{DELIMITER}{UNIQUE_ID_ATTR}'
 
             # Make unique key string out of the individual col values
-            # Only use non-null values
+            # Any required cols must be non-null
             def make_unique_key_value(row):
-                values = [
-                    str(row[c])
-                    for c in unique_key_cols
-                    if c in row and pandas.notnull(row[c])
-                ]
-                if len(values) < len(unique_key_cols):
-                    return None
-                else:
-                    return VALUE_DELIMITER.join(values)
+                values = []
+                for c in unique_key_cols:
+                    # Col is not in df
+                    if c not in row:
+                        return None
+                    # Col is required to make unique key but is null
+                    if c in required and pandas.isnull(row[c]):
+                        return None
+                    # Optional cols whose values are null will be converted
+                    # to constants.COMMON.NOT_REPORTED
+                    values.append(
+                        numeric_to_str(row[c],
+                                       replace_na=True,
+                                       na=constants.COMMON.NOT_REPORTED)
+                    )
+
+                return VALUE_DELIMITER.join(values)
 
             df[unique_key_col] = df.apply(
                 lambda row: make_unique_key_value(row), axis=1
