@@ -471,15 +471,22 @@ class TransformStage(IngestStage):
 
             # Insert unique key column for the concept
             unique_key_col = f'{concept_name}{DELIMITER}{UNIQUE_ID_ATTR}'
+
+            # Make unique key string out of the individual col values
+            # Only use non-null values
+            def make_unique_key_value(row):
+                values = [
+                    str(row[c])
+                    for c in unique_key_cols
+                    if c in row and pandas.notnull(row[c])
+                ]
+                if len(values) < len(unique_key_cols):
+                    return None
+                else:
+                    return VALUE_DELIMITER.join(values)
+
             df[unique_key_col] = df.apply(
-                lambda row: VALUE_DELIMITER.join(
-                    [
-                        str(row[c])
-                        for c in unique_key_cols
-                        if c in df.columns
-                    ]
-                ),
-                axis=1
+                lambda row: make_unique_key_value(row), axis=1
             )
         unique_concepts_found = [
             col for col in df.columns
