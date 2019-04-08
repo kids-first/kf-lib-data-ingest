@@ -113,7 +113,7 @@ class DataIngestPipeline(object):
         yield ExtractStage(
             self.ingest_output_dir,
             self.data_ingest_config.extract_config_paths,
-            self.auth_config
+            self.auth_configs
         )
 
         # Transform stage #####################################################

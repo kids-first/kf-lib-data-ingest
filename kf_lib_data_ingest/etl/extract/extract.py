@@ -43,7 +43,7 @@ def lcm(number_list):
 
 class ExtractStage(IngestStage):
     def __init__(
-        self, stage_cache_dir, extract_config_paths, auth_config=None
+        self, stage_cache_dir, extract_config_paths, auth_configs=None
     ):
         super().__init__(stage_cache_dir)
         if isinstance(extract_config_paths, list):
@@ -53,7 +53,7 @@ class ExtractStage(IngestStage):
         elif isinstance(extract_config_paths, str):
             self.extract_configs = [ExtractConfig(extract_config_paths)]
 
-        self.FR = FileRetriever(auth_config=auth_config)
+        self.FR = FileRetriever(auth_configs=auth_configs)
 
     def _output_path(self):
         """
