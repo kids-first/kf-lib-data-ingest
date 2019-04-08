@@ -1,0 +1,46 @@
+
+### Dataset Ingest Config ###
+
+# The list of entities that will be loaded into the target service
+target_service_entities:
+    - 'investigator'
+    - 'study'
+    - 'study_file'
+    - 'family'
+    - 'participant'
+    - 'family_relationship'
+    - 'diagnosis'
+    - 'phenotype'
+    - 'outcome'
+    - 'biospecimen'
+    - read_group
+    - 'sequencing_experiment'
+    - 'genomic_file'
+    - biospecimen_genomic_file
+    - sequencing_experiment_genomic_file
+    - read_group_genomic_file
+
+# All paths are relative to the directory this file is in
+extract_config_dir: 'extract_configs'
+
+transform_function_path: 'transform_module.py'
+
+
+# TODO - Replace these values with your own valid values!
+study:
+    kf_id: 'SD_ME0WME0W'
+    external_id: 'phs0000000'
+    short_name: 'Cat Study'
+    name: 'The long study of cats'
+    authority: 'dbgap'
+    version: 'v0.p0'
+    release_status: 'Pending'
+    category: 'Cancer'
+    attribution: 'some link'
+
+investigators:
+    -
+        kf_id: 'IG_MEOWMEOW'
+        name: 'John Smith'
+        institution: 'Feline University'
+        external_id: 'JS'
