@@ -17,6 +17,9 @@ def ValidIngestStage():
         def _run(self, foo):
             return foo
 
+        def _postrun_concept_discovery(self, run_output):
+            pass
+
         def _validate_run_parameters(self, foo):
             if not foo:
                 raise InvalidIngestStageParameters
@@ -56,6 +59,9 @@ def test_invalid_run_parameters():
     # Test that InvalidIngestStageParameters excp raised on invalid run params
     class ValidIngestStage(IngestStage):
         def _run(self, foo):
+            pass
+
+        def _postrun_concept_discovery(self, run_output):
             pass
 
         def _validate_run_parameters(self, foo):
@@ -104,7 +110,7 @@ def test_stage_read_write(ValidIngestStage):
     # Test output is written and read when stage_cache_dir is defined
     stage = ValidIngestStage(ingest_output_dir=TEST_INGEST_OUTPUT_DIR)
     run_input = 'hello world'
-    run_output, _, _ = stage.run(run_input)
+    run_output, _ = stage.run(run_input)
     assert stage.read_output() == run_output
 
 

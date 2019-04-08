@@ -11,3 +11,4 @@ networkx==2.1
 xlrd==1.1.0
 requests==2.21.0
 tabulate==0.8.3
+jsonpickle==1.1

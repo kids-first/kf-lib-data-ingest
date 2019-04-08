@@ -53,7 +53,7 @@ def test_read_write(guided_transform_stage, df):
     extract_output = {'extract_config_url': ('source_url', df)}
 
     # Transform outputs json
-    output, _, _ = guided_transform_stage.run(extract_output)
+    output, _ = guided_transform_stage.run(extract_output)
     recycled_output = guided_transform_stage.read_output()
 
     for target_entity, data in output.items():

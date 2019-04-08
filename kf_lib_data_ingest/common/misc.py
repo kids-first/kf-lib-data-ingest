@@ -11,6 +11,7 @@ from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 from requests.exceptions import ConnectionError
 import yaml
+import jsonpickle
 
 from kf_lib_data_ingest.common.type_safety import assert_safe_type
 
@@ -32,25 +33,51 @@ def read_yaml(filepath):
         return yaml.load(yaml_file, Loader=yaml.FullLoader)
 
 
-def read_json(filepath, default=None):
+def read_json(filepath, default=None, use_jsonpickle=True):
     """
     Read JSON file into Python dict. If default is not None and the file
-    does not exist, then return default
+    does not exist, then return default.
 
     :param filepath: path to JSON file
-    :param default: default return value if file is not found
+    :type filepath: str
+    :param default: default return value if file not found, defaults to None
+    :type default: any, optional
+    :param use_jsonpickle: pickle JSON-incompatible types, defaults to True
+    :type use_jsonpickle: bool, optional
+    :return: your data
+    :rtype: dict
     """
     if (default is not None) and (not os.path.isfile(filepath)):
         return default
 
     with open(filepath, 'r') as json_file:
-        return json.load(json_file)
+        if use_jsonpickle:
+            json_str = json_file.read()
+            return jsonpickle.decode(json_str)
+        else:
+            return json.load(json_file)
 
 
-def write_json(data, filepath):
+def write_json(data, filepath, use_jsonpickle=True, **kwargs):
+    r"""
+    Write Python dict to JSON file.
+
+    :param data: your data
+    :type data: dict
+    :param filepath: where to write your JSON file
+    :type filepath: str
+    :param use_jsonpickle: pickle JSON-incompatible types, defaults to True
+    :type use_jsonpickle: bool, optional
+    :param \**kwargs: keyword arguments to pass to json.dump
+    """
+    if 'indent' not in kwargs:
+        kwargs['indent'] = 4
+    if 'sort_keys' not in kwargs:
+        kwargs['sort_keys'] = True
     with open(filepath, 'w') as json_file:
-        json.dump(data, json_file, sort_keys=True, indent=4,
-                  separators=(',', ':'))
+        if use_jsonpickle:
+            data = json.loads(jsonpickle.encode(data))
+        json.dump(data, json_file, **kwargs)
 
 
 def iterate_pairwise(iterable):
