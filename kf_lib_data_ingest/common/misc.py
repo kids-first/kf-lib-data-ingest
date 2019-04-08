@@ -33,26 +33,39 @@ def read_yaml(filepath):
         return yaml.load(yaml_file, Loader=yaml.FullLoader)
 
 
-def read_json(filepath, default=None):
+def read_json(filepath, default=None, use_jsonpickle=True):
     """
     Read JSON file into Python dict. If default is not None and the file
-    does not exist, then return default
+    does not exist, then return default.
 
     :param filepath: path to JSON file
     :param default: default return value if file is not found
+    :param use_jsonpickle: whether to allow pickling of JSON-incompatible types
     """
     if (default is not None) and (not os.path.isfile(filepath)):
         return default
+
     with open(filepath, 'r') as json_file:
-        json_str = json_file.read()
-    return jsonpickle.decode(json_str)
+        if use_jsonpickle:
+            json_str = json_file.read()
+            return jsonpickle.decode(json_str)
+        else:
+            return json.load(json_file)
 
 
-def write_json(data, filepath):
-    json_str = json.loads(jsonpickle.encode(data))
+def write_json(data, filepath, use_jsonpickle=True):
+    """
+    Write Python dict to JSON file.
+
+    :param data: your python dict
+    :param filepath: path for new JSON file
+    :param use_jsonpickle: whether to allow pickling of JSON-incompatible types
+    """
     with open(filepath, 'w') as json_file:
+        if use_jsonpickle:
+            data = json.loads(jsonpickle.encode(data))
         json.dump(
-            json_str,
+            data,
             json_file, sort_keys=True, indent=4, separators=(',', ':')
         )
 
