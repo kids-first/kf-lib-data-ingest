@@ -45,10 +45,16 @@ def test_ingest():
         in result.output
     )
     assert 'ExtractStage - INFO - UNIQUE COUNTS' in result.output
-    assert (
-        '| CONCEPT|BIOSPECIMEN|ID |         60 |      60 | ✅      |'
-        in result.output
-    )
+    lc = 0
+    ecc_seen = False
+    for line in result.output.split('\n'):
+        if 'EXPECTED COUNT CHECKS' in line:
+            ecc_seen = True
+        if ecc_seen:
+            lc += 1
+            if lc == 5:
+                # CONCEPT|BIOSPECIMEN|ID |         60 |      60 | ✅
+                assert len(line.split('60')) == 3
 
 
 def test_ingest_no_transform_module(tmpdir):
