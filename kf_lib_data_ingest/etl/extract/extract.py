@@ -401,7 +401,7 @@ class ExtractStage(IngestStage):
                 for keyB in df.columns:
                     if keyB != keyA:
                         for i in range(len(df)):
-                            links[keyA + keyB][df[keyA].iloc[i]].add(
+                            links[keyA + '::' + keyB][df[keyA].iloc[i]].add(
                                 df[keyB].iloc[i]
                             )
 
