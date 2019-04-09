@@ -27,7 +27,11 @@ def all_data_df():
         }),
         'participant': pd.DataFrame({
             CONCEPT.PARTICIPANT.UNIQUE_KEY: ['p1', 'p2', 'p2'],
+            CONCEPT.DIAGNOSIS.NAME: ['cold', 'cold', None],
             CONCEPT.PARTICIPANT.GENDER: ['Female', 'Male', 'Female']
+        }),
+        'diagnosis': pd.DataFrame({
+            CONCEPT.DIAGNOSIS.UNIQUE_KEY: ['p1-cold', 'p2-cold', None]
         }),
         'biospecimen': pd.DataFrame({
             CONCEPT.PARTICIPANT.UNIQUE_KEY: ['p1', 'p2', 'p2'],
@@ -80,7 +84,7 @@ def test_standard_to_target_transform(caplog, all_data_df,
     # Check instances counts and values
     for target_concept, instances in target_instances.items():
         # Only 2 unique participants
-        if target_concept == 'participant':
+        if target_concept == 'participant' or target_concept == 'diagnosis':
             assert len(instances) == 2
         else:
             assert 3 == len(instances)
