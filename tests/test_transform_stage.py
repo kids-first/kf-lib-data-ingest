@@ -11,6 +11,7 @@ from kf_lib_data_ingest.common.concept_schema import (
     concept_from,
     unique_key_composition
 )
+from kf_lib_data_ingest.common.pandas_utils import outer_merge
 from kf_lib_data_ingest.etl.transform.transform import VALUE_DELIMITER
 
 from kf_lib_data_ingest.common.constants import *
@@ -197,3 +198,65 @@ def test_no_key_comp_defined(guided_transform_stage):
         guided_transform_stage._add_unique_key_cols(df, unique_key_composition)
         assert 'key composition not defined' in str(e)
     unique_key_composition[CONCEPT.PARTICIPANT._CONCEPT_NAME] = save
+
+
+def test_nulls_in_unique_keys(guided_transform_stage):
+    """
+    If any subvalue of the unique key string is null,
+    then the resulting value of the unique key should be None
+    """
+
+    dfs = {
+        'family': pd.DataFrame({
+            CONCEPT.PARTICIPANT.ID: ['p1', 'p2', 'p4'],
+            CONCEPT.FAMILY.ID: ['f1', 'f2', 'f2']
+        }),
+        'participant': pd.DataFrame({
+            CONCEPT.PARTICIPANT.ID: ['p1', 'p2', 'p3'],
+            CONCEPT.PARTICIPANT.GENDER: ['Female', 'Male', 'Female'],
+            CONCEPT.DIAGNOSIS.NAME: ['cold', 'flu', 'strep'],
+            CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS: [300, 400, None]
+        }),
+        'biospecimen': pd.DataFrame({
+            CONCEPT.PARTICIPANT.ID: ['p1', 'p2', 'p2'],
+            CONCEPT.BIOSPECIMEN.ID: ['b1', 'b2', 'b3'],
+            CONCEPT.BIOSPECIMEN.ANALYTE: ['dna', 'rna', 'dna']
+        }),
+        'genomic_file': pd.DataFrame({
+            CONCEPT.GENOMIC_FILE.ID: ['g1', 'g2', 'g3'],
+            CONCEPT.BIOSPECIMEN.ID: ['b1', 'b2', 'b4'],
+        })
+    }
+
+    # Test a simple unique key
+    df = outer_merge(dfs['family'], dfs['participant'],
+                     on=CONCEPT.PARTICIPANT.ID,
+                     with_merge_detail_dfs=False)
+    df = guided_transform_stage._add_unique_key_cols(
+        df, unique_key_composition
+    )
+    assert (
+        df[CONCEPT.FAMILY.UNIQUE_KEY].values.tolist() ==
+        ['f1', 'f2', 'f2', None]
+    )
+
+    # Test a compound unique key
+    df = outer_merge(dfs['biospecimen'], dfs['genomic_file'],
+                     on=CONCEPT.BIOSPECIMEN.ID,
+                     with_merge_detail_dfs=False)
+    df = guided_transform_stage._add_unique_key_cols(
+        df, unique_key_composition
+    )
+    assert (
+        df[CONCEPT.BIOSPECIMEN_GENOMIC_FILE.UNIQUE_KEY].values.tolist() ==
+        ['b1-g1', 'b2-g2', None, 'b4-g3']
+    )
+
+    # Test compound unique key with optional components
+    df = guided_transform_stage._add_unique_key_cols(
+        dfs['participant'], unique_key_composition
+    )
+    assert(
+        df[CONCEPT.DIAGNOSIS.UNIQUE_KEY].values.tolist() ==
+        ['p1-cold-300', 'p2-flu-400', 'p3-strep-Not Reported']
+    )

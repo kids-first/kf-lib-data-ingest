@@ -142,12 +142,15 @@ class GuidedTransformStage(TransformStage):
             df = all_data_df.drop_duplicates(subset=std_concept_ukey)
 
             # Build target instances for target_concept (i.e. participant)
-            total = df.shape[0]
-            self.logger.info(f'Building {total} {target_concept} concepts ...')
+            self.logger.info(f'Building {target_concept} concepts ...')
             for _, row in df.iterrows():
                 target_instance = {}
                 # id
                 target_instance['id'] = row[std_concept_ukey]
+
+                # Skip building target instances with null ids
+                if not target_instance['id']:
+                    continue
 
                 # endpoint
                 target_instance['endpoint'] = config['endpoint']
@@ -168,6 +171,9 @@ class GuidedTransformStage(TransformStage):
                             'links'][target_attr] = row.get(std_concept_attr)
 
                 target_instances[target_concept].append(target_instance)
+
+            self.logger.info(f'Built {len(target_instances[target_concept])} '
+                             f'{target_concept} concepts')
 
         return target_instances
 
