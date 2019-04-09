@@ -116,7 +116,7 @@ def test_non_prod_app_modes(info_caplog, cleanup, source_data_file,
         _mock_download_file(host, m, filename, source_data_file.read())
 
         # Build CLI params + opts
-        params = [os.path.join(TEST_DATA_DIR, 'test_study')]
+        params = [os.path.join(TEST_DATA_DIR, 'test_study'), '--dry_run']
         # CLI opt
         if app_mode:
             params.extend(['--app_settings',

@@ -1,19 +1,26 @@
 import importlib
 import inspect
 import json
+import logging
 import os
 import re
 from itertools import tee
 
-from pandas import isnull
-import requests
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
-from requests.exceptions import ConnectionError
-import yaml
 import jsonpickle
+import requests
+import yaml
+from pandas import isnull
+from requests.adapters import HTTPAdapter
+from requests.exceptions import ConnectionError
+from requests.packages.urllib3.util.retry import Retry
+from urllib3 import connectionpool
 
 from kf_lib_data_ingest.common.type_safety import assert_safe_type
+
+# Hide
+# urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000         # noqa E501
+# urllib3.connectionpool - DEBUG - http://localhost:5000 "POST /families HTTP/1.1" 201 371  # noqa E501
+connectionpool.log.setLevel(logging.INFO)
 
 
 def import_module_from_file(filepath):

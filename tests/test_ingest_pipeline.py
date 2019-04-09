@@ -33,7 +33,7 @@ def test_ingest():
                                       'dataset_ingest_config.yml')
 
     runner = CliRunner()
-    result = runner.invoke(cli.ingest, [ingest_config_path])
+    result = runner.invoke(cli.ingest, f'{ingest_config_path} --dry_run')
 
     assert result.exit_code == 1
     assert 'BEGIN data ingestion' in result.output
@@ -82,6 +82,6 @@ def test_ingest_no_transform_module(tmpdir):
 
     # Run ingest
     runner = CliRunner()
-    result = runner.invoke(cli.ingest, [ingest_config_path])
+    result = runner.invoke(cli.ingest, f'{ingest_config_path} --dry_run')
     assert result.exit_code > 0
     assert 'Transform module file has not been created yet' in result.output
