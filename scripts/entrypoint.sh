@@ -9,7 +9,7 @@ if [[ $KF_INGEST_APP_MODE = "production" ]]; then
         echo "Load secrets from vault ..."
 
         # Get secrets from vault
-        vault_json = $(vault read -format=json "secret/kf_ingest_app")
+        vault_json = $(vault read -format=json "secret/aws/kf-ingest-app/auth0")
         secrets=$(echo $vault_json | jq -r ".data.data | to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]")
 
         # Set env vars
