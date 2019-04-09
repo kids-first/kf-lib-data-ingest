@@ -6,27 +6,27 @@ whatever mechanism is appropriate for the given protocol.
 import logging
 import shutil
 import tempfile
-from urllib.parse import (
-    urlparse,
-    urlencode
-)
+from urllib.parse import urlencode, urlparse
 
 import boto3
 import botocore
 from requests.auth import HTTPBasicAuth
+from urllib3.util import retry
 
 from kf_lib_data_ingest.common.type_safety import (
-    assert_safe_type,
-    assert_all_safe_type
+    assert_all_safe_type,
+    assert_safe_type
 )
-from kf_lib_data_ingest.network import (
-    utils,
-    oauth2
-)
+from kf_lib_data_ingest.network import oauth2, utils
 
 logging.getLogger('boto3').setLevel(logging.WARNING)
 logging.getLogger('botocore').setLevel(logging.WARNING)
 logging.getLogger('s3transfer').setLevel(logging.WARNING)
+
+# hide
+# urllib3.util.retry - DEBUG - Converted retries value: False -> Retry(total=False, connect=None, read=None, redirect=0, status=None)  # noqa E501
+retry.log.setLevel(logging.INFO)
+
 
 PROTOCOL_SEP = "://"
 

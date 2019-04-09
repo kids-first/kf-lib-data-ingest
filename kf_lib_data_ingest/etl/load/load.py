@@ -38,12 +38,18 @@ def send(req):
 class LoadStage(IngestStage):
     def __init__(
         self, target_api_config_path, target_url, entities_to_load,
-        study_id, uid_cache_dir=None, use_async=False
+        study_id, uid_cache_dir=None, use_async=False, dry_run=False
     ):
         super().__init__()
         self.target_api_config = TargetAPIConfig(target_api_config_path)
+        self.concept_targets = {
+            v['standard_concept'].UNIQUE_KEY: k
+            for k, v in self.target_api_config.target_concepts.items()
+        }
+
         self.entities_to_load = entities_to_load
         self.target_url = target_url
+        self.dry_run = dry_run
 
         self.uid_cache_filepath = os.path.join(
             uid_cache_dir or os.getcwd(),
@@ -126,7 +132,7 @@ class LoadStage(IngestStage):
             req = self._prepare_post(self.target_url, endpoint, body)
             resp = send(req)
 
-        print("Sent", req.method, req.body, flush=True)
+        self.logger.info(f'Sent {req.method} {req.body}')
 
         if resp.status_code in {200, 201}:
             return resp.json()['results']
@@ -137,26 +143,45 @@ class LoadStage(IngestStage):
             (resp.status_code == 400)
             and ("already exists" in resp.json()['_status']['message'])
         ):
-            breakpoint()
             raise Exception(resp.__dict__)
 
-    def _load(self, entity_type, entity):
+    def _load_entity(self, entity_type, entity):
         endpoint = entity['endpoint']
         body = entity['properties']
 
+        # populate target uid
         body[TARGET_ID_KEY] = (
             body.get(TARGET_ID_KEY)
             or self._get_target_id(entity_type, entity['id'])
         )
 
+        # don't send null attributes
         body = {k: v for k, v in body.items() if not pandas.isnull(v)}
 
-        if entity_type not in {'family'}:
-            breakpoint()
-        instance = self._submit(entity_type, endpoint, body)
-        tgt_id = instance[TARGET_ID_KEY]
-        self.instance_cache[tgt_id] = instance
-        print(f'Got {tgt_id} - {instance}')
+        # link cached foreign keys
+        target_concepts = self.target_api_config.target_concepts
+        for link_key, link_value in entity['links'].items():
+            link_concept_key = target_concepts[entity_type]['links'][link_key]
+            link_type = self.concept_targets[link_concept_key]
+            body[link_key] = self._get_target_id(link_type, link_value)
+
+        # if entity_type != self.prev_entity:
+        #     self.prev_entity = entity_type
+        #     breakpoint()
+
+        if self.dry_run:
+            # Fake sending with fake foreign keys
+            for link_key, link_value in entity['links'].items():
+                body[link_key] = f'DRY_{link_value}'
+            self.logger.info(f'DRY {endpoint} {body}')
+        else:
+            # send to the target service
+            instance = self._submit(entity_type, endpoint, body)
+
+            # cache result
+            tgt_id = instance[TARGET_ID_KEY]
+            self._store_target_id(entity_type, entity['id'], tgt_id)
+            self.logger.info(f'Got {entity["id"]} -> {tgt_id} - {instance}')
 
     def _validate_run_parameters(self, target_entities):
         pass  # TODO
@@ -165,7 +190,7 @@ class LoadStage(IngestStage):
         pass  # TODO
 
     def _run(self, target_entities):
-        self.instance_cache = {}
         for entity_type, entities in target_entities.items():
+            self.prev_entity = None
             for entity in entities:
-                self._load(entity_type, entity)
+                self._load_entity(entity_type, entity)

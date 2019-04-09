@@ -33,7 +33,7 @@ KIDSFIRST_DATASERVICE_PROD_URL = 'http://kf-api-dataservice.kidsfirstdrc.org'
 TEST_AUTH0_DOMAIN = 'natashasingh.auth0.com'
 TEST_AUTH0_AUD = 'https://test-api.kids-first.io/files'
 TEST_CLIENT_ID = 'jvpfU40lDRRaRSMEZ0C9FKm379H176W6'
-TEST_CLIENT_SECRET = 'B0v9vADfY9A7KQFxYxkoMHySuL6l6v7_eQb7s-3tv3MSSY4Pwtkmrv_vJ6VDbbpB'
+TEST_CLIENT_SECRET = 'B0v9vADfY9A7KQFxYxkoMHySuL6l6v7_eQb7s-3tv3MSSY4Pwtkmrv_vJ6VDbbpB'  # noqa E501
 
 # Mock get_open_api_v2_schema to always return the schema
 mock_dataservice_schema = read_json(
@@ -79,7 +79,8 @@ def make_ingest_pipeline(
 
     return DataIngestPipeline(
         config_filepath, target_api_config_path=target_api_config_path,
-        log_dir=log_dir, overwrite_log=overwrite_log, auth_configs=auth_configs
+        log_dir=log_dir, overwrite_log=overwrite_log, dry_run=True,
+        auth_configs=auth_configs
     )
 
 
