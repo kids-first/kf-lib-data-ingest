@@ -8,12 +8,12 @@ if [[ $KF_INGEST_APP_MODE = "production" ]]; then
 
         echo "Load secrets from vault ..."
 
-        # Get secrets from vault
-        vault_json = $(vault read -format=json "secret/aws/kf-ingest-app/auth0")
-        secrets=$(echo $vault_json | jq -r ".data.data | to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]")
+        # Get SECRETS from vault
+        VAULT_JSON=$(vault read -format=json 'secret/aws/kf-ingest-app/auth0')
+        SECRETS=$(echo $VAULT_JSON | jq -r '.data | to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]')
 
         # Set env vars
-        for s in $secrets; do
+        for s in $SECRETS; do
             while IFS=$'=' read -r key value
             do
                 export "$key"="$value"
