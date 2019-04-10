@@ -77,6 +77,7 @@ def ingest(dataset_ingest_config_path, target_url, use_async, log_level_name):
     ).run()
 
     if not perfection:
+        logging.getLogger(__name__).error("Ingest Pipeline Failed Validation")
         sys.exit(1)
 
 
