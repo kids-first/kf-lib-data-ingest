@@ -103,6 +103,8 @@ class DataIngestPipeline(object):
         frame = inspect.currentframe()
         args, _, _, values = inspect.getargvalues(frame)
         kwargs = {arg: values[arg] for arg in args[2:]}
+        # Don't log anything that might have secrets!
+        kwargs.pop('auth_configs', None)
         self.logger.info(
             f'-- Ingest Params --\n{pformat(kwargs)}'
         )

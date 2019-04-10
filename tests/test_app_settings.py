@@ -134,7 +134,6 @@ def test_non_prod_app_modes(info_caplog, cleanup, source_data_file,
         result = runner.invoke(cli.ingest, params)
 
         # Ensure the right settings were loaded
-        assert 'auth_config' in info_caplog.text
         assert host in info_caplog.text
         assert 'END data ingestion' in info_caplog.text
         assert f'starting in "{app_mode}"' in info_caplog.text
