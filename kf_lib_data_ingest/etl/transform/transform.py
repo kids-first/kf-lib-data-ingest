@@ -138,9 +138,9 @@ class TransformStage(IngestStage):
         format of target_schema
 
         `target_instances` is a dict keyed by the `target_concepts` defined in
-        this `target_api_config.concept_schemas`. The values are lists of
+        this `target_api_config.target_concepts`. The values are lists of
         dicts, where a dict in the list takes on the same form as the dicts in
-        `target_api_config.concept_schemas`.
+        `target_api_config.target_concepts`.
 
         For example, `target_instances` might look like:
 

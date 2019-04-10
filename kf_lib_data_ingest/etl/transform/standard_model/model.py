@@ -33,10 +33,10 @@ class StandardModel(object):
         # Use whole concept set if target concepts are not supplied
         if not target_concepts_to_transform:
             target_concepts_to_transform = (target_api_config
-                                            .concept_schemas.keys())
+                                            .target_concepts.keys())
 
         # The schemas of the target concepts
-        schemas = target_api_config.concept_schemas
+        schemas = target_api_config.target_concepts
         # The networkx graph containing how target concepts are related
         relation_graph = target_api_config.relationship_graph
 

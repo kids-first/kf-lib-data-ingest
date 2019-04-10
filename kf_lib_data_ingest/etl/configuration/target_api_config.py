@@ -131,7 +131,7 @@ class TargetAPIConfig(PyModuleConfig):
         Import python module, validate it, and populate instance attributes
         """
         super().__init__(filepath)
-        self.concept_schemas = self.contents.target_concepts
+        self.target_concepts = self.contents.target_concepts
         self.relationship_graph = self._build_relationship_graph(
             self.contents.relationships)
 
