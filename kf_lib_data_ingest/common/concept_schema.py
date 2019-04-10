@@ -17,7 +17,8 @@ class PropertyMixin(object):
     UNIQUE_KEY = None
     ID = None
     TARGET_SERVICE_ID = None
-    HIDDEN = None
+    HIDDEN = None  # obverse of VISIBLE
+    VISIBLE = None  # obverse of HIDDEN
 
 
 class CONCEPT:

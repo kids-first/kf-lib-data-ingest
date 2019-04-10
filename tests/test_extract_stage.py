@@ -147,3 +147,32 @@ def test_no_load_return():
             'file://' + f,
             load_func=lambda x: None
         )
+
+
+def test_visibility():
+    es = ExtractStage(None, None)
+
+    a = [True, False, None]
+    b = [False, True, None]
+
+    df_a = pandas.DataFrame({CONCEPT.FAMILY.HIDDEN: a})
+    es._obvert_visibility(df_a)
+
+    assert CONCEPT.FAMILY.VISIBLE in df_a
+    assert CONCEPT.FAMILY.HIDDEN in df_a
+    assert df_a[CONCEPT.FAMILY.HIDDEN].equals(pandas.Series(a))
+    assert df_a[CONCEPT.FAMILY.VISIBLE].equals(pandas.Series(b))
+
+    df_a = pandas.DataFrame({CONCEPT.FAMILY.VISIBLE: a})
+    es._obvert_visibility(df_a)
+
+    assert CONCEPT.FAMILY.VISIBLE in df_a
+    assert CONCEPT.FAMILY.HIDDEN in df_a
+    assert df_a[CONCEPT.FAMILY.HIDDEN].equals(pandas.Series(b))
+    assert df_a[CONCEPT.FAMILY.VISIBLE].equals(pandas.Series(a))
+
+    df_a = pandas.DataFrame(
+        {CONCEPT.FAMILY.HIDDEN: a, CONCEPT.FAMILY.VISIBLE: a}
+    )
+    with pytest.raises(AssertionError):
+        es._obvert_visibility(df_a)
