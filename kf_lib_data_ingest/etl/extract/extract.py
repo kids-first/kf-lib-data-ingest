@@ -7,6 +7,7 @@ from pprint import pformat
 
 import pandas
 
+from kf_lib_data_ingest.common.concept_schema import concept_set
 from kf_lib_data_ingest.common.datafile_readers import read_excel_file
 from kf_lib_data_ingest.common.file_retriever import (
     PROTOCOL_SEP,
@@ -161,6 +162,27 @@ class ExtractStage(IngestStage):
         return df.applymap(
             lambda x: numeric_to_str(x, replace_na=True, na=None)
         )
+
+    def _obvert_visibility(self, df):
+        """
+        If something is visible, then also record that it's not hidden, and
+        vice versa.
+        """
+
+        def flip_col(in_col):
+            out_col = in_col.copy()
+            out_col[out_col.notnull()] = (
+                ~in_col[in_col.notnull()].astype(bool)
+            ).astype(object)
+            return out_col
+
+        for concept in concept_set:
+            if concept.HIDDEN in df and concept.VISIBLE not in df:
+                df[concept.VISIBLE] = flip_col(df[concept.HIDDEN])
+            elif concept.VISIBLE in df and concept.HIDDEN not in df:
+                df[concept.HIDDEN] = flip_col(df[concept.VISIBLE])
+            elif concept.VISIBLE in df and concept.HIDDEN in df:
+                assert df[concept.HIDDEN].equals(flip_col(df[concept.VISIBLE]))
 
     def _source_file_to_df(
         self, file_path, do_after_load=None, load_func=None, **load_args
@@ -373,6 +395,9 @@ class ExtractStage(IngestStage):
                                                 df_out.reset_index()
                                             ).set_index('index')
             del df_out.index.name
+
+            # VISIBLE = not HIDDEN
+            self._obvert_visibility(df_out)
 
             # standardize values again after operations
             df_out = self._clean_up_df(df_out)

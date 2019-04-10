@@ -24,7 +24,7 @@ target_concepts = {
             'external_id': CONCEPT.INVESTIGATOR.UNIQUE_KEY,
             'name': CONCEPT.INVESTIGATOR.NAME,
             'institution': CONCEPT.INVESTIGATOR.INSTITUTION,
-            'visible': CONCEPT.INVESTIGATOR.HIDDEN
+            'visible': CONCEPT.INVESTIGATOR.VISIBLE
         },
         'endpoint': '/investigators'
     },
@@ -42,7 +42,7 @@ target_concepts = {
             'release_status': CONCEPT.STUDY.RELEASE_STATUS,
             'attribution': CONCEPT.STUDY.ATTRIBUTION,
             'category': CONCEPT.STUDY.CATEGORY,
-            'visible': CONCEPT.STUDY.HIDDEN
+            'visible': CONCEPT.STUDY.VISIBLE
         },
         'endpoint': '/studies'
     },
@@ -50,7 +50,7 @@ target_concepts = {
         'standard_concept': CONCEPT.FAMILY,
         'properties': {
             'external_id': CONCEPT.FAMILY.UNIQUE_KEY,
-            'visible': CONCEPT.FAMILY.HIDDEN
+            'visible': CONCEPT.FAMILY.VISIBLE
         },
         'endpoint': '/families'
     },
@@ -67,7 +67,7 @@ target_concepts = {
             "ethnicity": CONCEPT.PARTICIPANT.ETHNICITY,
             "gender": CONCEPT.PARTICIPANT.GENDER,
             "race": CONCEPT.PARTICIPANT.RACE,
-            'visible': CONCEPT.PARTICIPANT.HIDDEN,
+            'visible': CONCEPT.PARTICIPANT.VISIBLE,
             "affected_status": CONCEPT.PARTICIPANT.IS_AFFECTED_UNDER_STUDY
         },
         'endpoint': '/participants'
@@ -89,7 +89,7 @@ target_concepts = {
             "ncit_id_diagnosis": CONCEPT.DIAGNOSIS.NCIT_ID,
             "spatial_descriptor": CONCEPT.DIAGNOSIS.SPATIAL_DESCRIPTOR,
             "diagnosis_category": CONCEPT.DIAGNOSIS.CATEGORY,
-            'visible': CONCEPT.DIAGNOSIS.HIDDEN
+            'visible': CONCEPT.DIAGNOSIS.VISIBLE
         },
         'endpoint': '/diagnoses'
     },
@@ -105,7 +105,7 @@ target_concepts = {
             "hpo_id_phenotype": CONCEPT.PHENOTYPE.HPO_ID,
             "snomed_id_phenotype": CONCEPT.PHENOTYPE.SNOMED_ID,
             "observed": CONCEPT.PHENOTYPE.OBSERVED,
-            'visible': CONCEPT.PHENOTYPE.HIDDEN
+            'visible': CONCEPT.PHENOTYPE.VISIBLE
         },
         'endpoint': '/phenotypes'
     },
@@ -119,7 +119,7 @@ target_concepts = {
             "age_at_event_days": CONCEPT.OUTCOME.EVENT_AGE_DAYS,
             "vital_status": CONCEPT.OUTCOME.VITAL_STATUS,
             "disease_related": CONCEPT.OUTCOME.DISEASE_RELATED,
-            'visible': CONCEPT.OUTCOME.HIDDEN
+            'visible': CONCEPT.OUTCOME.VISIBLE
         },
         'endpoint': '/outcomes'
     },
@@ -149,7 +149,7 @@ target_concepts = {
             "concentration_mg_per_ml":
             CONCEPT.BIOSPECIMEN.CONCENTRATION_MG_PER_ML,
             "volume_ml": CONCEPT.BIOSPECIMEN.VOLUME_ML,
-            'visible': CONCEPT.BIOSPECIMEN.HIDDEN
+            'visible': CONCEPT.BIOSPECIMEN.VISIBLE
         },
         'endpoint': '/biospecimens'
     },
@@ -172,7 +172,7 @@ target_concepts = {
             "urls": CONCEPT.GENOMIC_FILE.UNIQUE_KEY,
             "acl": CONCEPT.GENOMIC_FILE.UNIQUE_KEY,
             "reference_genome": CONCEPT.GENOMIC_FILE.UNIQUE_KEY,
-            'visible': CONCEPT.GENOMIC_FILE.HIDDEN
+            'visible': CONCEPT.GENOMIC_FILE.VISIBLE
         },
         'endpoint': '/genomic-files'
     },
@@ -186,7 +186,7 @@ target_concepts = {
             "flow_cell": CONCEPT.READ_GROUP.FLOW_CELL,
             "lane_number": CONCEPT.READ_GROUP.LANE_NUMBER,
             "quality_scale": CONCEPT.READ_GROUP.QUALITY_SCALE,
-            'visible': CONCEPT.READ_GROUP.HIDDEN
+            'visible': CONCEPT.READ_GROUP.VISIBLE
         },
         'endpoint': '/read-groups'
     },
@@ -209,7 +209,7 @@ target_concepts = {
             "mean_depth": CONCEPT.SEQUENCING.MEAN_DEPTH,
             "total_reads": CONCEPT.SEQUENCING.TOTAL_READS,
             "mean_read_length": CONCEPT.SEQUENCING.MEAN_READ_LENGTH,
-            'visible': CONCEPT.SEQUENCING.HIDDEN
+            'visible': CONCEPT.SEQUENCING.VISIBLE
         },
         'endpoint': '/sequencing-experiments'
     },
@@ -218,7 +218,7 @@ target_concepts = {
         'properties': {
             "external_id": CONCEPT.SEQUENCING.CENTER.UNIQUE_KEY,
             "name": CONCEPT.SEQUENCING.CENTER.NAME,
-            'visible': CONCEPT.SEQUENCING.CENTER.HIDDEN
+            'visible': CONCEPT.SEQUENCING.CENTER.VISIBLE
         },
         'endpoint': '/sequencing-centers'
     },
@@ -226,7 +226,7 @@ target_concepts = {
         'standard_concept': CONCEPT.BIOSPECIMEN_GENOMIC_FILE,
         'properties': {
             "external_id": CONCEPT.BIOSPECIMEN_GENOMIC_FILE.UNIQUE_KEY,
-            'visible': CONCEPT.BIOSPECIMEN_GENOMIC_FILE.HIDDEN
+            'visible': CONCEPT.BIOSPECIMEN_GENOMIC_FILE.VISIBLE
         },
         'endpoint': '/biospecimen-genomic-files'
     },
@@ -234,7 +234,7 @@ target_concepts = {
         'standard_concept': CONCEPT.BIOSPECIMEN_DIAGNOSIS,
         'properties': {
             "external_id": CONCEPT.BIOSPECIMEN_DIAGNOSIS.UNIQUE_KEY,
-            'visible': CONCEPT.BIOSPECIMEN_DIAGNOSIS.HIDDEN
+            'visible': CONCEPT.BIOSPECIMEN_DIAGNOSIS.VISIBLE
         },
         'endpoint': '/biospecimen-diagnoses'
     },
@@ -242,7 +242,7 @@ target_concepts = {
         'standard_concept': CONCEPT.READ_GROUP_GENOMIC_FILE,
         'properties': {
             "external_id": CONCEPT.READ_GROUP_GENOMIC_FILE.UNIQUE_KEY,
-            'visible': CONCEPT.READ_GROUP_GENOMIC_FILE.HIDDEN
+            'visible': CONCEPT.READ_GROUP_GENOMIC_FILE.VISIBLE
         },
         'endpoint': '/read-group-genomic-files'
     }
