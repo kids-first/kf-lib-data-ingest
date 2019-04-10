@@ -127,7 +127,7 @@ class GuidedTransformStage(TransformStage):
 
         target_instances = defaultdict(list)
         for (target_concept,
-             config) in self.target_api_config.concept_schemas.items():
+             config) in self.target_api_config.target_concepts.items():
 
             # Unique key for the target concept must exist
             standard_concept = config.get('standard_concept')

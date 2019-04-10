@@ -171,7 +171,7 @@ def test_transform_all(target_api_config, random_model):
     # Output should only include the concepts for which there is data
     data = random_model.transform(target_api_config,
                                   target_concepts_to_transform=None)
-    all_target_concepts = target_api_config.concept_schemas.keys()
+    all_target_concepts = target_api_config.target_concepts.keys()
     target_concepts_w_data = ['family', 'participant', 'biospecimen']
 
     for target_concept, output in data.items():
@@ -202,7 +202,7 @@ def test_transform(target_api_config, random_model):
     # of id nodes for that concept in the concept graph
     for target_concept, instances in data.items():
         # Get standard concept this target concept maps to
-        schema = target_api_config.concept_schemas[target_concept]
+        schema = target_api_config.target_concepts[target_concept]
         standard_concept = schema['standard_concept']._CONCEPT_NAME
 
         # Check counts

@@ -55,7 +55,7 @@ def schema(tmpdir, target_api_config, **kwargs):
     cached_schema_file = os.path.join(tmpdir, 'cached_schema.json')
     output = get_open_api_v2_schema(
         KIDSFIRST_DATASERVICE_PROD_URL,
-        target_api_config.concept_schemas.keys(),
+        target_api_config.target_concepts.keys(),
         cached_schema_filepath=cached_schema_file)
 
     return output
@@ -103,7 +103,7 @@ def test_get_kf_schema(caplog, tmpdir, target_api_config, **kwargs):
     cached_schema_file = os.path.join(tmpdir, 'cached_schema.json')
     output = get_open_api_v2_schema(
         KIDSFIRST_DATASERVICE_PROD_URL,
-        target_api_config.concept_schemas.keys(),
+        target_api_config.target_concepts.keys(),
         cached_schema_filepath=cached_schema_file)
     assert output.get('definitions')
     assert output.get('version')
@@ -114,7 +114,7 @@ def test_get_kf_schema(caplog, tmpdir, target_api_config, **kwargs):
     mock.get(schema_url, status_code=500)
     output = get_open_api_v2_schema(
         KIDSFIRST_DATASERVICE_PROD_URL,
-        target_api_config.concept_schemas.keys(),
+        target_api_config.target_concepts.keys(),
         cached_schema_filepath=cached_schema_file)
     assert output.get('definitions')
     assert output.get('version')
@@ -124,7 +124,7 @@ def test_get_kf_schema(caplog, tmpdir, target_api_config, **kwargs):
     mock.get(schema_url, json=mock_dataservice_schema)
     output = get_open_api_v2_schema(
         KIDSFIRST_DATASERVICE_PROD_URL,
-        target_api_config.concept_schemas.keys())
+        target_api_config.target_concepts.keys())
     assert os.path.isfile(os.path.realpath('./cached_schema.json'))
 
 

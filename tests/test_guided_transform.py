@@ -96,7 +96,7 @@ def test_standard_to_target_transform(caplog, all_data_df,
 
     # Check log output
     no_data_concepts = (
-        set(guided_transform_stage.target_api_config.concept_schemas.keys())
+        set(guided_transform_stage.target_api_config.target_concepts.keys())
         .symmetric_difference(set(expected_concepts))
     )
     no_unique_key_msg = 'No unique key found in table for target concept:'
