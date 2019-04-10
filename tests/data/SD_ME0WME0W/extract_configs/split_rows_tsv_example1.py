@@ -5,7 +5,7 @@ from kf_lib_data_ingest.common.concept_schema import (
 )
 
 # source_data_url = 'file://../data/split_rows_tsv_1.tsv'
-host = 'https://kf-study-creator.kids-first.io'
+host = 'https://kf-study-creator.kidsfirstdrc.org'
 kfid = 'SF_XZK011T3'
 source_data_url = f'{host}/download/study/SD_ME0WME0W/file/{kfid}'
 

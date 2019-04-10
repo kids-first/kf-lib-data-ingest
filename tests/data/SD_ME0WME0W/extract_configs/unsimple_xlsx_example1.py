@@ -5,7 +5,7 @@ from kf_lib_data_ingest.common.concept_schema import (
 )
 
 # source_data_url = 'file://../data/unsimple_xlsx_1.xlsx'
-host = 'https://kf-study-creator.kids-first.io'
+host = 'https://kf-study-creator.kidsfirstdrc.org'
 kfid = 'SF_15NW1692'
 source_data_url = f'{host}/download/study/SD_ME0WME0W/file/{kfid}'
 
