@@ -33,7 +33,7 @@ def info_caplog(caplog):
 @pytest.fixture(scope='function')
 def cleanup():
     def delete_leftovers():
-        app_modes = ['development', 'testing', 'production']
+        app_modes = ['development', 'production']
         for m in app_modes:
             fp = os.path.join(TEST_STUDY_DIR, 'extract_configs',
                               f'extract_config_{m}.py')
@@ -102,9 +102,8 @@ def _mock_download_file(host, m, filename, expected_content):
 
 
 @pytest.mark.parametrize('app_mode, host', [
-    ('development', 'http://kf-study-creator-dev.kids-first.io'),
-    ('testing', 'https://kf-study-creator.kidsfirstdrc.org'),
-    ('', 'http://kf-study-creator-dev.kids-first.io'),
+    ('development', 'https://kf-study-creator.kidsfirstdrc.org'),
+    ('', 'https://kf-study-creator.kidsfirstdrc.org'),
 ])
 def test_non_prod_app_modes(info_caplog, cleanup, source_data_file,
                             cached_schema, app_mode, host):

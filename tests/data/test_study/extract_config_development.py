@@ -4,7 +4,7 @@ from kf_lib_data_ingest.common.concept_schema import (
     CONCEPT
 )
 
-host = 'http://kf-study-creator-dev.kids-first.io'
+host = 'https://kf-study-creator.kidsfirstdrc.org'
 source_data_url = f'{host}/download/study/SD_00001111/file/SF_BK3WQKKZ'
 
 source_data_loading_parameters = {}

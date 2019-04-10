@@ -6,7 +6,7 @@ from kf_lib_data_ingest.app.settings.base import *
 
 import os
 
-AUTH_CONFIGS = {
+AUTH_CONFIGS.update({
     'https://kf-study-creator.kidsfirstdrc.org/download/study': {
         'type': 'oauth2',
         'provider_domain': os.environ.get('KF_AUTH0_DOMAIN'),
@@ -14,4 +14,4 @@ AUTH_CONFIGS = {
         'client_id': os.environ.get('KF_SC_INGEST_APP_CLIENT_ID'),
         'client_secret': os.environ.get('KF_SC_INGEST_APP_CLIENT_SECRET')
     }
-}
+})

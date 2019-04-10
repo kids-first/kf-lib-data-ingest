@@ -1,9 +1,8 @@
 """
 Default app level settings for ingest CLI app
 
-App has 3 operation modes:
+App has 2 operation modes:
     - development
-    - testing
     - production
 
 The app mode can be changed via the environment variable `KF_INGEST_APP_MODE`
@@ -14,23 +13,15 @@ inside this package, each named `{app_mode}.py`.
 
 In `development` mode
 ---------------------
-- Used when developing the ingest app and you need to test against
-locally running servers or deployed development servers
-
-- User is responsible for setting the necessary environment variables
-needed for ingest (i.e. authentication with other services)
-
-In `testing` mode
----------------------
-- Used when testing ingest packages and you need to test against
-production Kids First Study Creator API
+- Used by ingest developers when running or testing ingest for desired ingest
+packages
 
 - User is responsible for setting the necessary environment variables
 needed for ingest (i.e. authentication with other services)
 
 In `production` mode
 --------------------
-- Used when CI testing ingest packages in a deployed environment
+- Used by a machine/process running or testing ingest in a deployed environment
 
 - Ingest app will run inside a Docker container
 
