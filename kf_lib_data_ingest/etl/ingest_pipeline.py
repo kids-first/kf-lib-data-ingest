@@ -29,8 +29,9 @@ class DataIngestPipeline(object):
 
     def __init__(
         self, dataset_ingest_config_path, target_api_config_path,
-        auto_transform=False, use_async=False, target_url=DEFAULT_TARGET_URL,
-        log_level_name=None, log_dir=None, overwrite_log=None
+        auth_configs=None, auto_transform=False, use_async=False,
+        target_url=DEFAULT_TARGET_URL, log_level_name=None, log_dir=None,
+        overwrite_log=None
     ):
         """
         Setup data ingest pipeline. Create the config object and setup logging
@@ -76,6 +77,7 @@ class DataIngestPipeline(object):
         self.ingest_output_dir = os.path.join(self.ingest_config_dir, 'output')
 
         self.target_api_config_path = target_api_config_path
+        self.auth_configs = auth_configs
         self.auto_transform = auto_transform
         self.use_async = use_async
         self.target_url = target_url
@@ -101,6 +103,8 @@ class DataIngestPipeline(object):
         frame = inspect.currentframe()
         args, _, _, values = inspect.getargvalues(frame)
         kwargs = {arg: values[arg] for arg in args[2:]}
+        # Don't log anything that might have secrets!
+        kwargs.pop('auth_configs', None)
         self.logger.info(
             f'-- Ingest Params --\n{pformat(kwargs)}'
         )
@@ -110,7 +114,8 @@ class DataIngestPipeline(object):
 
         yield ExtractStage(
             self.ingest_output_dir,
-            self.data_ingest_config.extract_config_paths
+            self.data_ingest_config.extract_config_paths,
+            self.auth_configs
         )
 
         # Transform stage #####################################################

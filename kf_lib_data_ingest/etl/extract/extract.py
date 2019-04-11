@@ -43,7 +43,7 @@ def lcm(number_list):
 
 class ExtractStage(IngestStage):
     def __init__(
-        self, stage_cache_dir, extract_config_paths
+        self, stage_cache_dir, extract_config_paths, auth_configs=None
     ):
         super().__init__(stage_cache_dir)
         if isinstance(extract_config_paths, list):
@@ -53,7 +53,7 @@ class ExtractStage(IngestStage):
         elif isinstance(extract_config_paths, str):
             self.extract_configs = [ExtractConfig(extract_config_paths)]
 
-        self.FR = FileRetriever()
+        self.FR = FileRetriever(auth_configs=auth_configs)
 
     def _output_path(self):
         """
@@ -392,8 +392,8 @@ class ExtractStage(IngestStage):
 
             # split value lists into separate rows
             df_out = split_df_rows_on_splits(
-                                                df_out.reset_index()
-                                            ).set_index('index')
+                df_out.reset_index()
+            ).set_index('index')
             del df_out.index.name
 
             # VISIBLE = not HIDDEN

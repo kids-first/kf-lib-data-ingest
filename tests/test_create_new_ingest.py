@@ -5,7 +5,7 @@ import filecmp
 import pytest
 from click.testing import CliRunner
 
-from kf_lib_data_ingest import cli
+from kf_lib_data_ingest.app import cli
 from kf_lib_data_ingest.factory.generate import new_ingest_pkg
 from kf_lib_data_ingest.config import (
     INGEST_PKG_TEMPLATE_NAME,

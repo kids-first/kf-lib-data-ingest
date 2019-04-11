@@ -3,7 +3,7 @@ import shutil
 
 from click.testing import CliRunner
 
-from kf_lib_data_ingest import cli
+from kf_lib_data_ingest.app import cli
 from conftest import (
     TEST_DATA_DIR,
     TRANSFORM_MODULE_PATH
@@ -44,11 +44,13 @@ def test_ingest():
         'ExtractStage - INFO - Begin Basic Stage Output Validation'
         in result.output
     )
-    assert 'ExtractStage - INFO - UNIQUE COUNTS' in result.output
     assert (
-        '| CONCEPT|BIOSPECIMEN|ID |         60 |      60 | ✅      |'
+        'ExtractStage - INFO - End Basic Stage Output Validation'
         in result.output
     )
+    assert 'ExtractStage - INFO - UNIQUE COUNTS' in result.output
+    assert ('| CONCEPT|BIOSPECIMEN|ID |         60 |      60 | ✅' in
+            result.output)
 
 
 def test_ingest_no_transform_module(tmpdir):

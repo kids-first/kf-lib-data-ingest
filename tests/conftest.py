@@ -29,6 +29,7 @@ TEST_INGEST_CONFIG = os.path.join(TEST_DATA_DIR, 'test_study',
 
 COMMAND_LINE_ERROR_CODE = 2
 
+KIDSFIRST_DATASERVICE_PROD_URL = 'http://kf-api-dataservice.kidsfirstdrc.org'
 TEST_AUTH0_DOMAIN = 'natashasingh.auth0.com'
 TEST_AUTH0_AUD = 'https://test-api.kids-first.io/files'
 TEST_CLIENT_ID = 'jvpfU40lDRRaRSMEZ0C9FKm379H176W6'
@@ -60,7 +61,8 @@ def delete_dir(dir):
 
 
 def make_ingest_pipeline(
-    config_filepath=None, log_dir=None, overwrite_log=None
+    config_filepath=None, target_api_config_path=None, log_dir=None,
+    overwrite_log=None, auth_configs=None
 ):
     """
     Create ingest pipeline as test dependency
@@ -72,9 +74,12 @@ def make_ingest_pipeline(
     if not log_dir:
         log_dir = TEST_LOG_DIR
 
+    if not target_api_config_path:
+        target_api_config_path = KIDS_FIRST_CONFIG
+
     return DataIngestPipeline(
-        config_filepath, target_api_config_path=KIDS_FIRST_CONFIG,
-        log_dir=log_dir, overwrite_log=overwrite_log
+        config_filepath, target_api_config_path=target_api_config_path,
+        log_dir=log_dir, overwrite_log=overwrite_log, auth_configs=auth_configs
     )
 
 

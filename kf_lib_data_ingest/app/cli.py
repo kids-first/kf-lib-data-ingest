@@ -3,12 +3,15 @@ Entry point for the Kids First Data Ingest Client
 """
 import inspect
 import logging
-import os
 import sys
 
 import click
 
-from kf_lib_data_ingest.config import DEFAULT_LOG_LEVEL, DEFAULT_TARGET_URL
+from kf_lib_data_ingest.config import (
+    DEFAULT_TARGET_URL,
+    DEFAULT_LOG_LEVEL
+)
+from kf_lib_data_ingest.app import settings
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 DEFAULT_LOG_LEVEL_NAME = logging._levelToName.get(DEFAULT_LOG_LEVEL)
@@ -26,6 +29,14 @@ def cli():
 
 
 @click.command()
+@click.option('--app_settings', 'app_settings_filepath',
+              type=click.Path(exists=True, file_okay=True, dir_okay=False),
+              help=('Path to an ingest app settings file. If not specified, '
+                    'will use default app settings for the current app mode, '
+                    'which is specified by environment variable: '
+                    f'{settings.APP_MODE_ENV_VAR}. '
+                    'See kf_lib_data_ingest.app.settings for default settings '
+                    'files'))
 @click.option('--log_level', 'log_level_name', type=click.Choice(
     map(str.lower, logging._nameToLevel.keys())),
     help=('Controls level of log messages to output. If not supplied via CLI, '
@@ -48,7 +59,8 @@ def cli():
               help='Target service URL where data will be loaded into')
 @click.argument('dataset_ingest_config_path',
                 type=click.Path(exists=True, file_okay=True, dir_okay=True))
-def ingest(dataset_ingest_config_path, target_url, use_async, log_level_name):
+def ingest(dataset_ingest_config_path, target_url, use_async, log_level_name,
+           app_settings_filepath):
     """
     Run the Kids First data ingest pipeline.
 
@@ -66,15 +78,25 @@ def ingest(dataset_ingest_config_path, target_url, use_async, log_level_name):
     args, _, _, values = inspect.getargvalues(frame)
     kwargs = {arg: values[arg] for arg in args[1:]}
 
-    # Make path to the Kids First target api config
-    root_dir = os.path.abspath(os.path.dirname(__file__))
-    target_api_config_path = os.path.join(
-        root_dir, 'target_apis', 'kids_first.py')
+    # User supplied app settings
+    if app_settings_filepath:
+        app_settings = settings.load(app_settings_filepath)
+    # Default settings
+    else:
+        app_settings = settings.load()
+
+    kwargs.pop('app_settings_filepath', None)
+    kwargs['auth_configs'] = app_settings.AUTH_CONFIGS
 
     # Run ingest
-    perfection = DataIngestPipeline(
-        dataset_ingest_config_path, target_api_config_path, **kwargs
-    ).run()
+    pipeline = DataIngestPipeline(
+        dataset_ingest_config_path, app_settings.TARGET_API_CONFIG, **kwargs
+    )
+
+    pipeline.logger.info(f'Loaded app settings {app_settings.FILEPATH}, '
+                         f'starting in "{app_settings.APP_MODE}" mode')
+
+    perfection = pipeline.run()
 
     if not perfection:
         logging.getLogger(__name__).error("Ingest Pipeline Failed Validation")

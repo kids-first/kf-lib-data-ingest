@@ -10,10 +10,7 @@ DATA_INGEST_SCHEMA_PATH = os.path.join(ROOT_DIR,
 USE_ASYNC_KEY = 'use_async'
 TARGET_URL_KEY = 'target_url'
 DEFAULT_TARGET_URL = 'http://localhost:5000'
-KIDSFIRST_DATASERVICE_PROD_URL = 'http://kf-api-dataservice.kidsfirstdrc.org'
-TARGET_SERVICE_CONFIG_PATH = os.path.join(ROOT_DIR,
-                                          'target_apis',
-                                          'kids_first.py')
+
 DEFAULT_LOG_FILENAME = 'ingest.log'
 DEFAULT_LOG_LEVEL = logging.INFO
 DEFAULT_LOG_OVERWRITE_OPT = True
