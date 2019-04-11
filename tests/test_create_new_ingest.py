@@ -1,6 +1,7 @@
 import os
 import shutil
 import filecmp
+import logging
 
 import pytest
 from click.testing import CliRunner
@@ -58,7 +59,11 @@ def test_new_ingest_already_exists(tmpdir):
     assert dest_dir is None
 
 
-def test_ingest_template_study(tmpdir):
+def test_ingest_template_study(caplog, tmpdir):
+    """
+    Test ingest runs successfully for the template package
+    """
+    caplog.set_level(logging.INFO)
     # > kidsfirst new
     study_dir = os.path.join(tmpdir, 'my_study')
     runner = CliRunner()
@@ -68,3 +73,10 @@ def test_ingest_template_study(tmpdir):
     assert os.path.isdir(study_dir)
     # No exceptions raised
     assert result.exit_code == 0
+
+    # Run ingest on the generated template package
+    result = runner.invoke(cli.ingest, [study_dir])
+    assert result.exit_code == 0
+    assert 'EXPECTED COUNT CHECKS' in caplog.text
+    assert 'END data ingestion'
+    assert os.path.isdir(os.path.join(study_dir, 'output'))
