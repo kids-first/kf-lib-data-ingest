@@ -29,6 +29,7 @@ TEST_INGEST_CONFIG = os.path.join(TEST_DATA_DIR, 'test_study',
 
 COMMAND_LINE_ERROR_CODE = 2
 
+KIDSFIRST_DATASERVICE_PROD_URL = 'http://kf-api-dataservice.kidsfirstdrc.org'
 TEST_AUTH0_DOMAIN = 'natashasingh.auth0.com'
 TEST_AUTH0_AUD = 'https://test-api.kids-first.io/files'
 TEST_CLIENT_ID = 'jvpfU40lDRRaRSMEZ0C9FKm379H176W6'
