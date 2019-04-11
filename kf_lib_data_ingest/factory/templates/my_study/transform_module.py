@@ -11,7 +11,7 @@ implementing transform_function.
 # Use these merge funcs, not pandas.merge
 from kf_lib_data_ingest.common.pandas_utils import (
     outer_merge,
-    merge_without_duplicates
+    merge_wo_duplicates
 )
 
 
