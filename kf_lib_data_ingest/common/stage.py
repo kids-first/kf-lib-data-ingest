@@ -3,6 +3,7 @@ import os
 import time
 from abc import ABC, abstractmethod
 from functools import wraps
+from kf_lib_data_ingest.common.misc import write_json
 
 
 class IngestStage(ABC):
@@ -16,6 +17,18 @@ class IngestStage(ABC):
             self.stage_cache_dir = None
 
         self.logger = logging.getLogger(type(self).__name__)
+
+    @property
+    def stage_type(self):
+        """
+        Collapse stage subtypes to their bases for storage
+        (e.g. GuidedTransformStage -> TransformStage)
+        """
+        stage_type = type(self)
+        while stage_type.__base__ != IngestStage:
+            stage_type = stage_type.__base__
+
+        return stage_type
 
     def read_output(self):
         """
@@ -153,6 +166,16 @@ class IngestStage(ABC):
         # Write output of stage to disk
         self.write_output(output)
 
+        # Write data for accounting to disk
         concept_discovery_dict = self._postrun_concept_discovery(output)
+        self.concept_discovery_dict = concept_discovery_dict
+        if concept_discovery_dict:
+            write_json(
+                concept_discovery_dict,
+                os.path.join(
+                    self.ingest_output_dir,
+                    self.stage_type.__name__ + '_concept_discovery.json'
+                )
+            )
 
-        return output, concept_discovery_dict
+        return output
