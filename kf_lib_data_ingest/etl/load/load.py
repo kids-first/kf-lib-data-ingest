@@ -21,15 +21,6 @@ from kf_lib_data_ingest.etl.configuration.target_api_config import (
 
 sqlite3worker.LOGGER.setLevel(logging.WARNING)
 
-TARGET_ID_KEY = 'kf_id'
-
-# TODO
-# REMEMBER THIS!
-# Translate identifiers of entities to kf ids and attach them as foreign
-# keys.
-# Cache the return from every load.
-# Load according to the dataservice api endpoints.
-
 
 def send(req):
     return requests_retry_session().send(req)
@@ -46,6 +37,9 @@ class LoadStage(IngestStage):
             v['standard_concept'].UNIQUE_KEY: k
             for k, v in self.target_api_config.target_concepts.items()
         }
+        self.target_id_key = (
+            self.target_api_config.contents.target_service_entity_id
+        )
 
         self.entities_to_load = entities_to_load
         self.target_url = target_url
@@ -108,7 +102,7 @@ class LoadStage(IngestStage):
         pass  # TODO
 
     def _prepare_patch(self, host, what, body):
-        target_id = body[TARGET_ID_KEY]
+        target_id = body[self.target_id_key]
         return requests.Request(
             method='PATCH',
             url='/'.join([v.strip('/') for v in [host, what, target_id]]),
@@ -123,7 +117,7 @@ class LoadStage(IngestStage):
         ).prepare()
 
     def _submit(self, entity_type, endpoint, body):
-        if TARGET_ID_KEY in body:
+        if self.target_id_key in body:
             req = self._prepare_patch(self.target_url, endpoint, body)
             resp = send(req)
             if resp.status_code == 404:
@@ -151,8 +145,8 @@ class LoadStage(IngestStage):
         body = entity['properties']
 
         # populate target uid
-        body[TARGET_ID_KEY] = (
-            body.get(TARGET_ID_KEY)
+        body[self.target_id_key] = (
+            body.get(self.target_id_key)
             or self._get_target_id(entity_type, entity['id'])
         )
 
@@ -171,10 +165,6 @@ class LoadStage(IngestStage):
                 link_type = self.concept_targets[link_concept_key]
                 body[link_key] = self._get_target_id(link_type, link_value)
 
-        # if entity_type != self.prev_entity:
-        #     self.prev_entity = entity_type
-        #     breakpoint()
-
         if self.dry_run:
             # Fake sending with fake foreign keys
             for link_key, link_value in entity['links'].items():
@@ -185,9 +175,11 @@ class LoadStage(IngestStage):
             instance = self._submit(entity_type, endpoint, body)
 
             # cache result
-            tgt_id = instance[TARGET_ID_KEY]
+            tgt_id = instance[self.target_id_key]
             self._store_target_id(entity_type, entity['id'], tgt_id)
-            self.logger.info(f'Got {entity["id"]} -> {tgt_id} - {instance}')
+            self.logger.info(
+                f'Got {entity_type} {entity["id"]} -> {tgt_id} - {instance}'
+            )
 
     def _validate_run_parameters(self, target_entities):
         pass  # TODO
