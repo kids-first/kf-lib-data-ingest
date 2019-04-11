@@ -50,6 +50,7 @@ class LoadStage(IngestStage):
         self.entities_to_load = entities_to_load
         self.target_url = target_url
         self.dry_run = dry_run
+        self.study_id = study_id
 
         self.uid_cache_filepath = os.path.join(
             uid_cache_dir or os.getcwd(),
@@ -161,9 +162,14 @@ class LoadStage(IngestStage):
         # link cached foreign keys
         target_concepts = self.target_api_config.target_concepts
         for link_key, link_value in entity['links'].items():
-            link_concept_key = target_concepts[entity_type]['links'][link_key]
-            link_type = self.concept_targets[link_concept_key]
-            body[link_key] = self._get_target_id(link_type, link_value)
+            if link_key == 'study_id':
+                body[link_key] = self.study_id
+            else:
+                link_concept_key = (
+                    target_concepts[entity_type]['links'][link_key]
+                )
+                link_type = self.concept_targets[link_concept_key]
+                body[link_key] = self._get_target_id(link_type, link_value)
 
         # if entity_type != self.prev_entity:
         #     self.prev_entity = entity_type
