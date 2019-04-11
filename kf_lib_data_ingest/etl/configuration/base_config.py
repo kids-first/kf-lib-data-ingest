@@ -31,7 +31,15 @@ class AbstractConfig(ABC):
 
     def __getattr__(self, attr):
         """ Forward attributes from self.contents """
-        return getattr(self.contents, attr)
+        try:
+            try:
+                return self.contents[attr]
+            except Exception:
+                return getattr(self.contents, attr)
+        except Exception:
+            raise AttributeError(
+                f"'{self.config_filepath}' has no attribute '{attr}'"
+            )
 
     @abstractmethod
     def _read_file(self, filepath):

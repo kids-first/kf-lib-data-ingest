@@ -62,6 +62,13 @@ def test_attr_forwarding():
     with pytest.raises(AttributeError):
         print(pmc.foo)
 
+    config_path = os.path.join(TEST_DATA_DIR, 'valid_yaml_config.yml')
+    schema_path = os.path.join(TEST_DATA_DIR, 'yaml_schema.yml')
+    yc = YamlConfig(config_path, schema_path=schema_path)
+    assert yc.contents.get('params') == yc.params
+    with pytest.raises(AttributeError):
+        print(yc.foo)
+
 
 def test_extract_config():
     pass
