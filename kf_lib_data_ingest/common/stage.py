@@ -167,11 +167,10 @@ class IngestStage(ABC):
         self.write_output(output)
 
         # Write data for accounting to disk
-        concept_discovery_dict = self._postrun_concept_discovery(output)
-        self.concept_discovery_dict = concept_discovery_dict
-        if concept_discovery_dict:
+        self.concept_discovery_dict = self._postrun_concept_discovery(output)
+        if self.concept_discovery_dict:
             write_json(
-                concept_discovery_dict,
+                self.concept_discovery_dict,
                 os.path.join(
                     self.ingest_output_dir,
                     self.stage_type.__name__ + '_concept_discovery.json'
