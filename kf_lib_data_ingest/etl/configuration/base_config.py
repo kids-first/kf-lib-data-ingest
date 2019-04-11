@@ -29,6 +29,10 @@ class AbstractConfig(ABC):
                 f'{self.config_filepath} failed validation'
             ) from e
 
+    def __getattr__(self, attr):
+        """ Forward attributes from self.contents """
+        return getattr(self.contents, attr)
+
     @abstractmethod
     def _read_file(self, filepath):
         """ Should raise a FileNotFoundError exception if file not exists """

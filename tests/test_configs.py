@@ -6,7 +6,8 @@ from conftest import TEST_DATA_DIR
 from kf_lib_data_ingest.etl.configuration.base_config import (
     AbstractConfig,
     ConfigValidationError,
-    YamlConfig
+    YamlConfig,
+    PyModuleConfig
 )
 
 
@@ -51,6 +52,15 @@ def test_yaml_config():
 
     config_path = os.path.join(TEST_DATA_DIR, 'valid_yaml_config.yml')
     YamlConfig(config_path, schema_path=schema_path)
+
+
+def test_attr_forwarding():
+    pmc = PyModuleConfig(
+        os.path.join(TEST_DATA_DIR, 'test_study', 'transform_module.py')
+    )
+    assert pmc.contents.transform_function == pmc.transform_function
+    with pytest.raises(AttributeError):
+        print(pmc.foo)
 
 
 def test_extract_config():
