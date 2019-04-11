@@ -12,7 +12,7 @@ import requests
 from sqlite3worker import Sqlite3Worker, sqlite3worker
 
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
-from kf_lib_data_ingest.common.misc import requests_retry_session
+from kf_lib_data_ingest.common.misc import multisplit, requests_retry_session
 from kf_lib_data_ingest.common.stage import IngestStage
 from kf_lib_data_ingest.config import DEFAULT_ID_CACHE_FILENAME
 from kf_lib_data_ingest.etl.configuration.target_api_config import (
@@ -46,10 +46,11 @@ class LoadStage(IngestStage):
         self.dry_run = dry_run
         self.study_id = study_id
 
+        target = urlparse(target_url).netloc or urlparse(target_url).path
         self.uid_cache_filepath = os.path.join(
             uid_cache_dir or os.getcwd(),
             #  Every target gets its own cache because they don't share UIDs
-            urlparse(target_url).netloc.replace('/', '_')
+            '_'.join(multisplit(target, [':', '/']))
             #  Every study gets its own cache to compartmentalize internal IDs
             + '_' + study_id
             + '_' + DEFAULT_ID_CACHE_FILENAME
