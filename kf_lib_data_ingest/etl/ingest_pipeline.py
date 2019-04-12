@@ -19,11 +19,6 @@ from kf_lib_data_ingest.etl.transform.auto import AutoTransformStage
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
 from kf_lib_data_ingest.etl.transform.transform import TransformStage
 
-# TODO
-# Allow a run argument that contains the desired stages to run
-# 'et' or 'tl', etc. If the full pipeline is not specified, then we
-# must check for cached stage output
-
 
 class DataIngestPipeline(object):
 
@@ -262,8 +257,8 @@ class DataIngestPipeline(object):
             return passed
 
         # Execute user defined unit tests
-        self.logger.info(
-            'Running user defined unit tests 'f'{user_defined_test_dir} ...')
+        self.logger.info('Running user defined data validation tests '
+                         f'{user_defined_test_dir} ...')
 
         passed = pytest.main([user_defined_test_dir]) == 0
 

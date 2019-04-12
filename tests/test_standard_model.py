@@ -19,6 +19,8 @@ from kf_lib_data_ingest.etl.transform.standard_model.graph import (
     import_from_gml
 )
 
+from conftest import TEST_DATA_DIR
+
 
 @pytest.fixture(scope='function')
 def data_df_dict(auto_transform_stage):
@@ -66,12 +68,6 @@ def model(data_df_dict):
     # Standard model
     model = StandardModel()
     model.populate(data_df_dict)
-
-    # Export concept graph to gml file
-    from kf_lib_data_ingest.etl.transform.standard_model.graph import (
-        export_to_gml
-    )
-    from conftest import TEST_DATA_DIR
 
     export_to_gml(model.concept_graph, os.path.join(TEST_DATA_DIR,
                                                     'test_graph.gml'))

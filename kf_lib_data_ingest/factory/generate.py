@@ -5,7 +5,10 @@ Module to keep code for generating code or files
 import os
 import shutil
 
-from kf_lib_data_ingest.config import INGEST_PKG_TEMPLATE_NAME
+from kf_lib_data_ingest.config import (
+    INGEST_PKG_TEMPLATE_NAME,
+    TEMPLATES_DIR
+)
 
 
 def new_ingest_pkg(dest_dir=None):
@@ -28,8 +31,7 @@ def new_ingest_pkg(dest_dir=None):
         dest_dir = os.path.realpath(dest_dir)
 
     # Create package
-    src_dir = os.path.join(os.path.dirname(__file__), 'templates',
-                           INGEST_PKG_TEMPLATE_NAME)
+    src_dir = os.path.join(TEMPLATES_DIR, INGEST_PKG_TEMPLATE_NAME)
 
     # Don't overwrite existing study dir
     try:

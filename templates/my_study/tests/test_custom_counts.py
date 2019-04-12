@@ -1,3 +1,13 @@
+"""
+Auto-generated test module
+
+Replace the contents of this with your data validation tests
+
+See documentation at
+https://kids-first.github.io/kf-lib-data-ingest/ for information on
+implementing data validation tests.
+"""
+
 from conftest import concept_discovery_dict
 
 
@@ -8,15 +18,15 @@ def test_count_family_groups():
     """
     Test that we have 1 duo and 1 trio families
     """
-    expected_duos = 1
-    expected_trios = 1
-
     selector = 'CONCEPT|FAMILY|ID::CONCEPT|PARTICIPANT|ID'
     selected_data = extract_stage_data['links'].get(selector)
     assert selected_data
 
+    expected_duos = 1
+    expected_trios = 1
     actual_duos = 0
     actual_trios = 0
+
     for family_id, participant_ids in selected_data.items():
         if len(participant_ids) == 2:
             actual_duos += 1
