@@ -38,9 +38,9 @@ def common_args_options(func):
     # Log level
     log_help_txt = (
         'Controls level of log messages to output. If not supplied via CLI, '
-        'log_level from the dataset_ingest_config.yaml will be used. If not '
-        'supplied via config yaml, the default log_level for the ingest lib '
-        f'will be used: {DEFAULT_LOG_LEVEL_NAME}')
+        'log_level from the dataset_ingest_config.py will be used. If not '
+        'supplied via config, the default log_level for the ingest lib will '
+        f'be used: {DEFAULT_LOG_LEVEL_NAME}')
     func = click.option('--log_level', 'log_level_name',
                         type=click.Choice(map(str.lower,
                                               logging._nameToLevel.keys())),
@@ -93,7 +93,7 @@ def ingest(dataset_ingest_config_path, app_settings_filepath, log_level_name,
         \b
         dataset_ingest_config_path - the path to the data ingest config file
         or a path to a directory which contains a file called
-        'dataset_ingest_config_path.yml'
+        'dataset_ingest_config.py'
     """
     # Make kwargs from options
     frame = inspect.currentframe()
@@ -143,7 +143,7 @@ def test(ctx, dataset_ingest_config_path, app_settings_filepath,
         \b
         dataset_ingest_config_path - the path to the data ingest config file
         or a path to a directory which contains a file called
-        'dataset_ingest_config_path.yml'
+        'dataset_ingest_config_path.py'
     """
     # Make kwargs from options
     frame = inspect.currentframe()

@@ -7,7 +7,7 @@ Install the current release of ``kf-lib-data-ingest`` with ``pip``::
 
 Run the CLI to use the library::
 
-    $ kidsfirst ingest /path/to/dataset_ingest_config.yml
+    $ kidsfirst ingest /path/to/dataset_ingest_config.py
 
 Run ``kidsfirst -h`` to see all subcommands and descriptions or run
 ``kidsfirst <command> -h`` to see help for subcommands.

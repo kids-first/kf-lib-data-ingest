@@ -51,11 +51,11 @@ def check_counts(discovery_sources, expected_counts):
             # one of those was discovered in the data.
             if key not in discovery_sources:
                 if key in str_to_CONCEPT:
-                    concept = str_to_CONCEPT[key]
-                    if concept.ID in discovery_sources:
-                        key = concept.ID
-                    elif concept.UNIQUE_KEY in discovery_sources:
-                        key = concept.UNIQUE_KEY
+                    key = str_to_CONCEPT[key]
+                if key.ID in discovery_sources:
+                    key = key.ID
+                elif key.UNIQUE_KEY in discovery_sources:
+                    key = key.UNIQUE_KEY
 
             found = uniques.get(key)
             if expected == found:

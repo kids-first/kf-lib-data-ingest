@@ -25,7 +25,7 @@ TRANSFORM_MODULE_PATH = os.path.join(TEST_DATA_DIR,
                                      'transform_module.py')
 TEST_LOG_DIR = os.path.join(TEST_DATA_DIR, 'test_study', 'logs')
 TEST_INGEST_CONFIG = os.path.join(TEST_DATA_DIR, 'test_study',
-                                  'dataset_ingest_config.yml')
+                                  'dataset_ingest_config.py')
 
 COMMAND_LINE_ERROR_CODE = 2
 

@@ -120,11 +120,15 @@ class DataIngestPipeline(object):
         transform_fp = None
         # Create file path to transform function Python module
         if not self.auto_transform:
-            transform_fp = self.data_ingest_config.transform_function_path
-            if transform_fp:
+            try:
                 transform_fp = os.path.join(
-                    self.ingest_config_dir, os.path.relpath(transform_fp)
+                    self.ingest_config_dir,
+                    os.path.relpath(
+                        self.data_ingest_config.transform_function_path
+                    )
                 )
+            except AttributeError:
+                pass
 
         if not transform_fp:
             # ** Temporary - until auto transform is further developed **
@@ -148,7 +152,7 @@ class DataIngestPipeline(object):
         yield LoadStage(
             self.target_api_config_path, self.target_url,
             self.data_ingest_config.target_service_entities,
-            self.data_ingest_config.study['kf_id'],
+            self.data_ingest_config.study,
             uid_cache_dir=self.ingest_output_dir, use_async=self.use_async,
             dry_run=self.dry_run
         )

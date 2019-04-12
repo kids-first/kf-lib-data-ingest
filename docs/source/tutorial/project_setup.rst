@@ -18,7 +18,7 @@ $ kidsfirst new my_study
 This will generate a minimal study directory for you that looks like this::
 
     my_study/
-    ├── dataset_ingest_config.yml
+    ├── dataset_ingest_config.py
     ├── transform_module.py
     ├── data
     │   └── clinical.tsv

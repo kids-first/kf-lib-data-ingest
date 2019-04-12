@@ -8,10 +8,9 @@ transform, and load the study into a target data store or service.
 
 The ingest package contains three components:
 
-1. A top-level configuration file called ``dataset_ingest_config.yml``
-    This defines metadata about the study itself such as what the study's name
-    is and who the investigators are as well as paths to the other two
-    components.
+1. A top-level configuration file called ``dataset_ingest_config.py``
+    This defines metadata about the study itself such as the study's
+    target ID as well as paths to the other two components.
 2. A directory of `Extract Configuration` files
     This is the configuration needed by the extract stage. These files define
     how data is interpreted and extracted from each of the files provided by
@@ -29,14 +28,14 @@ The ingest package directory
 Your complete ingest package for a study will look like this::
 
     my_study/
-    ├── dataset_ingest_config.yml
+    ├── dataset_ingest_config.py
     ├── extract_configs/
     │   ├── one_file_extract_config.py
     │   ├── another_file_extract_config.py
     │   └── ...
     └── transform_module.py  (optional)
 
-dataset_ingest_config.yml
+dataset_ingest_config.py
 =========================
 
 This file contains details that control ingestion of the study as a whole. It
@@ -45,30 +44,16 @@ paths to the extract configs directory and the optional transform module.
 
 It looks something like:
 
-.. code-block:: yaml
+.. code-block:: python
 
-    study:
-        kf_id: 'SD_MEOWMEOW'
-        external_id: 'phs0001999'
-        short_name: 'Cat Study'
-        name: 'The long study of cats'
-        authority: 'dbgap'
-        version: 'v2.p1'
-        release_status: 'Pending'
-        category: 'Cancer'
-        attribution: 'https://www.meowmeowmeow.cat/study/attribution.html'
+    study = 'SD_ME0WME0W'
 
-    investigators:
-        - 'IG_12345678'
-        - 'IG_87654321'
+    extract_config_dir = 'extract_configs'
 
-    extract_config_dir: 'extract_configs'
+    transform_function_path = 'transform_module.py'
 
-    transform_function_path: 'transform_module.py'
-
-    logging:
-        log_level: 'info'
-        overwrite_log: True
+    log_level = 'debug'
+    overwrite_log = True
 
 
 Ok, let's head on over to :ref:`Tutorial-Project-Setup` to start building
