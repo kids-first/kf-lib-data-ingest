@@ -3,9 +3,9 @@ Module for loading the transform output into the dataservice.
 """
 import logging
 import os
-from abc import abstractmethod
 from collections import defaultdict
 from urllib.parse import urlparse
+from pprint import pformat
 
 import pandas
 import requests
@@ -117,21 +117,33 @@ class LoadStage(IngestStage):
             json=body
         ).prepare()
 
-    def _submit(self, entity_type, endpoint, body):
-        if self.target_id_key in body:
+    def _submit(self, count, total, entity_id, entity_type, endpoint, body):
+        instance_id = body.get(self.target_id_key)
+        if instance_id:
             req = self._prepare_patch(self.target_url, endpoint, body)
             resp = send(req)
             if resp.status_code == 404:
+                self.logger.debug(
+                    f'Entity {entity_type} {instance_id} not found in '
+                    'target service!')
                 req = self._prepare_post(self.target_url, endpoint, body)
                 resp = send(req)
         else:
             req = self._prepare_post(self.target_url, endpoint, body)
             resp = send(req)
 
-        self.logger.info(f'Sent {req.method} {req.body}')
-
+        req_msg = f'{req.method} request body: \n{pformat(body)}'
         if resp.status_code in {200, 201}:
-            return resp.json()['results']
+            result = resp.json()['results']
+            instance_id = result.get(self.target_id_key)
+            self.logger.info(
+                f'{req.method} {entity_type} {entity_id}, '
+                f'{self.target_id_key}: {instance_id}, status_code: '
+                f'{resp.status_code}, entity {count} of {total}')
+            self.logger.debug(req_msg)
+            self.logger.debug(
+                f'{req.method} response body:\n{pformat(result)}')
+            return result
         elif not (
             # Our dataservice returns 400 if a relationship already exists
             # even though that's a silly thing to do.
@@ -139,9 +151,12 @@ class LoadStage(IngestStage):
             (resp.status_code == 400)
             and ("already exists" in resp.json()['_status']['message'])
         ):
-            raise Exception(resp.__dict__)
+            self.logger.debug(req_msg)
+            self.logger.debug(
+                f'{req.method} response error:\n{pformat(resp.__dict__)}')
+            raise Exception(resp.text)
 
-    def _load_entity(self, entity_type, entity):
+    def _load_entity(self, count, total, entity_type, entity):
         endpoint = entity['endpoint']
         body = entity['properties']
 
@@ -173,13 +188,14 @@ class LoadStage(IngestStage):
             self.logger.info(f'DRY {endpoint} {body}')
         else:
             # send to the target service
-            instance = self._submit(entity_type, endpoint, body)
+            instance = self._submit(
+                count, total, entity['id'], entity_type, endpoint, body)
 
             # cache result
             tgt_id = instance[self.target_id_key]
             self._store_target_id(entity_type, entity['id'], tgt_id)
-            self.logger.info(
-                f'Got {entity_type} {entity["id"]} -> {tgt_id} - {instance}'
+            self.logger.debug(
+                f'UPDATE UID CACHE: {entity_type} {entity["id"]} -> {tgt_id}'
             )
 
     def _validate_run_parameters(self, target_entities):
@@ -191,5 +207,6 @@ class LoadStage(IngestStage):
     def _run(self, target_entities):
         for entity_type, entities in target_entities.items():
             self.prev_entity = None
-            for entity in entities:
-                self._load_entity(entity_type, entity)
+            total = len(entities)
+            for i, entity in enumerate(entities):
+                self._load_entity(i+1, total, entity_type, entity)

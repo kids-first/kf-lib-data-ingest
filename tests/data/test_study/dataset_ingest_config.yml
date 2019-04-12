@@ -30,7 +30,7 @@ expected_counts:
   'CONCEPT|PARTICIPANT|ID': 25
 
 study:
-    kf_id: 'SD_MEOWMEOW'
+    kf_id: 'SD_ME0WME0W'
     external_id: 'phs0001999'
     short_name: 'Cat Study'
     name: 'The long study of cats'
