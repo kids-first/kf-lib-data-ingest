@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Study Configuration &mdash; Kids First Data Ingest Libraries  documentation</title>
+  <title>Ingest Package Configuration &mdash; Kids First Data Ingest Libraries  documentation</title>
   
 
   
@@ -95,8 +95,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorial</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Study Configuration</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#the-study-directory">The study directory</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Ingest Package Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-ingest-package-directory">The ingest package directory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#dataset-ingest-config-yml">dataset_ingest_config.yml</a></li>
 </ul>
 </li>
@@ -156,13 +156,13 @@
         
           <li><a href="index.html">Tutorial</a> &raquo;</li>
         
-      <li>Study Configuration</li>
+      <li>Ingest Package Configuration</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/tutorial/study_configuration.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/tutorial/ingest_package.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -175,15 +175,15 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="study-configuration">
-<h1>Study Configuration<a class="headerlink" href="#study-configuration" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="ingest-package-configuration">
+<h1>Ingest Package Configuration<a class="headerlink" href="#ingest-package-configuration" title="Permalink to this headline">¶</a></h1>
 <p>Each study that needs to be ingested will have a single directory that contains
 all of the configuration/inputs needed by the ingest pipeline to extract,
 transform, and load the study into a target data store or service.</p>
-<p>The study directory contains three components:</p>
+<p>The ingest package contains three components:</p>
 <ol class="arabic simple">
 <li><dl class="first docutils">
-<dt>A top-level study configuration file called <code class="docutils literal notranslate"><span class="pre">dataset_ingest_config.yml</span></code></dt>
+<dt>A top-level configuration file called <code class="docutils literal notranslate"><span class="pre">dataset_ingest_config.yml</span></code></dt>
 <dd>This defines metadata about the study itself such as what the study’s name
 is and who the investigators are as well as paths to the other two
 components.</dd>
@@ -206,9 +206,9 @@ transform stage. More on this later in the tutorial.</dd>
 </dl>
 </li>
 </ol>
-<div class="section" id="the-study-directory">
-<h2>The study directory<a class="headerlink" href="#the-study-directory" title="Permalink to this headline">¶</a></h2>
-<p>Your complete ingest configuration for a study will look like this:</p>
+<div class="section" id="the-ingest-package-directory">
+<h2>The ingest package directory<a class="headerlink" href="#the-ingest-package-directory" title="Permalink to this headline">¶</a></h2>
+<p>Your complete ingest package for a study will look like this:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>my_study/
 ├── dataset_ingest_config.yml
 ├── extract_configs/

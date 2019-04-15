@@ -1,14 +1,14 @@
-===================
-Study Configuration
-===================
+============================
+Ingest Package Configuration
+============================
 
 Each study that needs to be ingested will have a single directory that contains
 all of the configuration/inputs needed by the ingest pipeline to extract,
 transform, and load the study into a target data store or service.
 
-The study directory contains three components:
+The ingest package contains three components:
 
-1. A top-level study configuration file called ``dataset_ingest_config.yml``
+1. A top-level configuration file called ``dataset_ingest_config.yml``
     This defines metadata about the study itself such as what the study's name
     is and who the investigators are as well as paths to the other two
     components.
@@ -23,10 +23,10 @@ The study directory contains three components:
     exist, then automatic graph-based transformation will be used by the
     transform stage. More on this later in the tutorial.
 
-The study directory
-===================
+The ingest package directory
+=============================
 
-Your complete ingest configuration for a study will look like this::
+Your complete ingest package for a study will look like this::
 
     my_study/
     ├── dataset_ingest_config.yml

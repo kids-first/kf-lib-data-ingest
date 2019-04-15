@@ -181,10 +181,18 @@ framework for data wrangling tasks. See &lt;TODO&gt; for details.</p>
 <div class="section" id="command-line-interface">
 <h2>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h2>
 <p>A command line interface (CLI) wraps the library and is the primary user
-interface for executing the ingest pipeline. Users will use the CLI to generate
-new ingest modules and run ingest jobs to ETL Kids First X01 study datasets
-into the Kids First Data Service. The Data Service is currently the only
-supported target service at this point.</p>
+interface for executing the ingest pipeline. Users will use the CLI to create
+new ingest packages, test packages, and ingest Kids First X01 study datasets
+into the Kids First Data Service. Currently, the Kids First Data Service
+is the only supported target service at this point.</p>
+</div>
+<div class="section" id="ingest-packages">
+<h2>Ingest Packages<a class="headerlink" href="#ingest-packages" title="Permalink to this headline">¶</a></h2>
+<p>In order to use this library to ingest a study, users must create an ingest
+package which contains all of the necessary configuration expected by the
+library’s ingest pipeline. The ingest package is just configuration as code.
+It contains Python files with code for extracting and transforming data,
+and basic ingest input parameters, etc.</p>
 </div>
 <div class="section" id="ingest-pipeline">
 <h2>Ingest Pipeline<a class="headerlink" href="#ingest-pipeline" title="Permalink to this headline">¶</a></h2>
@@ -197,15 +205,15 @@ supported target service at this point.</p>
 <p>Users of the ingest system will likely fall into 2 categories:</p>
 <ol class="arabic simple">
 <li><strong>Ingest Operator</strong><ul>
-<li>Will never create a new study ingest module</li>
-<li>Will likely just be running existing ingest modules</li>
+<li>Will never create a new study ingest package</li>
+<li>Will likely just be running existing ingest packages</li>
 <li>May need to learn how to modify configuration by inspection of existing
-ingest module configurations</li>
+ingest package configurations</li>
 </ul>
 </li>
-<li><strong>Ingest Configuration Developer</strong><ul>
-<li>Runs ingest modules</li>
-<li>Understands how to create new configurations and modify existing ones</li>
+<li><strong>Ingest Package Developer</strong><ul>
+<li>Runs ingest packages</li>
+<li>Understands how to create new ingest packages and modify existing ones</li>
 <li>Knows Python well and likely knows Pandas fairly well</li>
 </ul>
 </li>
@@ -363,7 +371,7 @@ The load stage transmits the entity payloads to the target.</p>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/index.html">Tutorial</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/study_configuration.html">Study Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/ingest_package.html">Ingest Package Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/project_setup.html">Project Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/extract.html">Extract Stage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/transform.html">Transform Stage</a></li>
