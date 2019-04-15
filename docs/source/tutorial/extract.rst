@@ -23,8 +23,12 @@ this section.
 
 We will step through how to write an extract configuration file for one of the
 source data files and then you should be able to write the configs for the rest
-of them. You can copy this file from <> into your ingest package's data
-directory and implement the extract config as you step through the tutorial.
+of them.
+
+You may download/copy
+`this file from here <https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/update-tutorial/docs/data/family_and_phenotype.tsv>`_
+into your ingest package's data directory and implement the extract config as
+you step through the tutorial.
 
 Here's a example source data file:
 ----------------------------------
