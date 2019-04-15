@@ -18,10 +18,15 @@ $ kidsfirst new my_study
 This will generate a minimal study directory for you. It will look like this::
 
     my_study/
+    ├── data
+    │   └── clinical.tsv
     ├── dataset_ingest_config.yml
     ├── transform_module.py
     └── extract_configs/
-       └── example_extract_config.py
+    │   └── extract_config.py
+    ├── tests
+    │   ├── conftest.py
+    │   └── test_custom_counts.py
 
 You can fill in the study and investigator information in the
 ``dataset_ingest_config.yml`` file if you want, but we won't actually use this
