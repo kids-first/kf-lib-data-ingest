@@ -7,11 +7,8 @@ import sys
 
 import click
 
-from kf_lib_data_ingest.config import (
-    DEFAULT_TARGET_URL,
-    DEFAULT_LOG_LEVEL
-)
 from kf_lib_data_ingest.app import settings
+from kf_lib_data_ingest.config import DEFAULT_LOG_LEVEL, DEFAULT_TARGET_URL
 from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
