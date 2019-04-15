@@ -102,68 +102,81 @@ class LoadStage(IngestStage):
     def _write_output(self, output):
         pass  # TODO
 
-    def _prepare_patch(self, host, what, body):
-        target_id = body[self.target_id_key]
+    def _prepare_patch(self, what, target_id, body):
+        host = self.target_url
         return requests.Request(
             method='PATCH',
             url='/'.join([v.strip('/') for v in [host, what, target_id]]),
             json=body
         ).prepare()
 
-    def _prepare_post(self, host, what, body):
+    def _prepare_post(self, what, body):
+        host = self.target_url
         return requests.Request(
             method='POST',
             url='/'.join([v.strip('/') for v in [host, what]]),
             json=body
         ).prepare()
 
-    def _submit(self, count, total, entity_id, entity_type, endpoint, body):
-        instance_id = body.get(self.target_id_key)
-        if instance_id:
-            req = self._prepare_patch(self.target_url, endpoint, body)
+    def _prepare_get(self, what, body):
+        host = self.target_url
+        return requests.Request(
+            method='GET',
+            url='/'.join([v.strip('/') for v in [host, what]]),
+            params=body
+        ).prepare()
+
+    def _submit(self, entity_id, entity_type, endpoint, body):
+        resp = None
+        target_id = body.get(self.target_id_key)
+        if target_id:
+            self.logger.debug(
+                f'Trying to PATCH {entity_type} {target_id}.'
+            )
+            req = self._prepare_patch(
+                endpoint, target_id, body
+            )
             resp = send(req)
             if resp.status_code == 404:
                 self.logger.debug(
-                    f'Entity {entity_type} {instance_id} not found in '
-                    'target service!')
-                req = self._prepare_post(self.target_url, endpoint, body)
-                resp = send(req)
-        else:
-            req = self._prepare_post(self.target_url, endpoint, body)
+                    f'Entity {entity_type} {target_id} not found in target '
+                    'service.'
+                )
+                resp = None
+
+        if not resp:
+            self.logger.debug(
+                f'Trying to POST new {entity_type} {entity_id}.'
+            )
+            req = self._prepare_post(endpoint, body)
             resp = send(req)
 
-        req_msg = f'{req.method} request body: \n{pformat(body)}'
+        self.logger.debug(f'Request body: \n{pformat(body)}')
+
         if resp.status_code in {200, 201}:
             result = resp.json()['results']
-            instance_id = result.get(self.target_id_key)
-            self.logger.info(
-                f'{req.method} {entity_type} {entity_id}, '
-                f'{self.target_id_key}: {instance_id}, status_code: '
-                f'{resp.status_code}, entity {count} of {total}')
-            self.logger.debug(req_msg)
-            self.logger.debug(
-                f'{req.method} response body:\n{pformat(result)}')
+            self.logger.debug(f'Response body:\n{pformat(result)}')
             return result
-        elif not (
-            # Our dataservice returns 400 if a relationship already exists
-            # even though that's a silly thing to do.
-            # See https://github.com/kids-first/kf-api-dataservice/issues/419
+        elif (
             (resp.status_code == 400)
             and ("already exists" in resp.json()['_status']['message'])
         ):
-            self.logger.debug(req_msg)
-            self.logger.debug(
-                f'{req.method} response error:\n{pformat(resp.__dict__)}')
+            # Our dataservice returns 400 if a relationship already exists
+            # even though that's a silly thing to do.
+            # See https://github.com/kids-first/kf-api-dataservice/issues/419
+            req = self._prepare_get(endpoint, body)
+            result = send(req).json()['results'][0]
+            self.logger.debug(f'Already exists:\n{pformat(result)}')
+            return result
+        else:
+            self.logger.debug(f'Response error:\n{pformat(resp.__dict__)}')
             raise Exception(resp.text)
 
-    def _load_entity(self, count, total, entity_type, entity):
-        endpoint = entity['endpoint']
-        body = entity['properties']
-
+    def _load_entity(self, entity_type, endpoint, entity_id, body, links):
         # populate target uid
         body[self.target_id_key] = (
             body.get(self.target_id_key)
-            or self._get_target_id(entity_type, entity['id'])
+            or self._get_target_id(entity_type, entity_id)
         )
 
         # don't send null attributes
@@ -171,7 +184,7 @@ class LoadStage(IngestStage):
 
         # link cached foreign keys
         target_concepts = self.target_api_config.target_concepts
-        for link_key, link_value in entity['links'].items():
+        for link_key, link_value in links.items():
             if link_key == 'study_id':
                 body[link_key] = self.study_id
             else:
@@ -183,19 +196,31 @@ class LoadStage(IngestStage):
 
         if self.dry_run:
             # Fake sending with fake foreign keys
-            for link_key, link_value in entity['links'].items():
+            for link_key, link_value in links.items():
                 body[link_key] = f'DRY_{link_value}'
-            self.logger.info(f'DRY {endpoint} {body}')
+
+            instance_id = body.get(self.target_id_key)
+            if instance_id:
+                req_method = 'PATCH'
+                id_str = f' {{{self.target_id_key}: {instance_id}}}'
+            else:
+                req_method = 'POST'
+                id_str = ''
+
+            self.logger.info(f'DRY RUN - {req_method} {endpoint}{id_str}')
+            self.logger.debug(f'Request body preview:\n{pformat(body)}')
         else:
             # send to the target service
-            instance = self._submit(
-                count, total, entity['id'], entity_type, endpoint, body)
+            response = self._submit(entity_id, entity_type, endpoint, body)
 
-            # cache result
-            tgt_id = instance[self.target_id_key]
-            self._store_target_id(entity_type, entity['id'], tgt_id)
-            self.logger.debug(
-                f'UPDATE UID CACHE: {entity_type} {entity["id"]} -> {tgt_id}'
+            # cache source_ID:target_ID lookup
+            tgt_id = response[self.target_id_key]
+            self._store_target_id(entity_type, entity_id, tgt_id)
+
+            # log action
+            self.logger.info(
+                f'Loaded {entity_type} {entity_id} --> {{'
+                f'{self.target_id_key}: {tgt_id}}}'
             )
 
     def _validate_run_parameters(self, target_entities):
@@ -205,8 +230,31 @@ class LoadStage(IngestStage):
         pass  # TODO
 
     def _run(self, target_entities):
+        if self.dry_run:
+            self.logger.info(
+                'DRY RUN mode is ON. No entities will be loaded into the '
+                'target service.'
+            )
         for entity_type, entities in target_entities.items():
+            if entity_type not in self.entities_to_load:
+                self.logger.info(f'Skipping load of {entity_type}')
+                continue
+
+            self.logger.info(f'Begin loading {entity_type}')
+
             self.prev_entity = None
             total = len(entities)
             for i, entity in enumerate(entities):
-                self._load_entity(i+1, total, entity_type, entity)
+                entity_id = entity['id']
+                endpoint = entity['endpoint']
+                body = entity['properties']
+                links = entity['links']
+
+                self.logger.info(
+                    f'Loading {entity_type} {entity_id} (#{i+1} of {total})'
+                )
+                self._load_entity(
+                    entity_type, endpoint, entity_id, body, links
+                )
+
+            self.logger.info(f'End loading {entity_type}')
