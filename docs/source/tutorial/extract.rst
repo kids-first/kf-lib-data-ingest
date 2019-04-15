@@ -23,24 +23,15 @@ this section.
 
 We will step through how to write an extract configuration file for one of the
 source data files and then you should be able to write the configs for the rest
-of them.
+of them. You can copy this file from <> into your ingest package's data
+directory and implement the extract config as you step through the tutorial.
 
 Here's a example source data file:
 ----------------------------------
 
 .. csv-table:: family_and_phenotype.tsv
-    :header: "[ignore]", "[ignore]", "[ignore]", "[ignore]", "[ignore]", "[ignore]", "[ignore]", "[ignore]", "[ignore]", "[ignore]", "[ignore]"
-             "[ignore]", "participant", "mother", "father", "gender", "specimens", "age (hrs)", "CLEFT_EGO", "CLEFT_ID", "age (hrs)", "EXTRA_EARDRUM"
-
-    "[ignore]", "PID001", "2", "3", "F", "SP001A,SP001B", "4", "TRUE", "FALSE", "4", "FALSE"
-    "[ignore]", "PID002", "", "", "", "SP002A; SP002B", "435", "TRUE", "FALSE", "435", "FALSE"
-    "[ignore]", "PID003", "", "", "", "SP003A;SP003B", "34", "TRUE", "FALSE", "34", "FALSE"
-    "[ignore]", "PID004", "5", "6", "M", "SP004A; SP004B", "4", "TRUE", "TRUE", "4", "FALSE"
-    "[ignore]", "PID005", "", "", "", "SP005A, SP005B", "345", "TRUE", "TRUE", "34", "FALSE"
-    "[ignore]", "PID006", "", "", "", "SP006", "34", "TRUE", "TRUE", "43545", "FALSE"
-    "[ignore]", "PID007", "8", "9", "M", "SP007", "34", "TRUE", "FALSE", "5", "TRUE"
-    "[ignore]", "PID008", "", "", "", "SP008A,SP008B", "43545", "TRUE", "TRUE", "52", "TRUE"
-    "[ignore]", "PID009", "", "", "", "SP009A,SP009B", "5", "FALSE", "TRUE", "25", "TRUE"
+    :delim: tab
+    :url: https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/update-tutorial/docs/data/family_and_phenotype.tsv
 
 In order to ingest this data into the Kids First ecosystem, we need to:
 -----------------------------------------------------------------------
