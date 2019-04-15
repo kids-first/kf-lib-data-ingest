@@ -118,28 +118,29 @@ Transform Stage
 ---------------
 
 The transform stage converts the clean and standardized data into a form that
-is expected by the target database or service.
+closely resembles what is expected by the target database or service.
+These are the main steps transform stage takes to make this happen:
 
-1. **Convert from standard form to target form**
+1. **Merge ExtractStage tables into 1 table**
 
-    To do this, the transform stage requires an additional input -
-    the target API configuration file. This file specifies how entities and
-    their attributes in the Kids First Standard Concept Schema map to entities
-    and their attributes in the target service.
+    The transform stage applies the user defined transform function which
+    specifies how the individual tables from ExtractStage should be merged
+    into a single table.
 
-2. **Apply common transformations**
+2. **Convert from standard form to target form**
+
+    Next, the transform stage iterates over the rows in the merged table
+    and emits a target concept instance (dict) for each row.
+
+    Columns/standard concept attributes in the merged table are converted
+    to target concept properties using the Kids First target API configuration
+    file.
+
+3. **Apply common transformations**
 
     For example, filling in left over null or unknown values with standard
     values (i.e. Not Reported, Unknown).
 
-3. **Translate Source Data Entity IDs**
-
-    Every time the ingest pipeline runs and loads new entities into the target,
-    it keeps a record of the ID created by the target service for an entity and
-    the corresponding ID for that entity in the source data.
-
-    This part of transform looks up a source data ID in the ID cache and
-    translates it to its corresponding target service ID, if one exists.
 
 Transform stage output might look like this:
 
@@ -148,19 +149,22 @@ Transform stage output might look like this:
     {
         "participant": [
             {
-                "kf_id": "PT_00001111",
-                "external_id": "PID001",
-                "gender": "Female"
-            },
-            {
-                "kf_id": "PT_00001112",
-                "external_id": "PID002",
-                "gender": "Female"
-            }
-            {
-                "kf_id": "PT_00001113",
-                "external_id": "PID003",
-                "gender": "Male"
+                "endpoint": "/participants",
+                "id": "P001",
+                "links": {
+                    "family_id": null,
+                    "study_id": null
+                },
+                "properties": {
+                    "affected_status": null,
+                    "consent_type": "GRU",
+                    "ethnicity": "Not Reported",
+                    "external_id": "1",
+                    "gender": "Female",
+                    "is_proband": null,
+                    "race": "Not Reported",
+                    "visible": null
+                }
             }
         ]
     }
@@ -170,9 +174,12 @@ Transform stage output might look like this:
 Load Stage
 ----------
 
-At this point, all transformations to data values are complete and the
-data is in a form that is expected by the target database or service.
-The load stage transmits the entity payloads to the target.
+At this point, the data is in a form that is almost ready to be submitted to
+the target service. The load stage will take the necessary steps to build
+the target payloads and either POST or PATCH them to the target service.
+
+You will learn more about how the load stage determines whether to send a
+POST vs PATCH request in the tutorial.
 
 Head on over to the :ref:`tutorial` to get started with data ingestion!
 
