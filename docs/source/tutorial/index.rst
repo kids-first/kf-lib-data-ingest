@@ -24,7 +24,7 @@ In this tutorial we will cover:
    :caption: Contents
    :maxdepth: 2
 
-   study_configuration.rst
+   ingest_package.rst
    project_setup.rst
    extract.rst
    transform.rst
