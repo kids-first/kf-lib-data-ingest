@@ -202,8 +202,11 @@ def test_no_key_comp_defined(guided_transform_stage):
 
 def test_nulls_in_unique_keys(guided_transform_stage):
     """
-    If any subvalue of the unique key string is null,
+    If any required subvalue of the unique key string is null,
     then the resulting value of the unique key should be None
+
+    If any optional subvalue of the unique key string is null,
+    then it should have been replaced with constants.COMMON.NOT_REPORTED
     """
 
     dfs = {
@@ -215,6 +218,7 @@ def test_nulls_in_unique_keys(guided_transform_stage):
             CONCEPT.PARTICIPANT.ID: ['p1', 'p2', 'p3'],
             CONCEPT.PARTICIPANT.GENDER: ['Female', 'Male', 'Female'],
             CONCEPT.DIAGNOSIS.NAME: ['cold', 'flu', 'strep'],
+            CONCEPT.PHENOTYPE.NAME: ['extra ear', 'enlarged ear', 'extra lip'],
             CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS: [300, 400, None]
         }),
         'biospecimen': pd.DataFrame({
@@ -259,4 +263,13 @@ def test_nulls_in_unique_keys(guided_transform_stage):
     assert(
         df[CONCEPT.DIAGNOSIS.UNIQUE_KEY].values.tolist() ==
         ['p1-cold-300', 'p2-flu-400', 'p3-strep-Not Reported']
+    )
+
+    # Test compound unique key with missing optional components
+    print(df[CONCEPT.PHENOTYPE.UNIQUE_KEY].values.tolist())
+    assert(
+        df[CONCEPT.PHENOTYPE.UNIQUE_KEY].values.tolist() ==
+        ['p1-extra ear-Not Reported-Not Reported',
+         'p2-enlarged ear-Not Reported-Not Reported',
+         'p3-extra lip-Not Reported-Not Reported']
     )

@@ -292,7 +292,7 @@ def _create_unique_key_composition():
         ],
         'optional': [
             CONCEPT.PHENOTYPE.OBSERVED,
-            CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS
+            CONCEPT.PHENOTYPE.EVENT_AGE_DAYS
         ]
     }
     identifiers[CONCEPT.OUTCOME._CONCEPT_NAME] = {

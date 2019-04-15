@@ -478,12 +478,15 @@ class TransformStage(IngestStage):
             def make_unique_key_value(row):
                 values = []
                 for c in unique_key_cols:
-                    # Col is not in df
-                    if c not in row:
-                        return None
                     # Col is required to make unique key but is null
                     if c in required and pandas.isnull(row[c]):
                         return None
+
+                    # Optional col is not in df,
+                    # fill in with constants.COMMON.NOT_REPORTED
+                    if (c in optional) and c not in row:
+                        row[c] = constants.COMMON.NOT_REPORTED
+
                     # Optional cols whose values are null will be converted
                     # to constants.COMMON.NOT_REPORTED
                     values.append(
