@@ -26,10 +26,18 @@ Command Line Interface
 ======================
 
 A command line interface (CLI) wraps the library and is the primary user
-interface for executing the ingest pipeline. Users will use the CLI to generate
-new ingest modules and run ingest jobs to ETL Kids First X01 study datasets
-into the Kids First Data Service. The Data Service is currently the only
-supported target service at this point.
+interface for executing the ingest pipeline. Users will use the CLI to create
+new ingest packages, test packages, and ingest Kids First X01 study datasets
+into the Kids First Data Service. Currently, the Kids First Data Service
+is the only supported target service at this point.
+
+Ingest Packages
+==========================
+In order to use this library to ingest a study, users must create an ingest
+package which contains all of the necessary configuration expected by the
+library's ingest pipeline. The ingest package is just configuration as code.
+It contains Python files with code for extracting and transforming data,
+and basic ingest input parameters, etc.
 
 Ingest Pipeline
 ===============
@@ -47,15 +55,15 @@ Users of the ingest system will likely fall into 2 categories:
 
 1. **Ingest Operator**
 
-   - Will never create a new study ingest module
-   - Will likely just be running existing ingest modules
+   - Will never create a new study ingest package
+   - Will likely just be running existing ingest packages
    - May need to learn how to modify configuration by inspection of existing
-     ingest module configurations
+     ingest package configurations
 
-2. **Ingest Configuration Developer**
+2. **Ingest Package Developer**
 
-   - Runs ingest modules
-   - Understands how to create new configurations and modify existing ones
+   - Runs ingest packages
+   - Understands how to create new ingest packages and modify existing ones
    - Knows Python well and likely knows Pandas fairly well
 
 Inputs

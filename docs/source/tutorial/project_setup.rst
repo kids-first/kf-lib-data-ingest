@@ -10,7 +10,7 @@ moving on.
 Create Your Ingest Project
 ==========================
 
-Create a new ingest project named ``my_study`` by using the ingest library
+Create a new ingest package named ``my_study`` by using the ingest library
 CLI::
 
 $ kidsfirst new my_study
