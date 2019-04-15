@@ -1,10 +1,3 @@
-from kf_lib_data_ingest.app import settings
-from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
-from kf_lib_data_ingest.config import (
-    DEFAULT_TARGET_URL,
-    DEFAULT_LOG_LEVEL
-)
-from kf_lib_data_ingest.config import DEFAULT_LOG_LEVEL, DEFAULT_TARGET_URL
 """
 Entry point for the Kids First Data Ingest Client
 """
@@ -13,6 +6,13 @@ import logging
 import sys
 
 import click
+
+from kf_lib_data_ingest.config import (
+    DEFAULT_TARGET_URL,
+    DEFAULT_LOG_LEVEL
+)
+from kf_lib_data_ingest.app import settings
+from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 DEFAULT_LOG_LEVEL_NAME = logging._levelToName.get(DEFAULT_LOG_LEVEL)
@@ -54,13 +54,6 @@ def common_args_options(func):
               default=DEFAULT_TARGET_URL, show_default=True,
               help='Target service URL where data will be loaded into')(func)
 
-    func = click.option(
-        '--dry_run',
-        default=False,
-        is_flag=True,
-        help='A flag specifying whether to only pretend to send data to '
-        'the target service')(func)
-
     return func
 
 
@@ -76,6 +69,11 @@ def cli():
 
 
 @click.command()
+@click.option('--dry_run',
+              default=False,
+              is_flag=True,
+              help='A flag specifying whether to only pretend to send data to '
+              'the target service')
 @click.option('--use_async',
               default=False,
               is_flag=True,
@@ -89,7 +87,7 @@ def cli():
 #               'user guided transformation')
 @common_args_options
 def ingest(dataset_ingest_config_path, app_settings_filepath, log_level_name,
-           target_url, dry_run, use_async):
+           target_url, use_async, dry_run):
     """
     Run the Kids First data ingest pipeline.
 
@@ -134,6 +132,31 @@ def ingest(dataset_ingest_config_path, app_settings_filepath, log_level_name,
         sys.exit(1)
 
 
+@cli.command()
+@common_args_options
+@click.pass_context
+def test(ctx, dataset_ingest_config_path, app_settings_filepath,
+         log_level_name, target_url):
+    """
+    Run the Kids First data ingest pipeline in dry_run mode (--dry_run=True)
+    Used for testing ingest packages.
+
+    \b
+    Arguments:
+        \b
+        dataset_ingest_config_path - the path to the data ingest config file
+        or a path to a directory which contains a file called
+        'dataset_ingest_config_path.yml'
+    """
+    # Make kwargs from options
+    frame = inspect.currentframe()
+    args, _, _, values = inspect.getargvalues(frame)
+    kwargs = {arg: values[arg] for arg in args[1:]}
+
+    kwargs['dry_run'] = True
+    ctx.invoke(ingest, **kwargs)
+
+
 @click.command(name='new')
 @click.option('--dest_dir',
               help='Path to the directory where the new ingest package will '
@@ -150,4 +173,5 @@ def create_new_ingest(dest_dir=None):
 
 
 cli.add_command(ingest)
+cli.add_command(test)
 cli.add_command(create_new_ingest)
