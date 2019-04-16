@@ -7,6 +7,7 @@ See documentation at
 https://kids-first.github.io/kf-lib-data-ingest/ for information on
 implementing data validation tests.
 """
+from kf_lib_data_ingest.common.concept_schema import CONCEPT
 
 from conftest import concept_discovery_dict
 
@@ -18,7 +19,7 @@ def test_count_family_groups():
     """
     Test that we have 1 duo and 1 trio families
     """
-    selector = 'CONCEPT|FAMILY|ID::CONCEPT|PARTICIPANT|ID'
+    selector = CONCEPT.FAMILY.ID + '::' + CONCEPT.PARTICIPANT.ID
     selected_data = extract_stage_data['links'].get(selector)
     assert selected_data
 

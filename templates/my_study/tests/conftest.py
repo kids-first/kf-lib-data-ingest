@@ -35,13 +35,8 @@ def concept_discovery_dict(stage_type):
 
     :returns the concept discovery dict for a particular stage
     """
-    data = None
-    stage_types = {'ExtractStage', 'TransformStage'}
-    assert stage_type in stage_types, (
-        f'Invalid stage type: {stage_type}. Must be one of {stage_types}')
-
     fp = os.path.join(OUTPUT_DIR, f'{stage_type}_concept_discovery.json')
-    if os.path.isfile(fp):
-        data = read_json(fp)
+    assert os.path.isfile(fp)
+    data = read_json(fp)
 
     return data

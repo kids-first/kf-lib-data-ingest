@@ -247,14 +247,13 @@ class DataIngestPipeline(object):
 
         :returns boolean indiciating whether all tests passed or failed
         """
-        passed = True
         user_defined_test_dir = os.path.join(self.ingest_config_dir,
                                              'tests')
         # No user defined tests exist
         if not os.path.isdir(user_defined_test_dir):
             self.logger.info('No user defined unit tests exist for ingest '
                              f'package: {self.ingest_config_dir}')
-            return passed
+            return True
 
         # Execute user defined unit tests
         self.logger.info('Running user defined data validation tests '
