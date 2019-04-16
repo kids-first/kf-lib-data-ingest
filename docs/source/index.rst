@@ -121,11 +121,16 @@ The transform stage converts the clean and standardized data into a form that
 closely resembles what is expected by the target database or service.
 These are the main steps transform stage takes to make this happen:
 
-1. **Merge ExtractStage tables into 1 table**
+1. **Merge ExtractStage tables into Unified Form**
 
-    The transform stage applies the user defined transform function which
-    specifies how the individual tables from ExtractStage should be merged
-    into a single table.
+    If in guided transform mode, transform stage will accomplish this step by
+    applying the user defined transform function. This function specifies how
+    the individual tables from ExtractStage should be merged into
+    a single table.
+
+    If in auto-transform, transform stage will accomplish this step by
+    transforming the ExtractStage tables into a graph. Note that
+    the auto-transform mode has not been completely implemented yet.
 
 2. **Create Unique Identifiers for Concepts**
 
@@ -169,7 +174,7 @@ Transform stage output might look like this:
                 "endpoint": "/participants",
                 "id": "P001",
                 "links": {
-                    "family_id": null,
+                    "family_id": "f1",
                     "study_id": null
                 },
                 "properties": {

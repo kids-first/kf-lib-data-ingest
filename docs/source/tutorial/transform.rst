@@ -11,15 +11,15 @@ The transform stage does 4 major things:
 3. Convert from standard form to target form
 4. Apply common transformations
 
-However, from an ingest developer perspective, the step 1 is the only one
-that you need to worry about.
+However, from an ingest developer perspective, step 1 is the only one that you
+need to worry about.
 
 Transform Module
 =================
-This is a Python module in your ingest package, which must
-have a method called ``transform_function``. This method will contain
-the code that merges the extract stage output Pandas DataFrames into a single
-DataFrame, and then returns the merged DataFrame.
+This is a Python module in your ingest package which must have a method called
+``transform_function``. This method will contain the code that merges the
+extract stage output Pandas DataFrames into a single DataFrame, and then
+returns the merged DataFrame.
 
 If you used ``kidsfirst new`` to create your ingest package, then you
 should already have a `transform_module.py` file with the correct method
@@ -111,16 +111,16 @@ There are a few important things to note in this step:
     1. We outer merged the DataFrames
     2. We used CONCEPT.PARTICIPANT.ID, not the string
        "CONCEPT|PARTICIPANT|ID" itself
-    3. We did not use Pandas built in ``Pandas.merge`` method
+    3. We did not ``Pandas.merge`` method to merge the DataFrames
 
 
 Outer Merge
 ^^^^^^^^^^^
 You will likely NEVER want to inner merge/join your DataFrames since this will
-result in a DataFrame with records that only matched in both tables.
+result in a DataFrame with records that only matched in both DataFrames.
 
-If your ``transform_function`` is more complicated than a single merge, then
-this may cause you to lose records you may later want for a subsequent merge.
+If your ``transform_function`` is more complicated than a single merge, this
+may cause you to lose records you may later want for a subsequent merge.
 
 Use concept schema to reference columns
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -133,19 +133,19 @@ changes (to say, "CONCEPT.PARTICIPANT.IDENTIFIER"), your code won't break.
 
 Avoid Pandas.merge - use ingest library's pandas_utils.py
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-You `can` use the Pandas.merge method if you want, but the ingest library's
+You `can` use the Pandas.merge method if you want, but the ingest library
 provides merge functions that add useful functionality on top of Pandas.merge.
 
 For example, ``outer_merge`` has a keyword argument called
 `with_merge_detail_dfs`, that if set to True, will output 3 additional
 DataFrames useful for debugging:
 
-    - a dataframe of rows that matched in both the left and right
-      dataframes (equivalent to the df returned by an inner merge)
-    - a dataframe of rows that were ONLY in the left dataframe
-    - a dataframe of rows that were ONLY in the right dataframe
+    - a DataFrame of rows that matched in both the left and right
+      DataFrames (equivalent to the DataFrame returned by an inner merge)
+    - a DataFrame of rows that were ONLY in the left DataFrame
+    - a DataFrame of rows that were ONLY in the right DataFrame
 
-If you do need to do a non-outer merge, you should use the merge without
+If you need to do a non-outer merge, you should use the merge without
 duplicates method - ``merge_wo_duplicates``. This method
 does a Pandas.merge and resolves resulting duplicate columns automatically
 so that you don't have to.

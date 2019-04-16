@@ -73,12 +73,12 @@ will always execute, allowing you to quickly determine whether or not the
 output of each stage matches a set of accounting expectations you specify in
 your ingest package.
 
-If any one of the test fails, the ingest app will wait until it executes
+If any of the tests fail, the ingest app will wait until it executes
 all of the tests and then exit with a non-zero exit code.
 The log will indicate what caused the test failure(s).
 
 Standard Counting Tests
------------------------------------
+-----------------------
 Each stage has a post-run analysis method which performs some basic
 accounting on the stage output and then validates the count results against
 a set of expected counts.
@@ -87,14 +87,14 @@ Count Analysis
 ^^^^^^^^^^^^^^
 The types of things that are counted are:
 
-- Concepts (i.e. families, participants, biospecimens, etc)
-- Concept attributes (i.e. participant.gender, biospecimen.analyte, etc.)
-- Relationships between concepts or attributes (i.e. biospecimens with 1
+- Concepts (e.g. families, participants, biospecimens, etc.)
+- Concept attributes (e.g. participant.gender, biospecimen.analyte, etc.)
+- Relationships between concepts or attributes (e.g biospecimens with 1
   participant, participants with at least 1 biospecimen, etc.)
 
 It is important to know that some of these things, such as relationships,
 cannot reliably be counted until after the transform stage completes, since
-this is where the all of the data is merged into a single table.
+this is where all of the data is merged into a single table.
 
 Concept Discovery
 ~~~~~~~~~~~~~~~~~
