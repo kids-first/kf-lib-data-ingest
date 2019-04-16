@@ -1,5 +1,6 @@
 import os
 from kf_lib_data_ingest.common.pandas_utils import outer_merge
+from kf_lib_data_ingest.common.concept_schema import CONCEPT
 
 
 def transform_function(mapped_df_dict):
@@ -38,4 +39,10 @@ def transform_function(mapped_df_dict):
         'read_group_genomic_file': s3_files
     }
 
-    return entity_dataframes
+    all_data_df = outer_merge(
+        clinical,
+        bs_gf,
+        on=CONCEPT.BIOSPECIMEN.ALIQUOT_ID,
+        with_merge_detail_dfs=False)
+
+    return all_data_df

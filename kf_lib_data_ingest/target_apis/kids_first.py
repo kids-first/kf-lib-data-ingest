@@ -63,7 +63,6 @@ target_concepts = {
         'properties': {
             'external_id': CONCEPT.PARTICIPANT.UNIQUE_KEY,
             "is_proband": CONCEPT.PARTICIPANT.IS_PROBAND,
-            "consent_type": CONCEPT.PARTICIPANT.CONSENT_TYPE,
             "ethnicity": CONCEPT.PARTICIPANT.ETHNICITY,
             "gender": CONCEPT.PARTICIPANT.GENDER,
             "race": CONCEPT.PARTICIPANT.RACE,

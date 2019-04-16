@@ -29,7 +29,7 @@ class DataIngestPipeline(object):
         self, dataset_ingest_config_path, target_api_config_path,
         auth_configs=None, auto_transform=False, use_async=False,
         target_url=DEFAULT_TARGET_URL, log_level_name=None, log_dir=None,
-        overwrite_log=None
+        overwrite_log=None, dry_run=False
     ):
         """
         Setup data ingest pipeline. Create the config object and setup logging
@@ -65,6 +65,7 @@ class DataIngestPipeline(object):
         assert_safe_type(log_level_name, None, str)
         assert_safe_type(log_dir, None, str)
         assert_safe_type(overwrite_log, None, bool)
+        assert_safe_type(dry_run, bool)
 
         self.data_ingest_config = DatasetIngestConfig(
             dataset_ingest_config_path
@@ -79,6 +80,7 @@ class DataIngestPipeline(object):
         self.auto_transform = auto_transform
         self.use_async = use_async
         self.target_url = target_url
+        self.dry_run = dry_run
 
         # Get log params from dataset_ingest_config
         log_dir = log_dir or self.data_ingest_config.log_dir
@@ -149,7 +151,9 @@ class DataIngestPipeline(object):
         yield LoadStage(
             self.target_api_config_path, self.target_url,
             self.data_ingest_config.target_service_entities,
-            uid_cache_dir=self.ingest_output_dir, use_async=self.use_async
+            self.data_ingest_config.study['kf_id'],
+            uid_cache_dir=self.ingest_output_dir, use_async=self.use_async,
+            dry_run=self.dry_run
         )
 
     def run(self):

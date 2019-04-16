@@ -75,7 +75,7 @@ def test_ingest_template_study(caplog, tmpdir):
     assert result.exit_code == 0
 
     # Run ingest on the generated template package
-    result = runner.invoke(cli.ingest, [study_dir])
+    result = runner.invoke(cli.ingest, [study_dir, '--dry_run'])
     assert result.exit_code == 0
     assert 'EXPECTED COUNT CHECKS' in caplog.text
     assert 'END data ingestion'

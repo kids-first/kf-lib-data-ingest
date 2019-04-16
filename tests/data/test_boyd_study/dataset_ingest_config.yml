@@ -22,7 +22,7 @@ extract_config_dir: 'extract_configs'
 transform_function_path: 'transform_module.py'
 
 logging:
-    log_level: 'debug'
+    log_level: 'info'
 
 study:
     kf_id: 'SD_P445ACHV'
