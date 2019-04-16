@@ -6,10 +6,9 @@ Before we go any further in the tutorial, let's take a look at the recommended
 way to test your ingest package.
 
 At this point, your ingest package should have the source data file and
-extract config that came with the package template, and the
-``family_and_phenotype.tsv`` data file along with the
-extract configuration file for it that you added in the previous step of this
-tutorial.
+extract config that came with the package template, along with the
+``family_and_phenotype.tsv`` data file and extract configuration file
+that you added in the previous step of this tutorial.
 
 Your package probably looks like this so far::
 
@@ -29,7 +28,7 @@ Your package probably looks like this so far::
 
 Try Testing Your Package
 ========================
-Let's try testing your package right now to see what happens. Run:
+Let's see what happens if you run:
 
 .. code-block:: bash
 
@@ -37,7 +36,7 @@ Let's try testing your package right now to see what happens. Run:
 
 At the end of the log you should see something like this::
 
-    2019-04-16 10:08:00,101 - kf_lib_data_ingest.app.cli - ERROR - ❌  Ingest pipeline failed validation! See /Users/singhn4/Projects/kids_first/kf-lib-data-ingest/my_study/logs/ingest.log for details
+    2019-04-16 10:08:00,101 - kf_lib_data_ingest.app.cli - ERROR - ❌  Ingest pipeline failed validation! See /path/to/my_study/logs/ingest.log for details
 
 And if you scroll up through the log a bit, you should also see::
 
@@ -88,10 +87,10 @@ Count Analysis
 ^^^^^^^^^^^^^^
 The types of things that are counted are:
 
-    - Concepts (i.e. families, participants, biospecimens, etc)
-    - Concept attributes (i.e. participant.gender, biospecimen.analyte, etc.)
-    - Relationships between concepts or attributes (i.e. # of biospecimens with
-    a participant, # of participants with at least 1 biospecimen, etc.)
+- Concepts (i.e. families, participants, biospecimens, etc)
+- Concept attributes (i.e. participant.gender, biospecimen.analyte, etc.)
+- Relationships between concepts or attributes (i.e. biospecimens with 1
+  participant, participants with at least 1 biospecimen, etc.)
 
 It is important to know that some of these things, such as relationships,
 cannot reliably be counted until after the transform stage completes, since
@@ -103,16 +102,16 @@ After an ingest stage is run, the post-run analysis iterates over the stage
 output files and builds up the ``concept_discovery`` dict, which stores
 the following:
 
-    1. A mapping of every concept it found in all of the stage output files
-    to a list of all of the source data files that concept was found in
+    - A mapping of every concept it found in all of the stage output files
+      to a list of all of the source data files that the concept was found in
 
-    2. A mapping of every concept attribute it found in all of the stage
-    output files to a list of all of the source data files that
-    concept attribute was found in
+    - A mapping of every concept attribute it found in all of the stage
+      output files to a list of all of the source data files that the
+      concept attribute was found in
 
-    3. A mapping of every pair of concept attributes it found in all of the
-    stage output files to a list of all of the source data files that concept
-    attribute pair was found in
+    - A mapping of every pair of concept attributes it found in all of the
+      stage output files to a list of all of the source data files that the
+      concept attribute pair was found in
 
 The concept discovery data is used to compute the counts of
 concepts, attributes, and relationships.
@@ -120,12 +119,12 @@ concepts, attributes, and relationships.
 Every stage's concept discovery data structure is written to a file
 in the stage's output directory, and named
 ``<stage name>_concept_discovery.json``. You will see how this can be used
-to write custom data validation tests in the next section.
+to write custom data validation tests in the User Defined Tests section.
 
 
 Set Expected Counts
 ===================
-Ok, now let's go back and take a look at the count checks we saw in the log.
+Ok, now let's go back and take a look at the count results we saw in the log.
 It looks like our tests are failing because in almost every case the
 count analysis is finding more concepts in the source data as compared to the
 expectations.
@@ -136,8 +135,8 @@ theory out by removing the extract config for ``family_and_phenotype.tsv``
 and see if the tests pass.
 
 Try moving the ``extract_configs/family_and_phenotype.py`` file out of
-the extract configs folder and re-running the test command. You should see
-in the log that ingest passed validation::
+the extract configs folder and re-running the test command. The log should show
+that ingest passed validation::
 
     2019-04-16 10:14:58,519 - kf_lib_data_ingest.app.cli - INFO - ✅  Ingest pipeline passed validation!
 
@@ -176,9 +175,9 @@ package. The popular `pytest <https://docs.pytest.org/en/latest/contents.html>`_
 testing framework is used to execute the user defined tests so all tests should
 conform to the ``pytest`` standard.
 
-In fact, you should see that your ingest package already has a custom test
-implemented. This test validates that there are exactly 2 duo type families
-and 1 trio type family.
+You can see an example of a user defined test in your ingest package.
+This test validates that there are exactly 2 duo type families and 1 trio
+type family.
 
 conftest.py
 ^^^^^^^^^^^
