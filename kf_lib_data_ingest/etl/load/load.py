@@ -4,11 +4,12 @@ Module for loading the transform output into the dataservice.
 import logging
 import os
 from collections import defaultdict
-from urllib.parse import urlparse
 from pprint import pformat
+from urllib.parse import urlparse
 
 import pandas
 import requests
+from requests import RequestException
 from sqlite3worker import Sqlite3Worker, sqlite3worker
 
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
@@ -31,6 +32,22 @@ class LoadStage(IngestStage):
         self, target_api_config_path, target_url, entities_to_load,
         study_id, uid_cache_dir=None, use_async=False, dry_run=False
     ):
+        """
+        :param target_api_config_path: path to the target service API config
+        :type target_api_config_path: str
+        :param target_url: URL for the target service
+        :type target_url: str
+        :param entities_to_load: set of which types of entities to load
+        :type entities_to_load: list
+        :param study_id: target ID of the study being loaded
+        :type study_id: str
+        :param uid_cache_dir: where to find the ID cache, defaults to None
+        :type uid_cache_dir: str, optional
+        :param use_async: use asynchronous networking, defaults to False
+        :type use_async: bool, optional
+        :param dry_run: don't actually transmit, defaults to False
+        :type dry_run: bool, optional
+        """
         super().__init__()
         self.target_api_config = TargetAPIConfig(target_api_config_path)
         self.concept_targets = {
@@ -71,29 +88,56 @@ class LoadStage(IngestStage):
         self.use_async = use_async
 
     def _prime_uid_cache(self, entity_type):
+        """
+        Make sure that the backing cache database table exists and that the RAM
+        store is populated.
+
+        :param entity_type: the name of this type of entity
+        :type entity_type: str
+        """
         if entity_type not in self.uid_cache:
             # Create table in DB first if necessary
             self.uid_cache_db.execute(
-                f'CREATE TABLE IF NOT EXISTS {entity_type}'
-                ' (unique_key TEXT PRIMARY KEY, target_id TEXT);'
+                f'CREATE TABLE IF NOT EXISTS "{entity_type}"'
+                ' (unique_id TEXT PRIMARY KEY, target_id TEXT);'
             )
             # Populate RAM cache from DB
-            for unique_key, target_id in self.uid_cache_db.execute(
-                f'SELECT unique_key, target_id FROM \'{entity_type}\';'
+            for unique_id, target_id in self.uid_cache_db.execute(
+                f'SELECT unique_id, target_id FROM "{entity_type}";'
             ):
-                self.uid_cache[entity_type][unique_key] = target_id
+                self.uid_cache[entity_type][unique_id] = target_id
 
-    def _get_target_id(self, entity_type, entity_unique_key):
-        self._prime_uid_cache(entity_type)
-        return self.uid_cache[entity_type].get(entity_unique_key)
+    def _get_target_id(self, entity_type, entity_id):
+        """
+        Retrieve the target service ID for a given source unique ID.
 
-    def _store_target_id(self, entity_type, entity_unique_key, target_id):
+        :param entity_type: the name of this type of entity
+        :type entity_type: str
+        :param entity_id: source unique ID for this entity
+        :type entity_id: str
+        """
         self._prime_uid_cache(entity_type)
-        if self.uid_cache[entity_type].get(entity_unique_key) != target_id:
-            self.uid_cache[entity_type][entity_unique_key] = target_id
+        return self.uid_cache[entity_type].get(entity_id)
+
+    def _store_target_id(self, entity_type, entity_id, target_id):
+        """
+        Cache the relationship between a source unique ID and its corresponding
+        target service ID.
+
+        :param entity_type: the name of this type of entity
+        :type entity_type: str
+        :param entity_id: source unique ID for this entity
+        :type entity_id: str
+        :param target_id: target service ID for this entity
+        :type target_id: str
+        """
+        self._prime_uid_cache(entity_type)
+        if self.uid_cache[entity_type].get(entity_id) != target_id:
+            self.uid_cache[entity_type][entity_id] = target_id
             self.uid_cache_db.execute(
-                f'INSERT OR REPLACE INTO {entity_type} (unique_key, target_id)'
-                'VALUES (?,?);', (entity_unique_key, target_id)
+                f'INSERT OR REPLACE INTO "{entity_type}"'
+                ' (unique_id, target_id)'
+                ' VALUES (?,?);', (entity_id, target_id)
             )
 
     def _read_output(self):
@@ -102,31 +146,78 @@ class LoadStage(IngestStage):
     def _write_output(self, output):
         pass  # TODO
 
-    def _prepare_patch(self, what, target_id, body):
+    def _prepare_patch(self, endpoint, target_id, body):
+        """
+        Prepare a PATCH request for the target service.
+
+        :param endpoint: which target service endpoint to hit
+        :type endpoint: str
+        :param target_id: which target service ID to patch
+        :type target_id: str
+        :param body: map between entity keys and values
+        :type body: dict
+        :return: prepared PATCH request object
+        :rtype: requests.PreparedRequest
+        """
         host = self.target_url
         return requests.Request(
             method='PATCH',
-            url='/'.join([v.strip('/') for v in [host, what, target_id]]),
+            url='/'.join([v.strip('/') for v in [host, endpoint, target_id]]),
             json=body
         ).prepare()
 
-    def _prepare_post(self, what, body):
+    def _prepare_post(self, endpoint, body):
+        """
+        Prepare a POST request for the target service.
+
+        :param endpoint: which target service endpoint to hit
+        :type endpoint: str
+        :param body: map between entity keys and values
+        :type body: dict
+        :return: prepared POST request object
+        :rtype: requests.PreparedRequest
+        """
         host = self.target_url
         return requests.Request(
             method='POST',
-            url='/'.join([v.strip('/') for v in [host, what]]),
+            url='/'.join([v.strip('/') for v in [host, endpoint]]),
             json=body
         ).prepare()
 
-    def _prepare_get(self, what, body):
+    def _prepare_get(self, endpoint, body):
+        """
+        Prepare a GET request for the target service.
+
+        :param endpoint: which target service endpoint to hit
+        :type endpoint: str
+        :param body: filter arguments keys and values
+        :type body: dict
+        :return: prepared GET request object
+        :rtype: requests.PreparedRequest
+        """
         host = self.target_url
         return requests.Request(
             method='GET',
-            url='/'.join([v.strip('/') for v in [host, what]]),
+            url='/'.join([v.strip('/') for v in [host, endpoint]]),
             params=body
         ).prepare()
 
     def _submit(self, entity_id, entity_type, endpoint, body):
+        """
+        Negotiate submitting the data for an entity to the target service.
+
+        :param entity_id: source unique ID for this entity
+        :type entity_id: str
+        :param entity_type: the name of this type of entity
+        :type entity_type: str
+        :param endpoint: which target service endpoint to hit
+        :type endpoint: str
+        :param body: map between entity keys and values
+        :type body: dict
+        :raises RequestException: Unhandled response error from the server
+        :return: The entity that the target service says was created
+        :rtype: dict
+        """
         resp = None
         target_id = body.get(self.target_id_key)
         if target_id:
@@ -170,9 +261,24 @@ class LoadStage(IngestStage):
             return result
         else:
             self.logger.debug(f'Response error:\n{pformat(resp.__dict__)}')
-            raise Exception(resp.text)
+            raise RequestException(resp.text)
 
     def _load_entity(self, entity_type, endpoint, entity_id, body, links):
+        """
+        Prepare a single entity for submission to the target service.
+
+        :param entity_type: the name of this type of entity
+        :type entity_type: str
+        :param endpoint: which target service endpoint to hit
+        :type endpoint: str
+        :param entity_id: source unique ID for this entity
+        :type entity_id: str
+        :param body: map between entity keys and values
+        :type body: dict
+        :param links: map between entity keys and foreign key source unique IDs
+        :type links: dict
+        """
+
         # populate target uid
         body[self.target_id_key] = (
             body.get(self.target_id_key)
@@ -211,10 +317,10 @@ class LoadStage(IngestStage):
             self.logger.debug(f'Request body preview:\n{pformat(body)}')
         else:
             # send to the target service
-            response = self._submit(entity_id, entity_type, endpoint, body)
+            entity = self._submit(entity_id, entity_type, endpoint, body)
 
             # cache source_ID:target_ID lookup
-            tgt_id = response[self.target_id_key]
+            tgt_id = entity[self.target_id_key]
             self._store_target_id(entity_type, entity_id, tgt_id)
 
             # log action
@@ -230,6 +336,12 @@ class LoadStage(IngestStage):
         pass  # TODO
 
     def _run(self, target_entities):
+        """
+        Load Stage internal entry point. Called by IngestStage.run
+
+        :param target_entities: Output data structure from the Transform stage
+        :type target_entities: dict
+        """
         if self.dry_run:
             self.logger.info(
                 'DRY RUN mode is ON. No entities will be loaded into the '

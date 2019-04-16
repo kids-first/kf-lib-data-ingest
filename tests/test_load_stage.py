@@ -43,10 +43,10 @@ def test_uid_cache(tmpdir):
     assert os.path.exists(b1.uid_cache_filepath)
     assert os.path.exists(b2.uid_cache_filepath)
 
-    b1._store_target_id('entity_type', 'entity_unique_key', 'target_id')
-    assert b1._get_target_id('entity_type', 'entity_unique_key') == 'target_id'
-    b2._store_target_id('entity_type', 'entity_unique_key', 'target_id')
-    assert b2._get_target_id('entity_type', 'entity_unique_key') == 'target_id'
+    b1._store_target_id('entity type', 'entity unique key', 'target_id')
+    assert b1._get_target_id('entity type', 'entity unique key') == 'target_id'
+    b2._store_target_id('entity type', 'entity_unique_key', 'target id')
+    assert b2._get_target_id('entity type', 'entity_unique_key') == 'target id'
 
     assert b1.uid_cache_filepath != a1.uid_cache_filepath
     assert b1.uid_cache_filepath != b2.uid_cache_filepath
