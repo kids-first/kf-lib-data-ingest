@@ -127,16 +127,33 @@ These are the main steps transform stage takes to make this happen:
     specifies how the individual tables from ExtractStage should be merged
     into a single table.
 
-2. **Convert from standard form to target form**
+2. **Create Unique Identifiers for Concepts**
+
+    For most concepts, the contributor of the data provides their own IDs to
+    uniquely identify the concept within a dataset. But for some concepts,
+    such as event based concepts like like diagnosis events, and
+    phenotype observations, an ID isn't really provided by the data
+    contributor.
+
+    Transform stage will create its own unique identifier, called the unique
+    key, and assign one to every concept instance. Most unique keys just equate
+    to the ID provided by the data contributor, while others are created from
+    a combination of things (i.e. diagnosis event = participant ID +
+    diagnosis name + diagnosis age at event).
+
+    The unique keys are used by the ingest pipeline for a number of things
+    which will be explained later on.
+
+3. **Convert from standard form to target form**
 
     Next, the transform stage iterates over the rows in the merged table
     and emits a target concept instance (dict) for each row.
 
-    Columns/standard concept attributes in the merged table are converted
+    Columns in the merged table (standard concept attributes) are converted
     to target concept properties using the Kids First target API configuration
     file.
 
-3. **Apply common transformations**
+4. **Apply common transformations**
 
     For example, filling in left over null or unknown values with standard
     values (i.e. Not Reported, Unknown).
