@@ -215,7 +215,7 @@ class LoadStage(IngestStage):
         :param body: map between entity keys and values
         :type body: dict
         :raises RequestException: Unhandled response error from the server
-        :return: The entity that the target service says was created
+        :return: The entity that the target service says was created or updated
         :rtype: dict
         """
         resp = None
