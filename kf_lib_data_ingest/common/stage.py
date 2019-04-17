@@ -53,8 +53,10 @@ class IngestStage(ABC):
         implemented by subclasses.
         """
         if self.stage_cache_dir:
+            self.logger.info(f'Writing {type(self).__name__} output')
             os.makedirs(self.stage_cache_dir, exist_ok=True)
             self._write_output(output)
+            self.logger.info(f'Done writing {type(self).__name__} output')
 
     @abstractmethod
     def _run(self, *args, **kwargs):
@@ -167,7 +169,9 @@ class IngestStage(ABC):
         self.write_output(output)
 
         # Write data for accounting to disk
+        self.logger.info("Counting what we got")
         self.concept_discovery_dict = self._postrun_concept_discovery(output)
+        self.logger.info("Done counting what we got")
         if self.concept_discovery_dict:
             write_json(
                 self.concept_discovery_dict,

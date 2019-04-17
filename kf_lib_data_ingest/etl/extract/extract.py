@@ -102,9 +102,6 @@ class ExtractStage(IngestStage):
 
         write_json(metadata, meta_fp)
 
-        self.logger.info(f'Writing {type(self).__name__} output:\n'
-                         f'{pformat(list(output.keys()))}')
-
     def _read_output(self):
         """
         Implements IngestStage._write_output
@@ -426,8 +423,9 @@ class ExtractStage(IngestStage):
                 for keyB in df.columns:
                     if keyB != keyA:
                         for i in range(len(df)):
-                            links[keyA + '::' + keyB][df[keyA].iloc[i]].add(
-                                df[keyB].iloc[i]
-                            )
+                            vala = df[keyA].iloc[i]
+                            valb = df[keyB].iloc[i]
+                            if vala and valb:
+                                links[keyA + '::' + keyB][vala].add(valb)
 
         return {'sources': sources, 'links': links}
