@@ -98,6 +98,7 @@
 <li class="toctree-l2"><a class="reference internal" href="ingest_package.html">Ingest Package Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="project_setup.html">Project Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extract.html">Extract Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="package_testing.html">Test Your Ingest Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="transform.html">Transform Stage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="load.html">Load Stage</a></li>
 </ul>
@@ -173,13 +174,14 @@
 <span id="id1"></span><h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
 <p>The quickstart example uses a simple dataset and is primarily intended to show
 a user how to run the ingest pipeline and view basic outputs. This tutorial
-will use a more complex study dataset and step through each ingest stage in
-much more depth.</p>
+uses a more complex study dataset and steps through each ingest stage in much
+more depth.</p>
 <p>In this tutorial we will cover:</p>
 <ol class="arabic simple">
 <li>How to configure complex extractions with multiple messy source data files</li>
 <li>How to write a transform function for the transform stage</li>
 <li>How to run the ingest pipeline from end to end</li>
+<li>How to test your ingest package each step of the way</li>
 <li>How to debug steps 1 through 3 by:<ul>
 <li>Running stages individually</li>
 <li>Viewing stage outputs</li>
@@ -203,7 +205,20 @@ much more depth.</p>
 <li class="toctree-l2"><a class="reference internal" href="extract.html#write-extract-configuration-files">Write Extract Configuration Files</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="transform.html">Transform Stage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package_testing.html">Test Your Ingest Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="package_testing.html#testing-your-package">Testing Your Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="package_testing.html#the-test-cli-command">The <code class="docutils literal notranslate"><span class="pre">test</span></code> CLI Command</a></li>
+<li class="toctree-l2"><a class="reference internal" href="package_testing.html#data-validation-tests">Data Validation Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="package_testing.html#set-expected-counts">Set Expected Counts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="package_testing.html#best-practices">Best Practices</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="transform.html">Transform Stage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="transform.html#guided-transform-module">Guided Transform Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transform.html#transform-function">Transform Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transform.html#test-your-package">Test Your Package</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="load.html">Load Stage</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="load.html#under-construction">Under Construction</a></li>
 </ul>

@@ -182,17 +182,15 @@ framework for data wrangling tasks. See &lt;TODO&gt; for details.</p>
 <h2>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h2>
 <p>A command line interface (CLI) wraps the library and is the primary user
 interface for executing the ingest pipeline. Users will use the CLI to create
-new ingest packages, test packages, and ingest Kids First X01 study datasets
-into the Kids First Data Service. Currently, the Kids First Data Service
-is the only supported target service at this point.</p>
+new ingest packages, test packages, and ingest Kids First study datasets into
+the Kids First Data Service. The Kids First Data Service is the only supported
+target service at this point.</p>
 </div>
 <div class="section" id="ingest-packages">
 <h2>Ingest Packages<a class="headerlink" href="#ingest-packages" title="Permalink to this headline">¶</a></h2>
 <p>In order to use this library to ingest a study, users must create an ingest
-package which contains all of the necessary configuration expected by the
-library’s ingest pipeline. The ingest package is just configuration as code.
-It contains Python files with code for extracting and transforming data,
-and basic ingest input parameters, etc.</p>
+package which contains all of the necessary configuration defining basic ingest
+input parameters and also how to extract and transform data.</p>
 </div>
 <div class="section" id="ingest-pipeline">
 <h2>Ingest Pipeline<a class="headerlink" href="#ingest-pipeline" title="Permalink to this headline">¶</a></h2>
@@ -268,16 +266,16 @@ serializable form written to disk</li>
 <h3>Extract Stage<a class="headerlink" href="#extract-stage" title="Permalink to this headline">¶</a></h3>
 <p>The extract stage does the following:</p>
 <ol class="arabic simple">
-<li><strong>Retrieve</strong> - Retrieve the source data files whether they are local or
-remote and read into memory</li>
+<li><strong>Retrieve</strong> - Retrieve the source data files, whether they are local or
+remote, and read them into memory</li>
 <li><strong>Select</strong> - Extract the desired subset of data from the source data files</li>
-<li><strong>Clean</strong>- Clean the source data (i.e. remove trailing whitespaces, etc)</li>
+<li><strong>Clean</strong>- Clean the source data (remove trailing whitespaces, etc)</li>
 <li><strong>Map</strong> - Map the cleaned data to a set of standard Kids First attributes
 and values</li>
 </ol>
 <p>The standard set of attributes and values are defined in the Kids First
-Standard Concept Schema. See &lt;TODO&gt; for more details. Extract stage output
-might look like this:</p>
+Standard Concept Schema. See &lt;TODO&gt; for more details.</p>
+<p>Extract stage output might look like this:</p>
 <table border="1" class="docutils" id="id3">
 <caption><span class="caption-text">data.tsv</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
 <colgroup>
@@ -310,29 +308,44 @@ might look like this:</p>
 <div class="section" id="transform-stage">
 <h3>Transform Stage<a class="headerlink" href="#transform-stage" title="Permalink to this headline">¶</a></h3>
 <p>The transform stage converts the clean and standardized data into a form that
-is expected by the target database or service.</p>
+closely resembles what is expected by the target database or service.</p>
+<p>These are the main steps performed by transform stage:</p>
 <ol class="arabic">
+<li><p class="first"><strong>Merge Extract Stage tables into unified form</strong></p>
+<blockquote>
+<div><p>If in guided transform mode, the Transform Stage will apply the
+user-defined transform function. This function specifies how the individual
+tables from the Extract Stage should be merged into a single table.</p>
+<p>If in auto-transform mode, Transform Stage will convert the ExtractStage
+tables into a graph. Note that auto-transform mode is not completely
+implemented yet.</p>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>Create unique identifiers for concepts</strong></p>
+<blockquote>
+<div><p>For most concepts, the contributor of the data provides their own IDs to
+uniquely identify the concept within a dataset. But for some, such as
+diagnosis and phenotype observation events, an event ID isn’t typically
+provided.</p>
+<p>The Transform Stage will create its own unique identifiers and assign one
+to every concept instance. Most unique identifiers just equate to the ID
+provided by the data contributor, while others are created from a
+combination of values (e.g. diagnosis event = participant ID + diagnosis
+name + participant age at event).</p>
+</div></blockquote>
+</li>
 <li><p class="first"><strong>Convert from standard form to target form</strong></p>
 <blockquote>
-<div><p>To do this, the transform stage requires an additional input -
-the target API configuration file. This file specifies how entities and
-their attributes in the Kids First Standard Concept Schema map to entities
-and their attributes in the target service.</p>
+<div><p>Next, the Transform Stage emits target entity instance dicts.</p>
+<p>Properties in the unified form (standard concept attributes) are converted
+to target concept properties using the Kids First target API configuration
+file.</p>
 </div></blockquote>
 </li>
-<li><p class="first"><strong>Apply common transformations</strong></p>
+<li><p class="first"><strong>Apply common cleaning for the target service</strong></p>
 <blockquote>
-<div><p>For example, filling in left over null or unknown values with standard
-values (i.e. Not Reported, Unknown).</p>
-</div></blockquote>
-</li>
-<li><p class="first"><strong>Translate Source Data Entity IDs</strong></p>
-<blockquote>
-<div><p>Every time the ingest pipeline runs and loads new entities into the target,
-it keeps a record of the ID created by the target service for an entity and
-the corresponding ID for that entity in the source data.</p>
-<p>This part of transform looks up a source data ID in the ID cache and
-translates it to its corresponding target service ID, if one exists.</p>
+<div><p>This includes actions like filling in leftover null or unknown values with
+standard values (Not Reported, Unknown, etc).</p>
 </div></blockquote>
 </li>
 </ol>
@@ -340,19 +353,22 @@ translates it to its corresponding target service ID, if one exists.</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
     <span class="nt">&quot;participant&quot;</span><span class="p">:</span> <span class="p">[</span>
         <span class="p">{</span>
-            <span class="nt">&quot;kf_id&quot;</span><span class="p">:</span> <span class="s2">&quot;PT_00001111&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;external_id&quot;</span><span class="p">:</span> <span class="s2">&quot;PID001&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;gender&quot;</span><span class="p">:</span> <span class="s2">&quot;Female&quot;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="nt">&quot;kf_id&quot;</span><span class="p">:</span> <span class="s2">&quot;PT_00001112&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;external_id&quot;</span><span class="p">:</span> <span class="s2">&quot;PID002&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;gender&quot;</span><span class="p">:</span> <span class="s2">&quot;Female&quot;</span>
-        <span class="p">}</span>
-        <span class="p">{</span>
-            <span class="nt">&quot;kf_id&quot;</span><span class="p">:</span> <span class="s2">&quot;PT_00001113&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;external_id&quot;</span><span class="p">:</span> <span class="s2">&quot;PID003&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;gender&quot;</span><span class="p">:</span> <span class="s2">&quot;Male&quot;</span>
+            <span class="nt">&quot;endpoint&quot;</span><span class="p">:</span> <span class="s2">&quot;/participants&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;P001&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;links&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="nt">&quot;family_id&quot;</span><span class="p">:</span> <span class="s2">&quot;f1&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;study_id&quot;</span><span class="p">:</span> <span class="kc">null</span>
+            <span class="p">},</span>
+            <span class="nt">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="nt">&quot;affected_status&quot;</span><span class="p">:</span> <span class="s2">&quot;Not Reported&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;consent_type&quot;</span><span class="p">:</span> <span class="s2">&quot;GRU&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;ethnicity&quot;</span><span class="p">:</span> <span class="s2">&quot;Not Reported&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;external_id&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;gender&quot;</span><span class="p">:</span> <span class="s2">&quot;Female&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;is_proband&quot;</span><span class="p">:</span> <span class="s2">&quot;True&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;race&quot;</span><span class="p">:</span> <span class="s2">&quot;Not Reported&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;visible&quot;</span><span class="p">:</span> <span class="s2">&quot;Not Reported&quot;</span>
+            <span class="p">}</span>
         <span class="p">}</span>
     <span class="p">]</span>
 <span class="p">}</span>
@@ -361,9 +377,9 @@ translates it to its corresponding target service ID, if one exists.</p>
 </div>
 <div class="section" id="load-stage">
 <h3>Load Stage<a class="headerlink" href="#load-stage" title="Permalink to this headline">¶</a></h3>
-<p>At this point, all transformations to data values are complete and the
-data is in a form that is expected by the target database or service.
-The load stage transmits the entity payloads to the target.</p>
+<p>At this point, the data is in a form that is almost ready to be submitted to
+the target service. The Load Stage will build the target payloads and either
+POST or PATCH them to the target service.</p>
 <p>Head on over to the <a class="reference internal" href="tutorial/index.html#tutorial"><span class="std std-ref">Tutorial</span></a> to get started with data ingestion!</p>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Table of Contents</span></p>
@@ -374,6 +390,7 @@ The load stage transmits the entity payloads to the target.</p>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/ingest_package.html">Ingest Package Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/project_setup.html">Project Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/extract.html">Extract Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/package_testing.html">Test Your Ingest Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/transform.html">Transform Stage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/load.html">Load Stage</a></li>
 </ul>
