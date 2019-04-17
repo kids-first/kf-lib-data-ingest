@@ -7,11 +7,51 @@ import sys
 
 import click
 
-from kf_lib_data_ingest.config import DEFAULT_LOG_LEVEL, DEFAULT_TARGET_URL
 from kf_lib_data_ingest.app import settings
+from kf_lib_data_ingest.config import DEFAULT_LOG_LEVEL, DEFAULT_TARGET_URL
+from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 DEFAULT_LOG_LEVEL_NAME = logging._levelToName.get(DEFAULT_LOG_LEVEL)
+
+
+def common_args_options(func):
+    """
+    Common click args and options
+    """
+    # Ingest package config
+    func = click.argument('dataset_ingest_config_path',
+                          type=click.Path(exists=True,
+                                          file_okay=True,
+                                          dir_okay=True))(func)
+    # App settings
+    func = click.option(
+        '--app_settings', 'app_settings_filepath',
+        type=click.Path(exists=True, file_okay=True, dir_okay=False),
+        help=('Path to an ingest app settings file. If not specified, '
+              'will use default app settings for the current app mode, '
+              'which is specified by environment variable: '
+              f'{settings.APP_MODE_ENV_VAR}. '
+              'See kf_lib_data_ingest.app.settings for default settings '
+              'files'))(func)
+
+    # Log level
+    log_help_txt = (
+        'Controls level of log messages to output. If not supplied via CLI, '
+        'log_level from the dataset_ingest_config.yaml will be used. If not '
+        'supplied via config yaml, the default log_level for the ingest lib '
+        f'will be used: {DEFAULT_LOG_LEVEL_NAME}')
+    func = click.option('--log_level', 'log_level_name',
+                        type=click.Choice(map(str.lower,
+                                              logging._nameToLevel.keys())),
+                        help=log_help_txt)(func)
+    # Target URL
+    func = click.option(
+        '-t', '--target_url',
+              default=DEFAULT_TARGET_URL, show_default=True,
+              help='Target service URL where data will be loaded into')(func)
+
+    return func
 
 
 @click.group(context_settings=CONTEXT_SETTINGS)
@@ -26,20 +66,11 @@ def cli():
 
 
 @click.command()
-@click.option('--app_settings', 'app_settings_filepath',
-              type=click.Path(exists=True, file_okay=True, dir_okay=False),
-              help=('Path to an ingest app settings file. If not specified, '
-                    'will use default app settings for the current app mode, '
-                    'which is specified by environment variable: '
-                    f'{settings.APP_MODE_ENV_VAR}. '
-                    'See kf_lib_data_ingest.app.settings for default settings '
-                    'files'))
-@click.option('--log_level', 'log_level_name', type=click.Choice(
-    map(str.lower, logging._nameToLevel.keys())),
-    help=('Controls level of log messages to output. If not supplied via CLI, '
-          'log_level from the dataset_ingest_config.yaml will be used. If not '
-          'supplied via config yaml, the default log_level for the ingest lib '
-          f'will be used: {DEFAULT_LOG_LEVEL_NAME}'))
+@click.option('--dry_run',
+              default=False,
+              is_flag=True,
+              help='A flag specifying whether to only pretend to send data to '
+              'the target service')
 @click.option('--use_async',
               default=False,
               is_flag=True,
@@ -51,20 +82,9 @@ def cli():
 #               is_flag=True,
 #               help='A flag specifying whether to use auto transformation or '
 #               'user guided transformation')
-@click.option('-t', '--target_url',
-              default=DEFAULT_TARGET_URL, show_default=True,
-              help='Target service URL where data will be loaded into')
-@click.argument('dataset_ingest_config_path',
-                type=click.Path(exists=True, file_okay=True, dir_okay=True))
-@click.option('--dry_run',
-              default=False,
-              is_flag=True,
-              help='A flag specifying whether to only pretend to send data to '
-              'the target service')
-def ingest(
-    dataset_ingest_config_path, target_url, use_async, dry_run, log_level_name,
-    app_settings_filepath
-):
+@common_args_options
+def ingest(dataset_ingest_config_path, app_settings_filepath, log_level_name,
+           target_url, use_async, dry_run):
     """
     Run the Kids First data ingest pipeline.
 
@@ -75,8 +95,6 @@ def ingest(
         or a path to a directory which contains a file called
         'dataset_ingest_config_path.yml'
     """
-    from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
-
     # Make kwargs from options
     frame = inspect.currentframe()
     args, _, _, values = inspect.getargvalues(frame)
@@ -111,6 +129,31 @@ def ingest(
         sys.exit(1)
 
 
+@cli.command()
+@common_args_options
+@click.pass_context
+def test(ctx, dataset_ingest_config_path, app_settings_filepath,
+         log_level_name, target_url):
+    """
+    Run the Kids First data ingest pipeline in dry_run mode (--dry_run=True)
+    Used for testing ingest packages.
+
+    \b
+    Arguments:
+        \b
+        dataset_ingest_config_path - the path to the data ingest config file
+        or a path to a directory which contains a file called
+        'dataset_ingest_config_path.yml'
+    """
+    # Make kwargs from options
+    frame = inspect.currentframe()
+    args, _, _, values = inspect.getargvalues(frame)
+    kwargs = {arg: values[arg] for arg in args[1:]}
+
+    kwargs['dry_run'] = True
+    ctx.invoke(ingest, **kwargs)
+
+
 @click.command(name='new')
 @click.option('--dest_dir',
               help='Path to the directory where the new ingest package will '
@@ -127,4 +170,5 @@ def create_new_ingest(dest_dir=None):
 
 
 cli.add_command(ingest)
+cli.add_command(test)
 cli.add_command(create_new_ingest)

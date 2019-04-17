@@ -1,14 +1,15 @@
 import os
 import shutil
 
+import pytest
 from click.testing import CliRunner
 
 from kf_lib_data_ingest.app import cli
-from conftest import (
-    TEST_DATA_DIR,
-    TRANSFORM_MODULE_PATH
-)
+from conftest import TEST_DATA_DIR
 from conftest import COMMAND_LINE_ERROR_CODE
+
+TEST_STUDY_CONFIG = os.path.join(TEST_DATA_DIR, 'test_study',
+                                 'dataset_ingest_config.yml')
 
 
 def test_ingest_cmd_missing_required_args():
@@ -25,15 +26,17 @@ def test_ingest_cmd_missing_required_args():
     assert result.exit_code == COMMAND_LINE_ERROR_CODE
 
 
-def test_ingest():
+@pytest.mark.parametrize('cli_cmd, arg_str',
+                         [
+                             (cli.ingest, f'{TEST_STUDY_CONFIG} --dry_run'),
+                             (cli.test, TEST_STUDY_CONFIG)
+                         ])
+def test_ingest_cmds(cli_cmd, arg_str):
     """
-    Test ingest - guided transform
+    Test ingest and test CLI commands - guided transform
     """
-    ingest_config_path = os.path.join(TEST_DATA_DIR, 'test_study',
-                                      'dataset_ingest_config.yml')
-
     runner = CliRunner()
-    result = runner.invoke(cli.ingest, f'{ingest_config_path} --dry_run')
+    result = runner.invoke(cli_cmd, arg_str)
 
     assert result.exit_code == 1
     assert 'BEGIN data ingestion' in result.output
@@ -51,6 +54,8 @@ def test_ingest():
     assert 'ExtractStage - INFO - UNIQUE COUNTS' in result.output
     assert ('| CONCEPT|BIOSPECIMEN|ID |         60 |      60 | ✅' in
             result.output)
+
+    assert 'DRY' in result.output
 
 
 def test_ingest_no_transform_module(tmpdir):
