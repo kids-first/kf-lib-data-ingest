@@ -13,3 +13,4 @@ requests==2.21.0
 tabulate==0.8.3
 sqlite3worker==1.1.7
 jsonpickle==1.1
+pytest==4.4.0
