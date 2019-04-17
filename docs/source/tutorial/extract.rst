@@ -7,11 +7,11 @@ Extract Stage
 The extract stage does 3 main things:
 
 1. Select or extract the desired subset of data from the source data files
-2. Clean the selected data (i.e. remove trailing whitespaces, etc)
+2. Clean the selected data (remove trailing whitespaces, etc)
 3. Map the cleaned data's attributes and values to Kids First entity attributes
    and acceptable values.
 
-The extract configuration files instruct the extract stage on how to accomplish
+The extract configuration files instruct the extract stage how to accomplish
 the above.
 
 Write Extract Configuration Files
@@ -21,14 +21,8 @@ Every data file provided by the investigator will require at least one extract
 configuration file. The reasons why will hopefully become clear after reading
 this section.
 
-We will step through how to write an extract configuration file for one of the
-source data files and then you should be able to write the configs for the rest
-of them.
-
-You may download/copy
-`this file from here <https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/update-tutorial/docs/data/family_and_phenotype.tsv>`_
-into your ingest package's data directory and implement the extract config as
-you step through the tutorial.
+We will step through how to write an extract configuration file for a source
+data file.
 
 Here's a example source data file:
 ----------------------------------
@@ -36,6 +30,11 @@ Here's a example source data file:
 .. csv-table:: family_and_phenotype.tsv
     :delim: tab
     :url: https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/update-tutorial/docs/data/family_and_phenotype.tsv
+
+You can `download/copy this file
+<https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/update-tutorial/docs/data/family_and_phenotype.tsv>`_
+into your ingest package's data directory if you want to test implementing the
+extract config as you go through this tutorial.
 
 In order to ingest this data into the Kids First ecosystem, we need to:
 -----------------------------------------------------------------------
@@ -60,7 +59,7 @@ In order to ingest this data into the Kids First ecosystem, we need to:
 The following extract configuration file accomplishes all of those needs
 ------------------------------------------------------------------------
 
-(We'll explain how each piece works after showing the whole thing)
+(We will explain how each piece works after showing the whole thing)
 
 .. code-block:: python
 
