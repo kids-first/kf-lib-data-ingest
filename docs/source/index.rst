@@ -27,17 +27,16 @@ Command Line Interface
 
 A command line interface (CLI) wraps the library and is the primary user
 interface for executing the ingest pipeline. Users will use the CLI to create
-new ingest packages, test packages, and ingest Kids First X01 study datasets
-into the Kids First Data Service. Currently, the Kids First Data Service
-is the only supported target service at this point.
+new ingest packages, test packages, and ingest Kids First study datasets into
+the Kids First Data Service. The Kids First Data Service is the only supported
+target service at this point.
 
 Ingest Packages
-==========================
+===============
+
 In order to use this library to ingest a study, users must create an ingest
-package which contains all of the necessary configuration expected by the
-library's ingest pipeline. The ingest package is just configuration as code.
-It contains Python files with code for extracting and transforming data,
-and basic ingest input parameters, etc.
+package which contains all of the necessary configuration defining basic ingest
+input parameters and also how to extract and transform data.
 
 Ingest Pipeline
 ===============
@@ -96,16 +95,17 @@ Extract Stage
 
 The extract stage does the following:
 
-1. **Retrieve** - Retrieve the source data files whether they are local or
-   remote and read into memory
+1. **Retrieve** - Retrieve the source data files, whether they are local or
+   remote, and read them into memory
 2. **Select** - Extract the desired subset of data from the source data files
-3. **Clean**- Clean the source data (i.e. remove trailing whitespaces, etc)
+3. **Clean**- Clean the source data (remove trailing whitespaces, etc)
 4. **Map** - Map the cleaned data to a set of standard Kids First attributes
    and values
 
 The standard set of attributes and values are defined in the Kids First
-Standard Concept Schema. See <TODO> for more details. Extract stage output
-might look like this:
+Standard Concept Schema. See <TODO> for more details.
+
+Extract stage output might look like this:
 
 .. csv-table:: data.tsv
     :header: "CONCEPT.PARTICIPANT.ID", "CONCEPT.PARTICIPANT.GENDER", "CONCEPT.BIOSPECIMEN.ID"
@@ -118,28 +118,46 @@ Transform Stage
 ---------------
 
 The transform stage converts the clean and standardized data into a form that
-is expected by the target database or service.
+closely resembles what is expected by the target database or service.
 
-1. **Convert from standard form to target form**
+These are the main steps performed by transform stage:
 
-    To do this, the transform stage requires an additional input -
-    the target API configuration file. This file specifies how entities and
-    their attributes in the Kids First Standard Concept Schema map to entities
-    and their attributes in the target service.
+1. **Merge Extract Stage tables into unified form**
 
-2. **Apply common transformations**
+    If in guided transform mode, the Transform Stage will apply the
+    user-defined transform function. This function specifies how the individual
+    tables from the Extract Stage should be merged into a single table.
 
-    For example, filling in left over null or unknown values with standard
-    values (i.e. Not Reported, Unknown).
+    If in auto-transform mode, Transform Stage will convert the ExtractStage
+    tables into a graph. Note that auto-transform mode is not completely
+    implemented yet.
 
-3. **Translate Source Data Entity IDs**
+2. **Create unique identifiers for concepts**
 
-    Every time the ingest pipeline runs and loads new entities into the target,
-    it keeps a record of the ID created by the target service for an entity and
-    the corresponding ID for that entity in the source data.
+    For most concepts, the contributor of the data provides their own IDs to
+    uniquely identify the concept within a dataset. But for some, such as
+    diagnosis and phenotype observation events, an event ID isn't typically
+    provided.
 
-    This part of transform looks up a source data ID in the ID cache and
-    translates it to its corresponding target service ID, if one exists.
+    The Transform Stage will create its own unique identifiers and assign one
+    to every concept instance. Most unique identifiers just equate to the ID
+    provided by the data contributor, while others are created from a
+    combination of values (e.g. diagnosis event = participant ID + diagnosis
+    name + participant age at event).
+
+3. **Convert from standard form to target form**
+
+    Next, the Transform Stage emits target entity instance dicts.
+
+    Properties in the unified form (standard concept attributes) are converted
+    to target concept properties using the Kids First target API configuration
+    file.
+
+4. **Apply common cleaning for the target service**
+
+    This includes actions like filling in leftover null or unknown values with
+    standard values (Not Reported, Unknown, etc).
+
 
 Transform stage output might look like this:
 
@@ -148,19 +166,22 @@ Transform stage output might look like this:
     {
         "participant": [
             {
-                "kf_id": "PT_00001111",
-                "external_id": "PID001",
-                "gender": "Female"
-            },
-            {
-                "kf_id": "PT_00001112",
-                "external_id": "PID002",
-                "gender": "Female"
-            }
-            {
-                "kf_id": "PT_00001113",
-                "external_id": "PID003",
-                "gender": "Male"
+                "endpoint": "/participants",
+                "id": "P001",
+                "links": {
+                    "family_id": "f1",
+                    "study_id": null
+                },
+                "properties": {
+                    "affected_status": "Not Reported",
+                    "consent_type": "GRU",
+                    "ethnicity": "Not Reported",
+                    "external_id": "1",
+                    "gender": "Female",
+                    "is_proband": "True",
+                    "race": "Not Reported",
+                    "visible": "Not Reported"
+                }
             }
         ]
     }
@@ -170,9 +191,9 @@ Transform stage output might look like this:
 Load Stage
 ----------
 
-At this point, all transformations to data values are complete and the
-data is in a form that is expected by the target database or service.
-The load stage transmits the entity payloads to the target.
+At this point, the data is in a form that is almost ready to be submitted to
+the target service. The Load Stage will build the target payloads and either
+POST or PATCH them to the target service.
 
 Head on over to the :ref:`tutorial` to get started with data ingestion!
 
