@@ -29,7 +29,7 @@ Here's a example source data file:
 
 .. csv-table:: family_and_phenotype.tsv
     :delim: tab
-    :url: https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/update-tutorial/docs/data/family_and_phenotype.tsv
+    :url: https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/master/docs/data/family_and_phenotype.tsv
 
 You can `download/copy this file
 <https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/update-tutorial/docs/data/family_and_phenotype.tsv>`_
