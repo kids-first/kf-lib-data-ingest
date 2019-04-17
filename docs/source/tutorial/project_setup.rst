@@ -4,7 +4,7 @@
 Project Setup
 =============
 
-If you haven't done so already make sure to complete the installation before
+If you haven't done so already, make sure to complete the installation before
 moving on.
 
 Create Your Ingest Project
@@ -15,22 +15,21 @@ CLI::
 
 $ kidsfirst new my_study
 
-This will generate a minimal study directory for you. It will look like this::
+This will generate a minimal study directory for you that looks like this::
 
     my_study/
-    ├── data
-    │   └── clinical.tsv
     ├── dataset_ingest_config.yml
     ├── transform_module.py
-    └── extract_configs/
+    ├── data
+    │   └── clinical.tsv
+    ├── extract_configs/
     │   └── extract_config.py
-    ├── tests
-    │   ├── conftest.py
-    │   └── test_custom_counts.py
+    └── tests
+        ├── conftest.py
+        └── test_custom_counts.py
 
-You can fill in the study and investigator information in the
-``dataset_ingest_config.yml`` file if you want, but we won't actually use this
-until later in the Load stage. You can always come back to modify it later.
+You can fill in the study information in the ``dataset_ingest_config.yml`` file
+if you want, but we won't actually use it until later in the Load stage. You
+can always modify it later.
 
-Ok now we are ready to start configuration for the
-:ref:`Tutorial-Extract-Stage`.
+Now we are ready to start configuration for the :ref:`Tutorial-Extract-Stage`.

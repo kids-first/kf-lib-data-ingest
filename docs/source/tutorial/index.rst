@@ -6,8 +6,8 @@ Tutorial
 
 The quickstart example uses a simple dataset and is primarily intended to show
 a user how to run the ingest pipeline and view basic outputs. This tutorial
-will use a more complex study dataset and step through each ingest stage in
-much more depth.
+uses a more complex study dataset and steps through each ingest stage in much
+more depth.
 
 In this tutorial we will cover:
 
