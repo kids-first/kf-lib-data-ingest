@@ -1,6 +1,0 @@
-family	subject	sample	analyte	diagnosis	gender
-f1	p1	b1	dna	flu	Male
-f1	p2	b2	rna	cold	Female
-f1	p2	b3	dna	cold	Female
-f2	p3	b4	dna	cold	Female
-f2	p4	b5	rna	strep throat	Male

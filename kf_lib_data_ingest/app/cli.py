@@ -102,8 +102,12 @@ def ingest(
 
     perfection = pipeline.run()
 
-    if not perfection:
-        logging.getLogger(__name__).error("Ingest Pipeline Failed Validation")
+    logger = logging.getLogger(__name__)
+    if perfection:
+        logger.info('✅  Ingest pipline passed validation!')
+    else:
+        logger.error('❌  Ingest pipeline failed validation! '
+                     f'See {pipeline.log_file_path} for details')
         sys.exit(1)
 
 

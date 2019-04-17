@@ -4,6 +4,8 @@ import os
 import sys
 from pprint import pformat
 
+import pytest
+
 import kf_lib_data_ingest.etl.stage_analyses as stage_analyses
 from kf_lib_data_ingest.common.type_safety import assert_safe_type
 from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
@@ -16,11 +18,6 @@ from kf_lib_data_ingest.etl.load.load import LoadStage
 from kf_lib_data_ingest.etl.transform.auto import AutoTransformStage
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
 from kf_lib_data_ingest.etl.transform.transform import TransformStage
-
-# TODO
-# Allow a run argument that contains the desired stages to run
-# 'et' or 'tl', etc. If the full pipeline is not specified, then we
-# must check for cached stage output
 
 
 class DataIngestPipeline(object):
@@ -179,7 +176,10 @@ class DataIngestPipeline(object):
 
                 # Standard stage output validation
                 if stage.concept_discovery_dict:
-                    passed = passed and self.check_stage_counts(stage)
+                    passed = self.check_stage_counts(stage) and passed
+
+            # Run user defined data validation tests
+            passed = self.user_defined_tests() and passed
 
         except Exception as e:
             self.logger.exception(str(e))
@@ -234,3 +234,36 @@ class DataIngestPipeline(object):
         stage.logger.info("End Basic Stage Output Validation")
 
         return passed_all
+
+    def user_defined_tests(self):
+        """
+        Runs user defined data validation tests for the ingest package
+
+        User defined tests must be placed in the `tests` directory inside of
+        the ingest package dir (ingest_pipeline.ingest_config_dir).
+
+        pytest is used to run these tests and so all tests should conform to
+        the pytest standard.
+
+        :returns boolean indiciating whether all tests passed or failed
+        """
+        user_defined_test_dir = os.path.join(self.ingest_config_dir,
+                                             'tests')
+        # No user defined tests exist
+        if not os.path.isdir(user_defined_test_dir):
+            self.logger.info('No user defined unit tests exist for ingest '
+                             f'package: {self.ingest_config_dir}')
+            return True
+
+        # Execute user defined unit tests
+        self.logger.info('Running user defined data validation tests '
+                         f'{user_defined_test_dir} ...')
+
+        passed = pytest.main([user_defined_test_dir]) == 0
+
+        if passed:
+            self.logger.info(f'✅  User defined data validation tests passed!')
+        else:
+            self.logger.info(f'❌  User defined data validation tests passed!')
+
+        return passed
