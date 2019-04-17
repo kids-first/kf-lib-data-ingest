@@ -8,7 +8,7 @@ with open(req_file) as f:
 
 setup(
     name='kf-lib-data-ingest',
-    version='0.1',
+    version='0.1.0',
     description='Kids First Data Ingest Library',
     packages=find_packages(),
     entry_points={
