@@ -128,6 +128,9 @@ class CONCEPT:
     class BIOSPECIMEN_GENOMIC_FILE(PropertyMixin):
         pass
 
+    class SEQUENCING_GENOMIC_FILE(PropertyMixin):
+        pass
+
     class BIOSPECIMEN_DIAGNOSIS(PropertyMixin):
         pass
 
@@ -237,6 +240,7 @@ concept_set = {
     CONCEPT.BIOSPECIMEN_GENOMIC_FILE,
     CONCEPT.BIOSPECIMEN_DIAGNOSIS,
     CONCEPT.READ_GROUP_GENOMIC_FILE,
+    CONCEPT.SEQUENCING_GENOMIC_FILE
 }
 
 
@@ -319,6 +323,12 @@ def _create_unique_key_composition():
     identifiers[CONCEPT.READ_GROUP_GENOMIC_FILE._CONCEPT_NAME] = {
         'required': [
             CONCEPT.READ_GROUP.UNIQUE_KEY,
+            CONCEPT.GENOMIC_FILE.UNIQUE_KEY
+        ]
+    }
+    identifiers[CONCEPT.SEQUENCING_GENOMIC_FILE._CONCEPT_NAME] = {
+        'required': [
+            CONCEPT.SEQUENCING.UNIQUE_KEY,
             CONCEPT.GENOMIC_FILE.UNIQUE_KEY
         ]
     }
