@@ -18,13 +18,13 @@ class TransformModule(PyModuleConfig):
 
     def __init__(self, filepath):
         # Since the path to the transform function py file is an optional key
-        # in dataset_ingest_config.py, it could be None so we should check
+        # in ingest_package_config.py, it could be None so we should check
         # for that.
         if filepath is None:
             raise ConfigValidationError(
                 'Guided transformation requires a '
                 'a valid path to the user defined transform function .py file '
-                'Path must be specified in the dataset_ingest_config.py')
+                'Path must be specified in the ingest_package_config.py')
 
         super().__init__(filepath)
 

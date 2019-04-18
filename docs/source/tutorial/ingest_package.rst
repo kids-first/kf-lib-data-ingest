@@ -8,7 +8,7 @@ transform, and load the study into a target data store or service.
 
 The ingest package contains three components:
 
-1. A top-level configuration file called ``dataset_ingest_config.py``
+1. A top-level configuration file called ``ingest_package_config.py``
     This defines metadata about the study itself such as the study's
     target ID as well as paths to the other two components.
 2. A directory of `Extract Configuration` files
@@ -28,14 +28,14 @@ The ingest package directory
 Your complete ingest package for a study will look like this::
 
     my_study/
-    ├── dataset_ingest_config.py
+    ├── ingest_package_config.py
     ├── extract_configs/
     │   ├── one_file_extract_config.py
     │   ├── another_file_extract_config.py
     │   └── ...
     └── transform_module.py  (optional)
 
-dataset_ingest_config.py
+ingest_package_config.py
 =========================
 
 This file contains details that control ingestion of the study as a whole. It

@@ -9,8 +9,8 @@ import pytest
 import kf_lib_data_ingest.etl.stage_analyses as stage_analyses
 from kf_lib_data_ingest.common.type_safety import assert_safe_type
 from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
-from kf_lib_data_ingest.etl.configuration.dataset_ingest_config import (
-    DatasetIngestConfig
+from kf_lib_data_ingest.etl.configuration.ingest_package_config import (
+    IngestPackageConfig
 )
 from kf_lib_data_ingest.etl.configuration.log import setup_logger
 from kf_lib_data_ingest.etl.extract.extract import ExtractStage
@@ -23,7 +23,7 @@ from kf_lib_data_ingest.etl.transform.transform import TransformStage
 class DataIngestPipeline(object):
 
     def __init__(
-        self, dataset_ingest_config_path, target_api_config_path,
+        self, ingest_package_config_path, target_api_config_path,
         auth_configs=None, auto_transform=False, use_async=False,
         target_url=DEFAULT_TARGET_URL, log_level_name=None, log_dir=None,
         overwrite_log=None, dry_run=False
@@ -31,9 +31,9 @@ class DataIngestPipeline(object):
         """
         Setup data ingest pipeline. Create the config object and setup logging
 
-        :param dataset_ingest_config_path: Path to config file containing all
+        :param ingest_package_config_path: Path to config file containing all
         parameters for data ingest.
-        :type  dataset_ingest_config_path: str
+        :type  ingest_package_config_path: str
         :param target_api_config_path: Path to the target api config file
         :type target_api_config_path: str
         :param auto_transform: Whether to use automatic graph-based
@@ -54,7 +54,7 @@ class DataIngestPipeline(object):
         :type overwrite_log: bool, optional
         """
 
-        assert_safe_type(dataset_ingest_config_path, str)
+        assert_safe_type(ingest_package_config_path, str)
         assert_safe_type(target_api_config_path, str)
         assert_safe_type(auto_transform, bool)
         assert_safe_type(use_async, bool)
@@ -64,8 +64,8 @@ class DataIngestPipeline(object):
         assert_safe_type(overwrite_log, None, bool)
         assert_safe_type(dry_run, bool)
 
-        self.data_ingest_config = DatasetIngestConfig(
-            dataset_ingest_config_path
+        self.data_ingest_config = IngestPackageConfig(
+            ingest_package_config_path
         )
         self.ingest_config_dir = os.path.dirname(
             self.data_ingest_config.config_filepath
@@ -79,7 +79,7 @@ class DataIngestPipeline(object):
         self.target_url = target_url
         self.dry_run = dry_run
 
-        # Get log params from dataset_ingest_config
+        # Get log params from ingest_package_config
         log_dir = log_dir or self.data_ingest_config.log_dir
         log_kwargs = {param: getattr(self.data_ingest_config, param)
                       for param in ['overwrite_log', 'log_level']}

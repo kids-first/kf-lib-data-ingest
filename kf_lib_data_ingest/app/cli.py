@@ -20,7 +20,7 @@ def common_args_options(func):
     Common click args and options
     """
     # Ingest package config
-    func = click.argument('dataset_ingest_config_path',
+    func = click.argument('ingest_package_config_path',
                           type=click.Path(exists=True,
                                           file_okay=True,
                                           dir_okay=True))(func)
@@ -38,7 +38,7 @@ def common_args_options(func):
     # Log level
     log_help_txt = (
         'Controls level of log messages to output. If not supplied via CLI, '
-        'log_level from the dataset_ingest_config.py will be used. If not '
+        'log_level from the ingest_package_config.py will be used. If not '
         'supplied via config, the default log_level for the ingest lib will '
         f'be used: {DEFAULT_LOG_LEVEL_NAME}')
     func = click.option('--log_level', 'log_level_name',
@@ -83,7 +83,7 @@ def cli():
 #               help='A flag specifying whether to use auto transformation or '
 #               'user guided transformation')
 @common_args_options
-def ingest(dataset_ingest_config_path, app_settings_filepath, log_level_name,
+def ingest(ingest_package_config_path, app_settings_filepath, log_level_name,
            target_url, use_async, dry_run):
     """
     Run the Kids First data ingest pipeline.
@@ -91,9 +91,9 @@ def ingest(dataset_ingest_config_path, app_settings_filepath, log_level_name,
     \b
     Arguments:
         \b
-        dataset_ingest_config_path - the path to the data ingest config file
+        ingest_package_config_path - the path to the data ingest config file
         or a path to a directory which contains a file called
-        'dataset_ingest_config.py'
+        'ingest_package_config.py'
     """
     # Make kwargs from options
     frame = inspect.currentframe()
@@ -112,7 +112,7 @@ def ingest(dataset_ingest_config_path, app_settings_filepath, log_level_name,
 
     # Run ingest
     pipeline = DataIngestPipeline(
-        dataset_ingest_config_path, app_settings.TARGET_API_CONFIG, **kwargs
+        ingest_package_config_path, app_settings.TARGET_API_CONFIG, **kwargs
     )
 
     pipeline.logger.info(f'Loaded app settings {app_settings.FILEPATH}, '
@@ -132,7 +132,7 @@ def ingest(dataset_ingest_config_path, app_settings_filepath, log_level_name,
 @cli.command()
 @common_args_options
 @click.pass_context
-def test(ctx, dataset_ingest_config_path, app_settings_filepath,
+def test(ctx, ingest_package_config_path, app_settings_filepath,
          log_level_name, target_url):
     """
     Run the Kids First data ingest pipeline in dry_run mode (--dry_run=True)
@@ -141,9 +141,9 @@ def test(ctx, dataset_ingest_config_path, app_settings_filepath,
     \b
     Arguments:
         \b
-        dataset_ingest_config_path - the path to the data ingest config file
+        ingest_package_config_path - the path to the data ingest config file
         or a path to a directory which contains a file called
-        'dataset_ingest_config_path.py'
+        'ingest_package_config_path.py'
     """
     # Make kwargs from options
     frame = inspect.currentframe()

@@ -6,7 +6,7 @@ from kf_lib_data_ingest.common.type_safety import (
     assert_safe_type
 )
 from kf_lib_data_ingest.config import (
-    DATASET_INGEST_CONFIG_DEFAULT_FILENAME,
+    INGEST_PACKAGE_CONFIG_DEFAULT_FILENAME,
     DEFAULT_LOG_LEVEL,
     DEFAULT_LOG_OVERWRITE_OPT
 )
@@ -16,7 +16,7 @@ from kf_lib_data_ingest.etl.configuration.base_config import (
 )
 
 
-class DatasetIngestConfig(PyModuleConfig):
+class IngestPackageConfig(PyModuleConfig):
     # TODO
     # Removal/Exclusion list
     # We periodically get messages from investigators saying that we should
@@ -29,7 +29,7 @@ class DatasetIngestConfig(PyModuleConfig):
 
     def __init__(self, config_path):
         """
-        Construct a DatasetIngestConfig object from a config file
+        Construct a IngestPackageConfig object from a config file
 
         :param config_path: Path to the data ingest config file
         """
@@ -38,7 +38,7 @@ class DatasetIngestConfig(PyModuleConfig):
         if os.path.isdir(config_path):
             config_path = os.path.join(
                 config_path,
-                DATASET_INGEST_CONFIG_DEFAULT_FILENAME
+                INGEST_PACKAGE_CONFIG_DEFAULT_FILENAME
             )
 
         super().__init__(config_path)
