@@ -36,10 +36,10 @@ class AbstractConfig(ABC):
                 return self.contents[attr]
             except Exception:
                 return getattr(self.contents, attr)
-        except Exception:
+        except Exception as e:
             raise AttributeError(
                 f"'{self.config_filepath}' has no attribute '{attr}'"
-            )
+            ) from e
 
     @abstractmethod
     def _read_file(self, filepath):
@@ -65,8 +65,13 @@ class YamlConfig(AbstractConfig):
 class PyModuleConfig(AbstractConfig):
 
     def _read_file(self, filepath):
-        return import_module_from_file(filepath)
+        try:
+            return import_module_from_file(filepath)
+        except SyntaxError as e:
+            raise ConfigValidationError(
+                f'{self.config_filepath} not a valid Python Module'
+            ) from e
 
     def _validate(self, **kwargs):
-        # TODO
+        # Python modules do their own validation
         pass

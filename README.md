@@ -15,5 +15,5 @@ is the Kids First Data Service. More may be added later.
 A command line interface (CLI) app is included with the library and is the primary user interface for executing the ingest pipeline.
 
 ## Documentation
-Head on over to the documentation site to get started:
+Visit the documentation site to get started:
 https://kids-first.github.io/kf-lib-data-ingest/

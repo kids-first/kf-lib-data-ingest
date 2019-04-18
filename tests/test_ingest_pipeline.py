@@ -9,7 +9,7 @@ from conftest import TEST_DATA_DIR
 from conftest import COMMAND_LINE_ERROR_CODE
 
 TEST_STUDY_CONFIG = os.path.join(TEST_DATA_DIR, 'test_study',
-                                 'dataset_ingest_config.yml')
+                                 'dataset_ingest_config.py')
 
 
 def test_ingest_cmd_missing_required_args():
@@ -17,7 +17,7 @@ def test_ingest_cmd_missing_required_args():
     Test ingest CLI when required arguments are missing
 
     Req args:
-        Path to dataset_ingest_config.yml or dir containing the file
+        Path to dataset_ingest_config.py or dir containing the file
     """
     runner = CliRunner()
     result = runner.invoke(cli.ingest, [])
@@ -75,9 +75,9 @@ def test_ingest_no_transform_module(tmpdir):
     if os.path.isfile(tm):
         os.remove(tm)
 
-    # Remove transform module from ingest config yaml
+    # Remove transform module from ingest config
     ingest_config_path = os.path.join(new_study_dir,
-                                      'dataset_ingest_config.yml')
+                                      'dataset_ingest_config.py')
     with open(ingest_config_path) as txtfile:
         lines = [line
                  for line in txtfile.readlines()

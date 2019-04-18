@@ -72,10 +72,8 @@ def test_log_level(ingest_pipeline):
     Test that configuration of logging level works
     """
     # Update data ingest config
-    ingest_pipeline.data_ingest_config.contents['logging'] = {
-        'log_level': 'warning',
-        'overwrite_log': True
-    }
+    ingest_pipeline.data_ingest_config.contents.log_level = 'warning'
+    ingest_pipeline.data_ingest_config.contents.overwrite_log = True
     ingest_pipeline.data_ingest_config._set_log_params()
 
     # Run and generate log
@@ -123,9 +121,7 @@ def test_log_exceptions(ingest_pipeline):
         ingest_pipeline.data_ingest_config.config_filepath,
         ingest_pipeline.target_api_config_path
     )
-    p.data_ingest_config.contents['logging'] = {
-        'overwrite_log': True
-    }
+    p.data_ingest_config.contents.overwrite_log = True
     ingest_pipeline.data_ingest_config._set_log_params()
 
     # Exception is thrown and log should include exception

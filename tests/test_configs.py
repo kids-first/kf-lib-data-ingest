@@ -6,8 +6,11 @@ from conftest import TEST_DATA_DIR
 from kf_lib_data_ingest.etl.configuration.base_config import (
     AbstractConfig,
     ConfigValidationError,
-    YamlConfig,
-    PyModuleConfig
+    PyModuleConfig,
+    YamlConfig
+)
+from kf_lib_data_ingest.etl.configuration.dataset_ingest_config import (
+    DatasetIngestConfig
 )
 
 
@@ -68,6 +71,32 @@ def test_attr_forwarding():
     assert yc.contents.get('params') == yc.params
     with pytest.raises(AttributeError):
         print(yc.foo)
+
+
+def test_dataset_ingest_config(tmpdir):
+    bdicf_path = os.path.join(tmpdir, 'bad_dataset_ingest_config.py')
+
+    with open(bdicf_path, 'w') as bdicf:
+        bdicf.write("HI, LOL!")
+    with pytest.raises(ConfigValidationError):
+        dic = DatasetIngestConfig(bdicf_path)  # not valid python (syntax)
+
+    with open(bdicf_path, 'w') as bdicf:
+        bdicf.write("foo = 'HI, LOL!'")
+    with pytest.raises(ConfigValidationError):
+        dic = DatasetIngestConfig(bdicf_path)  # missing required members
+
+    confdir = os.path.join(tmpdir, 'extract_configs')
+    os.mkdir(confdir)
+    with open(bdicf_path, 'w') as bdicf:
+        bdicf.write(
+            '\n'.join([
+                f'extract_config_dir = "{confdir}"',
+                'study = "SD_12345678"',
+                'target_service_entities = []'
+            ])
+        )
+    dic = DatasetIngestConfig(bdicf_path)
 
 
 def test_extract_config():
