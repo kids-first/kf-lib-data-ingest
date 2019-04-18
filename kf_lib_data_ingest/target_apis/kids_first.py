@@ -223,6 +223,10 @@ target_concepts = {
     },
     'biospecimen_genomic_file': {
         'standard_concept': CONCEPT.BIOSPECIMEN_GENOMIC_FILE,
+        'links': {
+            'biospecimen_id': CONCEPT.BIOSPECIMEN.UNIQUE_KEY,
+            'genomic_file_id': CONCEPT.GENOMIC_FILE.UNIQUE_KEY
+        },
         'properties': {
             "external_id": CONCEPT.BIOSPECIMEN_GENOMIC_FILE.UNIQUE_KEY,
             'visible': CONCEPT.BIOSPECIMEN_GENOMIC_FILE.VISIBLE
@@ -231,6 +235,10 @@ target_concepts = {
     },
     'biospecimen_diagnosis': {
         'standard_concept': CONCEPT.BIOSPECIMEN_DIAGNOSIS,
+        'links': {
+            'biospecimen_id': CONCEPT.BIOSPECIMEN.UNIQUE_KEY,
+            'diagnosis_id': CONCEPT.DIAGNOSIS.UNIQUE_KEY
+        },
         'properties': {
             "external_id": CONCEPT.BIOSPECIMEN_DIAGNOSIS.UNIQUE_KEY,
             'visible': CONCEPT.BIOSPECIMEN_DIAGNOSIS.VISIBLE
@@ -239,11 +247,27 @@ target_concepts = {
     },
     'read_group_genomic_file': {
         'standard_concept': CONCEPT.READ_GROUP_GENOMIC_FILE,
+        'links': {
+            'read_group_id': CONCEPT.READ_GROUP.UNIQUE_KEY,
+            'genomic_file_id': CONCEPT.GENOMIC_FILE.UNIQUE_KEY
+        },
         'properties': {
             "external_id": CONCEPT.READ_GROUP_GENOMIC_FILE.UNIQUE_KEY,
             'visible': CONCEPT.READ_GROUP_GENOMIC_FILE.VISIBLE
         },
         'endpoint': '/read-group-genomic-files'
+    },
+    'sequencing_experiment_genomic_file': {
+        'standard_concept': CONCEPT.SEQUENCING_GENOMIC_FILE,
+        'links': {
+            'sequencing_experiment_id': CONCEPT.SEQUENCING.UNIQUE_KEY,
+            'genomic_file_id': CONCEPT.GENOMIC_FILE.UNIQUE_KEY
+        },
+        'properties': {
+            "external_id": CONCEPT.SEQUENCING_GENOMIC_FILE.UNIQUE_KEY,
+            'visible': CONCEPT.SEQUENCING_GENOMIC_FILE.VISIBLE
+        },
+        'endpoint': '/sequencing-experiment-genomic-files'
     }
 }
 
@@ -259,9 +283,11 @@ relationships = {
     CONCEPT.BIOSPECIMEN: {CONCEPT.BIOSPECIMEN_GENOMIC_FILE,
                           CONCEPT.BIOSPECIMEN_DIAGNOSIS},
     CONCEPT.GENOMIC_FILE: {CONCEPT.BIOSPECIMEN_GENOMIC_FILE,
-                           CONCEPT.READ_GROUP_GENOMIC_FILE},
+                           CONCEPT.READ_GROUP_GENOMIC_FILE,
+                           CONCEPT.SEQUENCING_GENOMIC_FILE},
     CONCEPT.READ_GROUP: {CONCEPT.READ_GROUP_GENOMIC_FILE},
-    CONCEPT.SEQUENCING: {CONCEPT.GENOMIC_FILE},
+    CONCEPT.SEQUENCING: {CONCEPT.GENOMIC_FILE,
+                         CONCEPT.SEQUENCING_GENOMIC_FILE},
     CONCEPT.SEQUENCING.CENTER: {
         CONCEPT.BIOSPECIMEN,
         CONCEPT.SEQUENCING
