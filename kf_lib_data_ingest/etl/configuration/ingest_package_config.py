@@ -92,12 +92,12 @@ class IngestPackageConfig(PyModuleConfig):
             )
 
     def _validate(self):
-        self.extract_config_dir
+        assert self.extract_config_dir is not None
         assert_safe_type(self.extract_config_dir, str)
 
-        self.study
+        assert self.study is not None
         assert_safe_type(self.study, str)
 
-        self.target_service_entities
+        assert self.target_service_entities is not None
         assert_safe_type(self.target_service_entities, list)
         assert_all_safe_type(self.target_service_entities, str)

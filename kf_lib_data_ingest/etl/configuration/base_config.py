@@ -37,9 +37,7 @@ class AbstractConfig(ABC):
             except Exception:
                 return getattr(self.contents, attr)
         except Exception as e:
-            raise AttributeError(
-                f"'{self.config_filepath}' has no attribute '{attr}'"
-            ) from e
+            return None
 
     @abstractmethod
     def _read_file(self, filepath):
