@@ -65,7 +65,12 @@ class YamlConfig(AbstractConfig):
 class PyModuleConfig(AbstractConfig):
 
     def _read_file(self, filepath):
-        return import_module_from_file(filepath)
+        try:
+            return import_module_from_file(filepath)
+        except SyntaxError as e:
+            raise ConfigValidationError(
+                f'{self.config_filepath} not a valid Python Module'
+            ) from e
 
     def _validate(self, **kwargs):
         # Python modules do their own validation
