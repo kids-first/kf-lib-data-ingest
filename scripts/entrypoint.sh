@@ -23,3 +23,13 @@ if [[ $KF_INGEST_APP_MODE = "production" ]]; then
 fi
 
 kidsfirst "$@"
+
+# During deployment - rm ingest package after ingest completes
+if [[ $CLEANUP ]]; then
+    PACKAGE_DIR="/data/packages/$CLEANUP"
+    if [[ -d $PACKAGE_DIR ]]; then
+        echo "Deleting ingest $PACKAGE_DIR ..."
+        rm -rf $PACKAGE_DIR
+        echo "Complete"
+    fi
+fi
