@@ -18,7 +18,7 @@ $ kidsfirst new my_study
 This will generate a minimal study directory for you that looks like this::
 
     my_study/
-    ├── dataset_ingest_config.py
+    ├── ingest_package_config.py
     ├── transform_module.py
     ├── data
     │   └── clinical.tsv
@@ -28,7 +28,7 @@ This will generate a minimal study directory for you that looks like this::
         ├── conftest.py
         └── test_custom_counts.py
 
-You can fill in the study information in the ``dataset_ingest_config.yml`` file
+You can fill in the study information in the ``ingest_package_config.yml`` file
 if you want, but we won't actually use it until later in the Load stage. You
 can always modify it later.
 

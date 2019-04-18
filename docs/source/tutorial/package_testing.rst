@@ -22,7 +22,7 @@ Your package probably looks like this::
     ├── tests
     │   ├── conftest.py
     │   └── test_custom_counts.py
-    ├── dataset_ingest_config.py
+    ├── ingest_package_config.py
     └── transform_module.py
 
 Testing Your Package
@@ -139,7 +139,7 @@ Ok, now put the extract config back into its directory and let's update the
 expected counts for our ingest package.
 
 The expected counts for an ingest package are set in the
-``dataset_ingest_config.py`` file. Update the counts to the following:
+``ingest_package_config.py`` file. Update the counts to the following:
 
 .. code-block:: py
 

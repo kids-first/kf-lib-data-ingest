@@ -4,7 +4,7 @@ import logging
 ROOT_DIR = os.path.dirname(__file__)
 TEMPLATES_DIR = os.path.join(os.path.dirname(ROOT_DIR), 'templates')
 
-DATASET_INGEST_CONFIG_DEFAULT_FILENAME = 'dataset_ingest_config.py'
+INGEST_PACKAGE_CONFIG_DEFAULT_FILENAME = 'ingest_package_config.py'
 
 USE_ASYNC_KEY = 'use_async'
 TARGET_URL_KEY = 'target_url'

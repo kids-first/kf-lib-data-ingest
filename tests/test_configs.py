@@ -9,8 +9,8 @@ from kf_lib_data_ingest.etl.configuration.base_config import (
     PyModuleConfig,
     YamlConfig
 )
-from kf_lib_data_ingest.etl.configuration.dataset_ingest_config import (
-    DatasetIngestConfig
+from kf_lib_data_ingest.etl.configuration.ingest_package_config import (
+    IngestPackageConfig
 )
 
 
@@ -73,30 +73,30 @@ def test_attr_forwarding():
         print(yc.foo)
 
 
-def test_dataset_ingest_config(tmpdir):
-    bdicf_path = os.path.join(tmpdir, 'bad_dataset_ingest_config.py')
+def test_ingest_package_config(tmpdir):
+    bipcf_path = os.path.join(tmpdir, 'bad_ingest_package_config.py')
 
-    with open(bdicf_path, 'w') as bdicf:
-        bdicf.write("HI, LOL!")
+    with open(bipcf_path, 'w') as bipcf:
+        bipcf.write("HI, LOL!")
     with pytest.raises(ConfigValidationError):
-        dic = DatasetIngestConfig(bdicf_path)  # not valid python (syntax)
+        ipc = IngestPackageConfig(bipcf_path)  # not valid python (syntax)
 
-    with open(bdicf_path, 'w') as bdicf:
-        bdicf.write("foo = 'HI, LOL!'")
+    with open(bipcf_path, 'w') as bipcf:
+        bipcf.write("foo = 'HI, LOL!'")
     with pytest.raises(ConfigValidationError):
-        dic = DatasetIngestConfig(bdicf_path)  # missing required members
+        ipc = IngestPackageConfig(bipcf_path)  # missing required members
 
     confdir = os.path.join(tmpdir, 'extract_configs')
     os.mkdir(confdir)
-    with open(bdicf_path, 'w') as bdicf:
-        bdicf.write(
+    with open(bipcf_path, 'w') as bipcf:
+        bipcf.write(
             '\n'.join([
                 f'extract_config_dir = "{confdir}"',
                 'study = "SD_12345678"',
                 'target_service_entities = []'
             ])
         )
-    dic = DatasetIngestConfig(bdicf_path)
+    ipc = IngestPackageConfig(bipcf_path)
 
 
 def test_extract_config():
