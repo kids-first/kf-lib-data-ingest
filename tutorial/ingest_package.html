@@ -97,7 +97,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorial</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Ingest Package Configuration</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#the-ingest-package-directory">The ingest package directory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#dataset-ingest-config-yml">dataset_ingest_config.yml</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dataset-ingest-config-py">dataset_ingest_config.py</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="project_setup.html">Project Setup</a></li>
@@ -184,10 +184,9 @@ transform, and load the study into a target data store or service.</p>
 <p>The ingest package contains three components:</p>
 <ol class="arabic simple">
 <li><dl class="first docutils">
-<dt>A top-level configuration file called <code class="docutils literal notranslate"><span class="pre">dataset_ingest_config.yml</span></code></dt>
-<dd>This defines metadata about the study itself such as what the study’s name
-is and who the investigators are as well as paths to the other two
-components.</dd>
+<dt>A top-level configuration file called <code class="docutils literal notranslate"><span class="pre">dataset_ingest_config.py</span></code></dt>
+<dd>This defines metadata about the study itself such as the study’s
+target ID as well as paths to the other two components.</dd>
 </dl>
 </li>
 <li><dl class="first docutils">
@@ -211,7 +210,7 @@ transform stage. More on this later in the tutorial.</dd>
 <h2>The ingest package directory<a class="headerlink" href="#the-ingest-package-directory" title="Permalink to this headline">¶</a></h2>
 <p>Your complete ingest package for a study will look like this:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>my_study/
-├── dataset_ingest_config.yml
+├── dataset_ingest_config.py
 ├── extract_configs/
 │   ├── one_file_extract_config.py
 │   ├── another_file_extract_config.py
@@ -220,34 +219,20 @@ transform stage. More on this later in the tutorial.</dd>
 </pre></div>
 </div>
 </div>
-<div class="section" id="dataset-ingest-config-yml">
-<h2>dataset_ingest_config.yml<a class="headerlink" href="#dataset-ingest-config-yml" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="dataset-ingest-config-py">
+<h2>dataset_ingest_config.py<a class="headerlink" href="#dataset-ingest-config-py" title="Permalink to this headline">¶</a></h2>
 <p>This file contains details that control ingestion of the study as a whole. It
 includes study metadata, the list of investigators, logging parameters, and
 paths to the extract configs directory and the optional transform module.</p>
 <p>It looks something like:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">study</span><span class="p">:</span>
-    <span class="nt">kf_id</span><span class="p">:</span> <span class="s">&#39;SD_MEOWMEOW&#39;</span>
-    <span class="nt">external_id</span><span class="p">:</span> <span class="s">&#39;phs0001999&#39;</span>
-    <span class="nt">short_name</span><span class="p">:</span> <span class="s">&#39;Cat</span><span class="nv"> </span><span class="s">Study&#39;</span>
-    <span class="nt">name</span><span class="p">:</span> <span class="s">&#39;The</span><span class="nv"> </span><span class="s">long</span><span class="nv"> </span><span class="s">study</span><span class="nv"> </span><span class="s">of</span><span class="nv"> </span><span class="s">cats&#39;</span>
-    <span class="nt">authority</span><span class="p">:</span> <span class="s">&#39;dbgap&#39;</span>
-    <span class="nt">version</span><span class="p">:</span> <span class="s">&#39;v2.p1&#39;</span>
-    <span class="nt">release_status</span><span class="p">:</span> <span class="s">&#39;Pending&#39;</span>
-    <span class="nt">category</span><span class="p">:</span> <span class="s">&#39;Cancer&#39;</span>
-    <span class="nt">attribution</span><span class="p">:</span> <span class="s">&#39;https://www.meowmeowmeow.cat/study/attribution.html&#39;</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">study</span> <span class="o">=</span> <span class="s1">&#39;SD_ME0WME0W&#39;</span>
 
-<span class="nt">investigators</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="s">&#39;IG_12345678&#39;</span>
-    <span class="p p-Indicator">-</span> <span class="s">&#39;IG_87654321&#39;</span>
+<span class="n">extract_config_dir</span> <span class="o">=</span> <span class="s1">&#39;extract_configs&#39;</span>
 
-<span class="nt">extract_config_dir</span><span class="p">:</span> <span class="s">&#39;extract_configs&#39;</span>
+<span class="n">transform_function_path</span> <span class="o">=</span> <span class="s1">&#39;transform_module.py&#39;</span>
 
-<span class="nt">transform_function_path</span><span class="p">:</span> <span class="s">&#39;transform_module.py&#39;</span>
-
-<span class="nt">logging</span><span class="p">:</span>
-    <span class="nt">log_level</span><span class="p">:</span> <span class="s">&#39;info&#39;</span>
-    <span class="nt">overwrite_log</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="n">log_level</span> <span class="o">=</span> <span class="s1">&#39;debug&#39;</span>
+<span class="n">overwrite_log</span> <span class="o">=</span> <span class="bp">True</span>
 </pre></div>
 </div>
 <p>Ok, let’s head on over to <a class="reference internal" href="project_setup.html#tutorial-project-setup"><span class="std std-ref">Project Setup</span></a> to start building

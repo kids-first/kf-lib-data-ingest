@@ -204,7 +204,7 @@ added in the previous step of this tutorial.</p>
 ├── tests
 │   ├── conftest.py
 │   └── test_custom_counts.py
-├── dataset_ingest_config.yml
+├── dataset_ingest_config.py
 └── transform_module.py
 </pre></div>
 </div>
@@ -307,11 +307,12 @@ that ingest passed validation:</p>
 <p>Ok, now put the extract config back into its directory and let’s update the
 expected counts for our ingest package.</p>
 <p>The expected counts for an ingest package are set in the
-<code class="docutils literal notranslate"><span class="pre">dataset_ingest_config.yaml</span></code> file. Update the counts to the following:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">expected_counts</span><span class="p">:</span>
-    <span class="nt">&#39;CONCEPT|FAMILY&#39;</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
-    <span class="nt">&#39;CONCEPT|PARTICIPANT&#39;</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">9</span>
-    <span class="nt">&#39;CONCEPT|BIOSPECIMEN&#39;</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">16</span>
+<code class="docutils literal notranslate"><span class="pre">dataset_ingest_config.py</span></code> file. Update the counts to the following:</p>
+<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="n">expected_counts</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">CONCEPT</span><span class="o">.</span><span class="n">FAMILY</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">CONCEPT</span><span class="o">.</span><span class="n">PARTICIPANT</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+    <span class="n">CONCEPT</span><span class="o">.</span><span class="n">BIOSPECIMEN</span><span class="p">:</span> <span class="mi">16</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>Now re-run the test command. You should see your tests passing:</p>

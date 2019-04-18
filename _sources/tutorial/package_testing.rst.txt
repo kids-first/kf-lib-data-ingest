@@ -22,7 +22,7 @@ Your package probably looks like this::
     ├── tests
     │   ├── conftest.py
     │   └── test_custom_counts.py
-    ├── dataset_ingest_config.yml
+    ├── dataset_ingest_config.py
     └── transform_module.py
 
 Testing Your Package
@@ -139,14 +139,15 @@ Ok, now put the extract config back into its directory and let's update the
 expected counts for our ingest package.
 
 The expected counts for an ingest package are set in the
-``dataset_ingest_config.yaml`` file. Update the counts to the following:
+``dataset_ingest_config.py`` file. Update the counts to the following:
 
-.. code-block:: yaml
+.. code-block:: py
 
-    expected_counts:
-        'CONCEPT|FAMILY': 2
-        'CONCEPT|PARTICIPANT': 9
-        'CONCEPT|BIOSPECIMEN': 16
+    expected_counts = {
+        CONCEPT.FAMILY: 2,
+        CONCEPT.PARTICIPANT: 9,
+        CONCEPT.BIOSPECIMEN: 16
+    }
 
 Now re-run the test command. You should see your tests passing::
 
