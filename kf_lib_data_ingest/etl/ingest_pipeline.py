@@ -119,16 +119,16 @@ class DataIngestPipeline(object):
 
         transform_fp = None
         # Create file path to transform function Python module
-        if not self.auto_transform:
-            try:
-                transform_fp = os.path.join(
-                    self.ingest_config_dir,
-                    os.path.relpath(
-                        self.data_ingest_config.transform_function_path
-                    )
+        if (
+            self.data_ingest_config.transform_function_path
+            and not self.auto_transform
+        ):
+            transform_fp = os.path.join(
+                self.ingest_config_dir,
+                os.path.relpath(
+                    self.data_ingest_config.transform_function_path
                 )
-            except AttributeError:
-                pass
+            )
 
         if not transform_fp:
             # ** Temporary - until auto transform is further developed **
@@ -235,7 +235,7 @@ class DataIngestPipeline(object):
                 stage.logger.info(
                     'No ExtractStage Discovery Data Sources To Compare ❌'
                 )
-        stage.logger.info("End Basic Stage Output Validation")
+        stage.logger.info('End Basic Stage Output Validation')
 
         return passed_all
 

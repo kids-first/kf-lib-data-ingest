@@ -62,15 +62,13 @@ def test_attr_forwarding():
         os.path.join(TEST_DATA_DIR, 'test_study', 'transform_module.py')
     )
     assert pmc.contents.transform_function == pmc.transform_function
-    with pytest.raises(AttributeError):
-        print(pmc.foo)
+    assert pmc.foo is None
 
     config_path = os.path.join(TEST_DATA_DIR, 'valid_yaml_config.yml')
     schema_path = os.path.join(TEST_DATA_DIR, 'yaml_schema.yml')
     yc = YamlConfig(config_path, schema_path=schema_path)
     assert yc.contents.get('params') == yc.params
-    with pytest.raises(AttributeError):
-        print(yc.foo)
+    assert yc.foo is None
 
 
 def test_ingest_package_config(tmpdir):
