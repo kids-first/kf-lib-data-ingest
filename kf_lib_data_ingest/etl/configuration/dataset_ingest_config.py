@@ -43,34 +43,16 @@ class DatasetIngestConfig(PyModuleConfig):
 
         super().__init__(config_path)
 
-        # Validate
-        try:
+        # Directory containing the extract config files
+        self.extract_config_dir = os.path.join(
+            os.path.dirname(self.config_filepath),
             self.extract_config_dir
-            assert_safe_type(self.extract_config_dir, str)
-
-            # Directory containing the extract config files
-            self.extract_config_dir = os.path.join(
-                os.path.dirname(self.config_filepath),
-                self.extract_config_dir
-            )
-            self.extract_config_paths = [
-                os.path.join(self.extract_config_dir, filename)
-                for filename in os.listdir(self.extract_config_dir)
-                if filename.endswith('.py')
-            ]
-
-            assert os.path.isdir(self.extract_config_dir)
-
-            self.study
-            assert_safe_type(self.study, str)
-
-            self.target_service_entities
-            assert_safe_type(self.target_service_entities, list)
-            assert_all_safe_type(self.target_service_entities, str)
-        except (AttributeError, TypeError, AssertionError) as e:
-            raise ConfigValidationError(
-                f'{self.config_filepath} failed validation'
-            ) from e
+        )
+        self.extract_config_paths = [
+            os.path.join(self.extract_config_dir, filename)
+            for filename in os.listdir(self.extract_config_dir)
+            if filename.endswith('.py')
+        ]
 
         self._set_log_params()
 
@@ -108,3 +90,14 @@ class DatasetIngestConfig(PyModuleConfig):
                 self.contents.log_level.upper(),
                 DEFAULT_LOG_LEVEL
             )
+
+    def _validate(self):
+        self.extract_config_dir
+        assert_safe_type(self.extract_config_dir, str)
+
+        self.study
+        assert_safe_type(self.study, str)
+
+        self.target_service_entities
+        assert_safe_type(self.target_service_entities, list)
+        assert_all_safe_type(self.target_service_entities, str)
