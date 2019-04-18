@@ -22,14 +22,26 @@ if [[ $KF_INGEST_APP_MODE = "production" ]]; then
     fi
 fi
 
+INGEST_ERROR=0
+
 kidsfirst "$@"
+
+if [[ $? -ne 0 ]]; then
+    INGEST_ERROR=1
+fi
 
 # During deployment - rm ingest package after ingest completes
 if [[ $CLEANUP ]]; then
-    PACKAGE_DIR="/data/packages/$CLEANUP"
-    if [[ -d $PACKAGE_DIR ]]; then
-        echo "Deleting ingest $PACKAGE_DIR ..."
-        rm -rf $PACKAGE_DIR
-        echo "Complete"
+    INGEST_PACKAGE_DIR="/data/packages/$CLEANUP"
+    if [[ -d $INGEST_PACKAGE_DIR ]]; then
+        echo "Start cleanup ..."
+        echo "Deleting ingest package $INGEST_PACKAGE_DIR"
+        rm -rf $INGEST_PACKAGE_DIR
+        echo "Cleanup Complete"
     fi
+fi
+
+if [[ $INGEST_ERROR -ne 0 ]]; then
+    echo "Error in docker entrypoint exiting with 1!"
+    exit 1
 fi
