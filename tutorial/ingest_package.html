@@ -97,7 +97,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorial</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Ingest Package Configuration</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#the-ingest-package-directory">The ingest package directory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#dataset-ingest-config-py">dataset_ingest_config.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ingest-package-config-py">ingest_package_config.py</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="project_setup.html">Project Setup</a></li>
@@ -184,7 +184,7 @@ transform, and load the study into a target data store or service.</p>
 <p>The ingest package contains three components:</p>
 <ol class="arabic simple">
 <li><dl class="first docutils">
-<dt>A top-level configuration file called <code class="docutils literal notranslate"><span class="pre">dataset_ingest_config.py</span></code></dt>
+<dt>A top-level configuration file called <code class="docutils literal notranslate"><span class="pre">ingest_package_config.py</span></code></dt>
 <dd>This defines metadata about the study itself such as the study’s
 target ID as well as paths to the other two components.</dd>
 </dl>
@@ -210,7 +210,7 @@ transform stage. More on this later in the tutorial.</dd>
 <h2>The ingest package directory<a class="headerlink" href="#the-ingest-package-directory" title="Permalink to this headline">¶</a></h2>
 <p>Your complete ingest package for a study will look like this:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>my_study/
-├── dataset_ingest_config.py
+├── ingest_package_config.py
 ├── extract_configs/
 │   ├── one_file_extract_config.py
 │   ├── another_file_extract_config.py
@@ -219,8 +219,8 @@ transform stage. More on this later in the tutorial.</dd>
 </pre></div>
 </div>
 </div>
-<div class="section" id="dataset-ingest-config-py">
-<h2>dataset_ingest_config.py<a class="headerlink" href="#dataset-ingest-config-py" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="ingest-package-config-py">
+<h2>ingest_package_config.py<a class="headerlink" href="#ingest-package-config-py" title="Permalink to this headline">¶</a></h2>
 <p>This file contains details that control ingestion of the study as a whole. It
 includes study metadata, the list of investigators, logging parameters, and
 paths to the extract configs directory and the optional transform module.</p>
