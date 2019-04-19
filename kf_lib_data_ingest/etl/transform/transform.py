@@ -20,18 +20,16 @@ from kf_lib_data_ingest.common.concept_schema import \
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
 from kf_lib_data_ingest.common.misc import (
     get_open_api_v2_schema,
+    numeric_to_str,
     read_json,
-    write_json,
-    numeric_to_str
+    write_json
 )
 from kf_lib_data_ingest.common.stage import IngestStage
 from kf_lib_data_ingest.common.type_safety import (
     assert_all_safe_type,
     assert_safe_type
 )
-from kf_lib_data_ingest.config import (
-    DEFAULT_TARGET_URL
-)
+from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
 from kf_lib_data_ingest.etl.configuration.target_api_config import (
     TargetAPIConfig
 )
