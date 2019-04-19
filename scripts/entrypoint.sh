@@ -22,4 +22,29 @@ if [[ $KF_INGEST_APP_MODE = "production" ]]; then
     fi
 fi
 
+INGEST_ERROR=0
+
 kidsfirst "$@"
+
+if [[ $? -ne 0 ]]; then
+    INGEST_ERROR=1
+fi
+
+# If container was run by automated process - rm ingest package after ingest completes
+if [[ "$DELETE_INGEST_PKG" = true ]] && [[ "$INGEST_PKG_TO_DEL" ]]; then
+    INGEST_PACKAGE_DIR="/data/packages/$INGEST_PKG_TO_DEL"
+
+    if [[ -d $INGEST_PACKAGE_DIR ]]; then
+        echo "Start cleanup ..."
+        echo "Deleting ingest package $INGEST_PACKAGE_DIR"
+        rm -rf "$INGEST_PACKAGE_DIR"
+        echo "Cleanup Complete"
+    fi
+else
+    echo "Skipping ingest package clean up"
+fi
+
+if [[ $INGEST_ERROR -ne 0 ]]; then
+    echo "Error in docker entrypoint exiting with 1!"
+    exit 1
+fi
