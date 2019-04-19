@@ -94,7 +94,7 @@ class IngestStage(ABC):
         containing them and 2) concept values map to lists of linked concept
         values
         """
-        return {'sources': None, 'links': None}
+        return {'sources': None, 'links': None, 'values': None}
 
     @abstractmethod
     def _validate_run_parameters(self, *args, **kwargs):
@@ -173,6 +173,15 @@ class IngestStage(ABC):
         self.concept_discovery_dict = self._postrun_concept_discovery(output)
         self.logger.info("Done counting what we got")
         if self.concept_discovery_dict:
+            # Undefault any defaultdicts. Defaultdicts are slightly dangerous
+            # to pass downstream to someone else's custom test code where they
+            # might accidentally add things while looking for keys.
+            self.concept_discovery_dict = {
+                k: dict(v)
+                for k, v in self.concept_discovery_dict.items()
+                if v is not None
+            }
+            # write to file
             write_json(
                 self.concept_discovery_dict,
                 os.path.join(
