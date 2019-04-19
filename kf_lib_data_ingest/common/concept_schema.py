@@ -348,18 +348,24 @@ def is_identifier(concept_property_string):
     return concept_attr_from(concept_property_string) == UNIQUE_ID_ATTR
 
 
+concept_property_split = {}
+for conprop in concept_property_set:
+    con, prop = conprop.rsplit(DELIMITER, 1)
+    concept_property_split[conprop] = (con, prop)
+
+
 def concept_from(concept_attribute_str):
     """
     Extract the concept from the concept attribute string
     """
-    return concept_attribute_str.rsplit(DELIMITER, 1)[0]
+    return concept_property_split[concept_attribute_str][0]
 
 
 def concept_attr_from(concept_attribute_str):
     """
     Extract the concept attribute from the concept attribute string
     """
-    return concept_attribute_str.rsplit(DELIMITER, 1)[1]
+    return concept_property_split[concept_attribute_str][1]
 
 
 unique_key_composition = _create_unique_key_composition()

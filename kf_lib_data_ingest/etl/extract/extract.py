@@ -397,15 +397,19 @@ class ExtractStage(IngestStage):
 
         for config_path, (data_file, df) in run_output.items():
             for key in df.columns:
+                sk = sources[key]
                 for val in df[key]:
-                    sources[key][val].add(data_file)
-            for keyA in df.columns:
-                for keyB in df.columns:
-                    if keyB != keyA:
-                        for i in range(len(df)):
-                            vala = df[keyA].iloc[i]
-                            valb = df[keyB].iloc[i]
-                            if vala and valb:
-                                links[keyA + '::' + keyB][vala].add(valb)
+                    # sources entry
+                    sk[val].add(data_file)
 
-        return {'sources': sources, 'links': links}
+            for _, row in df.iterrows():
+                for keyA in df.columns:
+                    vA = row[keyA]
+                    for keyB in df.columns:
+                        if keyB != keyA:
+                            vB = row[keyB]
+                            if vA and vB:
+                                # links entry
+                                links[keyA + '::' + keyB][vA].add(vB)
+
+        return {'sources': sources, 'links': links, 'values': None}
