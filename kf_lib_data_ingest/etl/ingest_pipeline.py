@@ -18,6 +18,7 @@ from kf_lib_data_ingest.etl.load.load import LoadStage
 from kf_lib_data_ingest.etl.transform.auto import AutoTransformStage
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
 from kf_lib_data_ingest.etl.transform.transform import TransformStage
+from kf_lib_data_ingest.common.concept_schema import UNIQUE_ID_ATTR
 
 
 class DataIngestPipeline(object):
@@ -224,8 +225,13 @@ class DataIngestPipeline(object):
             extract_disc = self.stages[ExtractStage].concept_discovery_dict
             if extract_disc and extract_disc.get('sources'):
                 passed, message = stage_analyses.compare_counts(
-                    discovery_sources,
-                    extract_disc.get('sources')
+                    ExtractStage.__name__,
+                    extract_disc['sources'],
+                    TransformStage.__name__,
+                    {
+                        k: v for k, v in discovery_sources.items()
+                        if UNIQUE_ID_ATTR not in k
+                    }
                 )
                 passed_all = passed_all and passed
                 stage.logger.info(message)

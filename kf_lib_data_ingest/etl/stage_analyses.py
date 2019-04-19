@@ -80,5 +80,35 @@ def check_counts(discovery_sources, expected_counts):
     return passed, '\n'.join(message)
 
 
-def compare_counts(discovery_sources_one, discovery_sources_two):
-    False, "Compare Counts NYI"
+def compare_counts(
+    name_one, discovery_sources_one, name_two, discovery_sources_two
+):
+    message = [f'COMPARING COUNTS BETWEEN {name_one} and {name_two}']
+    passed = True
+
+    setA = set(discovery_sources_one.keys())
+    setB = set(discovery_sources_two.keys())
+    if not (setA == setB):
+        message.append('')
+        message.append(f'Column keys not equal')
+        message.append(f'{name_one} {setA}')
+        message.append('vs')
+        message.append(f'{name_two} {setB}')
+        message.append('Difference is:')
+        message.append(setA ^ setB)
+        passed = False
+
+    for k, v in discovery_sources_one.items():
+        setA = set(v.keys())
+        setB = set(discovery_sources_two[k].keys())
+        if not (setA == setB):
+            message.append('')
+            message.append(f'Column {k} not equal')
+            message.append(f'{name_one} {setA}')
+            message.append('vs')
+            message.append(f'{name_two} {setB}')
+            message.append('Difference is:')
+            message.append(setA ^ setB)
+            passed = False
+
+    return passed, '\n'.join([str(m) for m in message])
