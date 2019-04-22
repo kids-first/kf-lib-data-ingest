@@ -12,8 +12,8 @@ from kf_lib_data_ingest.common import constants
 from kf_lib_data_ingest.common.concept_schema import (
     DELIMITER,
     UNIQUE_ID_ATTR,
-    concept_attr_from,
-    concept_from
+    concept_from,
+    is_identifier
 )
 from kf_lib_data_ingest.common.concept_schema import \
     unique_key_composition as DEFAULT_KEY_COMP
@@ -378,12 +378,7 @@ class TransformStage(IngestStage):
             # identify concepts in the data. In the case of auto transform
             # this means no ConceptNodes can be created and inserted into the
             # ConceptGraph.
-            is_any_unique_keys = any(
-                [
-                    concept_attr_from(col) == UNIQUE_ID_ATTR
-                    for col in df.columns
-                ]
-            )
+            is_any_unique_keys = any(is_identifier(col) for col in df.columns)
             if not is_any_unique_keys:
                 raise ValueError(
                     'No unique keys were created for table! There must '
@@ -452,6 +447,7 @@ class TransformStage(IngestStage):
             unique_key_cols = []
             required = set()
             optional = set()
+            self.logger.debug(f'Creating unique key for {concept_name}')
             self._unique_key_cols(
                 concept_name,
                 df, unique_key_composition,
@@ -498,6 +494,8 @@ class TransformStage(IngestStage):
             df[unique_key_col] = df.apply(
                 lambda row: make_unique_key_value(row), axis=1
             )
+            self.logger.debug(f'Done creating unique key for {concept_name}')
+
         unique_concepts_found = [
             col for col in df.columns
             if col.endswith(UNIQUE_ID_ATTR)
@@ -554,7 +552,7 @@ class TransformStage(IngestStage):
         :param optional_cols: the additional columns that can be
         used in the construction of the unique key if they are present
         """
-
+        self.logger.debug(f'Composing unique key columns for {concept_name}')
         # Get the cols needed to make a unique key for this concept
         key_comp = deepcopy(unique_key_composition.get(concept_name))
 
@@ -578,7 +576,7 @@ class TransformStage(IngestStage):
 
         # Expand any unique keys into their basic components
         for key_col in key_cols:
-            if concept_attr_from(key_col) == UNIQUE_ID_ATTR:
+            if is_identifier(key_col):
                 # The col is a unique key so recurse
                 self._unique_key_cols(
                     concept_from(key_col),
@@ -592,3 +590,4 @@ class TransformStage(IngestStage):
                     required_cols.add(key_col)
                 elif key_col in optional:
                     optional_cols.add(key_col)
+        self.logger.debug(f'Done composing columns for {concept_name}')
