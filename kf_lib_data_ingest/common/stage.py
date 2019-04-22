@@ -182,12 +182,11 @@ class IngestStage(ABC):
                 if v is not None
             }
             # write to file
-            write_json(
-                self.concept_discovery_dict,
-                os.path.join(
+            out_file = os.path.join(
                     self.ingest_output_dir,
                     self.stage_type.__name__ + '_concept_discovery.json'
                 )
-            )
+            self.logger.debug(f"Writing discovered counts to {out_file}")
+            write_json(self.concept_discovery_dict, out_file)
 
         return output

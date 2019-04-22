@@ -396,20 +396,22 @@ class ExtractStage(IngestStage):
         )
 
         for config_path, (data_file, df) in run_output.items():
-            for key in df.columns:
+            cols = df.columns
+            self.logger.debug(f'Recording {config_path} sources')
+            for key in cols:
                 sk = sources[key]
                 for val in df[key]:
                     # sources entry
                     sk[val].add(data_file)
 
+            self.logger.debug(f'Recording {config_path} links')
             for _, row in df.iterrows():
-                for keyA in df.columns:
-                    vA = row[keyA]
-                    for keyB in df.columns:
-                        if keyB != keyA:
-                            vB = row[keyB]
-                            if vA and vB:
+                for keyA, vA in row.items():
+                    lk_prefix = keyA + '::'
+                    if vA:
+                        for keyB, vB in row.items():
+                            if vB and (keyB != keyA):
                                 # links entry
-                                links[keyA + '::' + keyB][vA].add(vB)
+                                links[lk_prefix + keyB][vA].add(vB)
 
         return {'sources': sources, 'links': links, 'values': None}
