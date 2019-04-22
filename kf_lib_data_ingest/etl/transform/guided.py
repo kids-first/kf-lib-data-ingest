@@ -9,11 +9,12 @@ from collections import defaultdict
 
 import pandas
 
+from kf_lib_data_ingest.common.concept_schema import UNIQUE_ID_ATTR
+from kf_lib_data_ingest.common.misc import clean_up_df
 from kf_lib_data_ingest.common.type_safety import assert_safe_type
 from kf_lib_data_ingest.etl.configuration.transform_module import (
     TransformModule
 )
-from kf_lib_data_ingest.common.concept_schema import UNIQUE_ID_ATTR
 from kf_lib_data_ingest.etl.transform.transform import TransformStage
 
 
@@ -184,6 +185,8 @@ class GuidedTransformStage(TransformStage):
 
         # Apply user transform func
         self.transform_func_df = self._apply_transform_funct(data_dict)
+
+        self.transform_func_df = clean_up_df(self.transform_func_df)
 
         # Insert unique key columns
         self._insert_unique_keys(
