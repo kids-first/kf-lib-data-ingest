@@ -4,7 +4,7 @@ import logging.handlers
 import os
 import time
 
-from kf_lib_data_ingest.app.settings.base import ENV_KEYS
+from kf_lib_data_ingest.app.settings.base import SECRETS
 from kf_lib_data_ingest.config import (
     DEFAULT_LOG_FILENAME,
     DEFAULT_LOG_LEVEL,
@@ -13,7 +13,7 @@ from kf_lib_data_ingest.config import (
 
 VERBOTEN_STRINGS = {
     v: os.environ[v]
-    for k, v in ENV_KEYS.__dict__.items()
+    for k, v in SECRETS.__dict__.items()
     if not k.startswith("_") and v in os.environ
 }
 
