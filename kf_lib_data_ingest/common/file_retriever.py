@@ -31,6 +31,10 @@ retry.log.setLevel(logging.INFO)
 PROTOCOL_SEP = "://"
 
 
+class ConfigError(Exception):
+    pass
+
+
 def split_protocol(url):
     """
     Split file url string into protocol and path.
@@ -150,9 +154,16 @@ def _web_save(protocol, source_loc, dest_obj, auth_config=None, logger=None):
             if auth_config.get('token_location') == 'url':
                 utils.http_get_file(
                     f"{url}?{urlencode({'token': token})}", dest_obj)
-            else:
+            elif auth_config.get('token_location', 'header') == 'header':
                 utils.http_get_file(
-                    url, dest_obj, headers={'Authorization': f'Token {token}'})
+                    url, dest_obj, headers={'Authorization': f'Bearer {token}'}
+                )
+            else:
+                raise ConfigError(
+                    f"App settings auth config token_location for {url} must"
+                    " be one of: "
+                    "'header' (default) or 'url' (only use if necessary)"
+                )
 
         # OAuth 2
         elif auth_scheme == 'oauth2':

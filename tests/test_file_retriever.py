@@ -210,7 +210,7 @@ def test_get_web_w_auth(caplog, tmpdir, auth_configs, url, auth_type,
                     req_headers = m.request_history[0].headers
                     auth_header = req_headers.get('Authorization')
                     assert auth_header
-                    assert f'Token {token}' in auth_header
+                    assert f'Bearer {token}' in auth_header
 
             # Oauth2 auth
             elif auth_type == 'oauth2':
