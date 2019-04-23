@@ -12,6 +12,8 @@ AUTH_CONFIGS.update({
         'provider_domain': os.environ.get('KF_AUTH0_DOMAIN'),
         'audience': os.environ.get('KF_STUDY_CREATOR_AUTH0_AUD'),
         'client_id': os.environ.get('KF_SC_INGEST_APP_CLIENT_ID'),
-        'client_secret': os.environ.get('KF_SC_INGEST_APP_CLIENT_SECRET')
+        'client_secret': os.environ.get(
+            SECRETS.KF_SC_INGEST_APP_CLIENT_SECRET
+        )
     }
 })
