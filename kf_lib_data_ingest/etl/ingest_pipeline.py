@@ -213,28 +213,28 @@ class DataIngestPipeline(object):
         passed_all = True
 
         # Do stage counts validation
-        passed, message = stage_analyses.check_counts(
-            discovery_sources, self.data_ingest_config.expected_counts
+        passed = stage_analyses.check_counts(
+            discovery_sources, self.data_ingest_config.expected_counts,
+            stage.logger
         )
         passed_all = passed_all and passed
-        stage.logger.info(message)
 
         # Compare stage counts to make sure we didn't lose values between
         # Extract and Transform
         if stage.stage_type == TransformStage:
             extract_disc = self.stages[ExtractStage].concept_discovery_dict
             if extract_disc and extract_disc.get('sources'):
-                passed, message = stage_analyses.compare_counts(
+                passed = stage_analyses.compare_counts(
                     ExtractStage.__name__,
                     extract_disc['sources'],
                     TransformStage.__name__,
                     {
                         k: v for k, v in discovery_sources.items()
                         if UNIQUE_ID_ATTR not in k
-                    }
+                    },
+                    self.logger
                 )
                 passed_all = passed_all and passed
-                stage.logger.info(message)
             else:
                 # Missing data
                 passed_all = False

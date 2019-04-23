@@ -9,7 +9,7 @@ from kf_lib_data_ingest.etl.load.load import LoadStage
 from kf_lib_data_ingest.etl.transform.transform import TransformStage
 
 
-def check_counts(discovery_sources, expected_counts):
+def check_counts(discovery_sources, expected_counts, logger):
     """
     Verify that we found as many unique values of each attribute as we expected
     to find.
@@ -26,19 +26,14 @@ def check_counts(discovery_sources, expected_counts):
 
     # display unique counts
 
-    message = ['UNIQUE COUNTS']
-    message.append(
-        pformat(uniques)
-    )
-    message.append('')
+    logger.info('UNIQUE COUNTS:\n' + pformat(uniques))
 
     # check expected counts
 
     passed = True
-    message.append('EXPECTED COUNT CHECKS')
 
     if not expected_counts:
-        message.append("No expected counts registered. ❌")
+        logger.info("No expected counts registered. ❌")
         passed = True  # Pass if we have no expectations
     else:
         checks = pandas.DataFrame(
@@ -70,45 +65,57 @@ def check_counts(discovery_sources, expected_counts):
                 },
                 ignore_index=True
             )
-        message.append(
+        logger.info(
+            'EXPECTED COUNT CHECKS\n' +
             tabulate(
                 checks,
                 headers='keys', showindex=False, tablefmt='psql'
             )
         )
 
-    return passed, '\n'.join(message)
+    return passed
 
 
 def compare_counts(
-    name_one, discovery_sources_one, name_two, discovery_sources_two
+    name_one, discovery_sources_one, name_two, discovery_sources_two, logger
 ):
-    message = [f'COMPARING COUNTS BETWEEN {name_one} and {name_two}']
+    logger.info(f'COMPARING COUNTS')
     passed = True
 
     setA = set(discovery_sources_one.keys())
     setB = set(discovery_sources_two.keys())
-    if not (setA == setB):
-        message.append('')
-        message.append(f'Column keys not equal')
-        message.append(f'{name_one} {setA}')
-        message.append('vs')
-        message.append(f'{name_two} {setB}')
-        message.append('Difference is:')
-        message.append(setA ^ setB)
+    diff = setA ^ setB
+    if diff:
+        logger.info(
+            f'❌ Column keys not equal between {name_one} and '
+            f'{name_two}'
+        )
+        logger.debug(
+            f'{name_one} {setA}\n'
+            'vs\n'
+            f'{name_two} {setB}\n'
+            'Difference is:\n' +
+            str(diff)
+        )
         passed = False
 
     for k, v in discovery_sources_one.items():
         setA = set(v.keys())
         setB = set(discovery_sources_two[k].keys())
-        if not (setA == setB):
-            message.append('')
-            message.append(f'Column {k} not equal')
-            message.append(f'{name_one} {setA}')
-            message.append('vs')
-            message.append(f'{name_two} {setB}')
-            message.append('Difference is:')
-            message.append(setA ^ setB)
+        diff = setA ^ setB
+        if diff:
+            logger.info(
+                f'❌ Column values for {k} not equal between {name_one} and '
+                f'{name_two}  ( # = {len(diff)})'
+            )
+            logger.info(f'Number of different values = {len(diff)}')
+            logger.debug(
+                f'{name_one} {setA}\n'
+                'vs\n'
+                f'{name_two} {setB}\n'
+                'Difference is:\n' +
+                str(diff)
+            )
             passed = False
 
-    return passed, '\n'.join([str(m) for m in message])
+    return passed
