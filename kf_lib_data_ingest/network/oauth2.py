@@ -106,6 +106,11 @@ def get_file(url, dest_obj, provider_domain=None, audience=None,
     headers = kwargs.pop('headers', {})
     headers.update({'Authorization': f'Bearer {token}'})
     kwargs['headers'] = headers
+
+    # Force HTTPS for security
+    if not url.lower().startswith('https://'):
+        url = 'https://' + url.split('://', 1)[1]
+
     response = utils.http_get_file(url, dest_obj, **kwargs)
 
     if response.status_code == 200:
