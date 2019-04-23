@@ -4,11 +4,26 @@ import logging.handlers
 import os
 import time
 
+from kf_lib_data_ingest.app.settings.base import ENV_KEYS
 from kf_lib_data_ingest.config import (
-    DEFAULT_LOG_OVERWRITE_OPT,
+    DEFAULT_LOG_FILENAME,
     DEFAULT_LOG_LEVEL,
-    DEFAULT_LOG_FILENAME
+    DEFAULT_LOG_OVERWRITE_OPT
 )
+
+VERBOTEN_STRINGS = {
+    v: os.environ[v]
+    for k, v in ENV_KEYS.__dict__.items()
+    if not k.startswith("_") and v in os.environ
+}
+
+
+class NoTokenFormatter(logging.Formatter):
+    def format(self, record):
+        s = super().format(record)
+        for k, v in VERBOTEN_STRINGS.items():
+            s = s.replace(v, f"<env['{k}']>")
+        return s
 
 
 def setup_logger(log_dir, overwrite_log=DEFAULT_LOG_OVERWRITE_OPT,
@@ -35,8 +50,10 @@ def setup_logger(log_dir, overwrite_log=DEFAULT_LOG_OVERWRITE_OPT,
     log_filepath = os.path.join(log_dir, filename)
 
     # Setup log message formatter
-    formatter = logging.Formatter(
+    formatter = NoTokenFormatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+    formatter.format
 
     # Setup rotating file handler
     fileHandler = logging.handlers.RotatingFileHandler(log_filepath,

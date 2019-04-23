@@ -9,6 +9,6 @@ AUTH_CONFIGS.update({
     'https://kf-study-creator.kidsfirstdrc.org/download/study': {
         'type': 'token',
         'token_location': 'url',
-        'token': os.environ.get('KF_STUDY_CREATOR_API_TOKEN'),
+        'token': os.environ.get(ENV_KEYS.KF_STUDY_CREATOR_API_TOKEN)
     }
 })
