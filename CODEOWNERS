@@ -1,0 +1,6 @@
+*              @kids-first/data-ingest
+/scripts/      @kids-first/data-ingest @kids-first/devops
+/.circleci/    @kids-first/data-ingest @kids-first/devops
+/.dockerignore @kids-first/data-ingest @kids-first/devops
+/Dockerfile    @kids-first/data-ingest @kids-first/devops
+/Jenkinsfile   @kids-first/data-ingest @kids-first/devops
