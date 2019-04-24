@@ -319,7 +319,7 @@ class FileRetriever(object):
                     self.logger.info(
                         f'Selected `{auth_config["type"]}` authentication to '
                         f'fetch {url}')
-                else:
+                elif protocol != 'file':
                     self.logger.warning(
                         f'Authentication scheme not found for url {url}')
 
