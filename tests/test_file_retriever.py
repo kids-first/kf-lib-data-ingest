@@ -2,7 +2,8 @@ import os
 import logging
 from urllib.parse import (
     urljoin,
-    urlencode
+    urlencode,
+    quote
 )
 
 import boto3
@@ -25,6 +26,8 @@ TEST_S3_BUCKET = "s3_bucket"
 TEST_S3_PREFIX = "mock_folder"
 TEST_FILENAME = 'data.csv'
 TEST_FILE_PATH = os.path.join(TEST_DATA_DIR, TEST_FILENAME)
+FUNNY_FILENAME = 'funny name file €א.txt'
+FUNNY_FILE_PATH = os.path.join(TEST_DATA_DIR, FUNNY_FILENAME)
 TEST_PARAMS = [
     (False, True, False),
     (False, False, False),
@@ -133,9 +136,8 @@ def test_get_web(caplog, storage_dir, use_storage_dir, cleanup_at_exit,
     """
     Test file retrieval via http
     """
-    # With Content-Disposition header containing file ext
-    url = f'http://{os.path.basename(TEST_FILENAME)}/download'
-    file_ext = os.path.splitext(TEST_FILENAME)[-1]
+    # With Content-Disposition header
+    url = f'http://{TEST_FILENAME}/download'
     with open(TEST_FILE_PATH, "rb") as tf:
         with requests_mock.Mocker() as m:
             m.get(url, content=tf.read(),
@@ -143,14 +145,29 @@ def test_get_web(caplog, storage_dir, use_storage_dir, cleanup_at_exit,
                            f'attachment; filename={TEST_FILENAME}'})
             _test_get_file(url, storage_dir,
                            use_storage_dir, cleanup_at_exit,
-                           should_file_exist, expected_file_ext=file_ext)
+                           should_file_exist, expected_file_name=TEST_FILENAME)
+
+    # With extended-attr Content-Disposition header
+    quoted_name = quote(FUNNY_FILENAME)
+    url = f'http://{quoted_name}/download'
+    with open(FUNNY_FILE_PATH, "rb") as tf:
+        with requests_mock.Mocker() as m:
+            m.get(url, content=tf.read(),
+                  headers={'Content-Disposition':
+                           f"attachment; filename*=utf-8''{quoted_name}"})
+            _test_get_file(url, storage_dir,
+                           use_storage_dir, cleanup_at_exit,
+                           should_file_exist,
+                           expected_file_name=FUNNY_FILENAME,
+                           test_file_path=FUNNY_FILE_PATH)
+
     # Without Content-Disposition header
     with open(TEST_FILE_PATH, "rb") as tf:
         with requests_mock.Mocker() as m:
             m.get(url, content=tf.read())
             _test_get_file(url, storage_dir,
                            use_storage_dir, cleanup_at_exit,
-                           should_file_exist, expected_file_ext='')
+                           should_file_exist, expected_file_name='download')
     assert f'{url}' in caplog.text
     assert 'Content-Disposition' in caplog.text
 
@@ -182,7 +199,7 @@ def test_get_web_w_auth(caplog, tmpdir, auth_configs, url, auth_type,
             # Basic auth
             if auth_type == 'basic':
                 _test_get_file(url, tmpdir, True, False, True,
-                               expected_file_ext='', auth_configs=auth_configs)
+                               auth_configs=auth_configs)
 
                 # Check request headers
                 req_headers = m.request_history[0].headers
@@ -198,14 +215,12 @@ def test_get_web_w_auth(caplog, tmpdir, auth_configs, url, auth_type,
                     token_qs = urlencode({'token': token})
                     m.get(urljoin(url, token_qs), content=file_content)
                     _test_get_file(url, tmpdir, True, False, True,
-                                   expected_file_ext='',
                                    auth_configs=auth_configs)
                     assert token_qs in m.request_history[0].url
 
                 # Token in Authorization header
                 else:
                     _test_get_file(url, tmpdir, True, False, True,
-                                   expected_file_ext='',
                                    auth_configs=auth_configs)
                     req_headers = m.request_history[0].headers
                     auth_header = req_headers.get('Authorization')
@@ -216,17 +231,15 @@ def test_get_web_w_auth(caplog, tmpdir, auth_configs, url, auth_type,
             elif auth_type == 'oauth2':
                 OAuth2Mocker().create_service_token_mock(m)
                 _test_get_file(url, tmpdir, True, False, True,
-                               expected_file_ext='', auth_configs=auth_configs)
+                               auth_configs=auth_configs)
 
             # Auth scheme expected but not found
             elif auth_type == 'not found':
                 _test_get_file(url, tmpdir, True, False, True,
-                               expected_file_ext='',
                                auth_configs=auth_configs)
             # No auth required
             else:
-                _test_get_file(url, tmpdir, True, False, True,
-                               expected_file_ext='')
+                _test_get_file(url, tmpdir, True, False, True)
 
             assert expected_log in caplog.text
 
@@ -289,24 +302,22 @@ def test_invalid_urls(url):
 
 
 def _test_get_file(url, storage_dir, use_storage_dir, cleanup_at_exit,
-                   should_file_exist, expected_file_ext=None,
-                   auth_configs=None):
+                   should_file_exist, expected_file_name=None,
+                   auth_configs=None, test_file_path=TEST_FILE_PATH):
     """
     Test file retrieval
     """
-    if expected_file_ext is None:
-        expected_file_ext = os.path.splitext(url)[-1]
-
     if not use_storage_dir:
         storage_dir = None
 
-    with open(TEST_FILE_PATH, "rb") as tf:
+    with open(test_file_path, "rb") as tf:
         fr = FileRetriever(storage_dir=storage_dir,
                            cleanup_at_exit=cleanup_at_exit,
                            auth_configs=auth_configs)
         local_copy = fr.get(url)
 
-        assert local_copy.original_name.endswith(expected_file_ext)
+        if expected_file_name:
+            assert expected_file_name == local_copy.original_name
 
         assert(tf.read() == local_copy.read())
         _assert_file(os.path.realpath(fr.storage_dir), local_copy.name)
