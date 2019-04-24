@@ -39,8 +39,10 @@ def http_get_file(url, dest_obj, **kwargs):
         else:
             filename = cdisp_params.get('filename')
 
+        success_msg = f'Successfully fetched {url}'
         if filename:
             dest_obj.original_name = filename
+            success_msg += f' with original file name {filename}'
         else:
             # Header did not provide filename
             logging.warning(f'{url} returned unhelpful or missing '
@@ -56,6 +58,8 @@ def http_get_file(url, dest_obj, **kwargs):
 
         dest_obj.seek(0)
         response.close()
+
+        logger.info(success_msg)
 
     else:
         logger.error(f'Could not fetch {url}. Caused by '
