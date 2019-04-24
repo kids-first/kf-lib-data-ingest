@@ -3,6 +3,7 @@ Common network (HTTP, TCP, whatever) related functionality
 """
 import cgi
 import logging
+import urllib.parse
 
 from kf_lib_data_ingest.common.misc import requests_retry_session
 
@@ -33,8 +34,8 @@ def http_get_file(url, dest_obj, **kwargs):
         # RFC 5987 ext-parameter is actually more complicated than this,
         # but this should get us 90% there, and the rfc6266 python lib is
         # broken after PEP 479. *sigh* - Avi K
-        if filename and filename.lower.startswith('utf-8'):
-            filename = filename.split("'", 2)[2].decode('utf-8')
+        if filename and filename.lower().startswith('utf-8'):
+            filename = urllib.parse.unquote(filename.split("'", 2)[2])
         else:
             filename = cdisp_params.get('filename')
 
