@@ -577,3 +577,98 @@ magic, the final extracted result given the data and our configuration is:
     "7", "8", "", "", "", "SP008B", "2.166666667", "Extra eardrum", "Positive"
     "8", "9", "", "", "", "SP009A", "1.041666667", "Extra eardrum", "Positive"
     "8", "9", "", "", "", "SP009B", "1.041666667", "Extra eardrum", "Positive"
+
+
+Accessing Protected Source Data
+===============================
+
+In the :ref:`Tutorial-Ingest-App` section you learned that source data files
+for Kids First studies are managed by the Kids First Study Creator API. The
+tutorial above uses a file on your local file system for example purposes.
+
+In a more realistic scenario, the source data files for a study would already
+have been uploaded to the Study Creator API by the data contributor or
+you, the ingest package developer. Your ingest package would then need to be
+configured appropriately to access these files with the proper authentication
+parameters.
+
+Let's walk through an example.
+
+.. note::
+
+    We are not going to show how to upload files to the Study Creator API
+    because it is out of the scope of this tutorial. See the
+    `Study Creator API docs <https://kids-first.github.io/kf-api-study-creator/>`_
+    or visit the `Data Tracker web app <https://kf-ui-data-tracker.kidsfirstdrc.org>`_
+    to learn more about how to do this.
+
+Get URL of Source Data File
+---------------------------
+
+The ``family_and_phenotype.tsv`` has already been uploaded to the
+``SD_ME0WME0w`` study via the Data Tracker web app. Here is the file's URL:
+
+https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_WJHTHR8F
+
+Update Your Extract Config
+--------------------------
+
+Update the source_data_url parameter in your extract config to store this URL.
+
+.. code-block:: python
+
+    # my_study/extract_configs/family_and_phenotype.py
+
+    source_data_url = 'https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_ND1PHHW4'
+
+Get Your Developer Token
+------------------------
+
+All source data files in the Study Creator API are protected by some sort of
+authentication depending on the type of user trying to access them. As an
+ingest package developer using the ingest app to access files, you will need
+a developer token to access files. The developer token grants authorization to
+download any source data file.
+
+To generate a developer token, first login to the Study Creator API.
+The easiest way to do this is using the Data Tracker web app. Then go
+to https://kf-ui-data-tracker.kidsfirstdrc.org/tokens to
+generate a token. Copy it to your clipboard for the moment.
+
+Set Your Environment
+--------------------
+
+Now that you have your token, you're going to store it in your environment so
+that ingest app can read it and use it when fetching Study Creator API files.
+
+If you recall from the :ref:`Tutorial-Ingest-App` section, in
+``development`` mode, the ``kf_lib_data_ingest/app/settings/development.py``
+app settings are used. If you take a glance at that file, you'll be able to see
+what environment variable you should use to store your token.
+
+.. literalinclude:: ../../../kf_lib_data_ingest/app/settings/development.py
+   :language: python
+   :caption: kf_lib_data_ingest/app/settings/development.py
+
+As you can see from above, for source data file URLs that match this pattern:
+
+`https://kf-study-creator.kidsfirstdrc.org/download/study`
+
+you should use the ``KF_STUDY_CREATOR_API_TOKEN`` environment variable to
+store your token:
+
+.. code-block:: bash
+
+   export KF_STUDY_CREATOR_API_TOKEN=YOUR_TOKEN
+
+Be careful with this token and make sure to keep it secret as it has a lot of
+privileges.
+
+Try It
+------
+
+Now if you try running ingest and the file was fetched successfully, you should
+see something like this in your log::
+
+    2019-04-24 11:19:31,719 - FileRetriever - INFO - Selected `token` authentication to fetch https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_ND1PHHW4
+    2019-04-24 11:19:32,269 - kf_lib_data_ingest.network.utils - INFO - Successfully fetched https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_ND1PHHW4?token=<env['KF_STUDY_CREATOR_API_TOKEN']> with original file name "family_and_phenotype.tsv"

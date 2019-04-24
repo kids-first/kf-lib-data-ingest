@@ -11,7 +11,7 @@ more depth.
 
 In this tutorial we will cover:
 
-1. Basic usage and configuration of ingest app-level settings  
+1. Basic usage and configuration of ingest app-level settings
 2. How to configure complex extractions with multiple messy source data files
 3. How to write a transform function for the transform stage
 4. How to run the ingest pipeline from end to end

@@ -27,7 +27,7 @@ Ingest App
 
 The library comes with a built in a command line interface (CLI) based app,
 which is the primary user interface for executing the ingest pipeline.
-Most users will use the CLI app to create new ingest packages, test packages,
+Most users will use this app to create new ingest packages, test packages,
 and ingest Kids First study datasets into the Kids First Data Service.
 The Kids First Data Service is the only supported target service at this point.
 

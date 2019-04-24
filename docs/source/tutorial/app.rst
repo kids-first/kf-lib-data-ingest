@@ -1,8 +1,10 @@
+.. _Tutorial-Ingest-App:
+
 =====================
 Kids First Ingest App
 =====================
 
-While the ingest library aims to be fairly generic, the built-in CLI based app
+While the ingest library aims to be fairly generic, the built-in ingest app
 is an example of how the library can be use used to support specific project(s)
 or use cases. This section will explain what app settings are and how they help
 us tailor usage of the library for specific projects.
@@ -73,7 +75,8 @@ environment has the following set: ``KF_INGEST_APP_MODE=development``
 
 This will instruct the ingest app to load in the development settings,
 which include authentication configuration for accessing files
-via the Kids First Study Creator API.
+via the Kids First Study Creator API, the single source of truth for source
+data files within the Kids First ecosystem.
 
 Developing for Kids First
 =========================
@@ -97,7 +100,7 @@ Download Files
 --------------
 
 Once files are uploaded into a study, they may be downloaded via the study
-creator API files endpoint along with a developer token in the authorization
+creator API's file endpoint along with a developer token in the authorization
 header of the request.
 
 You will learn how to configure your ingest package to access these files
