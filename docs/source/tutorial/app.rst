@@ -3,15 +3,15 @@ Kids First Ingest App
 =====================
 
 While the ingest library aims to be fairly generic, the built-in CLI based app
-is an example of how the library can use used to support specific project(s) or
-use cases. This section will explain what app settings are and how they help
+is an example of how the library can be use used to support specific project(s)
+or use cases. This section will explain what app settings are and how they help
 us tailor usage of the library for specific projects.
 
 Additionally, if you will be developing ingest packages for Kids First
 study datasets, then this section will also explain where source data files
 should live (not on your computer!) and how to access them.
 
-App settings
+App Settings
 ============
 
 An ingest package contains configuration which will be different from package
@@ -73,8 +73,32 @@ environment has the following set: ``KF_INGEST_APP_MODE=development``
 
 This will instruct the ingest app to load in the development settings,
 which include authentication configuration for accessing files
-via the Kids First Study Creator API. This is because the Kids First Study
-Creator API is the single point of truth for Kids First source data files.
+via the Kids First Study Creator API.
 
-In the :ref:`Tutorial-Extract-Stage` section, you will learn how to upload
-source data files to this API and setup your ingest app to access those files.
+Developing for Kids First
+=========================
+
+If you are developing an ingest package for Kids First study data, then the
+souce data files for the study will be managed by the Kids First Study Creator
+API. Read more about the `study creator API here <https://kids-first.github.io/kf-api-study-creator/>`_.
+
+Upload Files
+------------
+
+Source data files must be uploaded to an `existing` Kids First study in the
+study creator API. The easiest way to do this is via the
+`Kids First Data Tracker web app <https://kf-ui-data-tracker.kidsfirstdrc.org/>`_
+
+Currently, new studies must be created via the Kids First Dataservice API and
+will then be mirrored/synced in the study creator API. This will likely change
+in the near future so that studies may be created via the Data Tracker UI.
+
+Download Files
+--------------
+
+Once files are uploaded into a study, they may be downloaded via the study
+creator API files endpoint along with a developer token in the authorization
+header of the request.
+
+You will learn how to configure your ingest package to access these files
+in the :ref:`Tutorial-Extract-Stage` section of the tutorial.
