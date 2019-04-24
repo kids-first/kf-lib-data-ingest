@@ -58,7 +58,7 @@ def http_get_file(url, dest_obj, **kwargs):
         response.close()
 
     else:
-        logger.warning(f'Could not fetch {url}. Caused by '
-                       f'{response.text}')
+        logger.error(f'Could not fetch {url}. Caused by '
+                     f'{response.text}')
 
     return response
