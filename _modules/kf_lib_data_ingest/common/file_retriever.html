@@ -480,7 +480,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                         <span class="n">f</span><span class="s1">&#39;Selected `</span><span class="si">{auth_config[&quot;type&quot;]}</span><span class="s1">` authentication to &#39;</span>
                         <span class="n">f</span><span class="s1">&#39;fetch </span><span class="si">{url}</span><span class="s1">&#39;</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="n">protocol</span> <span class="o">!=</span> <span class="s1">&#39;file&#39;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                         <span class="n">f</span><span class="s1">&#39;Authentication scheme not found for url </span><span class="si">{url}</span><span class="s1">&#39;</span><span class="p">)</span>
 
