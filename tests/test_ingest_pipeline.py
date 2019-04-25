@@ -26,33 +26,31 @@ def test_ingest_cmd_missing_required_args():
     assert result.exit_code == COMMAND_LINE_ERROR_CODE
 
 
-@pytest.mark.parametrize('cli_cmd, arg_str',
-                         [
-                             (cli.ingest, f'{TEST_STUDY_CONFIG} --dry_run'),
-                             (cli.test, TEST_STUDY_CONFIG)
-                         ])
-def test_ingest_cmds(cli_cmd, arg_str):
+@pytest.mark.parametrize(
+    'cli_cmd, arg_list',
+    [
+        (cli.test, [TEST_STUDY_CONFIG, '--log_level', 'debug']),
+        (cli.ingest, [TEST_STUDY_CONFIG, '--dry_run', '--log_level', 'debug'])
+    ]
+)
+def test_ingest_cmds(cli_cmd, arg_list):
     """
     Test ingest and test CLI commands - guided transform
     """
     runner = CliRunner()
-    result = runner.invoke(cli_cmd, arg_str)
-
+    result = runner.invoke(cli_cmd, arg_list)
     assert result.exit_code == 1
+
     assert 'BEGIN data ingestion' in result.output
     assert 'END data ingestion' in result.output
 
     # Make sure that post-extract counts run
+    assert 'Begin Basic Stage Output Validation' in result.output
     assert (
-        'ExtractStage - INFO - Begin Basic Stage Output Validation'
+        "UNIQUE COUNTS:\n{'CONCEPT|BIOSPECIMEN|ALIQUOT_ID': 64,"
         in result.output
     )
-    assert (
-        'ExtractStage - INFO - End Basic Stage Output Validation'
-        in result.output
-    )
-    assert 'ExtractStage - INFO - UNIQUE COUNTS' in result.output
-    assert ('| CONCEPT|BIOSPECIMEN|ID |         60 |      60 | ✅' in
+    assert ('| CONCEPT|BIOSPECIMEN|ID |         60 |      60 |  ' in
             result.output)
 
     assert 'DRY' in result.output

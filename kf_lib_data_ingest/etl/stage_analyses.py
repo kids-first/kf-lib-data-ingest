@@ -4,12 +4,9 @@ import pandas
 from tabulate import tabulate
 
 from kf_lib_data_ingest.common.concept_schema import str_to_CONCEPT
-from kf_lib_data_ingest.etl.extract.extract import ExtractStage
-from kf_lib_data_ingest.etl.load.load import LoadStage
-from kf_lib_data_ingest.etl.transform.transform import TransformStage
 
 
-def check_counts(discovery_sources, expected_counts, logger):
+def check_counts(discovery_sources, expected_counts):
     """
     Verify that we found as many unique values of each attribute as we expected
     to find.
@@ -23,21 +20,15 @@ def check_counts(discovery_sources, expected_counts, logger):
     uniques = {
         key: len(unique_vals) for key, unique_vals in discovery_sources.items()
     }
-
-    # display unique counts
-
-    logger.info('UNIQUE COUNTS:\n' + pformat(uniques))
-
-    # check expected counts
-
+    messages = ['UNIQUE COUNTS:\n' + pformat(uniques)]
     passed = True
 
     if not expected_counts:
-        logger.info("No expected counts registered. ❌")
+        messages.append("No expected counts registered. ❌")
         passed = True  # Pass if we have no expectations
     else:
         checks = pandas.DataFrame(
-            columns=['key', 'expected', 'found', 'equal']
+            columns=['Key', 'Expected', 'Found', 'Errors']
         )
         for key, expected in expected_counts.items():
 
@@ -54,68 +45,93 @@ def check_counts(discovery_sources, expected_counts, logger):
 
             found = uniques.get(key)
             if expected == found:
-                passmark = '✅'
+                flag = ''
             else:
                 passed = False
-                passmark = '❌'
+                flag = '❌'
             checks = checks.append(
                 {
-                    'key': key, 'expected': expected, 'found': found,
-                    'equal': passmark
+                    'Key': key, 'Expected': expected, 'Found': found,
+                    'Errors': flag
                 },
                 ignore_index=True
             )
-        logger.info(
-            'EXPECTED COUNT CHECKS\n' +
+        messages.append(
+            'EXPECTED COUNT CHECKS:\n' +
             tabulate(
                 checks,
                 headers='keys', showindex=False, tablefmt='psql'
             )
         )
 
-    return passed
+    return passed, messages
 
 
 def compare_counts(
-    name_one, discovery_sources_one, name_two, discovery_sources_two, logger
+    name_one, discovery_sources_one, name_two, discovery_sources_two
 ):
-    logger.info(f'COMPARING COUNTS')
+    title = 'COMPARING COUNTS'
+    messages = [title + '\n' + '='*len(title)]
     passed = True
 
-    setA = set(discovery_sources_one.keys())
-    setB = set(discovery_sources_two.keys())
-    diff = setA ^ setB
-    if diff:
-        logger.info(
-            f'❌ Column keys not equal between {name_one} and '
-            f'{name_two}'
-        )
-        logger.debug(
-            f'{name_one} {setA}\n'
-            'vs\n'
-            f'{name_two} {setB}\n'
-            'Difference is:\n' +
-            str(diff)
-        )
+    one_keys = discovery_sources_one.keys()
+    two_keys = discovery_sources_two.keys()
+
+    comparison_df, diff_count = _compare(name_one, one_keys,
+                                         name_two, two_keys)
+
+    if diff_count != 0:
+        msg = f'❌ Column names not equal between {name_one} and {name_two}'
+        messages.extend(_format(msg, comparison_df))
         passed = False
 
-    for k, v in discovery_sources_one.items():
-        setA = set(v.keys())
-        setB = set(discovery_sources_two[k].keys())
-        diff = setA ^ setB
-        if diff:
-            logger.info(
+    for k in (one_keys | two_keys):
+        one_k_keys = discovery_sources_one.get(k, {}).keys()
+        two_k_keys = discovery_sources_two.get(k, {}).keys()
+
+        comparison_df, diff_count = _compare(name_one, one_k_keys,
+                                             name_two, two_k_keys)
+
+        if diff_count != 0:
+            msg = (
                 f'❌ Column values for {k} not equal between {name_one} and '
-                f'{name_two}  ( # = {len(diff)})'
+                f'{name_two}\n'
+                f'Number of different values = {diff_count}'
             )
-            logger.info(f'Number of different values = {len(diff)}')
-            logger.debug(
-                f'{name_one} {setA}\n'
-                'vs\n'
-                f'{name_two} {setB}\n'
-                'Difference is:\n' +
-                str(diff)
-            )
+            messages.extend(_format(msg, comparison_df))
             passed = False
 
-    return passed
+    return passed, messages
+
+
+def _compare(
+    name_one, list_one, name_two, list_two
+):
+    indicator = 'Errors'
+    one = pandas.DataFrame({name_one: list(list_one)})
+    two = pandas.DataFrame({name_two: list(list_two)})
+
+    comparison_df = pandas.merge(one, two,
+                                 left_on=name_one,
+                                 right_on=name_two,
+                                 how='outer', indicator=indicator)
+    diff_count = comparison_df[comparison_df[indicator] != 'both'].shape[0]
+
+    comparison_df[indicator].replace({
+        'left_only': '❌',
+        'right_only': '❌',
+        'both': ''
+    }, inplace=True)
+
+    return comparison_df, diff_count
+
+
+def _format(pre_msg, comparison_df):
+    return [
+        pre_msg,
+        tabulate(
+            comparison_df, headers=comparison_df.columns.tolist(),
+            showindex=False, tablefmt='psql'
+        ),
+        '-----'
+    ]
