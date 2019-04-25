@@ -1,3 +1,22 @@
+# Kids First Lib Data Ingest Release 0.2.0
+
+## Features
+
+### Summary
+
+Feature Emojis: 🐛x2 🔒x2 🔧x1 ✨x1 🔥x1
+Feature Labels: [refactor](https://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/refactor) x2 [devops](https://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/devops) x2 [documentation](https://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/documentation) x1 [bug](https://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/bug) x1
+
+### New features and changes
+
+- (#267) 🔧 Update dev settings - pass token in req header - @znatty22
+- (#262) ✨ Add app settings sect to docs - @znatty22
+- (#266) 🐛 Fix logging with fetching files - @znatty22
+- (#265) 🐛 fix extended-attr filename parsing bugs - @fiendish
+- (#257) 🔥 Rm docker self clean from entrypoint - @znatty22
+- (#258) 🔒 No auth environment logging - @fiendish
+- (#253) 🔒 lock down merges - @fiendish
+
 # Kids First Lib Data Ingest Release 0.1.0
 
 ## Features
