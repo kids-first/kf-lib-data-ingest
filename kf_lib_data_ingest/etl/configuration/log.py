@@ -26,6 +26,10 @@ class NoTokenFormatter(logging.Formatter):
         return s
 
 
+DEFAULT_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+DEFAULT_FORMATTER = NoTokenFormatter(DEFAULT_FORMAT)
+
+
 def setup_logger(log_dir, overwrite_log=DEFAULT_LOG_OVERWRITE_OPT,
                  log_level=DEFAULT_LOG_LEVEL):
     """
@@ -39,8 +43,7 @@ def setup_logger(log_dir, overwrite_log=DEFAULT_LOG_OVERWRITE_OPT,
     values are the names of Python's standard lib logging levels.
     (critical, error, warning, info, debug, notset)
     """
-    # Defaults
-    filemode = 'w'
+    # Default file name
     filename = DEFAULT_LOG_FILENAME
 
     # Create a new log file named with a timestamp
@@ -49,20 +52,14 @@ def setup_logger(log_dir, overwrite_log=DEFAULT_LOG_OVERWRITE_OPT,
 
     log_filepath = os.path.join(log_dir, filename)
 
-    # Setup log message formatter
-    formatter = NoTokenFormatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-    formatter.format
-
     # Setup rotating file handler
     fileHandler = logging.handlers.RotatingFileHandler(log_filepath,
-                                                       mode=filemode)
-    fileHandler.setFormatter(formatter)
+                                                       mode='w')
+    fileHandler.setFormatter(DEFAULT_FORMATTER)
 
     # Setup console handler
     consoleHandler = logging.StreamHandler()
-    consoleHandler.setFormatter(formatter)
+    consoleHandler.setFormatter(DEFAULT_FORMATTER)
 
     # Set log level and handlers
     root = logging.getLogger()
