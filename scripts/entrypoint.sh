@@ -2,6 +2,9 @@
 
 set -e
 
+echo "Pretend to do docker entry point .... exit 1"
+exit 1
+
 if [[ $KF_INGEST_APP_MODE = "production" ]]; then
     echo "Loading production app settings into environment ..."
 
