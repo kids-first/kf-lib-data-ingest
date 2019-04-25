@@ -178,13 +178,13 @@ Anything in <code class="docutils literal notranslate"><span class="pre">kf_lib_
 <code class="docutils literal notranslate"><span class="pre">kf_lib_data_ingest.common.pandas_utils</span></code> that could be used outside of the
 framework for data wrangling tasks. See &lt;TODO&gt; for details.</p>
 </div>
-<div class="section" id="command-line-interface">
-<h2>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h2>
-<p>A command line interface (CLI) wraps the library and is the primary user
-interface for executing the ingest pipeline. Users will use the CLI to create
-new ingest packages, test packages, and ingest Kids First study datasets into
-the Kids First Data Service. The Kids First Data Service is the only supported
-target service at this point.</p>
+<div class="section" id="ingest-app">
+<h2>Ingest App<a class="headerlink" href="#ingest-app" title="Permalink to this headline">¶</a></h2>
+<p>The library comes with a built-in command-line-interface-based (CLI) app
+which is the primary user interface for executing the ingest pipeline.
+Most users will use this app to create new ingest packages, test packages,
+and ingest Kids First study datasets into the Kids First Data Service.
+The Kids First Data Service is the only supported target service at this point.</p>
 </div>
 <div class="section" id="ingest-packages">
 <h2>Ingest Packages<a class="headerlink" href="#ingest-packages" title="Permalink to this headline">¶</a></h2>
@@ -387,6 +387,7 @@ POST or PATCH them to the target service.</p>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/index.html">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/app.html">Kids First Ingest App</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/ingest_package.html">Ingest Package Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/project_setup.html">Project Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/extract.html">Extract Stage</a></li>

@@ -36,7 +36,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Ingest Package Configuration" href="ingest_package.html" />
+    <link rel="next" title="Kids First Ingest App" href="app.html" />
     <link rel="prev" title="Quickstart" href="../quickstart.html" />
     <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
  
@@ -95,6 +95,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="app.html">Kids First Ingest App</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ingest_package.html">Ingest Package Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="project_setup.html">Project Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extract.html">Extract Stage</a></li>
@@ -178,6 +179,7 @@ uses a more complex study dataset and steps through each ingest stage in much
 more depth.</p>
 <p>In this tutorial we will cover:</p>
 <ol class="arabic simple">
+<li>Basic usage and configuration of ingest app-level settings</li>
 <li>How to configure complex extractions with multiple messy source data files</li>
 <li>How to write a transform function for the transform stage</li>
 <li>How to run the ingest pipeline from end to end</li>
@@ -192,6 +194,12 @@ more depth.</p>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Contents</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="app.html">Kids First Ingest App</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="app.html#app-settings">App Settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app.html#ingest-app-mode">Ingest App Mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app.html#developing-for-kids-first">Developing for Kids First</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="ingest_package.html">Ingest Package Configuration</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="ingest_package.html#the-ingest-package-directory">The ingest package directory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ingest_package.html#ingest-package-config-py">ingest_package_config.py</a></li>
@@ -203,6 +211,7 @@ more depth.</p>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="extract.html">Extract Stage</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="extract.html#write-extract-configuration-files">Write Extract Configuration Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extract.html#accessing-protected-source-data">Accessing Protected Source Data</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="package_testing.html">Test Your Ingest Package</a><ul>
@@ -235,7 +244,7 @@ more depth.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="ingest_package.html" class="btn btn-neutral float-right" title="Ingest Package Configuration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="app.html" class="btn btn-neutral float-right" title="Kids First Ingest App" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="../quickstart.html" class="btn btn-neutral float-left" title="Quickstart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

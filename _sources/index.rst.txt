@@ -22,14 +22,14 @@ Additionally, there are a handful of helper functions in
 ``kf_lib_data_ingest.common.pandas_utils`` that could be used outside of the
 framework for data wrangling tasks. See <TODO> for details.
 
-Command Line Interface
-======================
+Ingest App
+==========
 
-A command line interface (CLI) wraps the library and is the primary user
-interface for executing the ingest pipeline. Users will use the CLI to create
-new ingest packages, test packages, and ingest Kids First study datasets into
-the Kids First Data Service. The Kids First Data Service is the only supported
-target service at this point.
+The library comes with a built-in command-line-interface-based (CLI) app
+which is the primary user interface for executing the ingest pipeline.
+Most users will use this app to create new ingest packages, test packages,
+and ingest Kids First study datasets into the Kids First Data Service.
+The Kids First Data Service is the only supported target service at this point.
 
 Ingest Packages
 ===============

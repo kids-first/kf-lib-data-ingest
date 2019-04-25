@@ -1,0 +1,344 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Kids First Ingest App &mdash; Kids First Data Ingest Libraries  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Ingest Package Configuration" href="ingest_package.html" />
+    <link rel="prev" title="Tutorial" href="index.html" />
+    <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
+ 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorial</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Kids First Ingest App</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#app-settings">App Settings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cli-option-override">CLI Option Override</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#ingest-app-mode">Ingest App Mode</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#production-mode">Production Mode</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#development-mode">Development Mode</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#developing-for-kids-first">Developing for Kids First</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#upload-files">Upload Files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#download-files">Download Files</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ingest_package.html">Ingest Package Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="project_setup.html">Project Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extract.html">Extract Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="package_testing.html">Test Your Ingest Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transform.html">Transform Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="load.html">Load Stage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developer.html">Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Design</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Kids First Data Ingest Libraries</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Tutorial</a> &raquo;</li>
+        
+      <li>Kids First Ingest App</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/tutorial/app.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="kids-first-ingest-app">
+<span id="tutorial-ingest-app"></span><h1>Kids First Ingest App<a class="headerlink" href="#kids-first-ingest-app" title="Permalink to this headline">¶</a></h1>
+<p>While the ingest library aims to be fairly generic, the built-in ingest app
+is an example of how the library can be use used to support specific project(s)
+or use cases. This section will explain what app settings are and how they help
+us tailor usage of the library for specific projects.</p>
+<p>If you will be developing ingest packages for Kids First study datasets,
+then this section will also explain where source data files should live
+(not on your computer!) and how to access them.</p>
+<div class="section" id="app-settings">
+<h2>App Settings<a class="headerlink" href="#app-settings" title="Permalink to this headline">¶</a></h2>
+<p>App settings include configuration that applies to a group of ingest packages
+which are all part of the same project.</p>
+<p>Here’s what an example app settings file looks like:</p>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">kf_lib_data_ingest/app/settings/development.py</span><a class="headerlink" href="#id1" title="Permalink to this code">¶</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Testing settings for Kids First Ingest App</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.app.settings.base</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">AUTH_CONFIGS</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+    <span class="s1">&#39;https://kf-study-creator.kidsfirstdrc.org/download/study&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;token&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;token_location&#39;</span><span class="p">:</span> <span class="s1">&#39;url&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;token&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SECRETS</span><span class="o">.</span><span class="n">KF_STUDY_CREATOR_API_TOKEN</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<p>Each app settings file is a Python module and all app settings files live in
+the <code class="docutils literal notranslate"><span class="pre">kf_lib_data_ingest/app/settings</span></code> directory. Common settings can be
+imported from <code class="docutils literal notranslate"><span class="pre">base.py</span></code>.</p>
+<p>App level settings currently include but are not limited to:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">TARGET_API_CONFIG</span></code> the path to the target API configuration module
+which specifies how to transform data into a form expected by the target
+service</li>
+<li><code class="docutils literal notranslate"><span class="pre">AUTH_CONFIGS</span></code> dict, which specifies what authentication parameters to use
+when fetching remote source data files that require authentication.</li>
+</ul>
+<div class="section" id="cli-option-override">
+<h3>CLI Option Override<a class="headerlink" href="#cli-option-override" title="Permalink to this headline">¶</a></h3>
+<p>As an ingest package developer you will rarely need to worry about changing
+app level settings. However, if you do need to modify settings you can do so by
+supplying your own settings file via the <code class="docutils literal notranslate"><span class="pre">--app_settings</span></code> CLI option.
+See <code class="docutils literal notranslate"><span class="pre">kidsfirst</span> <span class="pre">ingest</span> <span class="pre">--help</span></code> for details.</p>
+</div>
+</div>
+<div class="section" id="ingest-app-mode">
+<h2>Ingest App Mode<a class="headerlink" href="#ingest-app-mode" title="Permalink to this headline">¶</a></h2>
+<p>For Kids First projects, there are 2 settings files, each pertaining to a
+different mode of operation. The mode of operation can be controlled by the
+<code class="docutils literal notranslate"><span class="pre">KF_INGEST_APP_MODE</span></code> environment variable.</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">KF_INGEST_APP_MODE=production</span></code> -&gt; loads production.py settings</li>
+<li><code class="docutils literal notranslate"><span class="pre">KF_INGEST_APP_MODE=development</span></code> -&gt; loads development.py settings</li>
+</ul>
+<div class="section" id="production-mode">
+<h3>Production Mode<a class="headerlink" href="#production-mode" title="Permalink to this headline">¶</a></h3>
+<p>This mode is used when the ingest/test commands are run as part of a
+CI/CD process. It contains authentication configuration that is only used
+in a CI/CD scenario.</p>
+<p>As an ingest package developer you will never use this mode.</p>
+</div>
+<div class="section" id="development-mode">
+<h3>Development Mode<a class="headerlink" href="#development-mode" title="Permalink to this headline">¶</a></h3>
+<p>As a Kids First ingest package developer, you will want to make sure your
+environment has the following set: <code class="docutils literal notranslate"><span class="pre">KF_INGEST_APP_MODE=development</span></code></p>
+<p>This will instruct the ingest app to load the development settings,
+which include authentication configuration for accessing files
+via the Kids First Study Creator API, the single source of truth for source
+data files within the Kids First ecosystem.</p>
+</div>
+</div>
+<div class="section" id="developing-for-kids-first">
+<h2>Developing for Kids First<a class="headerlink" href="#developing-for-kids-first" title="Permalink to this headline">¶</a></h2>
+<p>If you are developing an ingest package for Kids First study data, then the
+source data files for the study will be managed by the Kids First Study Creator
+API. Read more about the study creator API at <a class="reference external" href="https://kids-first.github.io/kf-api-study-creator/">https://kids-first.github.io/kf-api-study-creator/</a></p>
+<div class="section" id="upload-files">
+<h3>Upload Files<a class="headerlink" href="#upload-files" title="Permalink to this headline">¶</a></h3>
+<p>Source data files must be uploaded to an existing Kids First study in the
+study creator API. The easiest way to do this is via the
+Kids First Data Tracker web app at <a class="reference external" href="https://kf-ui-data-tracker.kidsfirstdrc.org/">https://kf-ui-data-tracker.kidsfirstdrc.org/</a></p>
+<p>Currently, new studies must be created via the Kids First Dataservice API and
+will then be mirrored/synced in the study creator API. This will likely change
+in the near future so that studies may be created via the Data Tracker UI.</p>
+</div>
+<div class="section" id="download-files">
+<h3>Download Files<a class="headerlink" href="#download-files" title="Permalink to this headline">¶</a></h3>
+<p>Once files are uploaded into a study, they may be downloaded via the study
+creator API’s file endpoint with a developer token in the authorization header
+of the request.</p>
+<p>You will learn how to configure your ingest package to access these files
+in the <a class="reference internal" href="extract.html#tutorial-extract-stage"><span class="std std-ref">Extract Stage</span></a> section of the tutorial.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="ingest_package.html" class="btn btn-neutral float-right" title="Ingest Package Configuration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Tutorial" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Kids First
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
