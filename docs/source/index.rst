@@ -25,7 +25,7 @@ framework for data wrangling tasks. See <TODO> for details.
 Ingest App
 ==========
 
-The library comes with a built in a command line interface (CLI) based app,
+The library comes with a built-in command-line-interface-based (CLI) app
 which is the primary user interface for executing the ingest pipeline.
 Most users will use this app to create new ingest packages, test packages,
 and ingest Kids First study datasets into the Kids First Data Service.
