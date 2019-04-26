@@ -1725,7 +1725,7 @@ what environment variable you should use to store your token.</p>
 <span class="n">AUTH_CONFIGS</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
     <span class="s1">&#39;https://kf-study-creator.kidsfirstdrc.org/download/study&#39;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;token&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;token_location&#39;</span><span class="p">:</span> <span class="s1">&#39;url&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;token_location&#39;</span><span class="p">:</span> <span class="s1">&#39;header&#39;</span><span class="p">,</span>
         <span class="s1">&#39;token&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SECRETS</span><span class="o">.</span><span class="n">KF_STUDY_CREATOR_API_TOKEN</span><span class="p">)</span>
     <span class="p">}</span>
 <span class="p">})</span>
@@ -1747,7 +1747,7 @@ privileges.</p>
 <p>Now if you try running ingest and the file was fetched successfully, you should
 see something like this in your log:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>2019-04-24 11:19:31,719 - FileRetriever - INFO - Selected `token` authentication to fetch https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_ND1PHHW4
-2019-04-24 11:19:32,269 - kf_lib_data_ingest.network.utils - INFO - Successfully fetched https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_ND1PHHW4?token=&lt;env[&#39;KF_STUDY_CREATOR_API_TOKEN&#39;]&gt; with original file name &quot;family_and_phenotype.tsv&quot;
+2019-04-24 11:19:32,269 - kf_lib_data_ingest.network.utils - INFO - Successfully fetched https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_ND1PHHW4 with original file name &quot;family_and_phenotype.tsv&quot;
 </pre></div>
 </div>
 </div>

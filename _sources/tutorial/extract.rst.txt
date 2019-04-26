@@ -665,4 +665,4 @@ Now if you try running ingest and the file was fetched successfully, you should
 see something like this in your log::
 
     2019-04-24 11:19:31,719 - FileRetriever - INFO - Selected `token` authentication to fetch https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_ND1PHHW4
-    2019-04-24 11:19:32,269 - kf_lib_data_ingest.network.utils - INFO - Successfully fetched https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_ND1PHHW4?token=<env['KF_STUDY_CREATOR_API_TOKEN']> with original file name "family_and_phenotype.tsv"
+    2019-04-24 11:19:32,269 - kf_lib_data_ingest.network.utils - INFO - Successfully fetched https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_ND1PHHW4 with original file name "family_and_phenotype.tsv"
