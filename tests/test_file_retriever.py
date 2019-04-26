@@ -104,6 +104,11 @@ def auth_configs():
             'token_location': 'url',
             'token': os.environ.get('TEST_API_TOKEN')
         },
+        'https://api.com/download/study': {
+            'type': 'token',
+            'token_location': 'header',
+            'token': os.environ.get('TEST_API_TOKEN')
+        },
         'https://api.com/bar': {
             'type': 'token',
             'token': os.environ.get('TEST_API_TOKEN')
