@@ -22,15 +22,6 @@ SETTINGS_DIR = os.path.join(ROOT_DIR, 'app', 'settings')
 
 
 @pytest.fixture(scope='function')
-def info_caplog(caplog):
-    """
-    pytest capture log output at level=INFO
-    """
-    caplog.set_level(logging.INFO)
-    return caplog
-
-
-@pytest.fixture(scope='function')
 def cleanup():
     def delete_leftovers():
         app_modes = ['development', 'production']
