@@ -275,7 +275,7 @@ class DataIngestPipeline(object):
         elif exit_code == 5:
             self.logger.warning(
                 f'⚠️  pytest did not collect any user defined tests, '
-                'even though user tests directory exits: '
+                'even though user tests directory exists: '
                 f'{user_defined_test_dir}')
         else:
             self.logger.info(f'❌  User defined data validation tests failed '
