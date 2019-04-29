@@ -42,8 +42,9 @@ def common_args_options(func):
         'supplied via config, the default log_level for the ingest lib will '
         f'be used: {DEFAULT_LOG_LEVEL_NAME}')
     func = click.option('--log_level', 'log_level_name',
-                        type=click.Choice(map(str.lower,
-                                              logging._nameToLevel.keys())),
+                        type=click.Choice(
+                            list(map(str.lower, logging._nameToLevel.keys()))
+                        ),
                         help=log_help_txt)(func)
     # Target URL
     func = click.option(
