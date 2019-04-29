@@ -14,12 +14,6 @@ from conftest import (
 TEST_FILE_PATH = os.path.join(TEST_DATA_DIR, 'data.csv')
 
 
-@pytest.fixture(scope='function')
-def info_caplog(caplog):
-    caplog.set_level(logging.INFO)
-    return caplog
-
-
 @pytest.mark.parametrize(
     'provider_domain, audience, client_id, client_secret, expected_status, expected_log',  # noqa E501
     [(TEST_AUTH0_DOMAIN, TEST_AUTH0_AUD, TEST_CLIENT_ID, TEST_CLIENT_SECRET,

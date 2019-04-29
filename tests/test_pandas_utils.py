@@ -11,13 +11,6 @@ from kf_lib_data_ingest.common import pandas_utils
 
 
 @pytest.fixture(scope='function')
-def info_caplog(caplog):
-    # Set pytest to capture log events at level INFO or higher
-    caplog.set_level(logging.INFO)
-    return caplog
-
-
-@pytest.fixture(scope='function')
 def dfs():
     nrows = 3
     df1 = pandas.DataFrame({'A': [f'A{i}' for i in range(nrows)],
