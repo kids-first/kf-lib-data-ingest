@@ -27,6 +27,7 @@ def check_counts(discovery_sources, expected_counts):
     messages = ['UNIQUE COUNTS:\n' + pformat(uniques)]
     passed = True
 
+    # check expected counts
     if not expected_counts:
         messages.append("No expected counts registered. ❌")
         passed = True  # Pass if we have no expectations
@@ -89,20 +90,39 @@ def compare_counts(
         messages.extend(_format(msg, comparison_df))
         passed = False
 
+
+def compare_counts(
+    name_one, discovery_sources_one, name_two, discovery_sources_two
+):
+    title = 'COMPARING COUNTS'
+    messages = [title + '\n' + '='*len(title)]
+    passed = True
+
+    one_keys = set(discovery_sources_one.keys())
+    two_keys = set(discovery_sources_two.keys())
+
+    comparison_df, diff_df = _compare(name_one, list(one_keys),
+                                      name_two, list(two_keys))
+
+    if diff_df.shape[0] != 0:
+        msg = f'❌ Column names not equal between {name_one} and {name_two}'
+        messages = _display(comparison_df, msg, messages)
+        passed = False
+
     for k in (one_keys | two_keys):
         one_k_keys = set(discovery_sources_one.get(k, {}).keys())
         two_k_keys = set(discovery_sources_two.get(k, {}).keys())
 
-        comparison_df, diff_count = _compare(name_one, list(one_k_keys),
-                                             name_two, list(two_k_keys))
+        comparison_df, diff_df = _compare(name_one, list(one_k_keys),
+                                          name_two, list(two_k_keys))
 
-        if diff_count != 0:
+        if diff_df.shape[0] != 0:
             msg = (
                 f'❌ Column values for {k} not equal between {name_one} and '
                 f'{name_two}\n'
-                f'Number of different values = {diff_count}'
+                f'Number of different values = {diff_df.shape[0]}'
             )
-            messages.extend(_format(msg, comparison_df))
+            messages = _display(comparison_df, msg, messages)
             passed = False
 
     return passed, messages
@@ -111,7 +131,7 @@ def compare_counts(
 def _compare(
     name_one, list_one, name_two, list_two
 ):
-    indicator = 'Errors'
+    indicator = 'Found In'
     one = pandas.DataFrame({name_one: list_one})
     two = pandas.DataFrame({name_two: list_two})
 
@@ -119,23 +139,25 @@ def _compare(
                                  left_on=name_one,
                                  right_on=name_two,
                                  how='outer', indicator=indicator)
-    diff_count = comparison_df[comparison_df[indicator] != 'both'].shape[0]
+    diff_df = comparison_df[comparison_df[indicator] != 'both']
 
     comparison_df[indicator].replace({
-        'left_only': '❌',
-        'right_only': '❌',
-        'both': ''
+        'left_only': name_one,
+        'right_only': name_two
     }, inplace=True)
 
-    return comparison_df, diff_count
+    return comparison_df, diff_df
 
 
-def _format(pre_msg, comparison_df):
-    return [
-        pre_msg,
-        tabulate(
-            comparison_df, headers=comparison_df.columns.tolist(),
-            showindex=False, tablefmt='psql'
-        ),
-        '-----'
-    ]
+def _display(comparison_df, msg, messages):
+    display_result = tabulate(
+        comparison_df,
+        headers=comparison_df.columns.tolist(),
+        showindex=False,
+        tablefmt='psql'
+    )
+    messages.append(msg)
+    messages.append(display_result)
+    messages.append('-----')
+
+    return messages
