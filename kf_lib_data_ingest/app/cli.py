@@ -43,7 +43,8 @@ def common_args_options(func):
         f'be used: {DEFAULT_LOG_LEVEL_NAME}')
     func = click.option('--log_level', 'log_level_name',
                         type=click.Choice(
-                            list(map(str.lower, logging._nameToLevel.keys()))
+                            [level_name.lower()
+                             for level_name in logging._nameToLevel.keys()]
                         ),
                         help=log_help_txt)(func)
     # Target URL
