@@ -14,11 +14,7 @@ from kf_lib_data_ingest.common.file_retriever import (
     FileRetriever,
     split_protocol
 )
-from kf_lib_data_ingest.common.misc import (
-    numeric_to_str,
-    read_json,
-    write_json
-)
+from kf_lib_data_ingest.common.misc import clean_up_df, read_json, write_json
 from kf_lib_data_ingest.common.pandas_utils import split_df_rows_on_splits
 from kf_lib_data_ingest.common.stage import IngestStage
 from kf_lib_data_ingest.common.type_safety import (
@@ -144,22 +140,6 @@ class ExtractStage(IngestStage):
             })
         self.logger.info(msg)
 
-    def _clean_up_df(self, df):
-        # We can't universally control which null type will get used by a data
-        # file loader, and it might also change, so let's always push them all
-        # to None because other nulls are not our friends. It's easier for a
-        # configurator to equate empty spreadsheet cells with None than e.g.
-        # numpy.nan.
-
-        # Typed loaders like pandas.read_json force us into storing numerically
-        # typed values, and then nulls, which read_json does not let you handle
-        # inline, cause pandas to convert perfectly good ints into ugly floats.
-        # So here we get any untidy values back to nice and tidy strings.
-
-        return df.applymap(
-            lambda x: numeric_to_str(x, replace_na=True, na=None)
-        )
-
     def _obvert_visibility(self, df):
         """
         If something is visible, then also record that it's not hidden, and
@@ -236,7 +216,7 @@ class ExtractStage(IngestStage):
         if err:
             raise ConfigValidationError(err)
 
-        df = self._clean_up_df(df)
+        df = clean_up_df(df)
 
         if do_after_load:
             self.logger.info("Calling custom do_after_load function.")
@@ -397,7 +377,7 @@ class ExtractStage(IngestStage):
             self._obvert_visibility(df_out)
 
             # standardize values again after operations
-            df_out = self._clean_up_df(df_out)
+            df_out = clean_up_df(df_out)
 
             output[extract_config.config_filepath] = (data_path, df_out)
 

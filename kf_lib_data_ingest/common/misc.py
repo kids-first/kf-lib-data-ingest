@@ -117,10 +117,10 @@ def numeric_to_str(val, replace_na=False, na=None):
         str(df1['a'][0]) == str(df2['a'][0])  # this returns True. Good.
 
     :param val: any basic type
-    :param replace_na: should None/NaN values be replaced with something
+    :param replace_na: should None/NaN/blank values be replaced with something
     :type replace_na: boolean
-    :param na: if replace_na is True, what should None/NaN values be replaced
-        with
+    :param na: if replace_na is True, what should None/NaN/blank values be
+        replaced with
 
 
     :return: new representation of `val`
@@ -144,7 +144,32 @@ def numeric_to_str(val, replace_na=False, na=None):
                 return str(i_val)
         except Exception:
             pass
+    elif replace_na:
+        return na
     return val
+
+
+def clean_up_df(df):
+    """
+    We can't universally control which null type will get used by a data
+    file loader, and it might also change, so let's always push them all
+    to None because other nulls are not our friends. It's easier for a
+    configurator to equate empty spreadsheet cells with None than e.g.
+    numpy.nan.
+
+    Typed loaders like pandas.read_json force us into storing numerically
+    typed values. And then nulls, which read_json does not let you handle
+    inline, cause pandas to convert perfectly good ints into ugly floats.
+    So here we get any untidy values back to nice and tidy strings.
+
+    :param df: a pandas DataFrame
+    :return: Dataframe with numbers converted to strings and NaNs/blanks
+        converted to None
+    """
+
+    return df.applymap(
+        lambda x: numeric_to_str(x, replace_na=True, na=None)
+    )
 
 
 def obj_attrs_to_dict(cls):
