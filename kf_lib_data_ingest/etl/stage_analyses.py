@@ -80,50 +80,31 @@ def compare_counts(
     messages = [title + '\n' + '='*len(title)]
     passed = True
 
-    one_keys = set(discovery_sources_one.keys())
-    two_keys = set(discovery_sources_two.keys())
-
-    comparison_df, diff_count = _compare(name_one, list(one_keys),
-                                         name_two, list(two_keys))
+    col_list_one = list(discovery_sources_one.keys())
+    col_list_two = list(discovery_sources_two.keys())
+    comparison_df, diff_count = _compare(name_one, col_list_one,
+                                         name_two, col_list_two)
 
     if diff_count != 0:
         msg = f'❌ Column names not equal between {name_one} and {name_two}'
         messages.extend(_format(msg, comparison_df))
         passed = False
 
-
-def compare_counts(
-    name_one, discovery_sources_one, name_two, discovery_sources_two
-):
-    title = 'COMPARING COUNTS'
-    messages = [title + '\n' + '='*len(title)]
-    passed = True
-
-    col_list_one = list(discovery_sources_one.keys())
-    col_list_two = list(discovery_sources_two.keys())
-    comparison_df, diff_df = _compare(name_one, col_list_one,
-                                      name_two, col_list_two)
-
-    if diff_df.shape[0] != 0:
-        msg = f'❌ Column names not equal between {name_one} and {name_two}'
-        messages = _display(comparison_df, msg, messages)
-        passed = False
-
     for k in set(col_list_one + col_list_two):
-        comparison_df, diff_df = _compare(
+        comparison_df, diff_count = _compare(
             name_one, [key for key in discovery_sources_one.get(k, {}).keys()
                        if pandas.notnull(key)],
             name_two, [key for key in discovery_sources_two.get(k, {}).keys()
                        if pandas.notnull(key)]
         )
 
-        if diff_df.shape[0] != 0:
+        if diff_count != 0:
             msg = (
                 f'❌ Column values for {k} not equal between {name_one} and '
                 f'{name_two}\n'
-                f'Number of different unique values = {diff_df.shape[0]}'
+                f'Number of different unique values = {diff_count}'
             )
-            messages = _display(comparison_df, msg, messages)
+            messages.extend(_format(msg, comparison_df))
             passed = False
 
     return passed, messages
@@ -132,33 +113,30 @@ def compare_counts(
 def _compare(
     name_one, list_one, name_two, list_two
 ):
-    indicator = 'Found In'
+    indicator = 'Error'
     one = pandas.DataFrame({name_one: list_one})
     two = pandas.DataFrame({name_two: list_two})
-
     comparison_df = pandas.merge(one, two,
                                  left_on=name_one,
                                  right_on=name_two,
                                  how='outer', indicator=indicator)
-    diff_df = comparison_df[comparison_df[indicator] != 'both']
+    diff_count = comparison_df[comparison_df[indicator] != 'both'].shape[0]
 
     comparison_df[indicator].replace({
-        'left_only': name_one,
-        'right_only': name_two
+        'left_only': '❌',
+        'right_only': '❌',
+        'both': ''
     }, inplace=True)
 
-    return comparison_df, diff_df
+    return comparison_df, diff_count
 
 
-def _display(comparison_df, msg, messages):
-    display_result = tabulate(
-        comparison_df,
-        headers=comparison_df.columns.tolist(),
-        showindex=False,
-        tablefmt='psql'
-    )
-    messages.append(msg)
-    messages.append(display_result)
-    messages.append('-----')
-
-    return messages
+def _format(pre_msg, comparison_df):
+    return [
+        pre_msg,
+        tabulate(
+            comparison_df, headers=comparison_df.columns.tolist(),
+            showindex=False, tablefmt='psql'
+        ),
+        '-----'
+    ]
