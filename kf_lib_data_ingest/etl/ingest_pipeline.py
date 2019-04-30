@@ -247,7 +247,7 @@ class DataIngestPipeline(object):
 
         # Missing data
         if not discovery_sources:
-            stage.logger.info(f'Discovery Data Sources Not Found ❌')
+            stage.logger.info(f'❌ Discovery Data Sources Not Found')
             return False
 
         passed_all = True
@@ -283,7 +283,7 @@ class DataIngestPipeline(object):
                 # Missing data
                 passed_all = False
                 stage.logger.info(
-                    'No ExtractStage Discovery Data Sources To Compare ❌'
+                    '❌ No ExtractStage Discovery Data Sources To Compare'
                 )
         stage.logger.info('End Basic Stage Output Validation')
 

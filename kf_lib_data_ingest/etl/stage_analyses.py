@@ -30,11 +30,11 @@ def check_counts(discovery_sources, expected_counts):
 
     # check expected counts
     if not expected_counts:
-        messages.append("No expected counts registered. ❌")
+        messages.append("No expected counts registered. ⚠️")
         passed = True  # Pass if we have no expectations
     else:
         checks = pandas.DataFrame(
-            columns=['Key', 'Expected', 'Found', 'Errors']
+            columns=['Key', 'Expected', 'Found', 'Equal']
         )
         for key, expected in expected_counts.items():
 
@@ -51,14 +51,14 @@ def check_counts(discovery_sources, expected_counts):
 
             found = uniques_without_na.get(key)
             if expected == found:
-                flag = ''
+                flag = '✅'
             else:
                 passed = False
                 flag = '❌'
             checks = checks.append(
                 {
                     'Key': key, 'Expected': expected, 'Found': found,
-                    'Errors': flag
+                    'Equal': flag
                 },
                 ignore_index=True
             )
@@ -66,7 +66,8 @@ def check_counts(discovery_sources, expected_counts):
             'EXPECTED COUNT CHECKS:\n' +
             tabulate(
                 checks,
-                headers='keys', showindex=False, tablefmt='psql'
+                headers='keys', showindex=False, tablefmt='psql',
+                stralign='center'
             )
         )
 
@@ -113,7 +114,7 @@ def compare_counts(
 def _compare(
     name_one, list_one, name_two, list_two
 ):
-    indicator = 'Error'
+    indicator = 'Match'
     one = pandas.DataFrame({name_one: list_one})
     two = pandas.DataFrame({name_two: list_two})
     comparison_df = pandas.merge(one, two,
@@ -125,7 +126,7 @@ def _compare(
     comparison_df[indicator].replace({
         'left_only': '❌',
         'right_only': '❌',
-        'both': ''
+        'both': '✅'
     }, inplace=True)
 
     return comparison_df, diff_count
@@ -136,7 +137,7 @@ def _format(pre_msg, comparison_df):
         pre_msg,
         tabulate(
             comparison_df, headers=comparison_df.columns.tolist(),
-            showindex=False, tablefmt='psql'
+            showindex=False, tablefmt='psql', stralign='center'
         ),
         '-----'
     ]
