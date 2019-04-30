@@ -102,10 +102,15 @@ def get_col(df, key):
     :param key: A string or int
     :returns: The indicated column from the dataframe, either by name or order.
     """
-    if isinstance(key, int) and (key not in df.columns):
-        return df[df.columns[key - 1]]  # the keyth column
-    else:
-        return df[key]
+    try:
+        if isinstance(key, int) and (key not in df.columns):
+            return df[df.columns[key - 1]]  # the keyth column
+        else:
+            return df[key]
+    except KeyError as e:
+        raise Exception(
+            f'Column {key} not found in df. Options are: {df.columns}'
+        ) from e
 
 
 def safe_pandas_replace(data, mappings, regex=False):

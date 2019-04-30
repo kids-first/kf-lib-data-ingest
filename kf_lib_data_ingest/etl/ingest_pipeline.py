@@ -186,8 +186,8 @@ class DataIngestPipeline(object):
             output = None
             for stage in self._iterate_stages():
                 self.stages[stage.stage_type] = stage
-                if not output:  # First stage gets no input
-                    output = stage.run()
+                if isinstance(stage, ExtractStage):
+                    output = stage.run()  # First stage gets no input
                 else:
                     output = stage.run(output)
 
@@ -245,13 +245,14 @@ class DataIngestPipeline(object):
         stage.logger.info('Begin Basic Stage Output Validation')
         discovery_sources = stage.concept_discovery_dict.get('sources')
 
+        all_messages = [stage_name + '\n' + '='*len(stage_name)]
+
         # Missing data
         if not discovery_sources:
             stage.logger.info('❌ Discovery Data Sources Not Found')
-            return False
+            return False, all_messages
 
         passed_all = True
-        all_messages = [stage_name + '\n' + '='*len(stage_name)]
 
         # Do stage counts validation
         passed, messages = stage_analyses.check_counts(
