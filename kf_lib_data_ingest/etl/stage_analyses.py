@@ -19,6 +19,7 @@ def check_counts(discovery_sources, expected_counts):
     """
     uniques = {
         key: len(unique_vals) for key, unique_vals in discovery_sources.items()
+        if pandas.notnull(key)
     }
     uniques_without_na = {
         key: len([v for v in unique_vals if v is not None])
@@ -98,29 +99,29 @@ def compare_counts(
     messages = [title + '\n' + '='*len(title)]
     passed = True
 
-    one_keys = set(discovery_sources_one.keys())
-    two_keys = set(discovery_sources_two.keys())
-
-    comparison_df, diff_df = _compare(name_one, list(one_keys),
-                                      name_two, list(two_keys))
+    col_list_one = list(discovery_sources_one.keys())
+    col_list_two = list(discovery_sources_two.keys())
+    comparison_df, diff_df = _compare(name_one, col_list_one,
+                                      name_two, col_list_two)
 
     if diff_df.shape[0] != 0:
         msg = f'❌ Column names not equal between {name_one} and {name_two}'
         messages = _display(comparison_df, msg, messages)
         passed = False
 
-    for k in (one_keys | two_keys):
-        one_k_keys = set(discovery_sources_one.get(k, {}).keys())
-        two_k_keys = set(discovery_sources_two.get(k, {}).keys())
-
-        comparison_df, diff_df = _compare(name_one, list(one_k_keys),
-                                          name_two, list(two_k_keys))
+    for k in set(col_list_one + col_list_two):
+        comparison_df, diff_df = _compare(
+            name_one, [key for key in discovery_sources_one.get(k, {}).keys()
+                       if pandas.notnull(key)],
+            name_two, [key for key in discovery_sources_two.get(k, {}).keys()
+                       if pandas.notnull(key)]
+        )
 
         if diff_df.shape[0] != 0:
             msg = (
                 f'❌ Column values for {k} not equal between {name_one} and '
                 f'{name_two}\n'
-                f'Number of different values = {diff_df.shape[0]}'
+                f'Number of different unique values = {diff_df.shape[0]}'
             )
             messages = _display(comparison_df, msg, messages)
             passed = False

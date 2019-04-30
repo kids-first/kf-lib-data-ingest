@@ -275,6 +275,8 @@ class DataIngestPipeline(object):
                         if UNIQUE_ID_ATTR not in k
                     }
                 )
+                if passed:
+                    messages.append('✅ Compare count analysis passed')
                 passed_all = passed_all and passed
                 all_messages.extend(messages)
             else:
