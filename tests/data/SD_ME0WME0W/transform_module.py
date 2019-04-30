@@ -7,9 +7,26 @@ See documentation at
 https://kids-first.github.io/kf-lib-data-ingest/ for information on
 implementing transform_function.
 """
+import os
+
+# Use these merge funcs, not pandas.merge
+from kf_lib_data_ingest.common.pandas_utils import outer_merge
+from kf_lib_data_ingest.common.concept_schema import CONCEPT
 
 
 def transform_function(mapped_df_dict):
-    # Expected to return a single merged dataframe
+    dfs = {
+        os.path.basename(fp): df
+        for fp, df in
+        mapped_df_dict.items()
+    }
 
-    return list(mapped_df_dict.values())[0]
+    clinical_df = dfs['clinical.py']
+    family_and_phenotype_df = dfs['family_and_phenotype.py']
+
+    merged = outer_merge(clinical_df,
+                         family_and_phenotype_df,
+                         on=CONCEPT.PARTICIPANT.ID,
+                         with_merge_detail_dfs=False)
+
+    return merged
