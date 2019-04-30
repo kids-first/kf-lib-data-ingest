@@ -1,10 +1,9 @@
-import datetime
 import logging
 import logging.handlers
 import os
-import time
 
 from kf_lib_data_ingest.app.settings.base import SECRETS
+from kf_lib_data_ingest.common.misc import timestamp
 from kf_lib_data_ingest.config import (
     DEFAULT_LOG_FILENAME,
     DEFAULT_LOG_LEVEL,
@@ -26,6 +25,10 @@ class NoTokenFormatter(logging.Formatter):
         return s
 
 
+DEFAULT_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+DEFAULT_FORMATTER = NoTokenFormatter(DEFAULT_FORMAT)
+
+
 def setup_logger(log_dir, overwrite_log=DEFAULT_LOG_OVERWRITE_OPT,
                  log_level=DEFAULT_LOG_LEVEL):
     """
@@ -39,30 +42,23 @@ def setup_logger(log_dir, overwrite_log=DEFAULT_LOG_OVERWRITE_OPT,
     values are the names of Python's standard lib logging levels.
     (critical, error, warning, info, debug, notset)
     """
-    # Defaults
-    filemode = 'w'
+    # Default file name
     filename = DEFAULT_LOG_FILENAME
 
     # Create a new log file named with a timestamp
     if not overwrite_log:
-        filename = 'ingest-{}.log'.format(_timestamp())
+        filename = 'ingest-{}.log'.format(timestamp())
 
     log_filepath = os.path.join(log_dir, filename)
 
-    # Setup log message formatter
-    formatter = NoTokenFormatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-    formatter.format
-
     # Setup rotating file handler
     fileHandler = logging.handlers.RotatingFileHandler(log_filepath,
-                                                       mode=filemode)
-    fileHandler.setFormatter(formatter)
+                                                       mode='w')
+    fileHandler.setFormatter(DEFAULT_FORMATTER)
 
     # Setup console handler
     consoleHandler = logging.StreamHandler()
-    consoleHandler.setFormatter(formatter)
+    consoleHandler.setFormatter(DEFAULT_FORMATTER)
 
     # Set log level and handlers
     root = logging.getLogger()
@@ -71,21 +67,3 @@ def setup_logger(log_dir, overwrite_log=DEFAULT_LOG_OVERWRITE_OPT,
     root.addHandler(consoleHandler)
 
     return log_filepath
-
-
-def _timestamp():
-    """
-    Helper to create an ISO 8601 formatted string that represents local time
-    and includes the timezone info.
-    """
-    # Calculate the offset taking into account daylight saving time
-    # https://stackoverflow.com/questions/2150739/iso-time-iso-8601-in-python
-    if time.localtime().tm_isdst:
-        utc_offset_sec = time.altzone
-    else:
-        utc_offset_sec = time.timezone
-    utc_offset = datetime.timedelta(seconds=-utc_offset_sec)
-    t = datetime.datetime.now().replace(
-        tzinfo=datetime.timezone(offset=utc_offset)).isoformat()
-
-    return str(t)
