@@ -26,3 +26,9 @@ transform_function_path = 'transform_module.py'
 
 # TODO - Replace these values with your own valid values!
 study = 'SD_ME0WME0W'
+
+expected_counts = {
+    CONCEPT.FAMILY: 3,
+    CONCEPT.PARTICIPANT: 9,
+    CONCEPT.BIOSPECIMEN: 16
+}

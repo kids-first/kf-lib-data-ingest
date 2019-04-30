@@ -3,13 +3,17 @@ from kf_lib_data_ingest.etl.extract.operations import *
 from kf_lib_data_ingest.common.concept_schema import (
     CONCEPT
 )
+import re
 
-# source_data_url = 'file://../data/simple_headered_tsv_1.tsv'
+# source_data_url = 'file://../data/family_and_phenotype.tsv'
 host = 'https://kf-study-creator.kidsfirstdrc.org'
-kfid = 'SF_WJHTHR8F'
+kfid = 'SF_HH5PMCJX'
 source_data_url = f'{host}/download/study/SD_ME0WME0W/file/{kfid}'
 
-source_data_loading_parameters = {}
+source_data_loading_parameters = {
+    "header": 1,
+    "usecols": lambda x: x != "[ignore]"
+}
 
 
 def observed_yes_no(x):
@@ -31,14 +35,12 @@ operations = [
         },
         out_col=CONCEPT.PARTICIPANT.ID
     ),
-    value_map(
+    keep_map(
         in_col="mother",
-        m=lambda x: x,
         out_col=CONCEPT.PARTICIPANT.MOTHER_ID
     ),
-    value_map(
+    keep_map(
         in_col="father",
-        m=lambda x: x,
         out_col=CONCEPT.PARTICIPANT.FATHER_ID
     ),
     value_map(
@@ -52,17 +54,13 @@ operations = [
         out_col=CONCEPT.PARTICIPANT.GENDER
     ),
     value_map(
-        in_col="consent",
-        m={
-            "1": constants.CONSENT_TYPE.GRU,
-            "2": constants.CONSENT_TYPE.HMB_IRB,
-            "3": constants.CONSENT_TYPE.DS_OC_PUB_MDS
-        },
-        out_col=CONCEPT.PARTICIPANT.CONSENT_TYPE
+        in_col="specimens",
+        m=lambda x: Split(re.split('[,;]', x)),
+        out_col=CONCEPT.BIOSPECIMEN.ID
     ),
     [
         value_map(
-            in_col=6,  # age in hours (first)
+            in_col=6,  # age (hrs) (first)
             m=lambda x: int(x) / 24,
             out_col=CONCEPT.PHENOTYPE.EVENT_AGE_DAYS
         ),
@@ -78,7 +76,7 @@ operations = [
     ],
     [
         value_map(
-            in_col=9,  # age in hours (second)
+            in_col=9,  # age (hrs) (second)
             m=lambda x: int(x) / 24,
             out_col=CONCEPT.PHENOTYPE.EVENT_AGE_DAYS
         ),
