@@ -212,14 +212,16 @@ added in the previous step of this tutorial.</p>
 <div class="section" id="testing-your-package">
 <h2>Testing Your Package<a class="headerlink" href="#testing-your-package" title="Permalink to this headline">¶</a></h2>
 <p>Let’s see what happens if you run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ kidsfirst <span class="nb">test</span> my_study
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ kidsfirst test my_study
 </pre></div>
 </div>
-<p>At the end of the log, you should see something like this:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>2019-04-16 10:08:00,101 - kf_lib_data_ingest.app.cli - ERROR - ❌  Ingest pipeline failed validation! See /path/to/my_study/logs/ingest.log for details
+<p>Near the end of the log, you should see something like this:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>2019-05-01 13:08:40,563 - DataIngestPipeline - INFO - ❌ Count Analysis Failed!
+See /path/to/my_study/logs/counts_for_ingest.log for details
 </pre></div>
 </div>
-<p>And if you scroll up through the log a bit, you should also see:</p>
+<p>Inside of that <code class="docutils literal notranslate"><span class="pre">counts_for_ingest.log</span></code> file, you should some things that look
+like:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>EXPECTED COUNT CHECKS
 +------------------------+------------+---------+---------+
 | key                    |   expected |   found | equal   |
@@ -274,13 +276,11 @@ that is where all of the data is merged together.</p>
 <h5>Concept Discovery<a class="headerlink" href="#concept-discovery" title="Permalink to this headline">¶</a></h5>
 <p>After an ingest stage is run, the post-run analysis iterates over the stage’s
 output and builds a <code class="docutils literal notranslate"><span class="pre">concept_discovery</span></code> dict, which stores the following:</p>
-<blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li>A mapping from every concept attribute found to a list of all of the
 source data files that the concept attribute was found in</li>
 <li>A mapping between every pair of concept attribute values found</li>
 </ul>
-</div></blockquote>
 <p>The concept discovery data is used to compute the counts of concepts,
 attributes, and relationships.</p>
 <p>Every stage’s concept discovery data structure is written to a file named
@@ -316,7 +316,8 @@ expected counts for our ingest package.</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Now re-run the test command. You should see your tests passing:</p>
+<p>Now re-run the test command. You should see your tests passing in the
+<code class="docutils literal notranslate"><span class="pre">counts_for_ingest.log</span></code> file:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>EXPECTED COUNT CHECKS
 +------------------------+------------+---------+---------+
 | key                    |   expected |   found | equal   |

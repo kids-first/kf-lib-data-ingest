@@ -30,15 +30,19 @@ Testing Your Package
 
 Let's see what happens if you run:
 
-.. code-block:: bash
+.. code-block:: text
 
     $ kidsfirst test my_study
 
-At the end of the log, you should see something like this::
+Near the end of the log, you should see something like this:
 
-    2019-04-16 10:08:00,101 - kf_lib_data_ingest.app.cli - ERROR - ❌  Ingest pipeline failed validation! See /path/to/my_study/logs/ingest.log for details
+.. code-block:: text
 
-And if you scroll up through the log a bit, you should also see::
+    2019-05-01 13:08:40,563 - DataIngestPipeline - INFO - ❌ Count Analysis Failed!
+    See /path/to/my_study/logs/counts_for_ingest.log for details
+
+Inside of that ``counts_for_ingest.log`` file, you should some things that look
+like::
 
     EXPECTED COUNT CHECKS
     +------------------------+------------+---------+---------+
@@ -105,10 +109,9 @@ Concept Discovery
 After an ingest stage is run, the post-run analysis iterates over the stage's
 output and builds a ``concept_discovery`` dict, which stores the following:
 
-    - A mapping from every concept attribute found to a list of all of the
-      source data files that the concept attribute was found in
-
-    - A mapping between every pair of concept attribute values found
+- A mapping from every concept attribute found to a list of all of the
+  source data files that the concept attribute was found in
+- A mapping between every pair of concept attribute values found
 
 The concept discovery data is used to compute the counts of concepts,
 attributes, and relationships.
@@ -149,7 +152,8 @@ The expected counts for an ingest package are set in the
         CONCEPT.BIOSPECIMEN: 16
     }
 
-Now re-run the test command. You should see your tests passing::
+Now re-run the test command. You should see your tests passing in the
+``counts_for_ingest.log`` file::
 
     EXPECTED COUNT CHECKS
     +------------------------+------------+---------+---------+
