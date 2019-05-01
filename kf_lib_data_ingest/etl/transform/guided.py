@@ -9,7 +9,11 @@ from collections import defaultdict
 
 import pandas
 
-from kf_lib_data_ingest.common.concept_schema import UNIQUE_ID_ATTR
+from kf_lib_data_ingest.common.concept_schema import (
+    UNIQUE_ID_ATTR,
+    concept_property_split,
+    str_to_CONCEPT
+)
 from kf_lib_data_ingest.common.misc import clean_up_df
 from kf_lib_data_ingest.common.type_safety import assert_safe_type
 from kf_lib_data_ingest.etl.configuration.transform_module import (
@@ -201,3 +205,44 @@ class GuidedTransformStage(TransformStage):
         target_instances = self._standard_to_target(self.transform_func_df)
 
         return target_instances
+
+    def _postrun_concept_discovery(self, run_output):
+        """
+        See the docstring for IngestStage._postrun_concept_discovery
+        """
+        sources = defaultdict(dict)
+        links = defaultdict(
+            lambda: defaultdict(set)
+        )
+        values = defaultdict(
+            lambda: defaultdict(set)
+        )
+
+        df = self.transform_func_df
+
+        for key in df.columns:
+            sk = sources[key]
+            for val in df[key]:
+                # sources entry
+                sk[val] = True
+
+        for _, row in df.iterrows():
+            for keyA in df.columns:
+                vA = row[keyA]
+                for keyB in df.columns:
+                    if keyB != keyA:
+                        vB = row[keyB]
+                        if vA and vB:
+                            # links entry
+                            links[keyA + '::' + keyB][vA].add(vB)
+
+                            # values entry
+                            CA, attrA = concept_property_split[keyA]
+                            CB, attrB = concept_property_split[keyB]
+                            if attrA == UNIQUE_ID_ATTR:
+                                CA = str_to_CONCEPT[CA]
+                                CB = str_to_CONCEPT[CB]
+                                if CA == CB:
+                                    values[keyB][vB].add(vA)
+
+        return {'sources': sources, 'links': links, 'values': values}

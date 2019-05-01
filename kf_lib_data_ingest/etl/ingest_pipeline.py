@@ -1,3 +1,4 @@
+import contextlib
 import inspect
 import logging
 import os
@@ -7,6 +8,8 @@ from pprint import pformat
 import pytest
 
 import kf_lib_data_ingest.etl.stage_analyses as stage_analyses
+from kf_lib_data_ingest.common.concept_schema import UNIQUE_ID_ATTR
+from kf_lib_data_ingest.common.misc import timestamp
 from kf_lib_data_ingest.common.type_safety import assert_safe_type
 from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
 from kf_lib_data_ingest.etl.configuration.ingest_package_config import (
@@ -96,6 +99,15 @@ class DataIngestPipeline(object):
         self.log_file_path = setup_logger(log_dir, **log_kwargs)
         self.logger = logging.getLogger(type(self).__name__)
 
+        head, tail = os.path.split(self.log_file_path)
+        self.counts_file_path = os.path.join(head, 'counts_for_' + tail)
+
+        # Remove the previous counts file. This isn't important. I just don't
+        # want the previous run's file sitting around until the new one gets
+        # written. - Avi
+        with contextlib.suppress(FileNotFoundError):
+            os.remove(self.counts_file_path)
+
         # Log args, kwargs
         frame = inspect.currentframe()
         args, _, _, values = inspect.getargvalues(frame)
@@ -164,7 +176,8 @@ class DataIngestPipeline(object):
         """
         self.logger.info('BEGIN data ingestion.')
         self.stages = {}
-        passed = True
+        all_passed = True
+        all_messages = []
 
         # Top level exception handler
         # Catch exception, log it to file and console, and exit
@@ -180,10 +193,14 @@ class DataIngestPipeline(object):
 
                 # Standard stage output validation
                 if stage.concept_discovery_dict:
-                    passed = self.check_stage_counts(stage) and passed
+                    passed, messages = self.check_stage_counts(stage)
+                    all_passed = passed and all_passed
+                    all_messages.extend(messages)
+
+            self._log_count_results(all_passed, all_messages)
 
             # Run user defined data validation tests
-            passed = self.user_defined_tests() and passed
+            all_passed = self.user_defined_tests() and all_passed
 
         except Exception as e:
             self.logger.exception(str(e))
@@ -192,7 +209,31 @@ class DataIngestPipeline(object):
 
         # Log the end of the run
         self.logger.info('END data ingestion')
-        return passed
+        return all_passed
+
+    def _log_count_results(self, all_passed, messages):
+        if all_passed:
+            summary = '✅ Count Analysis Passed!\n'
+        else:
+            summary = '❌ Count Analysis Failed!\n'
+
+        self.logger.info(summary + f'See {self.counts_file_path} for details')
+
+        summary += (
+            'Ingest package: '
+            f'{self.data_ingest_config.config_filepath}\n'
+            f'Completed at: {timestamp()}'
+        )
+        header = [
+            '======================\n'
+            'COUNT ANALYSIS RESULTS\n'
+            '======================',
+            summary
+        ]
+        doc = '\n\n'.join(header + messages)
+        with open(self.counts_file_path, 'w') as cfp:
+            cfp.write(doc)
+        self.logger.debug(doc)
 
     def check_stage_counts(self, stage):
         """
@@ -200,44 +241,51 @@ class DataIngestPipeline(object):
         are as many unique values discovered for a given key as anticipated and
         also whether any values were lost between Extract and Transform.
         """
-        stage.logger.info("Begin Basic Stage Output Validation")
+        stage_name = stage.stage_type.__name__
+        stage.logger.info('Begin Basic Stage Output Validation')
         discovery_sources = stage.concept_discovery_dict.get('sources')
 
         # Missing data
         if not discovery_sources:
-            stage.logger.info(
-                f'Discovery Data Sources Not Found ❌')
+            stage.logger.info('❌ Discovery Data Sources Not Found')
             return False
 
         passed_all = True
+        all_messages = [stage_name + '\n' + '='*len(stage_name)]
 
         # Do stage counts validation
-        passed, message = stage_analyses.check_counts(
+        passed, messages = stage_analyses.check_counts(
             discovery_sources, self.data_ingest_config.expected_counts
         )
+        all_messages.extend(messages)
+
         passed_all = passed_all and passed
-        stage.logger.info(message)
 
         # Compare stage counts to make sure we didn't lose values between
         # Extract and Transform
         if stage.stage_type == TransformStage:
             extract_disc = self.stages[ExtractStage].concept_discovery_dict
             if extract_disc and extract_disc.get('sources'):
-                passed, message = stage_analyses.compare_counts(
-                    discovery_sources,
-                    extract_disc.get('sources')
+                passed, messages = stage_analyses.compare_counts(
+                    ExtractStage.__name__,
+                    extract_disc['sources'],
+                    TransformStage.__name__,
+                    {
+                        k: v for k, v in discovery_sources.items()
+                        if UNIQUE_ID_ATTR not in k
+                    }
                 )
                 passed_all = passed_all and passed
-                stage.logger.info(message)
+                all_messages.extend(messages)
             else:
                 # Missing data
                 passed_all = False
                 stage.logger.info(
-                    'No ExtractStage Discovery Data Sources To Compare ❌'
+                    '❌ No ExtractStage Discovery Data Sources To Compare'
                 )
         stage.logger.info('End Basic Stage Output Validation')
 
-        return passed_all
+        return passed_all, all_messages
 
     def user_defined_tests(self):
         """

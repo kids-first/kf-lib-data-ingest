@@ -124,9 +124,9 @@ def ingest(ingest_package_config_path, app_settings_filepath, log_level_name,
 
     logger = logging.getLogger(__name__)
     if perfection:
-        logger.info('✅  Ingest pipline passed validation!')
+        logger.info('✅ Ingest pipline passed validation!')
     else:
-        logger.error('❌  Ingest pipeline failed validation! '
+        logger.error('❌ Ingest pipeline failed validation! '
                      f'See {pipeline.log_file_path} for details')
         sys.exit(1)
 
