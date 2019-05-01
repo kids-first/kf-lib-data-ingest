@@ -1,3 +1,22 @@
+# Kids First Lib Data Ingest Release 0.3.0
+
+## Features
+
+### Summary
+
+Feature Emojis: ♻️ x2 ✨ x1 🐛 x3 🚸 x1 
+Feature Labels: [bug](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/bug) x3 [feature](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/feature) x1 [other](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/other) x1 [refactor](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/refactor) x2 
+
+### New features and changes
+
+- (#285) ♻️ Update cat study - @znatty22
+- (#284) ♻️ move timestamp() to common and refactor setup_logger - @fiendish
+- (#283) 🚸 Nicer handling of missing(stubbed) data - @fiendish
+- (#279) 🐛 Fix user defined test bugs - @znatty22
+- (#274) 🐛 Clean up the transform output df - @fiendish
+- (#273) 🐛 click.Choice needs a list, not an iterator - @fiendish
+- (#254) ✨ Post transform accounting - @fiendish
+
 # Kids First Lib Data Ingest Release 0.2.0
 
 ## Features
