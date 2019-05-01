@@ -50,7 +50,7 @@ def test_ingest_cmds(cli_cmd, arg_list):
         "UNIQUE COUNTS:\n{'CONCEPT|BIOSPECIMEN|ALIQUOT_ID': 64,"
         in result.output
     )
-    assert ('| CONCEPT|BIOSPECIMEN|ID |         60 |      60 |  ' in
+    assert ('| CONCEPT|BIOSPECIMEN|ID |         60 |      60 | ✅' in
             result.output)
 
     assert 'DRY' in result.output

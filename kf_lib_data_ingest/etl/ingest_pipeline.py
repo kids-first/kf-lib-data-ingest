@@ -242,12 +242,12 @@ class DataIngestPipeline(object):
         also whether any values were lost between Extract and Transform.
         """
         stage_name = stage.stage_type.__name__
-        stage.logger.info(f'Begin Basic Stage Output Validation')
+        stage.logger.info('Begin Basic Stage Output Validation')
         discovery_sources = stage.concept_discovery_dict.get('sources')
 
         # Missing data
         if not discovery_sources:
-            stage.logger.info(f'Discovery Data Sources Not Found ❌')
+            stage.logger.info('❌ Discovery Data Sources Not Found')
             return False
 
         passed_all = True
@@ -281,7 +281,7 @@ class DataIngestPipeline(object):
                 # Missing data
                 passed_all = False
                 stage.logger.info(
-                    'No ExtractStage Discovery Data Sources To Compare ❌'
+                    '❌ No ExtractStage Discovery Data Sources To Compare'
                 )
         stage.logger.info('End Basic Stage Output Validation')
 

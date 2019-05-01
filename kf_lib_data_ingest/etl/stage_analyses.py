@@ -5,6 +5,8 @@ from tabulate import tabulate
 
 from kf_lib_data_ingest.common.concept_schema import str_to_CONCEPT
 
+SEP = '-----'
+
 
 def check_counts(discovery_sources, expected_counts):
     """
@@ -28,11 +30,11 @@ def check_counts(discovery_sources, expected_counts):
     passed = True
 
     if not expected_counts:
-        messages.append("No expected counts registered. ❌")
+        messages.append('⚠️ No expected counts registered.')
         passed = True  # Pass if we have no expectations
     else:
         checks = pandas.DataFrame(
-            columns=['Key', 'Expected', 'Found', 'Errors']
+            columns=['Key', 'Expected', 'Found', 'Equal']
         )
         for key, expected in expected_counts.items():
 
@@ -49,17 +51,23 @@ def check_counts(discovery_sources, expected_counts):
 
             found = uniques_without_na.get(key)
             if expected == found:
-                flag = ''
+                flag = '✅'
             else:
                 passed = False
                 flag = '❌'
             checks = checks.append(
                 {
                     'Key': key, 'Expected': expected, 'Found': found,
-                    'Errors': flag
+                    'Equal': flag
                 },
                 ignore_index=True
             )
+
+        if passed:
+            messages.append(f'✅ All counts are as expected.')
+        else:
+            messages.append(f'❌ Counts are not all as expected.')
+
         messages.append(
             'EXPECTED COUNT CHECKS:\n' +
             tabulate(
@@ -87,7 +95,13 @@ def compare_counts(
         msg = f'❌ Column names not equal between {name_one} and {name_two}'
         messages.extend(_format(msg, comparison_df))
         passed = False
+    else:
+        msg = f'✅ Column names are equal between {name_one} and {name_two}'
+        messages.append(msg)
+        messages.append(SEP)
 
+    good_msg_ag = []
+    bad_msg_ag = []
     for k in (one_keys | two_keys):
         one_k_keys = discovery_sources_one.get(k, {}).keys()
         two_k_keys = discovery_sources_two.get(k, {}).keys()
@@ -101,27 +115,36 @@ def compare_counts(
                 f'{name_two}\n'
                 f'Number of different values = {diff_num}'
             )
-            messages.extend(_format(msg, comparison_df))
+            bad_msg_ag.extend(_format(msg, comparison_df))
             passed = False
+        else:
+            good_msg_ag.append(
+                f'✅ Column values for {k} are equal between {name_one} and '
+                f'{name_two}'
+            )
+    messages.append('\n'.join(good_msg_ag))
+    messages.append(SEP)
+    messages.extend(bad_msg_ag)
 
     return passed, messages
 
 
 def _compare(name_one, list_one, name_two, list_two):
-    indicator = 'Errors'
-    one = pandas.DataFrame({name_one: list(list_one)}).dropna()
-    two = pandas.DataFrame({name_two: list(list_two)}).dropna()
+    indicator = 'In Both'
+    one = pandas.DataFrame({name_one: [v for v in list_one if v is not None]})
+    two = pandas.DataFrame({name_two: [v for v in list_two if v is not None]})
 
     comparison_df = pandas.merge(one, two,
                                  left_on=name_one,
                                  right_on=name_two,
                                  how='outer', indicator=indicator)
+    comparison_df = comparison_df.astype(object).fillna('')
     diff_num = comparison_df[comparison_df[indicator] != 'both'].shape[0]
 
     comparison_df[indicator].replace({
         'left_only': '❌',
         'right_only': '❌',
-        'both': ''
+        'both': '✅'
     }, inplace=True)
 
     return comparison_df, diff_num
@@ -134,5 +157,5 @@ def _format(pre_msg, comparison_df):
             comparison_df, headers=comparison_df.columns.tolist(),
             showindex=False, tablefmt='psql'
         ),
-        '-----'
+        SEP
     ]
