@@ -127,6 +127,12 @@ class TransformStage(IngestStage):
         except TypeError as e:
             raise InvalidIngestStageParameters from e
 
+        if not data_dict:
+            raise Exception(
+                f'{self.stage_type.__name__} received no input. '
+                f'Did the previous stage produce anything?'
+            )
+
     def handle_nulls(self, target_instances, target_schema):
         """
         Convert null property values in `target_instances` to acceptable values
@@ -264,7 +270,6 @@ class TransformStage(IngestStage):
         :returns target_instances: dict - keyed by target concept -
         of lists containing dicts - representing target concept instances.
         """
-
         target_instances = self._do_transform(data_dict)
 
         # Null processing
