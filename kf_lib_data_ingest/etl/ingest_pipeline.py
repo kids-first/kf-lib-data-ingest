@@ -33,7 +33,7 @@ class DataIngestPipeline(object):
 
         :param ingest_package_config_path: Path to config file containing all
         parameters for data ingest.
-        :type  ingest_package_config_path: str
+        :type ingest_package_config_path: str
         :param target_api_config_path: Path to the target api config file
         :type target_api_config_path: str
         :param auto_transform: Whether to use automatic graph-based
@@ -263,11 +263,22 @@ class DataIngestPipeline(object):
         self.logger.info('Running user defined data validation tests '
                          f'{user_defined_test_dir} ...')
 
-        passed = pytest.main([user_defined_test_dir]) == 0
+        exit_code = pytest.main([user_defined_test_dir])
 
-        if passed:
-            self.logger.info(f'✅  User defined data validation tests passed!')
+        # Check if exit code is one of the codes that should result in pass
+        # Exit code 0:	All tests were collected and passed successfully
+        # Exit code 5:	No tests were collected
+        passed = exit_code in {0, 5}
+
+        if exit_code == 0:
+            self.logger.info(f'✅ User defined data validation tests passed')
+        elif exit_code == 5:
+            self.logger.warning(
+                f'⚠️ pytest did not collect any user defined tests, '
+                'even though user tests directory exists: '
+                f'{user_defined_test_dir}')
         else:
-            self.logger.info(f'❌  User defined data validation tests passed!')
+            self.logger.info(f'❌ User defined data validation tests failed '
+                             f'with exit_code {exit_code}')
 
         return passed

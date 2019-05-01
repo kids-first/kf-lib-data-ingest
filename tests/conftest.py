@@ -41,6 +41,15 @@ mock_dataservice_schema = read_json(
 )
 
 
+@pytest.fixture(scope='function')
+def info_caplog(caplog):
+    """
+    pytest capture log output at level=INFO
+    """
+    caplog.set_level(logging.INFO)
+    return caplog
+
+
 def delete_dir_contents(dir):
     """
     Delete contents of a dir
