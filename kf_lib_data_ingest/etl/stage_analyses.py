@@ -6,6 +6,10 @@ from tabulate import tabulate
 from kf_lib_data_ingest.common.concept_schema import str_to_CONCEPT
 
 SEP = '-----'
+INFO = '⚠️'
+NO = '❌'
+YES = '✅'
+NO_EXPECTED_COUNTS = f'{INFO} No expected counts registered.'
 
 
 def check_counts(discovery_sources, expected_counts):
@@ -14,7 +18,7 @@ def check_counts(discovery_sources, expected_counts):
     to find.
 
     :param discovery_sources: 'sources' subcomponent of the structure returned
-     from IngestStage._postrun_concept_discovery_postrun_concept_discovery
+     from IngestStage._postrun_concept_discovery
     :param expected_counts: dict mapping concept keys to their expected counts
 
     :return: all checks passed (bool), output message to emit/log (str)
@@ -30,7 +34,7 @@ def check_counts(discovery_sources, expected_counts):
     passed = True
 
     if not expected_counts:
-        messages.append('⚠️ No expected counts registered.')
+        messages.append(NO_EXPECTED_COUNTS)
         passed = True  # Pass if we have no expectations
     else:
         checks = pandas.DataFrame(
@@ -44,17 +48,20 @@ def check_counts(discovery_sources, expected_counts):
             if key not in discovery_sources:
                 if key in str_to_CONCEPT:
                     key = str_to_CONCEPT[key]
-                if key.ID in discovery_sources:
+                if hasattr(key, 'ID') and key.ID in discovery_sources:
                     key = key.ID
-                elif key.UNIQUE_KEY in discovery_sources:
+                elif (
+                    hasattr(key, 'UNIQUE_KEY')
+                    and key.UNIQUE_KEY in discovery_sources
+                ):
                     key = key.UNIQUE_KEY
 
             found = uniques_without_na.get(key)
             if expected == found:
-                flag = '✅'
+                flag = YES
             else:
                 passed = False
-                flag = '❌'
+                flag = NO
             checks = checks.append(
                 {
                     'Key': key, 'Expected': expected, 'Found': found,
@@ -64,9 +71,9 @@ def check_counts(discovery_sources, expected_counts):
             )
 
         if passed:
-            messages.append(f'✅ All counts are as expected.')
+            messages.append(f'{YES} All counts are as expected.')
         else:
-            messages.append(f'❌ Counts are not all as expected.')
+            messages.append(f'{NO} Counts are not all as expected.')
 
         messages.append(
             'EXPECTED COUNT CHECKS:\n' +
@@ -92,11 +99,11 @@ def compare_counts(
     comparison_df, diff_num = _compare(name_one, one_keys, name_two, two_keys)
 
     if diff_num != 0:
-        msg = f'❌ Column names not equal between {name_one} and {name_two}'
+        msg = f'{NO} Column names not equal between {name_one} and {name_two}'
         messages.extend(_format(msg, comparison_df))
         passed = False
     else:
-        msg = f'✅ Column names are equal between {name_one} and {name_two}'
+        msg = f'{YES} Column names are equal between {name_one} and {name_two}'
         messages.append(msg)
         messages.append(SEP)
 
@@ -111,16 +118,16 @@ def compare_counts(
 
         if diff_num != 0:
             msg = (
-                f'❌ Column values for {k} not equal between {name_one} and '
-                f'{name_two}\n'
+                f'{NO} Column values for {k} not equal between {name_one} and'
+                f' {name_two}\n'
                 f'Number of different values = {diff_num}'
             )
             bad_msg_ag.extend(_format(msg, comparison_df))
             passed = False
         else:
             good_msg_ag.append(
-                f'✅ Column values for {k} are equal between {name_one} and '
-                f'{name_two}'
+                f'{YES} Column values for {k} are equal between {name_one} and'
+                f' {name_two}'
             )
     messages.append('\n'.join(good_msg_ag))
     messages.append(SEP)
@@ -142,9 +149,9 @@ def _compare(name_one, list_one, name_two, list_two):
     diff_num = comparison_df[comparison_df[indicator] != 'both'].shape[0]
 
     comparison_df[indicator].replace({
-        'left_only': '❌',
-        'right_only': '❌',
-        'both': '✅'
+        'left_only': NO,
+        'right_only': NO,
+        'both': YES
     }, inplace=True)
 
     return comparison_df, diff_num
