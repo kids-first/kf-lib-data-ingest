@@ -44,9 +44,12 @@ def check_counts(discovery_sources, expected_counts):
             if key not in discovery_sources:
                 if key in str_to_CONCEPT:
                     key = str_to_CONCEPT[key]
-                if key.ID in discovery_sources:
+                if hasattr(key, 'ID') and key.ID in discovery_sources:
                     key = key.ID
-                elif key.UNIQUE_KEY in discovery_sources:
+                elif (
+                    hasattr(key, 'UNIQUE_KEY')
+                    and key.UNIQUE_KEY in discovery_sources
+                ):
                     key = key.UNIQUE_KEY
 
             found = uniques_without_na.get(key)
