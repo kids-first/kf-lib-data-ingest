@@ -19,11 +19,11 @@ from kf_lib_data_ingest.common.concept_schema import \
     unique_key_composition as DEFAULT_KEY_COMP
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
 from kf_lib_data_ingest.common.misc import (
-    get_open_api_v2_schema,
     numeric_to_str,
     read_json,
     write_json
 )
+from kf_lib_data_ingest.network.utils import get_open_api_v2_schema
 from kf_lib_data_ingest.common.stage import IngestStage
 from kf_lib_data_ingest.common.type_safety import (
     assert_all_safe_type,
@@ -138,8 +138,8 @@ class TransformStage(IngestStage):
         Convert null property values in `target_instances` to acceptable values
         based on the type of property as defined in target schema.
 
-        See kf_lib_data_ingest.common.misc.get_open_api_v2_schema for expected
-        format of target_schema
+        See kf_lib_data_ingest.network.utils.get_open_api_v2_schema for
+        expected format of target_schema
 
         `target_instances` is a dict keyed by the `target_concepts` defined in
         this `target_api_config.target_concepts`. The values are lists of

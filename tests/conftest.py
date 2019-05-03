@@ -129,7 +129,7 @@ def guided_transform_stage(caplog):
     caplog.set_level(logging.DEBUG)
 
     patcher = mock.patch(
-        'kf_lib_data_ingest.common.misc.get_open_api_v2_schema',
+        'kf_lib_data_ingest.network.utils.get_open_api_v2_schema',
         return_value=mock_dataservice_schema
     )
 
@@ -155,7 +155,7 @@ def auto_transform_stage(caplog):
     caplog.set_level(logging.DEBUG)
 
     patcher = mock.patch(
-        'kf_lib_data_ingest.common.misc.get_open_api_v2_schema',
+        'kf_lib_data_ingest.network.utils.get_open_api_v2_schema',
         return_value=mock_dataservice_schema
     )
 

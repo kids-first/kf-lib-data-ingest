@@ -8,8 +8,8 @@ from kf_lib_data_ingest.common import constants
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
 from kf_lib_data_ingest.common.misc import (
     read_json,
-    get_open_api_v2_schema
 )
+from kf_lib_data_ingest.network.utils import get_open_api_v2_schema
 from conftest import (
     TEST_DATA_DIR,
     KIDSFIRST_DATASERVICE_PROD_URL
@@ -82,7 +82,7 @@ def test_get_kf_schema_server_down(caplog, tmpdir, **kwargs):
 @requests_mock.Mocker(kw='mock')
 def test_get_kf_schema(caplog, tmpdir, target_api_config, **kwargs):
     """
-    Test kf_lib_data_ingest.common.misc.get_open_api_v2_schema
+    Test kf_lib_data_ingest.network.utils.get_open_api_v2_schema
 
     Test retrieval when server is up and no cached schema exists
     Test retrieval when servier is down and cached schema exists
