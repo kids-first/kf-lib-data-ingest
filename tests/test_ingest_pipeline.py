@@ -4,6 +4,7 @@ import shutil
 import pytest
 from click.testing import CliRunner
 
+from kf_lib_data_ingest.config import VERSION
 from kf_lib_data_ingest.app import cli
 from conftest import TEST_DATA_DIR
 from conftest import COMMAND_LINE_ERROR_CODE
@@ -43,6 +44,9 @@ def test_ingest_cmds(cli_cmd, arg_list):
 
     assert 'BEGIN data ingestion' in result.output
     assert 'END data ingestion' in result.output
+    assert 'version' in result.output
+    assert 'commit' in result.output
+    assert f'{VERSION}' in result.output
 
     # Make sure that post-extract counts run
     assert 'Begin Basic Stage Output Validation' in result.output

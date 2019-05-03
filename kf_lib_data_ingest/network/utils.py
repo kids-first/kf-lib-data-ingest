@@ -5,6 +5,7 @@ import cgi
 import logging
 import os
 import urllib.parse
+from pprint import pformat
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -17,6 +18,7 @@ from kf_lib_data_ingest.common.misc import (
     write_json,
     read_json
 )
+from kf_lib_data_ingest.config import PROJECT_GITHUB_URL
 
 # Hide
 # urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000         # noqa E501
@@ -245,3 +247,35 @@ def get_open_api_v2_schema(url, entity_names,
             print(err)
 
     return output
+
+
+def get_tag_commit_sha(tag_name):
+    """
+    Get the commit SHA associated with the git tag `tag_name`
+
+    :param tag_name: Name of git tag (e.g. 0.3.0)
+    :type tag_name: str
+    :returns commit sha associated with the supplied git tag name
+    """
+    logger.debug(f'Getting commit sha for release tag {tag_name} ...')
+
+    endpoint = f'{PROJECT_GITHUB_URL}/tags'
+    logger.debug(f'Fetch tags for {endpoint} first')
+
+    response = requests_retry_session().get(endpoint)
+    if response.status_code != 200:
+        raise Exception(f'Could not fetch tags! Caused by {response.text}')
+
+    tags = response.json()
+    logger.debug(f'Got tags, searching for target tag: {tag_name} in tag list '
+                 f'\n{pformat(tags)}')
+    commit_sha = None
+    for tag in tags:
+        if tag['name'] == tag_name:
+            commit_sha = tag['commit']['sha']
+            break
+
+    if not commit_sha:
+        raise Exception(f'Could not find tag {tag_name}!')
+
+    return commit_sha
