@@ -13,8 +13,9 @@ from requests import RequestException
 from sqlite3worker import Sqlite3Worker, sqlite3worker
 
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
-from kf_lib_data_ingest.common.misc import multisplit, requests_retry_session
+from kf_lib_data_ingest.common.misc import multisplit
 from kf_lib_data_ingest.common.stage import IngestStage
+from kf_lib_data_ingest.network.utils import requests_retry_session
 from kf_lib_data_ingest.config import DEFAULT_ID_CACHE_FILENAME
 from kf_lib_data_ingest.etl.configuration.target_api_config import (
     TargetAPIConfig

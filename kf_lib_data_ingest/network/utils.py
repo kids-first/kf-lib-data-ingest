@@ -3,9 +3,25 @@ Common network (HTTP, TCP, whatever) related functionality
 """
 import cgi
 import logging
+import os
 import urllib.parse
 
-from kf_lib_data_ingest.common.misc import requests_retry_session
+import requests
+from requests.adapters import HTTPAdapter
+from requests.exceptions import ConnectionError
+from requests.packages.urllib3.util.retry import Retry
+from urllib3 import connectionpool
+
+from kf_lib_data_ingest.common.misc import (
+    upper_camel_case,
+    write_json,
+    read_json
+)
+
+# Hide
+# urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000         # noqa E501
+# urllib3.connectionpool - DEBUG - http://localhost:5000 "POST /families HTTP/1.1" 201 371  # noqa E501
+connectionpool.log.setLevel(logging.INFO)
 
 logger = logging.getLogger(__name__)
 
@@ -66,3 +82,166 @@ def http_get_file(url, dest_obj, **kwargs):
                      f'{response.text}')
 
     return response
+
+
+def requests_retry_session(
+        session=None, total=10, read=10, connect=10, status=10,
+        backoff_factor=5, status_forcelist=(500, 502, 503, 504)
+):
+    """
+    Send an http request and retry on failures or redirects
+
+    See urllib3.Retry docs for details on all kwargs except `session`
+    Modified source: https://www.peterbe.com/plog/best-practice-with-retries-with-requests # noqa E501
+
+    :param session: the requests.Session to use
+    :param total: total retry attempts
+    :param read: total retries on read errors
+    :param connect: total retries on connection errors
+    :param status: total retries on bad status codes defined in
+    `status_forcelist`
+    :param backoff_factor: affects sleep time between retries
+    :param status_forcelist: list of HTTP status codes that force retry
+    """
+    session = session or requests.Session()
+
+    retry = Retry(
+        total=total,
+        read=read,
+        connect=connect,
+        backoff_factor=backoff_factor,
+        status_forcelist=status_forcelist,
+        method_whitelist=False
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+
+    return session
+
+
+def get_open_api_v2_schema(url, entity_names,
+                           cached_schema_filepath=None, logger=None):
+    """
+    Get schemas for entities in the target API using {url}/swagger
+    endpoint. Will extract parts of the {url}/swagger response to create the
+    output dict
+
+    It is expected that swagger endpoint implements the OpenAPI v2.0
+    spec. This method currently supports parsing of responses
+    with a JSON mime-type.
+
+    See link below for more details on the spec:
+
+    https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md
+
+    Example response from /swagger endpoint:
+    {
+        'info': {
+            'version': '1.9.0',
+            'description':  'stuff',
+            ...
+        },
+        'definitions': {
+            'Participant': {
+                ...
+            },
+            'Biospecimen': {
+                ...
+            },
+            'BiospecimenResponse': {
+                ...
+            }
+            ...
+        }
+    }
+
+    Will turn into the output:
+
+    {
+        'target_service': https://kf-api-dataservice.kidsfirstdrc.org,
+        'version': 1.9.0,
+        'definitions': {
+            'participant': {
+                ...
+            },
+            'biospecimen': {
+                ...
+            },
+            ...
+        }
+    }
+
+    Items in `entity_names` must be snake cased versions of existing keys in
+    swagger 'definitions'.
+
+    See https://github.com/OAI/OpenAPI-Specification/blob/master/examples/v2.0/json/petstore.json # noqa E501
+
+    :param url: URL to a target service
+    :param entity_names: list of snake cased names of entities to extract from
+    swagger 'definitions' dict
+    :param cached_schema_filepath: file path to a JSON file containing a
+    saved version of the target service's schema.
+    :param logger: logger to use when reporting errors
+    :returns output: a dict with the schema definition and version
+    """
+    output = None
+    err = None
+    common_msg = 'Unable to retrieve target schema from target service!'
+    schema_url = f'{url}/swagger'
+
+    # Create default cached_schema filepath
+    if not cached_schema_filepath:
+        cached_schema_filepath = os.path.join(os.getcwd(),
+                                              'cached_schema.json')
+
+    # Try to get schemas and version from the target service
+    try:
+        # ***** TODO remove connect=0, its a temporary hack!!! ***** #
+        # Before connect=0, any non-mocked calls to unreachable APIs
+        # like dataservice were causing tests to hang. What we really need
+        # to do is remove this flag and do integration tests with a
+        # live dataservice server - Natasha
+        response = requests_retry_session(connect=0).get(schema_url)
+
+    except ConnectionError as e:
+
+        err = f'{common_msg}\nCaused by {str(e)}'
+
+    else:
+        if response.status_code == 200:
+            # API Version
+            version = response.json()['info']['version']
+            # Schemas
+            defs = response.json()['definitions']
+            schemas = {
+                k: defs[upper_camel_case(k)]
+                for k in entity_names
+                if upper_camel_case(k) in defs
+            }
+            # Make output
+            output = {
+                'target_service': url,
+                'definitions': schemas,
+                'version': version
+            }
+            # Update cache file
+            write_json(output, cached_schema_filepath)
+        else:
+            err = f'{common_msg}\nCaused by unexpected response(s):'
+            if response.status_code != 200:
+                err += f'\nFrom {schema_url}/swagger:\n{response.text}'
+
+    if err:
+        if os.path.isfile(cached_schema_filepath):
+            return read_json(cached_schema_filepath)
+        else:
+            err += ('\nTried loading from cache '
+                    f'but could not find file: {cached_schema_filepath}')
+        # Report error
+        if logger:
+            logger.warning(err)
+        else:
+            print(err)
+
+    return output
