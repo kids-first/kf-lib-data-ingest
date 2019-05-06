@@ -18,7 +18,4 @@ INGEST_PKG_TEMPLATE_NAME = 'my_study'
 
 DEFAULT_ID_CACHE_FILENAME = 'uid_cache.db'
 
-PROJECT_GITHUB_URL = (
-    'http://api.github.com/repos/kids-first/kf-lib-data-ingest'
-)
 VERSION = __import__('kf_lib_data_ingest').__version__

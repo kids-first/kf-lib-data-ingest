@@ -11,8 +11,10 @@ import kf_lib_data_ingest.etl.stage_analyses as stage_analyses
 from kf_lib_data_ingest.common.concept_schema import UNIQUE_ID_ATTR
 from kf_lib_data_ingest.common.misc import timestamp
 from kf_lib_data_ingest.common.type_safety import assert_safe_type
-from kf_lib_data_ingest.network.utils import get_tag_commit_sha
-from kf_lib_data_ingest.config import DEFAULT_TARGET_URL, VERSION
+from kf_lib_data_ingest.config import (
+    DEFAULT_TARGET_URL,
+    VERSION
+)
 from kf_lib_data_ingest.etl.configuration.ingest_package_config import (
     IngestPackageConfig
 )
@@ -119,7 +121,6 @@ class DataIngestPipeline(object):
         # Log ingest package dir, ingest lib version, and commit hash
         kwargs['ingest_package_dir'] = self.ingest_config_dir
         kwargs['version'] = VERSION
-        kwargs['commit'] = get_tag_commit_sha(VERSION)
 
         self.logger.info(
             f'-- Ingest Params --\n{pformat(kwargs)}'
