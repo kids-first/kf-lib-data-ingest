@@ -154,7 +154,7 @@ def compile_schema():
 
     property_path = []
     property_paths = set()
-    _set_cls_attrs(CONCEPT, None, property_path, property_paths)
+    _set_cls_attrs(CONCEPT, None, property_path, property_paths, True)
 
     return property_paths
 
@@ -162,7 +162,9 @@ def compile_schema():
 str_to_CONCEPT = {}
 
 
-def _set_cls_attrs(node, prev_node, property_path, property_paths):
+def _set_cls_attrs(
+    node, prev_node, property_path, property_paths, skip_first=False
+):
     """
     Recursive method to traverse a class hierarchy and set class attributes
     equal to a string which represents a path in the hierarchy to reach the
@@ -184,7 +186,8 @@ def _set_cls_attrs(node, prev_node, property_path, property_paths):
     # Process a class or child node
     if callable(node):
         # Add class name to property path
-        property_path.append(str(node.__name__))
+        if prev_node or not skip_first:
+            property_path.append(str(node.__name__))
         # Iterate over class attrs
         for attr_name, value in obj_attrs_to_dict(node).items():
             # Recurse
@@ -215,7 +218,8 @@ def _set_cls_attrs(node, prev_node, property_path, property_paths):
         # Add property string to list of property path strings
         property_paths.add(property_path_str)
 
-    property_path.pop()
+    if property_path:
+        property_path.pop()
 
 
 # Set the concept class attributes with their serialized property strings

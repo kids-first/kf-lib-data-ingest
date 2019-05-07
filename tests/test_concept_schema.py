@@ -13,7 +13,7 @@ def test_identifiers():
     Test identifier concept properties
     """
     # Is not an identifier a property
-    s = ['CONCEPT', 'PARTICIPANT', 'IS_PROBAND']
+    s = ['PARTICIPANT', 'IS_PROBAND']
     s = DELIMITER.join(s)
     assert not is_identifier(s)
 

@@ -175,7 +175,7 @@ def safe_pandas_replace(data, mappings, regex=False):
         for k, v in mappings.items():
             # Keep track of which output cells are still nan, because those are
             # the only ones we're allowed to fill from the next replacement.
-            nulls = output.apply(lambda x: x is numpy.nan)
+            holes = output.apply(lambda x: x is numpy.nan)
 
             if pandas.isnull(k) or (k == "") or (regex and (k == "^$")):
                 k = str(numpy.nan)
@@ -213,11 +213,11 @@ def safe_pandas_replace(data, mappings, regex=False):
                 new = data.replace({k: v}, regex=True)
 
             # Fill only the remaining holes with new values
-            output[nulls] = new[new != data][nulls]
+            output[holes] = new[new.astype(str) != data.astype(str)][holes]
 
         # Fill any remaining holes with original values
-        nulls = output.apply(lambda x: x is numpy.nan)
-        output[nulls] = data[nulls]
+        holes = output.apply(lambda x: x is numpy.nan)
+        output[holes] = data[holes]
 
     return output
 
