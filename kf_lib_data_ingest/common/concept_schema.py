@@ -154,17 +154,16 @@ def compile_schema():
 
     property_path = []
     property_paths = set()
-    _set_cls_attrs(CONCEPT, None, property_path, property_paths, True)
-
+    _set_cls_attrs(CONCEPT, None, property_path, property_paths,
+                   include_root=False)
     return property_paths
 
 
 str_to_CONCEPT = {}
 
 
-def _set_cls_attrs(
-    node, prev_node, property_path, property_paths, skip_first=False
-):
+def _set_cls_attrs(node, prev_node, property_path, property_paths,
+                   include_root=False):
     """
     Recursive method to traverse a class hierarchy and set class attributes
     equal to a string which represents a path in the hierarchy to reach the
@@ -186,21 +185,25 @@ def _set_cls_attrs(
     # Process a class or child node
     if callable(node):
         # Add class name to property path
-        if prev_node or not skip_first:
-            property_path.append(str(node.__name__))
+        property_path.append(str(node.__name__))
         # Iterate over class attrs
         for attr_name, value in obj_attrs_to_dict(node).items():
             # Recurse
             if callable(value):
                 _set_cls_attrs(value, node,
                                property_path,
-                               property_paths)
+                               property_paths,
+                               include_root=include_root)
             else:
                 _set_cls_attrs(attr_name, node,
                                property_path,
-                               property_paths)
+                               property_paths,
+                               include_root=include_root)
     # Process leaf nodes
     else:
+        # Don't include root in property path
+        if not include_root:
+            property_path = property_path[1:]
         # Create current path str
         concept_name_str = DELIMITER.join(property_path)
         # Add attribute to property path
@@ -218,8 +221,7 @@ def _set_cls_attrs(
         # Add property string to list of property path strings
         property_paths.add(property_path_str)
 
-    if property_path:
-        property_path.pop()
+    property_path.pop()
 
 
 # Set the concept class attributes with their serialized property strings

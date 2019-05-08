@@ -50,7 +50,7 @@ def test_set_cls_attrs():
 
     property_path = []
     properties = set()
-    _set_cls_attrs(A, None, property_path, properties)
+    _set_cls_attrs(A, None, property_path, properties, include_root=True)
 
     # Check that every class attribute is assigned to its appropriate path str
     test_params = {
