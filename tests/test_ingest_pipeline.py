@@ -50,7 +50,7 @@ def test_ingest_subset_stages(cli_cmd, stages_to_run_str):
             assert (f'END {stg_cls_name}' in result.output) == should_exist
 
     check_logs(stages_to_run_str, True)
-    check_logs((CODE_TO_STAGE_MAP.keys() - list(stages_to_run_str)), False)
+    check_logs(CODE_TO_STAGE_MAP.keys() - list(stages_to_run_str), False)
 
 
 def test_ingest_cmd_missing_required_args():
