@@ -25,6 +25,14 @@ from kf_lib_data_ingest.etl.transform.auto import AutoTransformStage
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
 from kf_lib_data_ingest.etl.transform.transform import TransformStage
 
+CODE_TO_STAGE_MAP = {
+    'e': ExtractStage,
+    't': TransformStage,
+    'l': LoadStage
+}
+# Char sequence representing the full ingest pipeline: e.g. 'etl'
+DEFAULT_STAGES_TO_RUN_STR = ''.join(list(CODE_TO_STAGE_MAP.keys()))
+
 
 class DataIngestPipeline(object):
 
@@ -32,7 +40,8 @@ class DataIngestPipeline(object):
         self, ingest_package_config_path, target_api_config_path,
         auth_configs=None, auto_transform=False, use_async=False,
         target_url=DEFAULT_TARGET_URL, log_level_name=None, log_dir=None,
-        overwrite_log=None, dry_run=False
+        overwrite_log=None, dry_run=False,
+        stages_to_run_str=DEFAULT_STAGES_TO_RUN_STR
     ):
         """
         Setup data ingest pipeline. Create the config object and setup logging
@@ -69,6 +78,9 @@ class DataIngestPipeline(object):
         assert_safe_type(log_dir, None, str)
         assert_safe_type(overwrite_log, None, bool)
         assert_safe_type(dry_run, bool)
+        assert_safe_type(stages_to_run_str, str)
+        stages_to_run_str = stages_to_run_str.lower()
+        self._validate_stages_to_run_str(stages_to_run_str)
 
         self.data_ingest_config = IngestPackageConfig(
             ingest_package_config_path
@@ -84,6 +96,7 @@ class DataIngestPipeline(object):
         self.use_async = use_async
         self.target_url = target_url
         self.dry_run = dry_run
+        self.stages_to_run = {CODE_TO_STAGE_MAP[c] for c in stages_to_run_str}
 
         # Get log params from ingest_package_config
         log_dir = log_dir or self.data_ingest_config.log_dir
@@ -124,6 +137,24 @@ class DataIngestPipeline(object):
 
         self.logger.info(
             f'-- Ingest Params --\n{pformat(kwargs)}'
+        )
+
+    def _validate_stages_to_run_str(self, stages_to_run_str):
+        """
+        Validate `stages_to_run_str`, a char sequence where each char
+        represents an ingest stage to run during pipeline execution
+
+        Each char must be in the set of valid chars defined by the keys of
+        CODE_TO_STAGE_MAP.
+
+        Order of chars does not matter because the pipeline always executes
+        stages (_iterate_stages) in the correct order.
+        """
+        valid_char_set = set(CODE_TO_STAGE_MAP.keys())
+        assert all([c in valid_char_set
+                    for c in stages_to_run_str]), (
+            f'Invalid value for stages to run option: "{stages_to_run_str}"! '
+            f'Each char must exist in the valid set: {valid_char_set}'
         )
 
     def _iterate_stages(self):
@@ -192,11 +223,25 @@ class DataIngestPipeline(object):
         try:
             # Iterate over stages and execute them
             output = None
+            previous_stage = None
             for stage in self._iterate_stages():
+                # Only run stages that were specified in stages_to_run
+                if stage.stage_type not in self.stages_to_run:
+                    previous_stage = stage
+                    continue
+
                 self.stages[stage.stage_type] = stage
+
                 if isinstance(stage, ExtractStage):
                     output = stage.run()  # First stage gets no input
                 else:
+                    if previous_stage:
+                        self.logger.info(
+                            'Loading previously cached output from '
+                            f'{type(previous_stage).__name__}'
+                        )
+                        output = previous_stage.read_output()
+                        previous_stage = None
                     output = stage.run(output)
 
                 # Standard stage output validation
@@ -272,7 +317,8 @@ class DataIngestPipeline(object):
 
         # Compare stage counts to make sure we didn't lose values between
         # Extract and Transform
-        if stage.stage_type == TransformStage:
+        if ((stage.stage_type == TransformStage) and
+                (ExtractStage in self.stages)):
             extract_disc = self.stages[ExtractStage].concept_discovery_dict
             if extract_disc and extract_disc.get('sources'):
                 passed, messages = stage_analyses.compare_counts(
