@@ -6,11 +6,51 @@ from click.testing import CliRunner
 
 from kf_lib_data_ingest.config import VERSION
 from kf_lib_data_ingest.app import cli
-from conftest import TEST_DATA_DIR
-from conftest import COMMAND_LINE_ERROR_CODE
+from conftest import TEST_DATA_DIR, COMMAND_LINE_ERROR_CODE
+from kf_lib_data_ingest.etl.ingest_pipeline import (
+    CODE_TO_STAGE_MAP,
+    DEFAULT_STAGES_TO_RUN_STR
+)
 
 TEST_STUDY_CONFIG = os.path.join(TEST_DATA_DIR, 'test_study',
                                  'ingest_package_config.py')
+SIMPLE_STUDY_CONFIG = os.path.join(TEST_DATA_DIR, 'simple_study',
+                                   'ingest_package_config.py')
+STAGE_RUN_STRS = (
+    [DEFAULT_STAGES_TO_RUN_STR,                # etl
+     DEFAULT_STAGES_TO_RUN_STR[::-1],          # lte
+     DEFAULT_STAGES_TO_RUN_STR[0:2],           # et
+     DEFAULT_STAGES_TO_RUN_STR[0:2][::-1]] +   # te
+    list(DEFAULT_STAGES_TO_RUN_STR)            # e, t, l
+)
+
+
+@pytest.mark.parametrize('cli_cmd', [cli.test])
+@pytest.mark.parametrize('stages_to_run_str',
+                         STAGE_RUN_STRS
+                         )
+def test_ingest_subset_stages(cli_cmd, stages_to_run_str):
+    runner = CliRunner()
+    result = runner.invoke(cli_cmd, [SIMPLE_STUDY_CONFIG,
+                                     '--stages', stages_to_run_str])
+    assert 'BEGIN data ingestion' in result.output
+    assert 'END data ingestion' in result.output
+    assert result.exit_code == 0
+    pipeline_stage_names = {
+        c: CODE_TO_STAGE_MAP[c].__name__
+        for c in CODE_TO_STAGE_MAP
+    }
+    pipeline_stage_names['t'] = 'GuidedTransformStage'
+
+    # Check logs
+    def check_logs(char_seq, should_exist):
+        for c in char_seq:
+            stg_cls_name = pipeline_stage_names[c]
+            assert (f'BEGIN {stg_cls_name}' in result.output) == should_exist
+            assert (f'END {stg_cls_name}' in result.output) == should_exist
+
+    check_logs(stages_to_run_str, True)
+    check_logs((CODE_TO_STAGE_MAP.keys() - list(stages_to_run_str)), False)
 
 
 def test_ingest_cmd_missing_required_args():
