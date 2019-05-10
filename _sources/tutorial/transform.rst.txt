@@ -109,7 +109,7 @@ Next, we merge the two DataFrames together on the participant ID column.
 There are a few important things to note in this step:
 
 1. We outer merged the DataFrames
-2. We used CONCEPT.PARTICIPANT.ID, not the string "CONCEPT|PARTICIPANT|ID"
+2. We used CONCEPT.PARTICIPANT.ID, not the string "PARTICIPANT|ID"
    itself
 3. We did **not** use the ``Pandas.merge`` method to merge the DataFrames
 
@@ -123,7 +123,7 @@ may cause you to lose records.
 Use concept schema to reference columns
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The value of ``CONCEPT.PARTICIPANT.ID`` equates to, "CONCEPT|PARTICIPANT|ID",
+The value of ``CONCEPT.PARTICIPANT.ID`` equates to, "PARTICIPANT|ID",
 a string representing the participant concept's identifier.
 
 You should always use the ``CONCEPT`` class from concept schema and not strings

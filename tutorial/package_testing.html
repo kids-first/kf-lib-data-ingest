@@ -223,13 +223,13 @@ See /path/to/my_study/logs/counts_for_ingest.log for details
 <p>Inside of that <code class="docutils literal notranslate"><span class="pre">counts_for_ingest.log</span></code> file, you should some things that look
 like:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>EXPECTED COUNT CHECKS
-+------------------------+------------+---------+---------+
-| key                    |   expected |   found | equal   |
-|------------------------+------------+---------+---------|
-| CONCEPT|FAMILY|ID      |          2 |       2 | ✅      |
-| CONCEPT|PARTICIPANT|ID |          5 |       9 | ❌      |
-| CONCEPT|BIOSPECIMEN|ID |         10 |      16 | ❌      |
-+------------------------+------------+---------+---------+
++----------------+------------+---------+---------+
+| key            |   expected |   found | equal   |
+|----------------+------------+---------+---------|
+| FAMILY|ID      |          2 |       2 | ✅      |
+| PARTICIPANT|ID |          5 |       9 | ❌      |
+| BIOSPECIMEN|ID |         10 |      16 | ❌      |
++----------------+------------+---------+---------+
 </pre></div>
 </div>
 <p>It looks like some tests failed. Let’s break down what is going on, and then we
@@ -319,13 +319,13 @@ expected counts for our ingest package.</p>
 <p>Now re-run the test command. You should see your tests passing in the
 <code class="docutils literal notranslate"><span class="pre">counts_for_ingest.log</span></code> file:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>EXPECTED COUNT CHECKS
-+------------------------+------------+---------+---------+
-| key                    |   expected |   found | equal   |
-|------------------------+------------+---------+---------|
-| CONCEPT|FAMILY|ID      |          2 |       2 | ✅      |
-| CONCEPT|PARTICIPANT|ID |          9 |       9 | ✅      |
-| CONCEPT|BIOSPECIMEN|ID |         16 |      16 | ✅      |
-+------------------------+------------+---------+---------+
++----------------+------------+---------+---------+
+| key            |   expected |   found | equal   |
+|----------------+------------+---------+---------|
+| FAMILY|ID      |          2 |       2 | ✅      |
+| PARTICIPANT|ID |          9 |       9 | ✅      |
+| BIOSPECIMEN|ID |         16 |      16 | ✅      |
++----------------+------------+---------+---------+
 </pre></div>
 </div>
 <div class="section" id="user-defined-tests">

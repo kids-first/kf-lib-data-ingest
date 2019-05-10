@@ -298,7 +298,7 @@ DataFrames (corresponding to <cite>data/clinical.tsv</cite> and
 <p>There are a few important things to note in this step:</p>
 <ol class="arabic simple">
 <li>We outer merged the DataFrames</li>
-<li>We used CONCEPT.PARTICIPANT.ID, not the string “CONCEPT|PARTICIPANT|ID”
+<li>We used CONCEPT.PARTICIPANT.ID, not the string “PARTICIPANT|ID”
 itself</li>
 <li>We did <strong>not</strong> use the <code class="docutils literal notranslate"><span class="pre">Pandas.merge</span></code> method to merge the DataFrames</li>
 </ol>
@@ -310,7 +310,7 @@ may cause you to lose records.</p>
 </div>
 <div class="section" id="use-concept-schema-to-reference-columns">
 <h3>Use concept schema to reference columns<a class="headerlink" href="#use-concept-schema-to-reference-columns" title="Permalink to this headline">¶</a></h3>
-<p>The value of <code class="docutils literal notranslate"><span class="pre">CONCEPT.PARTICIPANT.ID</span></code> equates to, “CONCEPT|PARTICIPANT|ID”,
+<p>The value of <code class="docutils literal notranslate"><span class="pre">CONCEPT.PARTICIPANT.ID</span></code> equates to, “PARTICIPANT|ID”,
 a string representing the participant concept’s identifier.</p>
 <p>You should always use the <code class="docutils literal notranslate"><span class="pre">CONCEPT</span></code> class from concept schema and not strings
 to reference join columns. This way, if the value of the concept attribute
