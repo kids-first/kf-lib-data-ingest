@@ -45,13 +45,13 @@ Inside of that ``counts_for_ingest.log`` file, you should some things that look
 like::
 
     EXPECTED COUNT CHECKS
-    +------------------------+------------+---------+---------+
-    | key                    |   expected |   found | equal   |
-    |------------------------+------------+---------+---------|
-    | CONCEPT|FAMILY|ID      |          2 |       2 | ✅      |
-    | CONCEPT|PARTICIPANT|ID |          5 |       9 | ❌      |
-    | CONCEPT|BIOSPECIMEN|ID |         10 |      16 | ❌      |
-    +------------------------+------------+---------+---------+
+    +----------------+------------+---------+---------+
+    | key            |   expected |   found | equal   |
+    |----------------+------------+---------+---------|
+    | FAMILY|ID      |          2 |       2 | ✅      |
+    | PARTICIPANT|ID |          5 |       9 | ❌      |
+    | BIOSPECIMEN|ID |         10 |      16 | ❌      |
+    +----------------+------------+---------+---------+
 
 It looks like some tests failed. Let's break down what is going on, and then we
 can make the necessary changes so that our tests pass.
@@ -156,13 +156,13 @@ Now re-run the test command. You should see your tests passing in the
 ``counts_for_ingest.log`` file::
 
     EXPECTED COUNT CHECKS
-    +------------------------+------------+---------+---------+
-    | key                    |   expected |   found | equal   |
-    |------------------------+------------+---------+---------|
-    | CONCEPT|FAMILY|ID      |          2 |       2 | ✅      |
-    | CONCEPT|PARTICIPANT|ID |          9 |       9 | ✅      |
-    | CONCEPT|BIOSPECIMEN|ID |         16 |      16 | ✅      |
-    +------------------------+------------+---------+---------+
+    +----------------+------------+---------+---------+
+    | key            |   expected |   found | equal   |
+    |----------------+------------+---------+---------|
+    | FAMILY|ID      |          2 |       2 | ✅      |
+    | PARTICIPANT|ID |          9 |       9 | ✅      |
+    | BIOSPECIMEN|ID |         16 |      16 | ✅      |
+    +----------------+------------+---------+---------+
 
 .. _user-defined-tests:
 

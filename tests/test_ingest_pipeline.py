@@ -47,10 +47,10 @@ def test_ingest_cmds(cli_cmd, arg_list):
     # Make sure that post-extract counts run
     assert 'Begin Basic Stage Output Validation' in result.output
     assert (
-        "UNIQUE COUNTS:\n{'CONCEPT|BIOSPECIMEN|ALIQUOT_ID': 64,"
+        "UNIQUE COUNTS:\n{'BIOSPECIMEN|ALIQUOT_ID': 64,"
         in result.output
     )
-    assert ('| CONCEPT|BIOSPECIMEN|ID |         60 |      60 | ✅' in
+    assert ('| BIOSPECIMEN|ID |         60 |      60 | ✅' in
             result.output)
 
     assert 'DRY' in result.output
