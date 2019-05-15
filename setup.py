@@ -6,9 +6,11 @@ req_file = os.path.join(root_dir, 'requirements.txt')
 with open(req_file) as f:
     requirements = f.read().splitlines()
 
+version = __import__('kf_lib_data_ingest').__version__
+
 setup(
     name='kf-lib-data-ingest',
-    version='0.1.0',
+    version=version,
     description='Kids First Data Ingest Library',
     packages=find_packages(),
     entry_points={

@@ -17,3 +17,5 @@ DEFAULT_LOG_OVERWRITE_OPT = True
 INGEST_PKG_TEMPLATE_NAME = 'my_study'
 
 DEFAULT_ID_CACHE_FILENAME = 'uid_cache.db'
+
+VERSION = __import__('kf_lib_data_ingest').__version__
