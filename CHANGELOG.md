@@ -1,3 +1,20 @@
+# Kids First Lib Data Ingest Release 0.4.0
+
+## Features
+
+### Summary
+
+Feature Emojis: 🐛 x2 💬 x1 🔊 x1 🚚 x1 
+Feature Categories: [bug](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/bug) x2 [other](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/other) x3 
+
+### New features and changes
+
+- (#303) 🐛 Fix numeric_to_str - vals that equate to 0 should return '0' - @znatty22
+- (#297) 💬 Don't start concept strings with 'CONCEPT|' - @fiendish
+- (#293) 🔊 Log release version and commit sha - @znatty22
+- (#292) 🚚 Mv network funcs into network utils - @znatty22
+- (#290) 🐛 Don't access attributes on strings - @fiendish
+
 # Kids First Lib Data Ingest Release 0.3.0
 
 ## Features
