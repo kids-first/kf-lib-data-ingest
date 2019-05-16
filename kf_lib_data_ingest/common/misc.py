@@ -124,19 +124,29 @@ def numeric_to_str(val, replace_na=False, na=None):
 
     val = str(val).strip()
     if val != '':
-        # Don't automatically change anything with leading zeros, scientific
-        # notation, or underscores (I don't care what PEP 515 says).
-        if (val[0] == '0') or (not re.fullmatch(r'[\d.]+', val)):
-            return val
+        # Try downcasting val
+        i_val = None
+        f_val = None
         try:
             f_val = float(val)
             i_val = int(f_val)
-            if i_val == f_val:
-                return str(i_val)
-        except Exception:
+        except ValueError:
             pass
+
+        # Don't automatically change anything with leading zeros
+        # (except something that equates to int 0), scientific
+        # notation, or underscores (I don't care what PEP 515 says).
+        if (i_val != 0) and ((val[0] == '0') or
+                             (not re.fullmatch(r'[\d.]+', val))):
+            return val
+
+        # Return str version of downcasted val
+        if i_val == f_val:
+            return str(i_val)
+
     elif replace_na:
         return na
+
     return val
 
 
