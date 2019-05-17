@@ -78,6 +78,8 @@ class DataIngestPipeline(object):
         assert_safe_type(log_dir, None, str)
         assert_safe_type(overwrite_log, None, bool)
         assert_safe_type(dry_run, bool)
+        assert_safe_type(stages_to_run_str, str)
+        stages_to_run_str = stages_to_run_str.lower()
         self._validate_stages_to_run_str(stages_to_run_str)
 
         self.data_ingest_config = IngestPackageConfig(
@@ -94,7 +96,7 @@ class DataIngestPipeline(object):
         self.use_async = use_async
         self.target_url = target_url
         self.dry_run = dry_run
-        self.stages_to_run_str = stages_to_run_str
+        self.stages_to_run = {CODE_TO_STAGE_MAP[c] for c in stages_to_run_str}
 
         # Get log params from ingest_package_config
         log_dir = log_dir or self.data_ingest_config.log_dir
@@ -148,8 +150,6 @@ class DataIngestPipeline(object):
         Order of chars does not matter because the pipeline always executes
         stages (_iterate_stages) in the correct order.
         """
-        assert_safe_type(stages_to_run_str, str)
-
         valid_char_set = set(CODE_TO_STAGE_MAP.keys())
         assert all([c in valid_char_set
                     for c in stages_to_run_str]), (
@@ -215,7 +215,6 @@ class DataIngestPipeline(object):
         """
         self.logger.info('BEGIN data ingestion.')
         self.stages = {}
-        stages_to_run = {CODE_TO_STAGE_MAP[c] for c in self.stages_to_run_str}
         all_passed = True
         all_messages = []
 
@@ -226,7 +225,7 @@ class DataIngestPipeline(object):
             output = None
             for stage in self._iterate_stages():
                 # Only run stages that were specified in stages_to_run
-                if stage.stage_type not in stages_to_run:
+                if stage.stage_type not in self.stages_to_run:
                     previous_stage = stage
                     continue
 
@@ -235,10 +234,9 @@ class DataIngestPipeline(object):
                 if isinstance(stage, ExtractStage):
                     output = stage.run()  # First stage gets no input
                 else:
-                    # Try using cached output of previous stage
                     if not output:
                         self.logger.info(
-                            'Using cached input for '
+                            'Loading previously cached output from '
                             f'{type(previous_stage).__name__}'
                         )
                         output = previous_stage.read_output()
@@ -317,7 +315,8 @@ class DataIngestPipeline(object):
 
         # Compare stage counts to make sure we didn't lose values between
         # Extract and Transform
-        if stage.stage_type == TransformStage and ExtractStage in self.stages:
+        if ((stage.stage_type == TransformStage) and
+                (ExtractStage in self.stages)):
             extract_disc = self.stages[ExtractStage].concept_discovery_dict
             if extract_disc and extract_disc.get('sources'):
                 passed, messages = stage_analyses.compare_counts(

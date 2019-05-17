@@ -31,5 +31,6 @@ In this tutorial we will cover:
    project_setup.rst
    extract.rst
    package_testing.rst
+   debugging.rst
    transform.rst
    load.rst

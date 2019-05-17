@@ -59,11 +59,13 @@ def common_args_options(func):
     func = click.option(
         '--stages', 'stages_to_run_str',
         default=DEFAULT_STAGES_TO_RUN_STR, show_default=True,
-        help=('A string representing the subset of ingest stages that will be '
-              'executed by the pipeline. This string can take on any '
-              f'combination of the characters in '
-              f'"{DEFAULT_STAGES_TO_RUN_STR}". Order does not matter as it is '
-              'enforced by the pipeline.'))(func)
+        help=(
+            'A string representing the subset of ingest stages that will be '
+            'executed by the pipeline. This string can be any '
+            f'combination of the characters in '
+            f'"{DEFAULT_STAGES_TO_RUN_STR}". Order does not matter, as it is '
+            'enforced by the pipeline.'
+        ))(func)
     return func
 
 
