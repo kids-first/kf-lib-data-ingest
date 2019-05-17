@@ -36,7 +36,9 @@ class GuidedTransformStage(TransformStage):
         :param output: See TransformStage._write_output
         :type output: dict
         """
-        fp = os.path.join(self.stage_cache_dir, 'transform_func_df.tsv')
+        tsv_dir = os.path.join(self.stage_cache_dir, 'tsv')
+        os.makedirs(tsv_dir, exist_ok=True)
+        fp = os.path.join(tsv_dir, 'transform_func_df.tsv')
         self.logger.info(f'Writing intermediate data - output of user defined'
                          f' transform func to {fp}')
         self.transform_func_df.to_csv(fp, sep='\t', index=True)
