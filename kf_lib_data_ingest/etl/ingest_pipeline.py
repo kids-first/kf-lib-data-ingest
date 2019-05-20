@@ -203,7 +203,7 @@ class DataIngestPipeline(object):
         yield LoadStage(
             self.target_api_config_path, self.target_url,
             self.data_ingest_config.target_service_entities,
-            self.data_ingest_config.study,
+            self.data_ingest_config.study, output_dir=self.ingest_output_dir,
             uid_cache_dir=self.ingest_output_dir, use_async=self.use_async,
             dry_run=self.dry_run
         )
@@ -225,28 +225,29 @@ class DataIngestPipeline(object):
             output = None
             for stage in self._iterate_stages():
                 # Only run stages that were specified in stages_to_run
-                if stage.stage_type not in self.stages_to_run:
-                    previous_stage = stage
-                    continue
-
-                self.stages[stage.stage_type] = stage
-
-                if isinstance(stage, ExtractStage):
-                    output = stage.run()  # First stage gets no input
-                else:
-                    if not output:
+                if self.stages_to_run:
+                    if stage.stage_type not in self.stages_to_run:
                         self.logger.info(
                             'Loading previously cached output from '
-                            f'{type(previous_stage).__name__}'
+                            f'{type(stage).__name__}'
                         )
-                        output = previous_stage.read_output()
-                    output = stage.run(output)
+                        output = stage.read_output()
+                        continue
+                    else:
+                        self.stages_to_run.remove(stage.stage_type)
 
-                # Standard stage output validation
-                if stage.concept_discovery_dict:
-                    passed, messages = self.check_stage_counts(stage)
-                    all_passed = passed and all_passed
-                    all_messages.extend(messages)
+                    self.stages[stage.stage_type] = stage
+
+                    if isinstance(stage, ExtractStage):
+                        output = stage.run()  # First stage gets no input
+                    else:
+                        output = stage.run(output)
+
+                    # Standard stage output validation
+                    if stage.concept_discovery_dict:
+                        passed, messages = self.check_stage_counts(stage)
+                        all_passed = passed and all_passed
+                        all_messages.extend(messages)
 
             self._log_count_results(all_passed, all_messages)
 

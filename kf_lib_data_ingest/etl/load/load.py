@@ -31,7 +31,8 @@ def send(req):
 class LoadStage(IngestStage):
     def __init__(
         self, target_api_config_path, target_url, entities_to_load,
-        study_id, uid_cache_dir=None, use_async=False, dry_run=False
+        study_id, output_dir, uid_cache_dir=None, use_async=False,
+        dry_run=False
     ):
         """
         :param target_api_config_path: path to the target service API config
@@ -42,6 +43,8 @@ class LoadStage(IngestStage):
         :type entities_to_load: list
         :param study_id: target ID of the study being loaded
         :type study_id: str
+        :param output_dir: where to store output
+        :type output_dir: str
         :param uid_cache_dir: where to find the ID cache, defaults to None
         :type uid_cache_dir: str, optional
         :param use_async: use asynchronous networking, defaults to False
@@ -49,7 +52,7 @@ class LoadStage(IngestStage):
         :param dry_run: don't actually transmit, defaults to False
         :type dry_run: bool, optional
         """
-        super().__init__()
+        super().__init__(ingest_output_dir=output_dir)
         self.target_api_config = TargetAPIConfig(target_api_config_path)
         self.concept_targets = {
             v['standard_concept'].UNIQUE_KEY: k

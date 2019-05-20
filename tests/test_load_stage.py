@@ -9,12 +9,12 @@ from kf_lib_data_ingest.etl.load.load import LoadStage
 def test_uid_cache(tmpdir):
     a1 = LoadStage(
         KIDS_FIRST_CONFIG, 'http://URL_A', None, 'FAKE_STUDY_A',
-        uid_cache_dir=tmpdir, dry_run=True
+        output_dir=tmpdir, uid_cache_dir=tmpdir, dry_run=True
     )
 
     a2 = LoadStage(
         KIDS_FIRST_CONFIG, 'http://URL_A', None, 'FAKE_STUDY_A',
-        uid_cache_dir=tmpdir, dry_run=True
+        output_dir=tmpdir, uid_cache_dir=tmpdir, dry_run=True
     )
 
     assert os.path.exists(a1.uid_cache_filepath)
@@ -30,12 +30,12 @@ def test_uid_cache(tmpdir):
 
     b1 = LoadStage(
         KIDS_FIRST_CONFIG, 'http://URL_B1', None, 'FAKE_STUDY_B',
-        uid_cache_dir=tmpdir, dry_run=True
+        output_dir=tmpdir, uid_cache_dir=tmpdir, dry_run=True
     )
 
     b2 = LoadStage(
         KIDS_FIRST_CONFIG, 'URL_B2', None, 'FAKE_STUDY_B',
-        uid_cache_dir=tmpdir, dry_run=True
+        output_dir=tmpdir, uid_cache_dir=tmpdir, dry_run=True
     )
 
     assert 'URL_B2' in b2.uid_cache_filepath
