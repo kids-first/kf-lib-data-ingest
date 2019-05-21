@@ -20,7 +20,10 @@ from kf_lib_data_ingest.config import DEFAULT_ID_CACHE_FILENAME
 from kf_lib_data_ingest.etl.configuration.target_api_config import (
     TargetAPIConfig
 )
-
+from kf_lib_data_ingest.common.type_safety import (
+    assert_all_safe_type,
+    assert_safe_type
+)
 sqlite3worker.LOGGER.setLevel(logging.WARNING)
 
 
@@ -93,6 +96,9 @@ class LoadStage(IngestStage):
         Validate that all entities in entities_to_load are one of the
         target concepts specified in the target_api_config.target_concepts
         """
+        assert_safe_type(entities_to_load, list)
+        assert_all_safe_type(entities_to_load, str)
+
         invalid_ents = [ent for ent in entities_to_load
                         if ent not in self.target_api_config.target_concepts]
         if invalid_ents:
