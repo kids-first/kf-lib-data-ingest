@@ -11,27 +11,40 @@ from kf_lib_data_ingest.etl.ingest_pipeline import (
     CODE_TO_STAGE_MAP,
     DEFAULT_STAGES_TO_RUN_STR
 )
+from conftest import delete_dir
 
 TEST_STUDY_CONFIG = os.path.join(TEST_DATA_DIR, 'test_study',
                                  'ingest_package_config.py')
 SIMPLE_STUDY_CONFIG = os.path.join(TEST_DATA_DIR, 'simple_study',
                                    'ingest_package_config.py')
+
+
+@pytest.fixture(scope='session')
+def simple_study_cfg():
+    output_dir = os.path.join(os.path.split(SIMPLE_STUDY_CONFIG)[0], 'output')
+    delete_dir(output_dir)
+
+    yield SIMPLE_STUDY_CONFIG
+
+    delete_dir(output_dir)
+
+
 STAGE_RUN_STRS = (
-    [DEFAULT_STAGES_TO_RUN_STR,                # etl
-     DEFAULT_STAGES_TO_RUN_STR[::-1],          # lte
-     DEFAULT_STAGES_TO_RUN_STR[0:2],           # et
-     DEFAULT_STAGES_TO_RUN_STR[0:2][::-1]] +   # te
-    list(DEFAULT_STAGES_TO_RUN_STR)            # e, t, l
+    list(DEFAULT_STAGES_TO_RUN_STR) +             # e, t, l
+    [
+        DEFAULT_STAGES_TO_RUN_STR[::-1],          # lte
+        DEFAULT_STAGES_TO_RUN_STR,                # etl
+        DEFAULT_STAGES_TO_RUN_STR[0:2],           # et
+        DEFAULT_STAGES_TO_RUN_STR[0:2][::-1]      # te
+    ]
 )
-
-
 @pytest.mark.parametrize('cli_cmd', [cli.test])
 @pytest.mark.parametrize('stages_to_run_str',
                          STAGE_RUN_STRS
                          )
-def test_ingest_subset_stages(cli_cmd, stages_to_run_str):
+def test_ingest_subset_stages(simple_study_cfg, cli_cmd, stages_to_run_str):
     runner = CliRunner()
-    result = runner.invoke(cli_cmd, [SIMPLE_STUDY_CONFIG,
+    result = runner.invoke(cli_cmd, [simple_study_cfg,
                                      '--stages', stages_to_run_str])
     assert 'BEGIN data ingestion' in result.output
     assert 'END data ingestion' in result.output
