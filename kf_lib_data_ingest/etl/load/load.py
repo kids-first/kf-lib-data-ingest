@@ -58,7 +58,7 @@ class LoadStage(IngestStage):
         self.target_id_key = (
             self.target_api_config.contents.target_service_entity_id
         )
-
+        self._validate_entities(entities_to_load)
         self.entities_to_load = entities_to_load
         self.target_url = target_url
         self.dry_run = dry_run
@@ -87,6 +87,23 @@ class LoadStage(IngestStage):
         self.entity_cache = dict()
 
         self.use_async = use_async
+
+    def _validate_entities(self, entities_to_load):
+        """
+        Validate that all entities in entities_to_load are one of the
+        target concepts specified in the target_api_config.target_concepts
+        """
+        invalid_ents = [ent for ent in entities_to_load
+                        if ent not in self.target_api_config.target_concepts]
+        if invalid_ents:
+            valid_ents = list(self.target_api_config.target_concepts.keys())
+            raise ValueError(
+                f'Ingest package config has invalid entities: '
+                f'{pformat(invalid_ents)} specified in `entities_to_load`. '
+                'Valid entities must be one of the target concepts: '
+                f'{pformat(valid_ents)} '
+                f'specified in {self.target_api_config.config_filepath}'
+            )
 
     def _prime_uid_cache(self, entity_type):
         """
@@ -348,10 +365,13 @@ class LoadStage(IngestStage):
                 'DRY RUN mode is ON. No entities will be loaded into the '
                 'target service.'
             )
-        for entity_type, entities in target_entities.items():
+
+        for entity_type in self.target_api_config.target_concepts.keys():
             if entity_type not in self.entities_to_load:
                 self.logger.info(f'Skipping load of {entity_type}')
                 continue
+
+            entities = target_entities[entity_type]
 
             self.logger.info(f'Begin loading {entity_type}')
 
