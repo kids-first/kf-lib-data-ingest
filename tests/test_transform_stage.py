@@ -62,8 +62,12 @@ def test_read_write(guided_transform_stage, df):
         other_data = recycled_output[target_entity]
         # Compare using DataFrames
         assert pd.DataFrame(other_data).equals(pd.DataFrame(data))
+        assert os.path.isfile(
+            os.path.join(guided_transform_stage.stage_cache_dir,
+                         'tsv', target_entity) + '.tsv')
 
     assert os.path.isfile(os.path.join(guided_transform_stage.stage_cache_dir,
+                                       'tsv',
                                        'transform_func_df.tsv'))
 
 

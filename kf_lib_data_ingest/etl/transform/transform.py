@@ -82,18 +82,38 @@ class TransformStage(IngestStage):
 
     def _write_output(self, output):
         """
-        Write output of transform stage to JSON file
+        Write output of transform stage to JSON files and tab separated value
+        files. TSV files are stored in a tsv folder within the stage's output
+        dir.
 
         :param output: output created by TransformStage._run
         :type output: a dict of pandas.DataFrames
         """
         assert_safe_type(output, dict)
         assert_all_safe_type(output.values(), list)
+
         paths = []
         for key, data in output.items():
-            fp = os.path.join(self.stage_cache_dir, key + '.json')
+            # JSON output
+            fp = os.path.join(self.stage_cache_dir, key) + '.json'
             paths.append(fp)
             write_json(data, fp)
+
+            # TSV output
+            fp = os.path.join(self.stage_cache_dir, 'tsv', key) + '.tsv'
+            paths.append(fp)
+            flat_data = []
+            for target_instance in data:
+                flat_instance = {}
+                for k, v in target_instance.items():
+                    if isinstance(v, dict):
+                        flat_instance.update({k1: v1
+                                              for k1, v1 in v.items()})
+                    else:
+                        flat_instance[k] = v
+                flat_data.append(flat_instance)
+            pandas.DataFrame(flat_data).to_csv(fp, sep='\t')
+
         self.logger.info(f'Writing {type(self).__name__} output:\n'
                          f'{pformat(paths)}')
 
