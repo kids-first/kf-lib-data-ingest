@@ -372,8 +372,12 @@ class LoadStage(IngestStage):
                 'target service.'
             )
 
+        # Loop through all target concepts
         for entity_type in self.target_api_config.target_concepts.keys():
-            if entity_type not in self.entities_to_load:
+            # Skip entities that are not in user specified list or
+            # not in the input data
+            if ((entity_type not in self.entities_to_load) or
+                    (entity_type not in target_entities)):
                 self.logger.info(f'Skipping load of {entity_type}')
                 continue
 
