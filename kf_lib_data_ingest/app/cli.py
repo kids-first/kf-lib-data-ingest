@@ -9,7 +9,10 @@ import click
 
 from kf_lib_data_ingest.app import settings
 from kf_lib_data_ingest.config import DEFAULT_LOG_LEVEL, DEFAULT_TARGET_URL
-from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
+from kf_lib_data_ingest.etl.ingest_pipeline import (
+    DataIngestPipeline,
+    DEFAULT_STAGES_TO_RUN_STR
+)
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 DEFAULT_LOG_LEVEL_NAME = logging._levelToName.get(DEFAULT_LOG_LEVEL)
@@ -52,7 +55,17 @@ def common_args_options(func):
         '-t', '--target_url',
               default=DEFAULT_TARGET_URL, show_default=True,
               help='Target service URL where data will be loaded into')(func)
-
+    # Stages
+    func = click.option(
+        '--stages', 'stages_to_run_str',
+        default=DEFAULT_STAGES_TO_RUN_STR, show_default=True,
+        help=(
+            'A string representing the subset of ingest stages that will be '
+            'executed by the pipeline. This string can be any '
+            f'combination of the characters in '
+            f'"{DEFAULT_STAGES_TO_RUN_STR}". Order does not matter, as it is '
+            'enforced by the pipeline.'
+        ))(func)
     return func
 
 
@@ -86,7 +99,7 @@ def cli():
 #               'user guided transformation')
 @common_args_options
 def ingest(ingest_package_config_path, app_settings_filepath, log_level_name,
-           target_url, use_async, dry_run):
+           target_url, stages_to_run_str, use_async, dry_run):
     """
     Run the Kids First data ingest pipeline.
 
@@ -135,7 +148,7 @@ def ingest(ingest_package_config_path, app_settings_filepath, log_level_name,
 @common_args_options
 @click.pass_context
 def test(ctx, ingest_package_config_path, app_settings_filepath,
-         log_level_name, target_url):
+         log_level_name, target_url, stages_to_run_str):
     """
     Run the Kids First data ingest pipeline in dry_run mode (--dry_run=True)
     Used for testing ingest packages.
