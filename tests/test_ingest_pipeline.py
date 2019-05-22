@@ -1,16 +1,75 @@
 import os
 import shutil
+import itertools
 
 import pytest
 from click.testing import CliRunner
 
 from kf_lib_data_ingest.config import VERSION
 from kf_lib_data_ingest.app import cli
-from conftest import TEST_DATA_DIR
-from conftest import COMMAND_LINE_ERROR_CODE
+from conftest import TEST_DATA_DIR, COMMAND_LINE_ERROR_CODE
+from kf_lib_data_ingest.etl.ingest_pipeline import (
+    CODE_TO_STAGE_MAP,
+    DEFAULT_STAGES_TO_RUN_STR
+)
+from conftest import delete_dir
 
 TEST_STUDY_CONFIG = os.path.join(TEST_DATA_DIR, 'test_study',
                                  'ingest_package_config.py')
+SIMPLE_STUDY_CONFIG = os.path.join(TEST_DATA_DIR, 'simple_study',
+                                   'ingest_package_config.py')
+
+# all permutations of stages
+STAGE_RUN_STRS = []
+for i in range(1, len(DEFAULT_STAGES_TO_RUN_STR)+1):
+    STAGE_RUN_STRS += map(''.join, (
+        itertools.permutations(DEFAULT_STAGES_TO_RUN_STR, i)
+    ))
+
+
+@pytest.fixture(scope='session')
+def simple_study_cfg():
+    output_dir = os.path.join(os.path.split(SIMPLE_STUDY_CONFIG)[0], 'output')
+    delete_dir(output_dir)
+
+    yield SIMPLE_STUDY_CONFIG
+
+    delete_dir(output_dir)
+
+
+@pytest.mark.parametrize('cli_cmd', [cli.test])
+@pytest.mark.parametrize('stages_to_run_str',
+                         STAGE_RUN_STRS
+                         )
+def test_ingest_subset_stages(simple_study_cfg, cli_cmd, stages_to_run_str):
+    runner = CliRunner()
+    result = runner.invoke(cli_cmd, [simple_study_cfg,
+                                     '--stages', stages_to_run_str])
+    assert 'BEGIN data ingestion' in result.output
+    assert 'END data ingestion' in result.output
+    assert result.exit_code == 0
+    pipeline_stage_names = {
+        c: CODE_TO_STAGE_MAP[c].__name__
+        for c in CODE_TO_STAGE_MAP
+    }
+    pipeline_stage_names['t'] = 'GuidedTransformStage'
+
+    # Check logs
+    def check_logs(char_seq, should_exist):
+        for c in char_seq:
+            stg_cls_name = pipeline_stage_names[c]
+            assert (f'BEGIN {stg_cls_name}' in result.output) == should_exist
+            assert (f'END {stg_cls_name}' in result.output) == should_exist
+            # If stage before current not in stages to run, load cached output
+            idx = DEFAULT_STAGES_TO_RUN_STR.index(c) - 1
+            if (idx > 0 and
+                    DEFAULT_STAGES_TO_RUN_STR[idx] not in stages_to_run_str):
+                prev_name = pipeline_stage_names.get(
+                    DEFAULT_STAGES_TO_RUN_STR[idx])
+                assert (f'Loading previously cached output from '
+                        f'{prev_name}' in result.output) == should_exist
+    check_logs(stages_to_run_str, True)
+    check_logs(CODE_TO_STAGE_MAP.keys() - list(stages_to_run_str), False)
 
 
 def test_ingest_cmd_missing_required_args():
