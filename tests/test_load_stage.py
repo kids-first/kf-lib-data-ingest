@@ -8,12 +8,12 @@ from kf_lib_data_ingest.etl.load.load import LoadStage
 
 def test_uid_cache(tmpdir):
     a1 = LoadStage(
-        KIDS_FIRST_CONFIG, 'http://URL_A', None, 'FAKE_STUDY_A',
+        KIDS_FIRST_CONFIG, 'http://URL_A', [], 'FAKE_STUDY_A',
         uid_cache_dir=tmpdir, dry_run=True
     )
 
     a2 = LoadStage(
-        KIDS_FIRST_CONFIG, 'http://URL_A', None, 'FAKE_STUDY_A',
+        KIDS_FIRST_CONFIG, 'http://URL_A', [], 'FAKE_STUDY_A',
         uid_cache_dir=tmpdir, dry_run=True
     )
 
@@ -29,12 +29,12 @@ def test_uid_cache(tmpdir):
     assert a1.uid_cache_filepath == a2.uid_cache_filepath
 
     b1 = LoadStage(
-        KIDS_FIRST_CONFIG, 'http://URL_B1', None, 'FAKE_STUDY_B',
+        KIDS_FIRST_CONFIG, 'http://URL_B1', [], 'FAKE_STUDY_B',
         uid_cache_dir=tmpdir, dry_run=True
     )
 
     b2 = LoadStage(
-        KIDS_FIRST_CONFIG, 'URL_B2', None, 'FAKE_STUDY_B',
+        KIDS_FIRST_CONFIG, 'URL_B2', [], 'FAKE_STUDY_B',
         uid_cache_dir=tmpdir, dry_run=True
     )
 
