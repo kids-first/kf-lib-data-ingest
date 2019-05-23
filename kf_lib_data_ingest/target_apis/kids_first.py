@@ -154,23 +154,19 @@ target_concepts = {
     },
     'genomic_file': {
         'standard_concept': CONCEPT.GENOMIC_FILE,
-        'links': {
-            'sequencing_experiment_id': CONCEPT.SEQUENCING.UNIQUE_KEY
-        },
         'properties': {
             "external_id": CONCEPT.GENOMIC_FILE.UNIQUE_KEY,
             "file_name": CONCEPT.GENOMIC_FILE.FILE_NAME,
-            "file_format": None,
-            "data_type": None,
-            "availability": None,
+            "file_format": CONCEPT.GENOMIC_FILE.FILE_FORMAT,
+            "data_type": CONCEPT.GENOMIC_FILE.DATA_TYPE,
+            "availability": CONCEPT.GENOMIC_FILE.AVAILABILITY,
             "controlled_access": None,
             "is_harmonized": CONCEPT.GENOMIC_FILE.HARMONIZED,
-            "paired_end": CONCEPT.READ_GROUP.PAIRED_END,
-            "hashes": CONCEPT.GENOMIC_FILE.UNIQUE_KEY,
-            "size": CONCEPT.GENOMIC_FILE.UNIQUE_KEY,
-            "urls": CONCEPT.GENOMIC_FILE.UNIQUE_KEY,
-            "acl": CONCEPT.GENOMIC_FILE.UNIQUE_KEY,
-            "reference_genome": CONCEPT.GENOMIC_FILE.UNIQUE_KEY,
+            "hashes": CONCEPT.GENOMIC_FILE.HASH,
+            "size": CONCEPT.GENOMIC_FILE.SIZE,
+            "urls": CONCEPT.GENOMIC_FILE.URL,
+            "acl": None,
+            "reference_genome": CONCEPT.GENOMIC_FILE.REFERENCE_GENOME,
             'visible': CONCEPT.GENOMIC_FILE.VISIBLE
         },
         'endpoint': '/genomic-files'
