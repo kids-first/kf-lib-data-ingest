@@ -15,6 +15,15 @@ class COMMON:
     MULTIPLE = "Multiple"
 
 
+class FILE:
+    class HASH:
+        MD5 = 'md5'
+        SHA = 'sha'
+        SHA256 = 'sha256'
+        SHA512 = 'sha512'
+        CRC = 'crc'
+
+
 class SPECIMEN:
     class COMPOSITION:
         XENOGRAFT = 'Xenograft Tissue'
@@ -40,6 +49,25 @@ class GENOMIC_FILE:
     class AVAILABILITY:
         IMMEDIATE = 'Immediate Download'
         COLD_STORAGE = 'In cold storage'
+
+    class FORMAT:
+        FASTQ = 'fastq'
+        BAM = 'bam'
+        CRAM = 'cram'
+        BAI = 'bai'
+        CRAI = 'crai'
+        GVCF = 'gvcf'
+        TBI = 'tbi'
+        VCF = 'vcf'
+
+    class DATA_TYPE:
+        UNALIGNED_READS = 'Unaligned Reads'
+        ALIGNED_READS = 'Aligned Reads'
+        ALIGNED_READS_INDEX = 'Aligned Reads Index'
+        GVCF = 'gVCF'
+        GVCF_INDEX = 'gVCF Index'
+        VARIANT_CALLS = 'Variant Calls'
+        VARIANT_CALLS_INDEX = 'Variant Calls Index'
 
 
 class SEQUENCING:
