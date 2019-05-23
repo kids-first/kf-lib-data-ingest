@@ -7,9 +7,9 @@ UNIQUE_ID_ATTR = 'UNIQUE_KEY'
 class FileMixin(object):
     ETAG = None
     SIZE = None
-    DATA_TYPE = None
+    HASH = None
+    URL = None
     FILE_NAME = None
-    FILE_PATH = None
 
 
 class PropertyMixin(object):
@@ -99,6 +99,9 @@ class CONCEPT:
         AVAILABILITY = None
         HARMONIZED = None
         CAVATICA_OUTPUT_FILE = None
+        REFERENCE_GENOME = None
+        FILE_FORMAT = None
+        DATA_TYPE = None
 
     class READ_GROUP(PropertyMixin):
         PAIRED_END = None
