@@ -109,3 +109,52 @@ def test_outer_merge(info_caplog, dfs):
     assert 'Outer merge Left with Right' in info_caplog.text
     assert isinstance(df, pandas.DataFrame)
     assert expected.equals(df)
+
+
+def test_split_df_rows():
+    df_splits = pandas.DataFrame(
+        {
+            'a': [pandas_utils.Split(['1', '2'], group=1)],
+            'b': [pandas_utils.Split(['3', '4', '5'], group=1)],
+            'c': [pandas_utils.Split(['6', '7'])]
+        }
+    )
+    df_delims = pandas.DataFrame(
+        {
+            'a': ['1,2'],
+            'b': ['3,4,5'],
+            'c': ['6,7']
+        }
+    )
+    expected = pandas.DataFrame(
+        {
+            'a': ['1', '1', '2', '2', None, None],
+            'b': ['3', '3', '4', '4', '5', '5'],
+            'c': ['6', '7', '6', '7', '6', '7']
+        }, index=[0, 0, 0, 0, 0, 0]
+    )
+
+    out_on_splits = pandas_utils.split_df_rows_on_splits(df_splits)
+    out_on_delims = pandas_utils.split_df_rows_on_delims(
+        pandas_utils.split_df_rows_on_delims(
+            df_delims, ['a', 'b'], [','], False
+        ),
+        ['c'], [',']
+    )
+
+    for out in [out_on_splits, out_on_delims]:
+        # DF comparisons are super unfriendly to rows being out of order,
+        # and pandas.testing.assert_frame_equal with check_like=True raises an
+        # exception if any indices repeat in the latest pandas on 05/24/2019
+        # (0.24.2)
+
+        # row-wise comparison via merge, ignoring indices
+        assert pandas.merge(
+            out_on_splits, expected, on=out_on_splits.columns.tolist()
+        ).reset_index(
+            drop=True
+        ).equals(
+            out.reset_index(drop=True)
+        )
+        # now compare indices
+        assert out.index.equals(expected.index)

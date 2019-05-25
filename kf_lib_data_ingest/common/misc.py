@@ -12,7 +12,10 @@ import jsonpickle
 import yaml
 from pandas import isnull
 
-from kf_lib_data_ingest.common.type_safety import assert_safe_type
+from kf_lib_data_ingest.common.type_safety import (
+    assert_all_safe_type,
+    assert_safe_type
+)
 
 
 def import_module_from_file(filepath):
@@ -239,6 +242,7 @@ def multisplit(string: str, delimiters: list):
 
     assert_safe_type(string, str)
     assert_safe_type(delimiters, list)
+    assert_all_safe_type(delimiters, str)
     regexPattern = '|'.join(map(re.escape, delimiters))
     return re.split(regexPattern, string)
 

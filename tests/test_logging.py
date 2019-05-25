@@ -71,6 +71,7 @@ def test_overwrite_log(ingest_pipeline):
     ip.run()
     assert len(os.listdir(log_dir)) == 6
 
+
 def test_log_level(ingest_pipeline):
     """
     Test that configuration of logging level works
