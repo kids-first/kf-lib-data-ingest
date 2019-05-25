@@ -297,7 +297,7 @@ class ExtractStage(IngestStage):
         #  0       1   C             5
         #  1       2   C             6
 
-        df_out = pandas.DataFrame()
+        df_out = pandas.DataFrame(dtype=object)
         index = None
         for col_name, col_series in out_cols.items():
             if not col_series.empty:
@@ -305,7 +305,7 @@ class ExtractStage(IngestStage):
                 assert length_multiplier == round(length_multiplier)
                 # repeat the series length_multiplier times
                 df_out[col_name] = pandas.Series(
-                    list(col_series) * round(length_multiplier)
+                    list(col_series) * round(length_multiplier), dtype=object
                 )
                 col_index = list(col_series.index) * round(length_multiplier)
                 if index:

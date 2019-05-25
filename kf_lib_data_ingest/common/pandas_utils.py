@@ -21,64 +21,106 @@ class Split:
 
     Replaces lists with a Split object containing the list.
     """
-
-    def __init__(self, things):
+    def __init__(self, things, group=None):
         assert_safe_type(things, list)
         self.things = things
+        self.group = group
 
 
 def split_df_rows_on_splits(df):
     """
     Take a DataFrame and split any cell values that contain Splits into
-    multiple rows.
+    multiple rows. Generally, multiple Splits on the same row will multiply to
+    produce the cartesian product of the values in those Splits. However, if
+    Splits are assigned a `group` value, then Splits on the same row in the
+    same group will be linked to each other so that they do not form a
+    cartesian product.
 
     e.g.:
 
     a row that looks like...
 
-    {'a': Split([1, 2]), 'b': Split([[3, 4])}
+    {'a': Split([1, 2], 1), 'b': Split([3, 4, 5], 1), 'c': Split([6, 7])}
 
     ...will become...
 
     [
-        {'a': 1, 'b': 3},
-        {'a': 1, 'b': 4},
-        {'a': 2, 'b': 3},
-        {'a': 2, 'b': 4}
+        {'a': 1,    'b': 3, 'c': 6},
+        {'a': 2,    'b': 4, 'c': 6},
+        {'a': None, 'b': 5, 'c': 6},
+        {'a': 1,    'b': 3, 'c': 7},
+        {'a': 2,    'b': 4, 'c': 7},
+        {'a': None, 'b': 5, 'c': 7}
     ]
 
     :param df: a DataFrame
     :return: a new DataFrame
     """
     def split_row(df_row_dict):
-        row_list = []
+        # Collate groups
+        split_groups = defaultdict(dict)
+        split_group_lengths = defaultdict(int)
         for k, v in df_row_dict.items():
             if isinstance(v, Split):
-                for vi in v.things:
+                split_groups[v.group][k] = v.things
+                split_group_lengths[v.group] = max(
+                    split_group_lengths[v.group], len(v.things)
+                )
+                # split_groups = {group_1: {col1: [1, 2, 3], col2: [a, b]}}
+                # split_group_lengths = {group_1: 3}
+        row_list = []
+        for group, col_dict in split_groups.items():
+            if group is not None:  # Non-cartesian-product splits
+                for col, things in col_dict.items():
+                    col_dict[col] += (
+                        [None] * (split_group_lengths[group] - len(things))
+                    )
+                # Now group_1 = {col1: [1, 2, 3], col2: [a, b, None]}}
+                for i in range(split_group_lengths[group]):
                     new_row = df_row_dict.copy()
-                    new_row[k] = vi.strip()
+                    for col, things in col_dict.items():
+                        new_row[col] = things[i]
                     row_list += split_row(new_row)
                 break
+            else:  # Cartesian product splits
+                for col, things in col_dict.items():
+                    for val in things:
+                        new_row = df_row_dict.copy()
+                        new_row[col] = val
+                        row_list += split_row(new_row)
+                    break
         return row_list or [df_row_dict]
 
     split_out = []
-    for row in df.to_dict(orient='records'):
+    index_key = '__index_IQDBDZVSME7L8YSKX__'  # don't name a column this :)
+    df.index.name = index_key
+    for row in df.reset_index().to_dict(orient='records'):
         split_out += split_row(row)
-    df = pandas.DataFrame(split_out)
+    df = pandas.DataFrame.from_dict(
+        split_out, dtype=object
+    ).set_index(index_key)
+    del df.index.name
     return df
 
 
-def split_df_rows_on_delims(df, cols: list = None, delimiters: list = None):
+def split_df_rows_on_delims(
+    df, cols: list = None, delimiters: list = None, cartesian: bool = True
+):
     """
     Split row into multiple rows based on delimited strings in df[col]
     for all columns in cols
     """
+    assert_safe_type(cols, list)
+    assert_safe_type(delimiters, list)
+    assert_safe_type(cartesian, bool)
+    group = None if cartesian else 1
     cols = cols or df.columns
+    df = df.copy()
     for i, row in df.iterrows():
         for col in cols:
             val = multisplit(row[col], delimiters)
             if len(val) > 1:
-                row[col] = Split(val)
+                row[col] = Split(val, group=group)
             else:
                 row[col] = val[0]
     return split_df_rows_on_splits(df)
