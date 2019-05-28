@@ -33,11 +33,11 @@ operations = [
         out_col=CONCEPT.GENOMIC_FILE.FILE_NAME
     ),
     row_map(
-        m=lambda row: row['storage_dir'] + '/' + row['bam_file_name'],
-        out_col=CONCEPT.GENOMIC_FILE.FILE_PATH
+        m=lambda row: [row['storage_dir'] + '/' + row['bam_file_name']],
+        out_col=CONCEPT.GENOMIC_FILE.URL_LIST
     ),
     row_map(
-        m=lambda row: row['storage_dir'] + '/' + row['cram_file_name'],
-        out_col=CONCEPT.GENOMIC_FILE.FILE_PATH
+        m=lambda row: [row['storage_dir'] + '/' + row['cram_file_name']],
+        out_col=CONCEPT.GENOMIC_FILE.URL_LIST
     )
 ]

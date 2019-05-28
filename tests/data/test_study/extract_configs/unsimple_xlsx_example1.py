@@ -33,8 +33,8 @@ operations = [
     ),
     value_map(
         in_col='s3_path',
-        m=lambda x: 's3://' + x,
-        out_col=CONCEPT.GENOMIC_FILE.FILE_PATH
+        m=lambda x: ['s3://' + x],
+        out_col=CONCEPT.GENOMIC_FILE.URL_LIST
     ),
     value_map(
         in_col='DNA/RNA',
