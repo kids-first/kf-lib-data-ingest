@@ -26,7 +26,7 @@ operations = [
     ),
     keep_map(
         in_col='file_path',
-        out_col=CONCEPT.GENOMIC_FILE.FILE_PATH
+        out_col=CONCEPT.GENOMIC_FILE.URL_LIST
     ),
     keep_map(
         in_col='file_path',
