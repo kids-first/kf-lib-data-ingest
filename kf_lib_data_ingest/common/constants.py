@@ -17,11 +17,11 @@ class COMMON:
 
 class FILE:
     class HASH:
-        MD5 = 'md5'
-        SHA = 'sha'
-        SHA256 = 'sha256'
-        SHA512 = 'sha512'
-        CRC = 'crc'
+        MD5 = 'MD5'
+        SHA1 = 'SHA-1'
+        SHA256 = 'SHA-256'
+        SHA512 = 'SHA-512'
+        S3_ETAG = 'S3 ETag'
 
 
 class SPECIMEN:

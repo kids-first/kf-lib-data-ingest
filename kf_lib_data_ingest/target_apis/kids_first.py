@@ -162,9 +162,9 @@ target_concepts = {
             "availability": CONCEPT.GENOMIC_FILE.AVAILABILITY,
             "controlled_access": None,
             "is_harmonized": CONCEPT.GENOMIC_FILE.HARMONIZED,
-            "hashes": CONCEPT.GENOMIC_FILE.HASH,
+            "hashes": CONCEPT.GENOMIC_FILE.HASH_DICT,
             "size": CONCEPT.GENOMIC_FILE.SIZE,
-            "urls": CONCEPT.GENOMIC_FILE.URL,
+            "urls": CONCEPT.GENOMIC_FILE.URL_LIST,
             "acl": None,
             "reference_genome": CONCEPT.GENOMIC_FILE.REFERENCE_GENOME,
             'visible': CONCEPT.GENOMIC_FILE.VISIBLE

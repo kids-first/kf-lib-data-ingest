@@ -5,11 +5,10 @@ UNIQUE_ID_ATTR = 'UNIQUE_KEY'
 
 
 class FileMixin(object):
-    ETAG = None
     SIZE = None
-    HASH = None
-    URL = None
     FILE_NAME = None
+    HASH_DICT = None
+    URL_LIST = None
 
 
 class PropertyMixin(object):
