@@ -252,13 +252,19 @@ class GuidedTransformStage(TransformStage):
                         'properties'][target_attr] = row.get(std_concept_attr)
 
                 # links
-                target_instance['links'] = defaultdict()
+                target_instance['links'] = []
                 if 'links' in config:
-                    for (target_attr,
-                         std_concept_attr) in config['links'].items():
-                        target_instance[
-                            'links'][target_attr] = row.get(std_concept_attr)
-
+                    links_list = config['links']
+                    for link_dict in links_list:
+                        unique_k_col = getattr(link_dict['standard_concept'],
+                                               UNIQUE_ID_ATTR)
+                        unique_k_val = row.get(unique_k_col)
+                        target_instance['links'].append(
+                            {
+                                link_dict['target_attribute']: unique_k_val,
+                                'target_concept': link_dict['target_concept']
+                            }
+                        )
                 target_instances[target_concept].append(target_instance)
 
             self.logger.info(f'Built {len(target_instances[target_concept])} '

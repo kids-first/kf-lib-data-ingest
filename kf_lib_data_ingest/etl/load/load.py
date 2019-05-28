@@ -316,22 +316,16 @@ class LoadStage(IngestStage):
         }
 
         # link cached foreign keys
-        target_concepts = self.target_api_config.target_concepts
-        for link_key, link_value in links.items():
-            if link_key == 'study_id':
-                body[link_key] = self.study_id
-            else:
-                link_concept_key = (
-                    target_concepts[entity_type]['links'][link_key]
-                )
-                link_type = self.concept_targets[link_concept_key]
-                body[link_key] = self._get_target_id(link_type, link_value)
+        for link_dict in links:
+            link_type = link_dict.pop('target_concept', None)
+            for link_key, link_value in link_dict.items():
+                if link_key == 'study_id':
+                    body[link_key] = self.study_id
+                else:
+                    body[link_key] = self._get_target_id(link_type, link_value)
 
         if self.dry_run:
-            # Fake sending with fake foreign keys
-            for link_key, link_value in links.items():
-                body[link_key] = f'DRY_{link_value}'
-
+            # Fake sending data
             instance_id = body.get(self.target_id_key)
             if instance_id:
                 req_method = 'PATCH'
