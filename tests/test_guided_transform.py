@@ -97,6 +97,11 @@ def test_standard_to_target_transform(caplog, df_dict,
             assert instance.get('id')
             assert instance.get('properties')
             assert 'links' in instance
+            for link_dict in instance['links']:
+                for k, v in link_dict.items():
+                    if k in {'study_id', 'sequencing_center_id'}:
+                        continue
+                    assert v
 
     # Check log output
     no_data_concepts = (

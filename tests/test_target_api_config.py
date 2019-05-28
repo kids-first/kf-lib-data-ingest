@@ -127,29 +127,50 @@ def test_target_concept_attr(kids_first_config):
         assert f'{target_concept}.{attr}' in str(e)
 
 
-@pytest.mark.parametrize('link_name',
-                         [('does_not_exist_concept_id'),
-                          ('participant_wrong_suffix')
-                          ])
-def test_bad_link_name(link_name, kids_first_config):
+@pytest.mark.parametrize(
+    'link_list, expected_exc, expected_msg',
+    [
+        ('wrong type', TypeError, ''),
+        (['wrong type'], TypeError, ''),
+        ([{'bad format': ''}], KeyError, 'Badly formatted'),
+        ([{'target_attribute': None}], TypeError, ''),
+        ([
+            {'target_attribute': 'family_id',
+             'standard_concept': 'does not exist',
+             'target_concept': ''
+             }
+        ], ValueError, 'Invalid link found'),
+        ([
+            {'target_attribute': 'family_id',
+             'standard_concept': CONCEPT.FAMILY,
+             'target_concept': 'does not exist'
+             }
+        ], ValueError, 'Invalid link found'),
+        ([
+            {'target_attribute': 'family_id',
+             'standard_concept': CONCEPT.FAMILY,
+             'target_concept': 'family'
+             }
+        ], None, ''),
+
+    ])
+def test_links(kids_first_config, link_list, expected_exc, expected_msg):
     """
     Test for improperly named links
     """
     # Pick a target_concept that has links
     target_concepts = kids_first_config.contents.target_concepts
-    links = target_concepts['participant']['links']
 
     # Invalid link
-    links[link_name] = CONCEPT.PARTICIPANT.ID
+    target_concepts['participant']['links'] = link_list
 
     # Test
-    with pytest.raises(ValueError) as e:
-        try:
+    if expected_exc:
+        with pytest.raises(expected_exc) as e:
             kids_first_config._validate_target_concept_attr_mappings()
-        except ValueError as e:
-            assert link_name in str(e)
-            assert 'All links must be of the form' in str(e)
-            raise
+        assert expected_msg in str(e)
+    else:
+        kids_first_config._validate_target_concept_attr_mappings()
 
 
 def test_mapped_target_concept_attr(kids_first_config):

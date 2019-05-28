@@ -63,8 +63,7 @@ All but the first of these required attributes must be dicts.
                     target_attribute: a string containing the target
                     concept property
 
-                    standard concept: a standard concept UNIQUE_KEY
-                    attribute from
+                    standard concept: a standard concept from
                     etl.transform.standard_model.concept_schema
 
                     target_concept: name of the linked target concept
@@ -72,7 +71,7 @@ All but the first of these required attributes must be dicts.
                 example:
                 {
                     'target_attribute': 'family_id',
-                    'standard_concept': CONCEPT.FAMILY.UNIQUE_KEY,
+                    'standard_concept': CONCEPT.FAMILY,
                     'target_concept': 'family'
                 }
                 description: identifiers which map to standard concept

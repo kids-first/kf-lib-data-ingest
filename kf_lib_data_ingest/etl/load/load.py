@@ -325,7 +325,11 @@ class LoadStage(IngestStage):
                     body[link_key] = self._get_target_id(link_type, link_value)
 
         if self.dry_run:
-            # Fake sending data
+            # Fake sending with fake foreign keys
+            for link_dict in links:
+                for link_key, link_value in link_dict.items():
+                    body[link_key] = f'DRY_{link_value}'
+
             instance_id = body.get(self.target_id_key)
             if instance_id:
                 req_method = 'PATCH'
