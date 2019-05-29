@@ -188,7 +188,6 @@ def test_transform(target_api_config, random_model):
     target_concepts = ['family', 'participant', 'biospecimen', 'mammals',
                        'phenotype']
     data = random_model.transform(target_api_config, target_concepts)
-
     # Output should only contain instances of valid target concept types
     # (the ones we supplied that exist in target api config)
     diff = set(target_concepts).symmetric_difference(data.keys())

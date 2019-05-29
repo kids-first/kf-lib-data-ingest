@@ -4,6 +4,7 @@ from copy import deepcopy
 import pandas as pd
 
 from kf_lib_data_ingest.etl.transform.standard_model.graph import ConceptGraph
+from kf_lib_data_ingest.common.concept_schema import UNIQUE_ID_ATTR
 
 
 class StandardModel(object):
@@ -126,12 +127,20 @@ class StandardModel(object):
             output['properties'][key] = value
 
         # Find values for links
-        links = output.get('links', {})
-        for key, concept_attr in links.items():
+        links = []
+        for link_dict in output.get('links', []):
+            unique_key = getattr(link_dict['standard_concept'], UNIQUE_ID_ATTR)
             value = self.concept_graph.find_attribute_value(id_node,
-                                                            concept_attr,
+                                                            unique_key,
                                                             relation_graph)
-            output['links'][key] = value
+            links.append(
+                {
+                    link_dict['target_attribute']: value,
+                    'target_concept': link_dict['target_concept']
+                }
+            )
+        if links:
+            output['links'] = links
 
         return output
 
