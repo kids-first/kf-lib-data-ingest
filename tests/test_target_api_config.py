@@ -133,7 +133,12 @@ def test_target_concept_attr(kids_first_config):
         ('wrong type', TypeError, ''),
         (['wrong type'], TypeError, ''),
         ([{'bad format': ''}], KeyError, 'Badly formatted'),
-        ([{'target_attribute': None}], TypeError, ''),
+        ([
+            {'target_attribute': None,
+             'standard_concept': None,
+             'target_concept': None
+             }
+        ], TypeError, ''),
         ([
             {'target_attribute': 'family_id',
              'standard_concept': 'does not exist',

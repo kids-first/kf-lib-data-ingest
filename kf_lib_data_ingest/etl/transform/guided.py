@@ -254,8 +254,7 @@ class GuidedTransformStage(TransformStage):
                 # links
                 target_instance['links'] = []
                 if 'links' in config:
-                    links_list = config['links']
-                    for link_dict in links_list:
+                    for link_dict in config['links']:
                         unique_k_col = getattr(link_dict['standard_concept'],
                                                UNIQUE_ID_ATTR)
                         unique_k_val = row.get(unique_k_col)

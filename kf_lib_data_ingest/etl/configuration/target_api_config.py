@@ -60,20 +60,19 @@ All but the first of these required attributes must be dicts.
             links:
                 type: list of dicts
 
-                    target_attribute: a string containing the target
-                    concept property
+                    dict content:
+                        - target_attribute: a string containing the target
+                        concept property
+                        - standard concept: a standard concept from
+                        etl.transform.standard_model.concept_schema
+                        - target_concept: name of the linked target concept
 
-                    standard concept: a standard concept from
-                    etl.transform.standard_model.concept_schema
-
-                    target_concept: name of the linked target concept
-
-                example:
-                {
-                    'target_attribute': 'family_id',
-                    'standard_concept': CONCEPT.FAMILY,
-                    'target_concept': 'family'
-                }
+                    dict example:
+                    {
+                        'target_attribute': 'family_id',
+                        'standard_concept': CONCEPT.FAMILY,
+                        'target_concept': 'family'
+                    }
                 description: identifiers which map to standard concept
                 UNIQUE_KEY attributes. These represent foreign keys in the
                 target model.
@@ -90,20 +89,21 @@ All but the first of these required attributes must be dicts.
         mappings in 'links' are treated differently than those in
         'properties'.
 
-        The value in a key, value pair under 'links', during the transform
-        stage, will be looked up in the standard model, and then during the
-        load stage be translated into a target model ID. A value in a key,
-        value pair under 'properties', during the transform stage, will be
-        looked up in the standard model and then kept as is during the load
-        stage.
+        The value in a key, value pair in a links dict, during the load
+        stage, will be looked up in the standard model, and then translated
+        into a target model ID. A value in a key, value pair in the
+        'properties' dict will be looked up in the standard model
+        and then kept as is during the load stage.
 
-        For example, after transformation and before loading, the 'links' dict
+        For example, before ID translation in load stage, the 'links' list
         could be:
 
-            'links': {
-                'participant_id': 'CONCEPT|PARTICIPANT|UNIQUE_KEY|P1'
-            }
-        And during the loading stage the 'links' dict will be translated into:
+            'links': [{
+                'target_concept': 'participant',
+                'participant_id': 'P1'
+            }]
+        And after ID translation occurs, the 'links' list will be translated
+        into:
 
             'links': {
                 'participant_id': 'PT_00001111'
@@ -232,7 +232,6 @@ class TargetAPIConfig(PyModuleConfig):
         All target concept attributes must be strings
         All mapped values must be valid standard concept attributes in
         etl.transform.standard_model.concept_schema
-        All links must also follow above rules
         """
         target_concepts = self.contents.target_concepts
 
@@ -246,7 +245,7 @@ class TargetAPIConfig(PyModuleConfig):
 
     def _validate_properties(self, target_concept, target_concept_dict):
         """
-        Validate properties dict for each target concept config
+        Validate properties dict for each target concept config dict
 
         Keys must be strs
         Values must be existing standard concept strings
@@ -264,23 +263,24 @@ class TargetAPIConfig(PyModuleConfig):
             mapped_attr = str(mapped_attr)
             if mapped_attr not in concept_property_set:
                 raise ValueError(
-                    f'Error in dict for {target_concept} '
+                    f'Error in dict for {target_concept}. '
                     'All target concept attributes must be mapped to '
                     'an existing standard concept attribute. Mapped '
                     f'attribute {mapped_attr} for target attr '
-                    f'{target_concept}.{target_attr} does not exist')
+                    f'{target_concept}.{target_attr} does not exist.')
 
     def _validate_link_list(self, target_concept_dict):
         """
-        Validate the links element in a target concept's config dict
+        Validate the 'links' element in a target concept's config dict
 
-        links must be a list of dicts
+        'links' must be a list of dicts
         Each dict must have the required keys:
             - target_attribute
             - standard_concept
             - target_concept
-        standard_concept must point to an existing standard concept
-        target_concept must point to an existing target_concept
+        'target_attribute' must be a string
+        'standard_concept' must point to an existing standard concept
+        'target_concept' must point to an existing target_concept
         """
         valid_target_concepts = set(self.contents.target_concepts.keys())
         links = target_concept_dict['links']
@@ -292,10 +292,10 @@ class TargetAPIConfig(PyModuleConfig):
             required_link_keys = {'target_attribute',
                                   'standard_concept',
                                   'target_concept'}
-            if not all([k in required_link_keys for k in link_dict]):
+            if not all([k in link_dict for k in required_link_keys]):
                 raise KeyError(
-                    f'Badly formatted link dict in \n'
-                    f'{target_concept_dict}. Missing required keys: '
+                    f'Badly formatted link dict:\n'
+                    f'{target_concept_dict}\nMissing required keys:\n'
                     f'{required_link_keys}'
                 )
             # Check target_attribute
@@ -303,10 +303,15 @@ class TargetAPIConfig(PyModuleConfig):
             # Check standard concept
             sc = link_dict['standard_concept']
             if sc not in concept_set:
+                sc_name = sc
+                try:
+                    sc_name = sc._CONCEPT_NAME
+                except AttributeError:
+                    pass
                 raise ValueError(
                     'Invalid link found in target concept config \n'
-                    f'{pformat(target_concept_dict)}! '
-                    f'\nThe linked standard concept: {sc} does '
+                    f'{pformat(target_concept_dict)}'
+                    f'\nThe linked standard concept: {sc_name} does '
                     'not exist in the standard concept set!'
                 )
             # Linked target concepts must be one of the target concept
@@ -315,11 +320,11 @@ class TargetAPIConfig(PyModuleConfig):
             if tc not in valid_target_concepts:
                 raise ValueError(
                     'Invalid link found in target concept config '
-                    f'{pformat(target_concept_dict)}! The value of a '
+                    f'{pformat(target_concept_dict)}\nThe value of a '
                     'linked target concept must point to one of the '
                     'existing target concepts: '
                     f'{pformat(valid_target_concepts)}\n Target '
-                    f'concept {tc} does not exist'
+                    f'concept {tc} does not exist.'
                 )
 
     def _validate_endpoints(self):
