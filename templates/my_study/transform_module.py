@@ -23,7 +23,7 @@ def transform_function(mapped_df_dict):
     Return a dict that looks like this:
 
     {
-        'default': all_merged_data_df
+        DEFAULT_KEY: all_merged_data_df
     }
 
     If not possible to merge all DataFrames into a single DataFrame then
@@ -31,10 +31,10 @@ def transform_function(mapped_df_dict):
 
     {
         '<name of target concept>': df_for_<target_concept>,
-        'default': all_merged_data_df
+        DEFAULT_KEY: all_merged_data_df
     }
 
-    Target concept instances will be built from the default DataFrame, unless
+    Target concept instances will be built from the default DataFrame unless
     another DataFrame is explicitly provided via a key, value pair in the
     output dict. They key must match the name of an existing target concept.
     The value will be the DataFrame to use when building instances of the

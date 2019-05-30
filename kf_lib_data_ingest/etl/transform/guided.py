@@ -36,7 +36,6 @@ class GuidedTransformStage(TransformStage):
         super().__init__(*args, **kwargs)
         self.transform_func_dir = os.path.join(self.stage_cache_dir,
                                                'transform_function_output')
-        os.makedirs(self.transform_func_dir, exist_ok=True)
 
     def _write_output(self, output):
         """
@@ -49,6 +48,9 @@ class GuidedTransformStage(TransformStage):
         """
         self.logger.info(f'Writing intermediate data - output of user defined'
                          f' transform func to {self.transform_func_dir}')
+
+        os.makedirs(self.transform_func_dir, exist_ok=True)
+
         for key, df in self.transform_func_output.items():
             fp = os.path.join(self.transform_func_dir, key + '.tsv')
             df.to_csv(fp, sep='\t', index=True)
@@ -116,42 +118,50 @@ class GuidedTransformStage(TransformStage):
         This:
 
         {
-            'participant': participant_df
+            'diagnosis': diagnosis_df
             'default': merged_df
         }
 
-        where participant_df looks like:
+        where diagnosis_df looks like:
 
-        |CONCEPT.PARTICIPANT.UNIQUE_KEY | CONCEPT.PARTICIPANT.GENDER|
-        |-------------------------------|---------------------------|
-        |        P1                     |            Female         |
-        |        P2                     |            Male           |
+        | DIAGNOSIS.UNIQUE_KEY | PARTICIPANT.UNIQUE_KEY | DIAGNOSIS.EVENT_AGE_DAYS | DIAGNOSIS.NAME  | # noqa E501
+        |----------------------|------------------------|--------------------------|-----------------| # noqa E501
+        |    P1-CDH-400        |             P1         |         400              |     CDH         | # noqa E501
+        |    P2-CNS-500        |             P2         |         500              |     CNS         | # noqa E501
 
         and merged_df looks like:
 
-        | CONCEPT.BIOSPECIMEN.UNIQUE_KEY|  CONCEPT.BIOSPECIMEN.ANALYTE  |
-        |-------------------------------|-------------------------------|
-        |            B1                 |            DNA                |
-        |            B2                 |            RNA                |
+        |     BIOSPECIMEN.UNIQUE_KEY    |  BIOSPECIMEN.ANALYTE  |  PARTICIPANT.UNIQUE_KEY | ... | # noqa E501
+        |-------------------------------|-----------------------|-------------------------|-----| # noqa E501
+        |            B1                 |            DNA        |           P1            | ... | # noqa E501
+        |            B2                 |            RNA        |           P2            | ... | # noqa E501
 
         Turns into:
 
         {
-            'participant': [
+            'diagnosis': [
                 {
-                    'id': 'P1',
+                    'id': 'P1-CDH-400',
                     'properties': {
-                        'gender': 'Female',
+                         'age_at_event_days': 400,
+                         'source_text': 'CDH',
                          ...
+                    },
+                    links: {
+                        'participant_id': 'P1'
                     }
                 },
                 {
-                    'id': 'P2',
+                    'id': 'P2-CNS-500',
                     'properties': {
-                        'gender': 'Male'
+                         'age_at_event_days': 500,
+                         'source_text': 'CNS',
                          ...
+                    },
+                    links: {
+                        'participant_id': 'P2'
                     }
-                }
+                },
             ],
             'biospecimen': [
                 {
@@ -159,6 +169,9 @@ class GuidedTransformStage(TransformStage):
                     'properties': {
                         'analyte_type': DNA
                          ...
+                    },
+                    links: {
+                        'participant_id': 'P1'
                     }
                 },
                 {
@@ -166,9 +179,13 @@ class GuidedTransformStage(TransformStage):
                     'properties': {
                         'analyte_type': RNA
                          ...
+                    },
+                    links: {
+                        'participant_id': 'P2'
                     }
                 }
-            ]
+            ],
+            ...
         }
 
         :param df_dict: the output of the user transform function after

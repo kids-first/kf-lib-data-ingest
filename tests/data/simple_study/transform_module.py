@@ -15,6 +15,7 @@ from kf_lib_data_ingest.common.pandas_utils import (
     merge_wo_duplicates
 )
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
+from kf_lib_data_ingest.config import DEFAULT_KEY
 
 
 def transform_function(mapped_df_dict):
@@ -24,4 +25,6 @@ def transform_function(mapped_df_dict):
         mapped_df_dict.items()
     }
 
-    return dfs['extract_config.py']
+    return {
+        DEFAULT_KEY: dfs['extract_config.py']
+    }
