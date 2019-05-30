@@ -6,16 +6,24 @@ mapped source data
 """
 import os
 from collections import defaultdict
+from pprint import pformat
 
 import pandas
 
+from kf_lib_data_ingest.config import DEFAULT_KEY
+from kf_lib_data_ingest.etl.configuration.base_config import (
+    ConfigValidationError
+)
 from kf_lib_data_ingest.common.concept_schema import (
     UNIQUE_ID_ATTR,
     concept_property_split,
     str_to_CONCEPT
 )
 from kf_lib_data_ingest.common.misc import clean_up_df
-from kf_lib_data_ingest.common.type_safety import assert_safe_type
+from kf_lib_data_ingest.common.type_safety import (
+    assert_safe_type,
+    assert_all_safe_type
+)
 from kf_lib_data_ingest.etl.configuration.transform_module import (
     TransformModule
 )
@@ -26,6 +34,9 @@ class GuidedTransformStage(TransformStage):
     def __init__(self, transform_function_path, *args, **kwargs):
         self.transform_module = TransformModule(transform_function_path)
         super().__init__(*args, **kwargs)
+        self.transform_func_dir = os.path.join(self.stage_cache_dir,
+                                               'transform_function_output')
+        os.makedirs(self.transform_func_dir, exist_ok=True)
 
     def _write_output(self, output):
         """
@@ -36,12 +47,11 @@ class GuidedTransformStage(TransformStage):
         :param output: See TransformStage._write_output
         :type output: dict
         """
-        tsv_dir = os.path.join(self.stage_cache_dir, 'tsv')
-        os.makedirs(tsv_dir, exist_ok=True)
-        fp = os.path.join(tsv_dir, 'transform_func_df.tsv')
         self.logger.info(f'Writing intermediate data - output of user defined'
-                         f' transform func to {fp}')
-        self.transform_func_df.to_csv(fp, sep='\t', index=True)
+                         f' transform func to {self.transform_func_dir}')
+        for key, df in self.transform_func_output.items():
+            fp = os.path.join(self.transform_func_dir, key + '.tsv')
+            df.to_csv(fp, sep='\t', index=True)
 
         super()._write_output(output)
 
@@ -66,27 +76,63 @@ class GuidedTransformStage(TransformStage):
 
         # Apply user supplied transform function
         transform_funct = self.transform_module.transform_function
-        merged_df = transform_funct(df_dict)
+        merged_df_dict = transform_funct(df_dict)
 
         # Validation of transform function output
-        assert_safe_type(merged_df, pandas.DataFrame)
+        assert_safe_type(merged_df_dict, dict)
+        assert_all_safe_type(merged_df_dict.keys(), str)
+        assert_all_safe_type(merged_df_dict.values(), pandas.DataFrame)
 
-        return merged_df
+        valid_keys = set(self.target_api_config.target_concepts.keys())
+        valid_keys.add(DEFAULT_KEY)
+        for key, df in merged_df_dict.items():
+            if key not in valid_keys:
+                raise ConfigValidationError(
+                    f'Invalid dict key "{key}" found in transform function '
+                    f'output! A Key must be one of:\n {pformat(valid_keys)} '
+                    f'\nCheck your transform module: '
+                    f'{self.transform_module.config_filepath}'
+                )
 
-    def _standard_to_target(self, all_data_df):
+        return merged_df_dict
+
+    def _standard_to_target(self, df_dict):
         """
-        Convert a DataFrame containing all of the mapped source data into a
-        dict of lists of dicts. The list of dicts represent lists of target
-        concept instances.
+        For each DataFrame in df_dict, convert the DataFrame containing all of
+        the mapped source data into a dict of lists of dicts. The list of dicts
+        represent lists of target concept instances.
+
+        When building instances of a particular target concept type, first
+        check to see whether an explicit key for that target concept exists.
+        If it does, then build the target instances for this target concept
+        using the value for that key, which will be a DataFrame.
+
+        Otherwise, use the DataFrame stored in the value for the default key.
+        See kf_lib_data_ingest.config.DEFAULT_KEY for the name of the default
+        key.
 
         For example,
 
         This:
 
-        |CONCEPT.PARTICIPANT.UNIQUE_KEY | CONCEPT.PARTICIPANT.GENDER| CONCEPT.BIOSPECIMEN.UNIQUE_KEY| # noqa E501
-        |-------------------------------|---------------------------|-------------------------------| # noqa E501
-        |        P1                     |            Female         |            B1                 | # noqa E501
-        |        P2                     |            Male           |            B2                 | # noqa E501
+        {
+            'participant': participant_df
+            'default': merged_df
+        }
+
+        where participant_df looks like:
+
+        |CONCEPT.PARTICIPANT.UNIQUE_KEY | CONCEPT.PARTICIPANT.GENDER|
+        |-------------------------------|---------------------------|
+        |        P1                     |            Female         |
+        |        P2                     |            Male           |
+
+        and merged_df looks like:
+
+        | CONCEPT.BIOSPECIMEN.UNIQUE_KEY|  CONCEPT.BIOSPECIMEN.ANALYTE  |
+        |-------------------------------|-------------------------------|
+        |            B1                 |            DNA                |
+        |            B2                 |            RNA                |
 
         Turns into:
 
@@ -111,21 +157,23 @@ class GuidedTransformStage(TransformStage):
                 {
                     'id': 'B1',
                     'properties': {
+                        'analyte_type': DNA
                          ...
                     }
                 },
                 {
                     'id': 'B2',
                     'properties': {
+                        'analyte_type': RNA
                          ...
                     }
                 }
             ]
         }
 
-        :param all_data_df: the output of the user transform function after
+        :param df_dict: the output of the user transform function after
         unique keys have been inserted
-        :type all_data_df: pandas.DataFrame
+        :type df_dict: a dict of pandas.DataFrames
         :returns target_instances: dict (keyed by target concept) of lists
         of dicts (target concept instances)
         """
@@ -135,6 +183,23 @@ class GuidedTransformStage(TransformStage):
         target_instances = defaultdict(list)
         for (target_concept,
              config) in self.target_api_config.target_concepts.items():
+
+            # Get the df containing data for this target concept
+            all_data_df = df_dict.get(target_concept)
+            if all_data_df is not None:
+                self.logger.info(f'Using {target_concept} DataFrame')
+            else:
+                all_data_df = df_dict.get(DEFAULT_KEY)
+
+            if all_data_df is not None:
+                self.logger.info(f'Using {DEFAULT_KEY} DataFrame')
+            else:
+                self.logger.warning(
+                    f'Cannot build target concept instances for '
+                    f'{target_concept}! No DataFrame found in transform '
+                    'function output dict.'
+                )
+                continue
 
             # Unique key for the target concept must exist
             standard_concept = config.get('standard_concept')
@@ -190,21 +255,23 @@ class GuidedTransformStage(TransformStage):
         """
 
         # Apply user transform func
-        self.transform_func_df = self._apply_transform_funct(data_dict)
+        self.transform_func_output = self._apply_transform_funct(data_dict)
 
-        self.transform_func_df = clean_up_df(self.transform_func_df)
+        for key, df in self.transform_func_output.items():
+            # Clean up df
+            self.transform_func_output[key] = clean_up_df(df)
 
-        # Insert unique key columns
-        self._insert_unique_keys(
-            {
-                self.transform_module.config_filepath: (
-                    'Transform Module Output: all_data_df',
-                    self.transform_func_df)
-            }
-        )
+            # Insert unique key columns
+            self._insert_unique_keys(
+                {
+                    os.path.join(self.transform_func_dir, key + '.tsv'): (
+                        f'Transform Module Output: {key} df',
+                        self.transform_func_output[key])
+                }
+            )
 
         # Transform from standard concepts to target concepts
-        target_instances = self._standard_to_target(self.transform_func_df)
+        target_instances = self._standard_to_target(self.transform_func_output)
 
         return target_instances
 
@@ -220,31 +287,34 @@ class GuidedTransformStage(TransformStage):
             lambda: defaultdict(set)
         )
 
-        df = self.transform_func_df
+        for df_name, df in self.transform_func_output.items():
+            self.logger.info(
+                f'Doing concept discovery for {df_name} DataFrame in '
+                'transform function output'
+            )
+            for key in df.columns:
+                sk = sources[key]
+                for val in df[key]:
+                    # sources entry
+                    sk[val] = True
 
-        for key in df.columns:
-            sk = sources[key]
-            for val in df[key]:
-                # sources entry
-                sk[val] = True
+            for _, row in df.iterrows():
+                for keyA in df.columns:
+                    vA = row[keyA]
+                    for keyB in df.columns:
+                        if keyB != keyA:
+                            vB = row[keyB]
+                            if vA and vB:
+                                # links entry
+                                links[keyA + '::' + keyB][vA].add(vB)
 
-        for _, row in df.iterrows():
-            for keyA in df.columns:
-                vA = row[keyA]
-                for keyB in df.columns:
-                    if keyB != keyA:
-                        vB = row[keyB]
-                        if vA and vB:
-                            # links entry
-                            links[keyA + '::' + keyB][vA].add(vB)
-
-                            # values entry
-                            CA, attrA = concept_property_split[keyA]
-                            CB, attrB = concept_property_split[keyB]
-                            if attrA == UNIQUE_ID_ATTR:
-                                CA = str_to_CONCEPT[CA]
-                                CB = str_to_CONCEPT[CB]
-                                if CA == CB:
-                                    values[keyB][vB].add(vA)
+                                # values entry
+                                CA, attrA = concept_property_split[keyA]
+                                CB, attrB = concept_property_split[keyB]
+                                if attrA == UNIQUE_ID_ATTR:
+                                    CA = str_to_CONCEPT[CA]
+                                    CB = str_to_CONCEPT[CB]
+                                    if CA == CB:
+                                        values[keyB][vB].add(vA)
 
         return {'sources': sources, 'links': links, 'values': values}
