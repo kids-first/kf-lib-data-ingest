@@ -4,6 +4,7 @@ import pytest
 import pandas
 import requests_mock
 
+from kf_lib_data_ingest.config import DEFAULT_KEY
 from kf_lib_data_ingest.common import constants
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
 from kf_lib_data_ingest.common.misc import (
@@ -37,7 +38,11 @@ def target_instances(guided_transform_stage):
     }
     all_data_df = pandas.merge(dfs['participant'], dfs['biospecimen'],
                                on=CONCEPT.PARTICIPANT.UNIQUE_KEY)
-    return guided_transform_stage._standard_to_target(all_data_df)
+    return guided_transform_stage._standard_to_target(
+        {
+            DEFAULT_KEY: all_data_df
+        }
+    )
 
 
 @pytest.fixture(scope='function')

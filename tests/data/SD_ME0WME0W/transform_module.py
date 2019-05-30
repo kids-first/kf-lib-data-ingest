@@ -12,6 +12,7 @@ import os
 # Use these merge funcs, not pandas.merge
 from kf_lib_data_ingest.common.pandas_utils import outer_merge
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
+from kf_lib_data_ingest.config import DEFAULT_KEY
 
 
 def transform_function(mapped_df_dict):
@@ -29,4 +30,4 @@ def transform_function(mapped_df_dict):
                          on=CONCEPT.PARTICIPANT.ID,
                          with_merge_detail_dfs=False)
 
-    return merged
+    return {DEFAULT_KEY: merged}
