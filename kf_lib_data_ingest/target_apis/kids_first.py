@@ -83,6 +83,27 @@ target_concepts = {
         },
         'endpoint': '/participants'
     },
+    'family_relationship': {
+        'standard_concept': CONCEPT.FAMILY_RELATIONSHIP,
+        'links': [
+            {
+                'target_attribute': 'participant1_id',
+                'standard_concept': CONCEPT.FAMILY_RELATIONSHIP.PERSON1,
+                'target_concept': 'participant'
+            },
+            {
+                'target_attribute': 'participant2_id',
+                'standard_concept': CONCEPT.FAMILY_RELATIONSHIP.PERSON2,
+                'target_concept': 'participant'
+            },
+        ],
+        'properties': {
+            'external_id': CONCEPT.FAMILY_RELATIONSHIP.UNIQUE_KEY,
+            'participant1_to_participant2_relation':
+                CONCEPT.FAMILY_RELATIONSHIP.RELATION_FROM_1_TO_2
+        },
+        'endpoint': '/family-relationships'
+    },
     'diagnosis': {
         'standard_concept': CONCEPT.DIAGNOSIS,
         'links': [
