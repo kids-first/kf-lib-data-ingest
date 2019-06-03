@@ -52,7 +52,7 @@ def read_json(filepath, default=None, use_jsonpickle=True):
     with open(filepath, 'r') as json_file:
         if use_jsonpickle:
             json_str = json_file.read()
-            return jsonpickle.decode(json_str)
+            return jsonpickle.decode(json_str, keys=True)
         else:
             return json.load(json_file)
 
@@ -75,7 +75,7 @@ def write_json(data, filepath, use_jsonpickle=True, **kwargs):
         kwargs['sort_keys'] = True
     with open(filepath, 'w') as json_file:
         if use_jsonpickle:
-            data = json.loads(jsonpickle.encode(data))
+            data = json.loads(jsonpickle.encode(data, keys=True))
         json.dump(data, json_file, **kwargs)
 
 
