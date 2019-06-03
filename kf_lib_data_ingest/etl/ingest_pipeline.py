@@ -240,8 +240,12 @@ class DataIngestPipeline(object):
                             'Loading previously cached output from '
                             f'{type(previous_stage).__name__}'
                         )
+                        # Read cached output and concept counts
+                        self.stages[previous_stage.stage_type] = previous_stage
                         output = previous_stage.read_output()
+                        previous_stage.read_concept_counts()
                         previous_stage = None
+
                     output = stage.run(output)
 
                 # Standard stage output validation
@@ -317,8 +321,7 @@ class DataIngestPipeline(object):
 
         # Compare stage counts to make sure we didn't lose values between
         # Extract and Transform
-        if ((stage.stage_type == TransformStage) and
-                (ExtractStage in self.stages)):
+        if stage.stage_type == TransformStage:
             extract_disc = self.stages[ExtractStage].concept_discovery_dict
             if extract_disc and extract_disc.get('sources'):
                 passed, messages = stage_analyses.compare_counts(
