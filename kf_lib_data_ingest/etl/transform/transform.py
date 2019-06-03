@@ -19,7 +19,7 @@ from kf_lib_data_ingest.common.concept_schema import \
     unique_key_composition as DEFAULT_KEY_COMP
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
 from kf_lib_data_ingest.common.misc import (
-    numeric_to_str,
+    convert_to_downcasted_str,
     read_json,
     write_json
 )
@@ -509,9 +509,11 @@ class TransformStage(IngestStage):
                     # Optional cols whose values are null will be converted
                     # to constants.COMMON.NOT_REPORTED
                     values.append(
-                        numeric_to_str(row[c],
-                                       replace_na=True,
-                                       na=constants.COMMON.NOT_REPORTED)
+                        convert_to_downcasted_str(
+                            row[c],
+                            replace_na=True,
+                            na=constants.COMMON.NOT_REPORTED
+                        )
                     )
 
                 return VALUE_DELIMITER.join(values)

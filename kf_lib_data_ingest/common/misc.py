@@ -1,3 +1,4 @@
+import ast
 import datetime
 import importlib
 import inspect
@@ -87,7 +88,7 @@ def iterate_pairwise(iterable):
     return zip(a, b)
 
 
-def numeric_to_str(val, replace_na=False, na=None):
+def convert_to_downcasted_str(val, replace_na=False, na=None):
     """
     Converts values to stripped strings while collapsing downcastable floats.
 
@@ -116,6 +117,16 @@ def numeric_to_str(val, replace_na=False, na=None):
 
     :return: new representation of `val`
     """
+    if isinstance(val, list):
+        # make hashable without changing style or losing comparability
+        return str(sorted(
+            convert_to_downcasted_str(v) for v in val
+        ))
+    if isinstance(val, dict):
+        # make hashable without changing style or losing comparability
+        return str(dict(sorted(
+            (k, convert_to_downcasted_str(v)) for k, v in val.items()
+        )))
     if isnull(val):
         if replace_na:
             return na
@@ -150,6 +161,34 @@ def numeric_to_str(val, replace_na=False, na=None):
     return val
 
 
+def str_to_obj(var):
+    """
+    Convert a string that looks like a list, dict, or tuple back into its
+    native object form.
+    """
+    if not isinstance(var, str):
+        return var
+    if var.startswith(("[", "{", "(")):
+        try:
+            return ast.literal_eval(var)
+        except Exception:
+            pass
+    return var
+
+
+def recover_containers_from_df_strings(df):
+    """
+    Undo one bit of necessary madness imposed by clean_up_df where lists and
+    dicts (both unhashable) are sorted and then converted to strings for
+    safekeeping. This finds strings that look like lists, dicts, or tuples and
+    converts them back to their native forms.
+
+    :param df: a pandas DataFrame
+    :return: Dataframe with object-like strings converted to native objects
+    """
+    return df.applymap(str_to_obj)
+
+
 def clean_up_df(df):
     """
     We can't universally control which null type will get used by a data
@@ -169,7 +208,7 @@ def clean_up_df(df):
     """
 
     return df.applymap(
-        lambda x: numeric_to_str(x, replace_na=True, na=None)
+        lambda x: convert_to_downcasted_str(x, replace_na=True, na=None)
     )
 
 
