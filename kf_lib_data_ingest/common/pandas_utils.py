@@ -247,6 +247,15 @@ def merge_wo_duplicates(left, right, left_name=None, right_name=None,
     left_name = left_name or 'Left'
     right_name = right_name or 'Right'
 
+    err = []
+    oncol = kwargs['on']
+    if oncol not in left.columns:
+        err.append(f"'{oncol}' not found in {left_name}: {left.columns}")
+    if oncol not in right.columns:
+        err.append(f"'{oncol}' not found in {right_name}: {right.columns}")
+    if err:
+        raise Exception('\n'.join(err))
+
     def resolve_duplicates(df, suffixes):
         l_suffix = suffixes[0]
         r_suffix = suffixes[1]
