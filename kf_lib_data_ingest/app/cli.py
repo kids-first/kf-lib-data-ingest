@@ -11,7 +11,8 @@ from kf_lib_data_ingest.app import settings
 from kf_lib_data_ingest.config import DEFAULT_LOG_LEVEL, DEFAULT_TARGET_URL
 from kf_lib_data_ingest.etl.ingest_pipeline import (
     DataIngestPipeline,
-    DEFAULT_STAGES_TO_RUN_STR
+    DEFAULT_STAGES_TO_RUN_STR,
+    VALID_STAGES_TO_RUN_STRS
 )
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
@@ -59,12 +60,13 @@ def common_args_options(func):
     func = click.option(
         '--stages', 'stages_to_run_str',
         default=DEFAULT_STAGES_TO_RUN_STR, show_default=True,
+        type=click.Choice(VALID_STAGES_TO_RUN_STRS),
         help=(
             'A string representing the subset of ingest stages that will be '
-            'executed by the pipeline. This string can be any '
-            f'combination of the characters in '
-            f'"{DEFAULT_STAGES_TO_RUN_STR}". Order does not matter, as it is '
-            'enforced by the pipeline.'
+            'executed by the pipeline. Each char in the string represents a '
+            'stage in the pipeline. Chars must follow the order of stage '
+            'execution set by the pipeline and contain no gaps in the '
+            'stage sequence.'
         ))(func)
     return func
 

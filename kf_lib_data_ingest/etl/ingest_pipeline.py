@@ -30,8 +30,24 @@ CODE_TO_STAGE_MAP = {
     't': TransformStage,
     'l': LoadStage
 }
+
+
+def _valid_stages_to_run_strs():
+    """
+    Returns all substrings of the string representing the full stage list.
+    This represents the valid (gapless) stage request strings.
+    """
+    valid_run_strs = []
+    for i in range(len(DEFAULT_STAGES_TO_RUN_STR)):
+        s = DEFAULT_STAGES_TO_RUN_STR[i:]
+        for j in range(len(s)):
+            valid_run_strs.append(s[0:j+1])
+    return valid_run_strs
+
+
 # Char sequence representing the full ingest pipeline: e.g. 'etl'
 DEFAULT_STAGES_TO_RUN_STR = ''.join(list(CODE_TO_STAGE_MAP.keys()))
+VALID_STAGES_TO_RUN_STRS = _valid_stages_to_run_strs()
 
 
 class DataIngestPipeline(object):
@@ -144,17 +160,19 @@ class DataIngestPipeline(object):
         Validate `stages_to_run_str`, a char sequence where each char
         represents an ingest stage to run during pipeline execution
 
-        Each char must be in the set of valid chars defined by the keys of
-        CODE_TO_STAGE_MAP.
+        The stages_to_run_str is valid if the sequence of chars follows
+        the sequence of the stages in the pipeline and if there are no gaps
+        in the stage/char sequence.
 
-        Order of chars does not matter because the pipeline always executes
-        stages (_iterate_stages) in the correct order.
+        Some valid values are:
+            - e, et, etl, t, tl, l
+
+        Some invalid values are:
+            - el, lt
         """
-        valid_char_set = set(CODE_TO_STAGE_MAP.keys())
-        assert all([c in valid_char_set
-                    for c in stages_to_run_str]), (
+        assert stages_to_run_str in set(VALID_STAGES_TO_RUN_STRS), (
             f'Invalid value for stages to run option: "{stages_to_run_str}"! '
-            f'Each char must exist in the valid set: {valid_char_set}'
+            f'Must be one of the valid strings: {VALID_STAGES_TO_RUN_STRS} '
         )
 
     def _iterate_stages(self):
@@ -221,32 +239,31 @@ class DataIngestPipeline(object):
         # Top level exception handler
         # Catch exception, log it to file and console, and exit
         try:
-            # Iterate over stages and execute them
+            # Iterate over all stages in the ingest pipeline
             output = None
-            previous_stage = None
             for stage in self._iterate_stages():
-                # Only run stages that were specified in stages_to_run
-                if stage.stage_type not in self.stages_to_run:
-                    previous_stage = stage
-                    continue
+                # No more stages left in list of user specified stages
+                if not self.stages_to_run:
+                    break
 
                 self.stages[stage.stage_type] = stage
 
-                if isinstance(stage, ExtractStage):
-                    output = stage.run()  # First stage gets no input
-                else:
-                    if previous_stage:
-                        self.logger.info(
-                            'Loading previously cached output from '
-                            f'{type(previous_stage).__name__}'
-                        )
-                        # Read cached output and concept counts
-                        self.stages[previous_stage.stage_type] = previous_stage
-                        output = previous_stage.read_output()
-                        previous_stage.read_concept_counts()
-                        previous_stage = None
+                # Execute/run stage
+                if stage.stage_type in self.stages_to_run:
+                    self.stages_to_run.remove(stage.stage_type)
 
-                    output = stage.run(output)
+                    if isinstance(stage, ExtractStage):
+                        output = stage.run()  # First stage gets no input
+                    else:
+                        output = stage.run(output)
+                # Load cached output and concept counts
+                else:
+                    self.logger.info(
+                        'Loading previously cached output and concept counts '
+                        f'from {type(stage).__name__}'
+                    )
+                    output = stage.read_output()
+                    stage.read_concept_counts()
 
                 # Standard stage output validation
                 if stage.concept_discovery_dict:

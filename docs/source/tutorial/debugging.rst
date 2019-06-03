@@ -9,24 +9,21 @@ As you develop your ingest package, you will likely run into scenarios where
 you do not want to run the entire ingest pipeline.
 
 The CLI allows you to run a subset of the ingest stages to make development
-easier. The ``--stages`` option takes any combination of the ingest stage
-codes, ``e, t, l``.
+easier. The ``--stages`` option takes any subsequence of the ingest
+stage-code/char sequence: ``etl``. A subsequence must not contain gaps.
 
 For example:
 
 .. code-block:: text
 
   $ kidsfirst test my_study --stages=e  # will only run the extract stage
+  $ kidsfirst test my_study --stages=t  # will only run the transform stage
   $ kidsfirst test my_study --stages=et # will run extract then transform
-  $ kidsfirst test my_study --stages=te # will run extract then transform
-  $ kidsfirst test my_study --stages=l  # will only run the load stage
+  $ kidsfirst test my_study --stages=te # is out of order and invalid
+  $ kidsfirst test my_study --stages=el # has a gap and is invalid
 
-There are a few important things to note here:
-
-- Order of the stage codes does not matter because the ingest pipeline will
-  always execute the stages in the right order (extract, transform, load).
-- When running an ingest stage via the ``--stages`` option, the output from
-  the previous stage must exist, otherwise an error will occur.
+Note that when running an ingest stage via the ``--stages`` option,
+the output from the previous stage must exist, otherwise an error will occur.
 
 Stage Outputs
 =============

@@ -1,6 +1,5 @@
 import os
 import shutil
-import itertools
 
 import pytest
 from click.testing import CliRunner
@@ -10,7 +9,8 @@ from kf_lib_data_ingest.app import cli
 from conftest import TEST_DATA_DIR, COMMAND_LINE_ERROR_CODE
 from kf_lib_data_ingest.etl.ingest_pipeline import (
     CODE_TO_STAGE_MAP,
-    DEFAULT_STAGES_TO_RUN_STR
+    DEFAULT_STAGES_TO_RUN_STR,
+    VALID_STAGES_TO_RUN_STRS
 )
 from conftest import delete_dir
 
@@ -18,13 +18,6 @@ TEST_STUDY_CONFIG = os.path.join(TEST_DATA_DIR, 'test_study',
                                  'ingest_package_config.py')
 SIMPLE_STUDY_CONFIG = os.path.join(TEST_DATA_DIR, 'simple_study',
                                    'ingest_package_config.py')
-
-# all permutations of stages
-STAGE_RUN_STRS = []
-for i in range(1, len(DEFAULT_STAGES_TO_RUN_STR)+1):
-    STAGE_RUN_STRS += map(''.join, (
-        itertools.permutations(DEFAULT_STAGES_TO_RUN_STR, i)
-    ))
 
 
 @pytest.fixture(scope='session')
@@ -38,10 +31,13 @@ def simple_study_cfg():
 
 
 @pytest.mark.parametrize('cli_cmd', [cli.test])
-@pytest.mark.parametrize('stages_to_run_str',
-                         STAGE_RUN_STRS
-                         )
-def test_ingest_subset_stages(simple_study_cfg, cli_cmd, stages_to_run_str):
+@pytest.mark.parametrize(
+    'stages_to_run_str',
+    [DEFAULT_STAGES_TO_RUN_STR] +  # must run all stages first
+    VALID_STAGES_TO_RUN_STRS
+)
+def test_valid_ingest_subset_stages(simple_study_cfg, cli_cmd,
+                                    stages_to_run_str):
     runner = CliRunner()
     result = runner.invoke(cli_cmd, [simple_study_cfg,
                                      '--stages', stages_to_run_str])
@@ -66,10 +62,28 @@ def test_ingest_subset_stages(simple_study_cfg, cli_cmd, stages_to_run_str):
                     DEFAULT_STAGES_TO_RUN_STR[idx] not in stages_to_run_str):
                 prev_name = pipeline_stage_names.get(
                     DEFAULT_STAGES_TO_RUN_STR[idx])
-                assert (f'Loading previously cached output from '
-                        f'{prev_name}' in result.output) == should_exist
+                assert (f'Loading previously cached output and concept counts '
+                        f'from {prev_name}' in result.output) == should_exist
     check_logs(stages_to_run_str, True)
     check_logs(CODE_TO_STAGE_MAP.keys() - list(stages_to_run_str), False)
+
+
+@pytest.mark.parametrize('cli_cmd', [cli.test])
+@pytest.mark.parametrize(
+    'stages_to_run_str',
+    ['foo'] +  # invalid stage codes
+    [s[0]+s[-1] for s in VALID_STAGES_TO_RUN_STRS  # gaps in stage sequence
+     if len(s) >= 3] +
+    [s[::-1] for s in VALID_STAGES_TO_RUN_STRS
+     if len(s) > 1]  # out of order stages
+)
+def test_invalid_ingest_subset_stages(simple_study_cfg, cli_cmd,
+                                      stages_to_run_str):
+    runner = CliRunner()
+    result = runner.invoke(cli_cmd, [simple_study_cfg,
+                                     '--stages', stages_to_run_str])
+    assert result.exit_code == COMMAND_LINE_ERROR_CODE
+    assert 'Invalid value for "--stages"' in result.output
 
 
 def test_ingest_cmd_missing_required_args():
