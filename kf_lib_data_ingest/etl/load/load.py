@@ -13,7 +13,7 @@ from requests import RequestException
 from sqlite3worker import Sqlite3Worker, sqlite3worker
 
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
-from kf_lib_data_ingest.common.misc import multisplit
+from kf_lib_data_ingest.common.misc import multisplit, str_to_obj
 from kf_lib_data_ingest.common.stage import IngestStage
 from kf_lib_data_ingest.network.utils import requests_retry_session
 from kf_lib_data_ingest.config import DEFAULT_ID_CACHE_FILENAME
@@ -309,8 +309,11 @@ class LoadStage(IngestStage):
             or self._get_target_id(entity_type, entity_id)
         )
 
+        # convert list/dict-like strings to their native forms and
         # don't send null attributes
-        body = {k: v for k, v in body.items() if not pandas.isnull(v)}
+        body = {
+            k: str_to_obj(v) for k, v in body.items() if not pandas.isnull(v)
+        }
 
         # link cached foreign keys
         target_concepts = self.target_api_config.target_concepts
