@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Load Stage &mdash; Kids First Data Ingest Libraries  documentation</title>
+  <title>Debugging and Developing &mdash; Kids First Data Ingest Libraries  documentation</title>
   
 
   
@@ -36,8 +36,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Developers" href="../developer.html" />
-    <link rel="prev" title="Transform Stage" href="transform.html" />
+    <link rel="next" title="Transform Stage" href="transform.html" />
+    <link rel="prev" title="Test Your Ingest Package" href="package_testing.html" />
     <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
  
 </head>
@@ -100,12 +100,14 @@
 <li class="toctree-l2"><a class="reference internal" href="project_setup.html">Project Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extract.html">Extract Stage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="package_testing.html">Test Your Ingest Package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="debugging.html">Debugging and Developing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="transform.html">Transform Stage</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Load Stage</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#under-construction">Under Construction</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Debugging and Developing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#run-subsets-of-the-pipeline">Run Subsets of the Pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#stage-outputs">Stage Outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ingest-log">Ingest Log</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="transform.html">Transform Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="load.html">Load Stage</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../developer.html">Developers</a></li>
@@ -158,13 +160,13 @@
         
           <li><a href="index.html">Tutorial</a> &raquo;</li>
         
-      <li>Load Stage</li>
+      <li>Debugging and Developing</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/tutorial/load.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/tutorial/debugging.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -177,12 +179,46 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="load-stage">
-<span id="tutorial-load-stage"></span><h1>Load Stage<a class="headerlink" href="#load-stage" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="under-construction">
-<h2>Under Construction<a class="headerlink" href="#under-construction" title="Permalink to this headline">¶</a></h2>
-<a class="reference internal image-reference" href="../_images/construction.svg"><img alt="Under Construction" height="150px" src="../_images/construction.svg" width="150px" /></a>
-<p>But coming soon …</p>
+  <div class="section" id="debugging-and-developing">
+<h1>Debugging and Developing<a class="headerlink" href="#debugging-and-developing" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="run-subsets-of-the-pipeline">
+<h2>Run Subsets of the Pipeline<a class="headerlink" href="#run-subsets-of-the-pipeline" title="Permalink to this headline">¶</a></h2>
+<p>As you develop your ingest package, you will likely run into scenarios where
+you do not want to run the entire ingest pipeline.</p>
+<p>The CLI allows you to run a subset of the ingest stages to make development
+easier. The <code class="docutils literal notranslate"><span class="pre">--stages</span></code> option takes any subsequence of the ingest
+stage-code/char sequence: <code class="docutils literal notranslate"><span class="pre">etl</span></code>. A subsequence must not contain gaps.</p>
+<p>For example:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ kidsfirst test my_study --stages=e  # will only run the extract stage
+$ kidsfirst test my_study --stages=t  # will only run the transform stage
+$ kidsfirst test my_study --stages=et # will run extract then transform
+$ kidsfirst test my_study --stages=te # is out of order and invalid
+$ kidsfirst test my_study --stages=el # has a gap and is invalid
+</pre></div>
+</div>
+<p>Note that when running an ingest stage via the <code class="docutils literal notranslate"><span class="pre">--stages</span></code> option,
+the output from the previous stage must exist, otherwise an error will occur.</p>
+</div>
+<div class="section" id="stage-outputs">
+<h2>Stage Outputs<a class="headerlink" href="#stage-outputs" title="Permalink to this headline">¶</a></h2>
+<p>Every ingest stage has the option to write its output to a directory that
+follows this path pattern:
+<code class="docutils literal notranslate"><span class="pre">&lt;ingest</span> <span class="pre">package</span> <span class="pre">dir&gt;/output/&lt;name</span> <span class="pre">of</span> <span class="pre">stage&gt;</span></code></p>
+</div>
+<div class="section" id="ingest-log">
+<h2>Ingest Log<a class="headerlink" href="#ingest-log" title="Permalink to this headline">¶</a></h2>
+<p>The ingest pipeline logs messages to the console and also writes the same
+messages to a log file. By default the log file is stored at:
+<code class="docutils literal notranslate"><span class="pre">&lt;ingest</span> <span class="pre">package</span> <span class="pre">dir&gt;/logs/ingest.log</span></code></p>
+<p>The output directory for logs can be changed by setting the <code class="docutils literal notranslate"><span class="pre">log_dir</span></code>
+attribute in the ingest package config file.</p>
+<p>The name of the log file can be changed to include the ingest execution
+timestamp by setting the <code class="docutils literal notranslate"><span class="pre">overwrite_log</span></code> attribute to False. The default
+is <code class="docutils literal notranslate"><span class="pre">overwrite_log=True</span></code> which causes the log to be written to a file
+called <code class="docutils literal notranslate"><span class="pre">ingest.log</span></code> that gets overwritten each time the ingest pipeline
+runs. If <code class="docutils literal notranslate"><span class="pre">overwrite_log=False</span></code>, then a new log file will be written each time
+the ingest pipeline runs, and it will follow this naming pattern:
+<code class="docutils literal notranslate"><span class="pre">ingest_&lt;ISO</span> <span class="pre">8601</span> <span class="pre">formatted</span> <span class="pre">timestamp&gt;.log</span></code></p>
 </div>
 </div>
 
@@ -194,10 +230,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../developer.html" class="btn btn-neutral float-right" title="Developers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="transform.html" class="btn btn-neutral float-right" title="Transform Stage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="transform.html" class="btn btn-neutral float-left" title="Transform Stage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="package_testing.html" class="btn btn-neutral float-left" title="Test Your Ingest Package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
