@@ -25,6 +25,30 @@ from kf_lib_data_ingest.etl.transform.auto import AutoTransformStage
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
 from kf_lib_data_ingest.etl.transform.transform import TransformStage
 
+CODE_TO_STAGE_MAP = {
+    'e': ExtractStage,
+    't': TransformStage,
+    'l': LoadStage
+}
+
+
+def _valid_stages_to_run_strs():
+    """
+    Returns all substrings of the string representing the full stage list.
+    This represents the valid (gapless) stage request strings.
+    """
+    valid_run_strs = []
+    for i in range(len(DEFAULT_STAGES_TO_RUN_STR)):
+        s = DEFAULT_STAGES_TO_RUN_STR[i:]
+        for j in range(len(s)):
+            valid_run_strs.append(s[0:j+1])
+    return valid_run_strs
+
+
+# Char sequence representing the full ingest pipeline: e.g. 'etl'
+DEFAULT_STAGES_TO_RUN_STR = ''.join(list(CODE_TO_STAGE_MAP.keys()))
+VALID_STAGES_TO_RUN_STRS = _valid_stages_to_run_strs()
+
 
 class DataIngestPipeline(object):
 
@@ -32,7 +56,8 @@ class DataIngestPipeline(object):
         self, ingest_package_config_path, target_api_config_path,
         auth_configs=None, auto_transform=False, use_async=False,
         target_url=DEFAULT_TARGET_URL, log_level_name=None, log_dir=None,
-        overwrite_log=None, dry_run=False
+        overwrite_log=None, dry_run=False,
+        stages_to_run_str=DEFAULT_STAGES_TO_RUN_STR
     ):
         """
         Setup data ingest pipeline. Create the config object and setup logging
@@ -69,6 +94,9 @@ class DataIngestPipeline(object):
         assert_safe_type(log_dir, None, str)
         assert_safe_type(overwrite_log, None, bool)
         assert_safe_type(dry_run, bool)
+        assert_safe_type(stages_to_run_str, str)
+        stages_to_run_str = stages_to_run_str.lower()
+        self._validate_stages_to_run_str(stages_to_run_str)
 
         self.data_ingest_config = IngestPackageConfig(
             ingest_package_config_path
@@ -84,6 +112,7 @@ class DataIngestPipeline(object):
         self.use_async = use_async
         self.target_url = target_url
         self.dry_run = dry_run
+        self.stages_to_run = {CODE_TO_STAGE_MAP[c] for c in stages_to_run_str}
 
         # Get log params from ingest_package_config
         log_dir = log_dir or self.data_ingest_config.log_dir
@@ -124,6 +153,26 @@ class DataIngestPipeline(object):
 
         self.logger.info(
             f'-- Ingest Params --\n{pformat(kwargs)}'
+        )
+
+    def _validate_stages_to_run_str(self, stages_to_run_str):
+        """
+        Validate `stages_to_run_str`, a char sequence where each char
+        represents an ingest stage to run during pipeline execution
+
+        The stages_to_run_str is valid if the sequence of chars follows
+        the sequence of the stages in the pipeline and if there are no gaps
+        in the stage/char sequence.
+
+        Some valid values are:
+            - e, et, etl, t, tl, l
+
+        Some invalid values are:
+            - el, lt
+        """
+        assert stages_to_run_str in set(VALID_STAGES_TO_RUN_STRS), (
+            f'Invalid value for stages to run option: "{stages_to_run_str}"! '
+            f'Must be one of the valid strings: {VALID_STAGES_TO_RUN_STRS} '
         )
 
     def _iterate_stages(self):
@@ -190,14 +239,31 @@ class DataIngestPipeline(object):
         # Top level exception handler
         # Catch exception, log it to file and console, and exit
         try:
-            # Iterate over stages and execute them
+            # Iterate over all stages in the ingest pipeline
             output = None
             for stage in self._iterate_stages():
+                # No more stages left in list of user specified stages
+                if not self.stages_to_run:
+                    break
+
                 self.stages[stage.stage_type] = stage
-                if isinstance(stage, ExtractStage):
-                    output = stage.run()  # First stage gets no input
+
+                # Execute/run stage
+                if stage.stage_type in self.stages_to_run:
+                    self.stages_to_run.remove(stage.stage_type)
+
+                    if isinstance(stage, ExtractStage):
+                        output = stage.run()  # First stage gets no input
+                    else:
+                        output = stage.run(output)
+                # Load cached output and concept counts
                 else:
-                    output = stage.run(output)
+                    self.logger.info(
+                        'Loading previously cached output and concept counts '
+                        f'from {type(stage).__name__}'
+                    )
+                    output = stage.read_output()
+                    stage.read_concept_counts()
 
                 # Standard stage output validation
                 if stage.concept_discovery_dict:

@@ -3,7 +3,31 @@ import os
 import pytest
 
 from conftest import KIDS_FIRST_CONFIG
+from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
 from kf_lib_data_ingest.etl.load.load import LoadStage
+
+
+@pytest.fixture(scope='function')
+def load_stage(tmpdir):
+    return LoadStage(
+        KIDS_FIRST_CONFIG, 'http://URL_A', [], 'FAKE_STUDY_A',
+        uid_cache_dir=tmpdir, dry_run=True
+    )
+
+
+@pytest.mark.parametrize('run_input',
+                         [
+                             ('foo'),
+                             ({'foo': 'bar'}),
+                             ({'participant': 'foo'}),
+                             ({'participant': ['foo']}),
+                         ])
+def test_invalid_run_parameters(load_stage, caplog, run_input):
+    """
+    Test running transform with invalid run params
+    """
+    with pytest.raises(InvalidIngestStageParameters):
+        load_stage.run(run_input)
 
 
 def test_uid_cache(tmpdir):

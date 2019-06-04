@@ -357,7 +357,33 @@ class LoadStage(IngestStage):
             )
 
     def _validate_run_parameters(self, target_entities):
-        pass  # TODO
+        """
+        Validate the parameters being passed into the _run method. This
+        method gets executed before the body of _run is executed.
+
+        `target_entities` should be a dict of lists, keyed by target concepts
+        defined in the target_api_config. Each list element must be a dict.
+        """
+        try:
+            assert_safe_type(target_entities, dict)
+            assert_all_safe_type(target_entities.keys(), str)
+            assert_all_safe_type(target_entities.values(), list)
+            for instance_list in target_entities.values():
+                assert_all_safe_type(instance_list, dict)
+
+        except TypeError as e:
+            raise InvalidIngestStageParameters from e
+
+        invalid_ents = [ent for ent in target_entities
+                        if ent not in self.target_api_config.target_concepts]
+        if invalid_ents:
+            valid_ents = list(self.target_api_config.target_concepts.keys())
+            raise InvalidIngestStageParameters(
+                f'One or more keys in the _run input dict is invalid: '
+                f'{pformat(invalid_ents)}. A key is valid if is one of the '
+                f'target concepts: {pformat(valid_ents)} '
+                f'specified in {self.target_api_config.config_filepath}'
+            )
 
     def _postrun_concept_discovery(self, run_output):
         pass  # TODO

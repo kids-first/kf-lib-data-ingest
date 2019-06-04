@@ -3,7 +3,7 @@ import os
 import time
 from abc import ABC, abstractmethod
 from functools import wraps
-from kf_lib_data_ingest.common.misc import write_json
+from kf_lib_data_ingest.common.misc import write_json, read_json
 
 
 class IngestStage(ABC):
@@ -157,6 +157,31 @@ class IngestStage(ABC):
             return r
         return wrapper
 
+    def _concept_discovery_filepath(self):
+        """
+        Location of stage run output's discovered counts file
+        """
+        return os.path.join(
+            self.ingest_output_dir,
+            self.stage_type.__name__ + '_concept_discovery.json'
+        )
+
+    def write_concept_counts(self):
+        """
+        Write concept discovery dict to disk
+        """
+        fp = self._concept_discovery_filepath()
+        self.logger.debug(f"Writing discovered counts to {fp}")
+        write_json(self.concept_discovery_dict, fp)
+
+    def read_concept_counts(self):
+        """
+        Read concept discovery dict from disk
+        """
+        fp = self._concept_discovery_filepath()
+        self.logger.debug(f"Reading discovered counts from {fp}")
+        self.concept_discovery_dict = read_json(fp)
+
     @_log_run
     def run(self, *args, **kwargs):
         # Validate run parameters
@@ -181,12 +206,5 @@ class IngestStage(ABC):
                 for k, v in self.concept_discovery_dict.items()
                 if v is not None
             }
-            # write to file
-            out_file = os.path.join(
-                    self.ingest_output_dir,
-                    self.stage_type.__name__ + '_concept_discovery.json'
-                )
-            self.logger.debug(f"Writing discovered counts to {out_file}")
-            write_json(self.concept_discovery_dict, out_file)
-
+            self.write_concept_counts()
         return output
