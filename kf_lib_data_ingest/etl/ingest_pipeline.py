@@ -57,7 +57,8 @@ class DataIngestPipeline(object):
         auth_configs=None, auto_transform=False, use_async=False,
         target_url=DEFAULT_TARGET_URL, log_level_name=None, log_dir=None,
         overwrite_log=None, dry_run=False,
-        stages_to_run_str=DEFAULT_STAGES_TO_RUN_STR
+        stages_to_run_str=DEFAULT_STAGES_TO_RUN_STR,
+        resume_from=None
     ):
         """
         Setup data ingest pipeline. Create the config object and setup logging
@@ -95,6 +96,7 @@ class DataIngestPipeline(object):
         assert_safe_type(overwrite_log, None, bool)
         assert_safe_type(dry_run, bool)
         assert_safe_type(stages_to_run_str, str)
+        assert_safe_type(resume_from, None, str)
         stages_to_run_str = stages_to_run_str.lower()
         self._validate_stages_to_run_str(stages_to_run_str)
 
@@ -112,6 +114,7 @@ class DataIngestPipeline(object):
         self.use_async = use_async
         self.target_url = target_url
         self.dry_run = dry_run
+        self.resume_from = resume_from
         self.stages_to_run = {CODE_TO_STAGE_MAP[c] for c in stages_to_run_str}
 
         # Get log params from ingest_package_config
@@ -223,7 +226,7 @@ class DataIngestPipeline(object):
             self.data_ingest_config.target_service_entities,
             self.data_ingest_config.study,
             uid_cache_dir=self.ingest_output_dir, use_async=self.use_async,
-            dry_run=self.dry_run
+            dry_run=self.dry_run, resume_from=self.resume_from
         )
 
     def run(self):
