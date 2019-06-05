@@ -41,6 +41,14 @@ class CONCEPT:
     class FAMILY(PropertyMixin):
         pass
 
+    class FAMILY_RELATIONSHIP(PropertyMixin):
+        class PERSON1(PropertyMixin):
+            pass
+
+        class PERSON2(PropertyMixin):
+            pass
+        RELATION_FROM_1_TO_2 = None
+
     class PARTICIPANT(PropertyMixin):
         IS_PROBAND = None
         FATHER_ID = None
@@ -238,6 +246,9 @@ concept_set = {
     CONCEPT.SEQUENCING,
     CONCEPT.SEQUENCING.CENTER,
     CONCEPT.PARTICIPANT,
+    CONCEPT.FAMILY_RELATIONSHIP,
+    CONCEPT.FAMILY_RELATIONSHIP.PERSON1,
+    CONCEPT.FAMILY_RELATIONSHIP.PERSON2,
     CONCEPT.BIOSPECIMEN,
     CONCEPT.DIAGNOSIS,
     CONCEPT.PHENOTYPE,
@@ -338,6 +349,13 @@ def _create_unique_key_composition():
         'required': [
             CONCEPT.SEQUENCING.UNIQUE_KEY,
             CONCEPT.GENOMIC_FILE.UNIQUE_KEY
+        ]
+    }
+    identifiers[CONCEPT.FAMILY_RELATIONSHIP._CONCEPT_NAME] = {
+        'required': [
+            CONCEPT.FAMILY_RELATIONSHIP.PERSON1.UNIQUE_KEY,
+            CONCEPT.FAMILY_RELATIONSHIP.RELATION_FROM_1_TO_2,
+            CONCEPT.FAMILY_RELATIONSHIP.PERSON2.UNIQUE_KEY
         ]
     }
     return identifiers
