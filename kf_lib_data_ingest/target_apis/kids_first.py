@@ -182,8 +182,8 @@ target_concepts = {
             }
         ],
         'properties': {
-            'external_sample_id': CONCEPT.BIOSPECIMEN.UNIQUE_KEY,
-            'external_aliquot_id': CONCEPT.BIOSPECIMEN.ALIQUOT_ID,
+            'external_sample_id': CONCEPT.BIOSPECIMEN_GROUP.UNIQUE_KEY,
+            'external_aliquot_id': CONCEPT.BIOSPECIMEN.UNIQUE_KEY,
             'source_text_tissue_type': CONCEPT.BIOSPECIMEN.TISSUE_TYPE,
             'composition': CONCEPT.BIOSPECIMEN.COMPOSITION,
             'source_text_anatomical_site':
