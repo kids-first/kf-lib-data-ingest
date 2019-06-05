@@ -1,7 +1,6 @@
 import os
 import pytest
 import pandas as pd
-from copy import deepcopy
 
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
 from kf_lib_data_ingest.common.concept_schema import (
@@ -14,7 +13,7 @@ from kf_lib_data_ingest.common.concept_schema import (
 from kf_lib_data_ingest.common.pandas_utils import outer_merge
 from kf_lib_data_ingest.etl.transform.transform import VALUE_DELIMITER
 
-from kf_lib_data_ingest.common.constants import *
+from kf_lib_data_ingest.common.constants import RACE
 
 
 @pytest.fixture(scope='function')
@@ -65,10 +64,11 @@ def test_read_write(guided_transform_stage, df):
         assert os.path.isfile(
             os.path.join(guided_transform_stage.stage_cache_dir,
                          'tsv', target_entity) + '.tsv')
-
-    assert os.path.isfile(os.path.join(guided_transform_stage.stage_cache_dir,
-                                       'tsv',
-                                       'transform_func_df.tsv'))
+    for key, df in guided_transform_stage.transform_func_output.items():
+        assert os.path.isfile(
+            os.path.join(guided_transform_stage.transform_func_dir,
+                         f'{key}.tsv')
+        )
 
 
 def test_unique_keys(guided_transform_stage, df):

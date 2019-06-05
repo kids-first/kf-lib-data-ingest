@@ -11,12 +11,13 @@ from kf_lib_data_ingest.etl.configuration.transform_module import (
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
 from kf_lib_data_ingest.common.pandas_utils import outer_merge
+from kf_lib_data_ingest.config import DEFAULT_KEY
 
 from conftest import TRANSFORM_MODULE_PATH
 
 
 @pytest.fixture(scope='function')
-def all_data_df():
+def df_dict():
     """
     Mock input to GuidedTransformStage._standard_to_target
     """
@@ -44,16 +45,19 @@ def all_data_df():
         })
     }
 
-    all_data_df = outer_merge(dfs['family'], dfs['participant'],
-                              on=CONCEPT.PARTICIPANT.UNIQUE_KEY,
-                              with_merge_detail_dfs=False)
-    all_data_df = outer_merge(all_data_df, dfs['biospecimen'],
-                              on=CONCEPT.PARTICIPANT.UNIQUE_KEY,
-                              with_merge_detail_dfs=False)
-    all_data_df = outer_merge(all_data_df, dfs['sequencing_experiment'],
-                              on=CONCEPT.BIOSPECIMEN.UNIQUE_KEY,
-                              with_merge_detail_dfs=False)
-    return all_data_df
+    df = outer_merge(dfs['family'], dfs['participant'],
+                     on=CONCEPT.PARTICIPANT.UNIQUE_KEY,
+                     with_merge_detail_dfs=False)
+    df = outer_merge(df, dfs['biospecimen'],
+                     on=CONCEPT.PARTICIPANT.UNIQUE_KEY,
+                     with_merge_detail_dfs=False)
+    df = outer_merge(df, dfs['sequencing_experiment'],
+                     on=CONCEPT.BIOSPECIMEN.UNIQUE_KEY,
+                     with_merge_detail_dfs=False)
+    return {
+        'participant': df,
+        DEFAULT_KEY: df
+    }
 
 
 @pytest.fixture(scope='function')
@@ -64,7 +68,7 @@ def transform_module():
     return TransformModule(TRANSFORM_MODULE_PATH)
 
 
-def test_standard_to_target_transform(caplog, all_data_df,
+def test_standard_to_target_transform(caplog, df_dict,
                                       guided_transform_stage):
     """
     Test GuidedTransformStage._standard_to_target transformation
@@ -74,7 +78,7 @@ def test_standard_to_target_transform(caplog, all_data_df,
     caplog.set_level(logging.INFO)
 
     # Transform
-    target_instances = guided_transform_stage._standard_to_target(all_data_df)
+    target_instances = guided_transform_stage._standard_to_target(df_dict)
 
     # Check that output only contains concepts that had data and unique key
     output_concepts = set(target_instances.keys())
@@ -134,10 +138,18 @@ def test_no_transform_module(target_api_config):
         assert 'Guided transformation requires a' in str(e)
 
 
-@pytest.mark.parametrize('ret_val, error',
-                         [(None, TypeError),
-                          ('foo', TypeError)
-                          ])
+@pytest.mark.parametrize(
+    'ret_val, error',
+    [
+        (None, TypeError),
+        ('foo', TypeError),
+        ({'foo': pd.DataFrame()}, ConfigValidationError),
+        ({'foo': pd.DataFrame(),
+          'participant': pd.DataFrame(),
+          'default': pd.DataFrame()}, ConfigValidationError),
+        ({'default': pd.DataFrame()}, None),
+        ({'participant': pd.DataFrame()}, None)
+    ])
 def test_bad_ret_vals_transform_funct(guided_transform_stage, ret_val, error):
     """
     Test wrong return values from transform function
@@ -146,5 +158,9 @@ def test_bad_ret_vals_transform_funct(guided_transform_stage, ret_val, error):
         return ret_val
 
     guided_transform_stage.transform_module.transform_function = f
-    with pytest.raises(error):
+
+    if error:
+        with pytest.raises(error):
+            guided_transform_stage._apply_transform_funct({})
+    else:
         guided_transform_stage._apply_transform_funct({})

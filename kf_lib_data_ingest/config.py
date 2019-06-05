@@ -19,3 +19,7 @@ INGEST_PKG_TEMPLATE_NAME = 'my_study'
 DEFAULT_ID_CACHE_FILENAME = 'uid_cache.db'
 
 VERSION = __import__('kf_lib_data_ingest').__version__
+
+# Key in transform func's output dict whose value is the default DataFrame
+# to use when transforming from DataFrame into target concept instances
+DEFAULT_KEY = 'default'

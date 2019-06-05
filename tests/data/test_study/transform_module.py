@@ -2,6 +2,7 @@ import os
 
 from kf_lib_data_ingest.common.pandas_utils import outer_merge
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
+from kf_lib_data_ingest.config import DEFAULT_KEY
 
 
 def transform_function(mapped_df_dict):
@@ -34,4 +35,4 @@ def transform_function(mapped_df_dict):
         left_name='participants_phenotypes',
         right_name='specimens_files')
 
-    return all_data_df
+    return {DEFAULT_KEY: all_data_df}

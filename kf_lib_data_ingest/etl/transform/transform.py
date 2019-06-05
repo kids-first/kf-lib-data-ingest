@@ -92,6 +92,9 @@ class TransformStage(IngestStage):
         assert_safe_type(output, dict)
         assert_all_safe_type(output.values(), list)
 
+        tsv_dir = os.path.join(self.stage_cache_dir, 'tsv')
+        os.makedirs(tsv_dir, exist_ok=True)
+
         paths = []
         for key, data in output.items():
             # JSON output
@@ -100,7 +103,7 @@ class TransformStage(IngestStage):
             write_json(data, fp)
 
             # TSV output
-            fp = os.path.join(self.stage_cache_dir, 'tsv', key) + '.tsv'
+            fp = os.path.join(tsv_dir, key) + '.tsv'
             paths.append(fp)
             flat_data = []
             for target_instance in data:
