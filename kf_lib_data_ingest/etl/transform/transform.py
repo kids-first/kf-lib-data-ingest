@@ -176,10 +176,16 @@ class TransformStage(IngestStage):
                 {
                     "endpoint": "/participants",
                     "id": "1",
-                    "links": {
-                        "family_id": None,
-                        "study_id": None
-                    },
+                    "links": [
+                        {
+                            "family_id": "f1",
+                            "target_concept": "family"
+                        },
+                        {
+                            "study_id": null,
+                            "target_concept": "study"
+                        }
+                    ],
                     "properties": {
                         "affected_status": None,
                         "consent_type": "GRU",
@@ -202,10 +208,16 @@ class TransformStage(IngestStage):
                 {
                     "endpoint": "/participants",
                     "id": "1",
-                    "links": {
-                        "family_id": None,
-                        "study_id": None
-                    },
+                    "links": [
+                        {
+                            "family_id": "f1",
+                            "target_concept": "family"
+                        },
+                        {
+                            "study_id": null,
+                            "target_concept": "study"
+                        }
+                    ]
                     "properties": {
                         "affected_status": None,
                         "consent_type": "GRU",
