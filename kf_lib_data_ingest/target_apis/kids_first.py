@@ -115,7 +115,7 @@ target_concepts = {
         ],
         'properties': {
             'external_id': CONCEPT.DIAGNOSIS.UNIQUE_KEY,
-            'age_at_event_days': CONCEPT.DIAGNOSIS.UNIQUE_KEY,
+            'age_at_event_days': CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS,
             'source_text_diagnosis': CONCEPT.DIAGNOSIS.NAME,
             'source_text_tumor_location': CONCEPT.DIAGNOSIS.TUMOR_LOCATION,
             'mondo_id_diagnosis': CONCEPT.DIAGNOSIS.MONDO_ID,
