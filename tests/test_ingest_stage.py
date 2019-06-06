@@ -45,14 +45,10 @@ def test_ingest_stage_abs_cls():
     # Test that TypeError is raised if all abstract classes are not impl
     with pytest.raises(TypeError) as e:
         InvalidIngestStage()
-
-    abstract_methods = ['_run',
-                        '_write_output',
-                        '_read_output',
-                        '_validate_run_parameters']
-
-    for m in abstract_methods:
-        assert m in str(e)
+    for m in [
+        '_run', '_write_output', '_read_output', '_validate_run_parameters'
+    ]:
+        assert m in str(e.value)
 
 
 def test_invalid_run_parameters():
@@ -75,7 +71,7 @@ def test_invalid_run_parameters():
             pass
 
     stage = ValidIngestStage()
-    with pytest.raises(InvalidIngestStageParameters) as e:
+    with pytest.raises(InvalidIngestStageParameters):
         stage.run(False)
 
     # No exception should be raised on valid params
@@ -105,7 +101,7 @@ def test_stage_read_write(ValidIngestStage):
     stage.run('hello world')
     with pytest.raises(FileNotFoundError) as e:
         stage.read_output()
-        assert 'output directory does not exist' in str(e)
+    assert 'The output directory: "None" does not exist' in str(e.value)
 
     # Test output is written and read when stage_cache_dir is defined
     stage = ValidIngestStage(ingest_output_dir=TEST_INGEST_OUTPUT_DIR)

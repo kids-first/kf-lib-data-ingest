@@ -40,9 +40,13 @@ operations = [
         in_col='sample',
         out_col=CONCEPT.BIOSPECIMEN.ID
     ),
-    keep_map(
+    value_map(
         in_col='analyte',
-        out_col=CONCEPT.BIOSPECIMEN.ANALYTE
+        out_col=CONCEPT.BIOSPECIMEN.ANALYTE,
+        m={
+            r'dna': constants.SEQUENCING.ANALYTE.DNA,
+            r'rna': constants.SEQUENCING.ANALYTE.RNA
+        }
     ),
     keep_map(
         in_col='diagnosis',

@@ -117,27 +117,26 @@ def test_log_exceptions(ingest_pipeline):
     # Create a dummy ingestion pipeline class
 
     class NewPipeline(DataIngestPipeline):
-        # Override run method to throw exception
-        def run(self):
-            raise Exception('An exception occurred during ingestion!')
+        # Override iterate method to throw exception
+        def _iterate_stages(self):
+            raise Exception('Exception')
 
     # Create pipeline instance
     p = NewPipeline(
         ingest_pipeline.data_ingest_config.config_filepath,
-        ingest_pipeline.target_api_config_path
+        ingest_pipeline.target_api_config_path,
+        overwrite_log=True
     )
-    p.data_ingest_config.contents.overwrite_log = True
-    ingest_pipeline.data_ingest_config._set_log_params()
 
     # Exception is thrown and log should include exception
-    with pytest.raises(Exception):
+    with pytest.raises(SystemExit):
         p.run()
-        log_filepath = os.path.join(p.data_ingest_config.log_dir,
-                                    DEFAULT_LOG_FILENAME)
-
-        with open(log_filepath, 'r') as logfile:
-            last_line = logfile.readlines()[-1]
-            assert 'Exception' in last_line
+    log_filepath = os.path.join(p.data_ingest_config.log_dir,
+                                DEFAULT_LOG_FILENAME)
+    with open(log_filepath, 'r') as logfile:
+        lines = logfile.readlines()
+        assert 'Exiting' in lines[-1]
+        assert 'Exception: Exception' in lines[-2]
 
 
 def _check_log_levels(log_text, levels):

@@ -22,11 +22,8 @@ def test_config_abs_cls():
     # Test that TypeError is raised if all abstract classes are not impl
     with pytest.raises(TypeError) as e:
         InvalidConfig()
-
-    abstract_methods = ['_read_file', '_validate']
-
-    for m in abstract_methods:
-        assert m in str(e)
+    for m in ['_read_file', '_validate']:
+        assert m in str(e.value)
 
     class Config(AbstractConfig):
         def _read_file(self, filepath):
@@ -46,12 +43,9 @@ def test_yaml_config():
     schema_path = os.path.join(TEST_DATA_DIR, 'yaml_schema.yml')
     config_path = os.path.join(TEST_DATA_DIR, 'invalid_yaml_config.yml')
 
-    with pytest.raises(ConfigValidationError):
-        try:
-            YamlConfig(config_path, schema_path=schema_path)
-        except ConfigValidationError as e:
-            assert config_path in str(e)
-            raise
+    with pytest.raises(ConfigValidationError) as e:
+        YamlConfig(config_path, schema_path=schema_path)
+    assert config_path in str(e.value)
 
     config_path = os.path.join(TEST_DATA_DIR, 'valid_yaml_config.yml')
     YamlConfig(config_path, schema_path=schema_path)

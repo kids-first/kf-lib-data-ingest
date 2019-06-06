@@ -308,7 +308,7 @@ def test_find_non_existent(target_api_config, model):
     # Test find concept attribute value
     with pytest.raises(ValueError) as e:
         g.find_attribute_value(start_node, concept_attr, rg)
-        assert start_node.key in e
+    assert start_node.key in str(e.value)
 
 
 def test_general_find(target_api_config, random_data_df_dict):

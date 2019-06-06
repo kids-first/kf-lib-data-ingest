@@ -200,7 +200,7 @@ def test_no_key_comp_defined(guided_transform_stage):
     del unique_key_composition[CONCEPT.PARTICIPANT._CONCEPT_NAME]
     with pytest.raises(AssertionError) as e:
         guided_transform_stage._add_unique_key_cols(df, unique_key_composition)
-        assert 'key composition not defined' in str(e)
+    assert 'key composition not defined' in str(e.value)
     unique_key_composition[CONCEPT.PARTICIPANT._CONCEPT_NAME] = save
 
 

@@ -107,34 +107,25 @@ def test_bad_file_types(**kwargs):
     url = f'http://localhost:1234/{filename}/download'
     with open(TEST_FILE_PATH, "rb") as tf:
         mock.get(url, content=tf.read(), status_code=200)
-    with pytest.raises(ConfigValidationError):
-        try:
-            es._source_file_to_df(url)
-        except ConfigValidationError as e:
-            assert "Could not determine appropriate loader" in str(e)
-            raise
+    with pytest.raises(ConfigValidationError) as e:
+        es._source_file_to_df(url)
+    assert "Could not determine appropriate loader" in str(e.value)
 
     # unknown type
-    with pytest.raises(ConfigValidationError):
-        try:
-            es._source_file_to_df(
-                'file://' +
-                os.path.join(TEST_DATA_DIR, 'yaml_schema.yml')
-            )
-        except ConfigValidationError as e:
-            assert "Could not determine appropriate loader" in str(e)
-            raise
+    with pytest.raises(ConfigValidationError) as e:
+        es._source_file_to_df(
+            'file://' +
+            os.path.join(TEST_DATA_DIR, 'yaml_schema.yml')
+        )
+    assert "Could not determine appropriate loader" in str(e.value)
 
     # good type but error in load function
-    with pytest.raises(ConfigValidationError):
-        try:
-            es._source_file_to_df(
-                'file://' +
-                os.path.join(TEST_DATA_DIR, 'concept_graph.json')
-            )
-        except ConfigValidationError as e:
-            assert "Could not determine appropriate loader" not in str(e)
-            raise
+    with pytest.raises(ConfigValidationError) as e:
+        es._source_file_to_df(
+            'file://' +
+            os.path.join(TEST_DATA_DIR, 'concept_graph.json')
+        )
+    assert "Could not determine appropriate loader" not in str(e.value)
 
 
 def test_no_load_return():

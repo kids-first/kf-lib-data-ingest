@@ -71,7 +71,7 @@ def test_df_map():
     func = operations.df_map(lambda df: None)
     with pytest.raises(TypeError) as e:
         func(df)
-        assert 'DataFrame' in str(e)
+    assert 'DataFrame' in str(e.value)
 
 
 def test_keep_map():

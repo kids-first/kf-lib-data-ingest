@@ -200,11 +200,11 @@ def test_to_from_dict():
     node_dict['somekey'] = 'foo'
     with pytest.raises(AttributeError) as e:
         ConceptNode.from_dict(node_dict)
-        assert 'concept_attribute_pair' in str(e)
+    assert 'somekey' in str(e.value)
 
     # Missing required key
     node_dict.pop('somekey')
     node_dict.pop('concept_attribute_pair')
     with pytest.raises(KeyError) as e:
         ConceptNode.from_dict(node_dict)
-        assert 'concept_attribute_pair' in str(e)
+    assert 'concept_attribute_pair' in str(e.value)
