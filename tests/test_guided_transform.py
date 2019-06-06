@@ -37,10 +37,12 @@ def df_dict():
         'biospecimen': pd.DataFrame({
             CONCEPT.PARTICIPANT.UNIQUE_KEY: ['p1', 'p2', 'p2'],
             CONCEPT.BIOSPECIMEN.UNIQUE_KEY: ['b1', 'b2', 'b3'],
+            CONCEPT.BIOSPECIMEN_GROUP.UNIQUE_KEY: ['b1', 'b2', 'b3'],
             CONCEPT.BIOSPECIMEN.ANALYTE: ['dna', 'rna', 'dna']
         }),
         'sequencing_experiment': pd.DataFrame({
             CONCEPT.BIOSPECIMEN.UNIQUE_KEY: ['b1', 'b2', 'b3'],
+            CONCEPT.BIOSPECIMEN_GROUP.UNIQUE_KEY: ['b1', 'b2', 'b3'],
             CONCEPT.SEQUENCING.LIBRARY_NAME: ['lib1', 'lib2', 'lib3']
         })
     }

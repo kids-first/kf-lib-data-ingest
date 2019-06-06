@@ -15,14 +15,14 @@ operations = [
         m={
             r'BSID(\d+)': lambda x: int(x),  # strip BSID and 0-padding
         },
-        out_col=CONCEPT.BIOSPECIMEN.ALIQUOT_ID
+        out_col=CONCEPT.BIOSPECIMEN.ID
     ),
     value_map(
         in_col='specimen',
         m={
             r'BSID(\d+)': lambda x: int(x),  # strip BSID and 0-padding
         },
-        out_col=CONCEPT.BIOSPECIMEN.ID
+        out_col=CONCEPT.BIOSPECIMEN_GROUP.ID
     ),
     keep_map(
         in_col='bam_file_name',

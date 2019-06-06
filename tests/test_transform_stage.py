@@ -22,12 +22,15 @@ def df():
     Reusable test dataframe
     """
     return pd.DataFrame([{CONCEPT.PARTICIPANT.ID: 'P1',
+                          CONCEPT.BIOSPECIMEN_GROUP.ID: 'B1',
                           CONCEPT.BIOSPECIMEN.ID: 'B1',
                           CONCEPT.PARTICIPANT.RACE: RACE.WHITE},
                          {CONCEPT.PARTICIPANT.ID: 'P1',
+                          CONCEPT.BIOSPECIMEN_GROUP.ID: 'B2',
                           CONCEPT.BIOSPECIMEN.ID: 'B2',
                           CONCEPT.PARTICIPANT.RACE: RACE.WHITE},
                          {CONCEPT.PARTICIPANT.ID: 'P2',
+                          CONCEPT.BIOSPECIMEN_GROUP.ID: 'B3',
                           CONCEPT.BIOSPECIMEN.ID: 'B3',
                           CONCEPT.PARTICIPANT.RACE: RACE.ASIAN}])
 

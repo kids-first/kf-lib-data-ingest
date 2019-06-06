@@ -25,7 +25,7 @@ operations = [
         m={
             r'.+': lambda x: Split(x.split(','))
         },
-        out_col=CONCEPT.BIOSPECIMEN.ALIQUOT_ID
+        out_col=CONCEPT.BIOSPECIMEN.ID
     ),
     keep_map(
         in_col=4,
