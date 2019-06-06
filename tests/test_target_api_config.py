@@ -44,12 +44,12 @@ def test_missing_req_attrs(kids_first_config, test_attr):
 
     with pytest.raises(AttributeError) as e:
         kids_first_config._validate_required_attrs()
-        assert 'Missing one of the required keys' in str(e)
+    assert 'Missing one of the required keys' in str(e.value)
 
 
 @pytest.mark.parametrize('test_attr,test_value',
-                         [('target_concepts', 'foo'),
-                          ('relationships', 'foo'),
+                         [('target_concepts', '_asdfasdfasdfasdf_'),
+                          ('relationships', '_asdfasdfasdfasdf_'),
                           ('target_service_entity_id', {})
                           ])
 def test_req_attr_wrong_type(kids_first_config, test_attr, test_value):
@@ -81,8 +81,8 @@ def test_missing_req_target_concept_keys(kids_first_config, test_key):
     # Test
     with pytest.raises(KeyError) as e:
         kids_first_config._validate_required_keys()
-        assert test_key in str(e)
-        assert 'Missing one of target concept dict required keys' in str(e)
+    assert test_key in str(e.value)
+    assert 'missing one of target concept dict required keys' in str(e.value)
 
 
 def test_mapped_standard_concepts(kids_first_config):
@@ -95,14 +95,13 @@ def test_mapped_standard_concepts(kids_first_config):
     target_concept = random.choice(list(target_concepts.keys()))
 
     # Invalid mapping
-    mapped_value = 'foo'
+    mapped_value = '_asdfasdfasdfasdf_'
     target_concepts[target_concept]['standard_concept'] = mapped_value
 
     # Test
     with pytest.raises(ValueError) as e:
         kids_first_config._validate_mapped_standard_concepts()
-        assert target_concept in str(e)
-        assert f'The mapped standard concept: {mapped_value}' in str(e)
+    assert f'The mapped standard concept: {mapped_value}' in str(e.value)
 
 
 def test_target_concept_attr(kids_first_config):
@@ -117,14 +116,14 @@ def test_target_concept_attr(kids_first_config):
     attr = random.choice(list(properties.keys()))
 
     # Invalid mapping
-    mapped_value = 'foo'
+    mapped_value = '_asdfasdfasdfasdf_'
     properties[attr] = mapped_value
 
     # Test
     with pytest.raises(ValueError) as e:
         kids_first_config._validate_target_concept_attr_mappings()
-        assert mapped_value in str(e)
-        assert f'{target_concept}.{attr}' in str(e)
+    assert mapped_value in str(e.value)
+    assert f'{target_concept}.{attr}' in str(e.value)
 
 
 @pytest.mark.parametrize(
@@ -173,7 +172,7 @@ def test_links(kids_first_config, link_list, expected_exc, expected_msg):
     if expected_exc:
         with pytest.raises(expected_exc) as e:
             kids_first_config._validate_target_concept_attr_mappings()
-        assert expected_msg in str(e)
+        assert expected_msg in str(e.value)
     else:
         kids_first_config._validate_target_concept_attr_mappings()
 
@@ -193,7 +192,7 @@ def test_mapped_target_concept_attr(kids_first_config):
     # Test
     with pytest.raises(TypeError) as e:
         kids_first_config._validate_target_concept_attr_mappings()
-        assert 'All target concept attributes must be strings' in str(e)
+    assert 'requires all items in props_dict.keys() to be' in str(e.value)
 
 
 def test_endpoints(kids_first_config):
@@ -210,7 +209,7 @@ def test_endpoints(kids_first_config):
     # Test
     with pytest.raises(TypeError) as e:
         kids_first_config._validate_endpoints()
-        assert 'All values in "endpoints" dict must be strings' in str(e)
+    assert 'requires all items in endpoints to be' in str(e.value)
 
 
 def test_relationships_types_and_values(kids_first_config):
@@ -226,25 +225,28 @@ def test_relationships_types_and_values(kids_first_config):
     relationships[parent_concept] = 'bar'
     with pytest.raises(TypeError) as e:
         kids_first_config._validate_relationships()
-        assert 'All values in relationships dict must be sets.' in str(e)
+    assert (
+        'requires all items in relationships.values() to be'
+    ) in str(e.value)
     # Reset
     relationships[parent_concept] = _saved
 
     # Test non-standard_concept key
-    relationships['foo'] = {'bar'}
+    relationships['_asdfasdfasdfasdf_'] = {'bar'}
     with pytest.raises(ValueError) as e:
         kids_first_config._validate_relationships()
-        assert ('Keys in relationships dict must be '
-                'one of the standard concepts') in str(e)
+    assert (
+        'Keys in relationships dict must be one of the standard concepts'
+    ) in str(e.value)
     # Remove invalid key
-    relationships.pop('foo')
+    relationships.pop('_asdfasdfasdfasdf_')
 
     # Test non-standard_concept set member
     relationships[parent_concept] = {'baz'}
     with pytest.raises(ValueError) as e:
         kids_first_config._validate_relationships()
-        assert ('Set values in relationships dict must be one of the standard '
-                'concepts.') in str(e)
+    assert ('Set values in relationships dict must be one of the standard '
+            'concepts.') in str(e.value)
 
 
 def test_relationships_dag(kids_first_config):
@@ -260,4 +262,4 @@ def test_relationships_dag(kids_first_config):
 
     with pytest.raises(ValueError) as e:
         kids_first_config._validate_relationships()
-        assert 'MUST be a directed acyclic graph' in str(e)
+    assert 'MUST be a directed acyclic graph' in str(e.value)

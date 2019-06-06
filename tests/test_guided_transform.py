@@ -140,7 +140,7 @@ def test_no_transform_module(target_api_config):
     """
     with pytest.raises(ConfigValidationError) as e:
         GuidedTransformStage(None)
-        assert 'Guided transformation requires a' in str(e)
+    assert 'Guided transformation requires a' in str(e.value)
 
 
 @pytest.mark.parametrize(

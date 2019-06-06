@@ -163,7 +163,4 @@ def test_prod_app_mode(info_caplog, cleanup):
 
     # Ingest should fail since nothing set the required env vars
     with pytest.raises(SystemExit):
-        try:
-            pipeline.run()
-        except SystemExit as e:
-            raise e
+        pipeline.run()

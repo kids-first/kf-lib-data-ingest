@@ -267,10 +267,7 @@ def test_validate_auth_configs(auth_config, expected_exc):
     fr = FileRetriever(cleanup_at_exit=True)
     if expected_exc:
         with pytest.raises(expected_exc) as e:
-            try:
-                fr._validate_auth_config(auth_config)
-            except expected_exc as e:
-                raise e
+            fr._validate_auth_config(auth_config)
     else:
         fr._validate_auth_config(auth_config)
 
@@ -298,12 +295,9 @@ def test_invalid_urls(url):
     Test bad url
     """
     with pytest.raises(LookupError) as e:
-        try:
-            FileRetriever().get(url)
-        except LookupError as e:
-            assert f"In URL: {url}" in str(e)
-            assert "Invalid protocol:" in str(e)
-            raise
+        FileRetriever().get(url)
+    assert f"In URL: {url}" in str(e.value)
+    assert "Invalid protocol:" in str(e.value)
 
 
 def _test_get_file(url, storage_dir, use_storage_dir, cleanup_at_exit,
