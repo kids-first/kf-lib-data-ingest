@@ -85,6 +85,27 @@ def test_merge_wo_duplicates(info_caplog, dfs):
     pandas_utils.merge_wo_duplicates(df1, df2, on='A')
     assert 'Inner merge Left with Right' in info_caplog.text
 
+    # Test missing merge col(s)
+    with pytest.raises(Exception) as e:
+        pandas_utils.merge_wo_duplicates(df1, df2, on='__lkasjdf__')
+    assert 'not found in Left' in str(e.value)
+    assert 'not found in Right' in str(e.value)
+
+    with pytest.raises(Exception) as e:
+        pandas_utils.merge_wo_duplicates(df1, df2, left_on='__lkasjdf__',
+                                         right_on='A')
+    assert 'not found in Left' in str(e.value)
+    assert 'not found in Right' not in str(e.value)
+
+    with pytest.raises(Exception) as e:
+        pandas_utils.merge_wo_duplicates(df1, df2, left_on='__lkasjdf__')
+    assert 'Missing merge column keyword argument(s)' in str(e.value)
+
+    merged = pandas_utils.merge_wo_duplicates(dfs[0], dfs[1],
+                                              left_on='A', right_on='A',
+                                              how='outer')
+    assert merged.equals(expected_df)
+
 
 def test_outer_merge(info_caplog, dfs):
     df1 = dfs[0]
