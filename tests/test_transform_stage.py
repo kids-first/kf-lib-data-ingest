@@ -83,18 +83,18 @@ def test_unique_keys(guided_transform_stage, df):
     are standard unique keys
     """
 
-    # 3 Columns before
-    assert 3 == len(df.columns)
+    # 4 Columns before
+    assert 4 == len(df.columns)
     df = guided_transform_stage._add_unique_key_cols(
         df, unique_key_composition
     )
 
-    # 3 original + 2 unique key cols for the concepts
-    assert 5 == len(df.columns)
+    # 4 original + 3 unique key cols for the concepts
+    assert 7 == len(df.columns)
 
     # Num of distinct concepts shouldn't change
     concepts = set([concept_from(col) for col in df.columns])
-    assert 2 == len(concepts)
+    assert 3 == len(concepts)
 
     # Check values
     for concept_name in concepts:

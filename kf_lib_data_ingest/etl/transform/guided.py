@@ -117,7 +117,7 @@ class GuidedTransformStage(TransformStage):
 
         # Biospecimen - must have both BIOSPECIMEN.ID and BIOSPECIMEN_GROUP.ID
         # columns
-        biospecimen_df = df_dict.get('biospecimen') or df_dict.get(DEFAULT_KEY)
+        biospecimen_df = df_dict.get('biospecimen', df_dict.get(DEFAULT_KEY))
         # No DataFrame found - pass
         if not isinstance(biospecimen_df, pandas.DataFrame):
             self.logger.debug(
