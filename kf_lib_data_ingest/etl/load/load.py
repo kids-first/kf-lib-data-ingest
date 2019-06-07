@@ -34,7 +34,8 @@ def send(req):
 class LoadStage(IngestStage):
     def __init__(
         self, target_api_config_path, target_url, entities_to_load,
-        study_id, uid_cache_dir=None, use_async=False, dry_run=False
+        study_id, uid_cache_dir=None, use_async=False, dry_run=False,
+        resume_from=None
     ):
         """
         :param target_api_config_path: path to the target service API config
@@ -51,6 +52,10 @@ class LoadStage(IngestStage):
         :type use_async: bool, optional
         :param dry_run: don't actually transmit, defaults to False
         :type dry_run: bool, optional
+        :param resume_from: Dry run until the designated target ID is seen, and
+            then switch to normal loading. Does not overrule the dry_run flag.
+            Value may be a full ID or an initial substring (e.g. 'BS', 'BS_')
+        :type resume_from: str, optional
         """
         super().__init__()
         self.target_api_config = TargetAPIConfig(target_api_config_path)
@@ -65,6 +70,7 @@ class LoadStage(IngestStage):
         self.entities_to_load = entities_to_load
         self.target_url = target_url
         self.dry_run = dry_run
+        self.resume_from = resume_from
         self.study_id = study_id
 
         target = urlparse(target_url).netloc or urlparse(target_url).path
@@ -88,7 +94,6 @@ class LoadStage(IngestStage):
         self.uid_cache_db = Sqlite3Worker(self.uid_cache_filepath)
 
         self.entity_cache = dict()
-
         self.use_async = use_async
 
     def _validate_entities(self, entities_to_load):
@@ -324,22 +329,40 @@ class LoadStage(IngestStage):
                 else:
                     body[link_key] = self._get_target_id(link_type, link_value)
 
+        if self.resume_from:
+            tgt_id = body.get(self.target_id_key)
+            if not tgt_id:
+                raise InvalidIngestStageParameters(
+                    'Use of the resume_from flag requires having already'
+                    ' cached target IDs for all prior entities. The resume'
+                    ' target has not yet been reached, and no cached ID'
+                    f' was found for this entity body:\n{pformat(body)}'
+                )
+            elif tgt_id.startswith(self.resume_from):
+                self.logger.info(
+                    f"Found resume target '{self.resume_from}'. Resuming"
+                    ' normal load.'
+                )
+                self.dry_run = False
+                self.resume_from = None
+
         if self.dry_run:
             # Fake sending with fake foreign keys
             for link_dict in links:
                 for link_key, link_value in link_dict.items():
                     body[link_key] = f'DRY_{link_value}'
 
-            instance_id = body.get(self.target_id_key)
-            if instance_id:
+            tgt_id = body.get(self.target_id_key)
+            if tgt_id:
                 req_method = 'PATCH'
-                id_str = f' {{{self.target_id_key}: {instance_id}}}'
+                id_str = f' {{{self.target_id_key}: {tgt_id}}}'
             else:
                 req_method = 'POST'
                 id_str = ''
 
             self.logger.info(f'DRY RUN - {req_method} {endpoint}{id_str}')
             self.logger.debug(f'Request body preview:\n{pformat(body)}')
+
         else:
             # send to the target service
             entity = self._submit(entity_id, entity_type, endpoint, body)
@@ -398,6 +421,13 @@ class LoadStage(IngestStage):
                 'DRY RUN mode is ON. No entities will be loaded into the '
                 'target service.'
             )
+            self.resume_from = None
+        elif self.resume_from:
+            self.logger.info(
+                f"Will dry run until '{self.resume_from}' and then resume"
+                " loading from that entity."
+            )
+            self.dry_run = True
 
         # Loop through all target concepts
         for entity_type in self.target_api_config.target_concepts.keys():
@@ -428,3 +458,9 @@ class LoadStage(IngestStage):
                 )
 
             self.logger.info(f'End loading {entity_type}')
+
+        if self.resume_from:
+            self.logger.warning(
+                f"⚠️ Could not find resume_from target '{self.resume_from}'! "
+                'Nothing was actually loaded into the target service.'
+            )

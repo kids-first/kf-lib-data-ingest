@@ -87,7 +87,11 @@ def cli():
               default=False,
               is_flag=True,
               help='A flag specifying whether to only pretend to send data to '
-              'the target service')
+              'the target service. Overrides the resume_from setting.')
+@click.option('--resume_from',
+              default=None,
+              help='Dry run until a given target ID, and then load starting '
+              'there.')
 @click.option('--use_async',
               default=False,
               is_flag=True,
@@ -101,7 +105,7 @@ def cli():
 #               'user guided transformation')
 @common_args_options
 def ingest(ingest_package_config_path, app_settings_filepath, log_level_name,
-           target_url, stages_to_run_str, use_async, dry_run):
+           target_url, stages_to_run_str, use_async, dry_run, resume_from):
     """
     Run the Kids First data ingest pipeline.
 
