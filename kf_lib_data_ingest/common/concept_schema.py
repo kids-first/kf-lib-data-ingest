@@ -298,6 +298,12 @@ def _create_unique_key_composition():
         identifiers[concept._CONCEPT_NAME] = {'required': [concept.ID]}
 
     # Compound unique keys
+    identifiers[CONCEPT.BIOSPECIMEN._CONCEPT_NAME] = {
+        'required': [
+            CONCEPT.BIOSPECIMEN_GROUP.ID,
+            CONCEPT.BIOSPECIMEN.ID
+        ]
+    }
     identifiers[CONCEPT.INVESTIGATOR._CONCEPT_NAME] = {
         'required': [
             CONCEPT.INVESTIGATOR.NAME,
