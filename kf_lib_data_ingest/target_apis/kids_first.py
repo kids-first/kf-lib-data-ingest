@@ -21,6 +21,7 @@ target_concepts = {
     'investigator': {
         'standard_concept': CONCEPT.INVESTIGATOR,
         'properties': {
+            target_service_entity_id: CONCEPT.INVESTIGATOR.TARGET_SERVICE_ID,
             'external_id': CONCEPT.INVESTIGATOR.UNIQUE_KEY,
             'name': CONCEPT.INVESTIGATOR.NAME,
             'institution': CONCEPT.INVESTIGATOR.INSTITUTION,
@@ -38,6 +39,8 @@ target_concepts = {
             }
         ],
         'properties': {
+            target_service_entity_id: CONCEPT.STUDY.TARGET_SERVICE_ID,
+            'investigator_id': CONCEPT.INVESTIGATOR.TARGET_SERVICE_ID,
             'external_id': CONCEPT.STUDY.UNIQUE_KEY,
             'name': CONCEPT.STUDY.NAME,
             'short_name': CONCEPT.STUDY.SHORT_NAME,
@@ -53,6 +56,7 @@ target_concepts = {
     'family': {
         'standard_concept': CONCEPT.FAMILY,
         'properties': {
+            target_service_entity_id: CONCEPT.FAMILY.TARGET_SERVICE_ID,
             'external_id': CONCEPT.FAMILY.UNIQUE_KEY,
             'visible': CONCEPT.FAMILY.VISIBLE
         },
@@ -73,6 +77,9 @@ target_concepts = {
             }
         ],
         'properties': {
+            target_service_entity_id: CONCEPT.PARTICIPANT.TARGET_SERVICE_ID,
+            'study_id': CONCEPT.STUDY.TARGET_SERVICE_ID,
+            'family_id': CONCEPT.FAMILY.TARGET_SERVICE_ID,
             'external_id': CONCEPT.PARTICIPANT.UNIQUE_KEY,
             'is_proband': CONCEPT.PARTICIPANT.IS_PROBAND,
             'ethnicity': CONCEPT.PARTICIPANT.ETHNICITY,
@@ -98,6 +105,12 @@ target_concepts = {
             },
         ],
         'properties': {
+            target_service_entity_id:
+            CONCEPT.FAMILY_RELATIONSHIP.TARGET_SERVICE_ID,
+            'participant1_id':
+            CONCEPT.FAMILY_RELATIONSHIP.PERSON1.TARGET_SERVICE_ID,
+            'participant2_id':
+            CONCEPT.FAMILY_RELATIONSHIP.PERSON2.TARGET_SERVICE_ID,
             'external_id': CONCEPT.FAMILY_RELATIONSHIP.UNIQUE_KEY,
             'participant1_to_participant2_relation':
                 CONCEPT.FAMILY_RELATIONSHIP.RELATION_FROM_1_TO_2
@@ -114,6 +127,8 @@ target_concepts = {
             }
         ],
         'properties': {
+            target_service_entity_id: CONCEPT.DIAGNOSIS.TARGET_SERVICE_ID,
+            'participant_id': CONCEPT.PARTICIPANT.TARGET_SERVICE_ID,
             'external_id': CONCEPT.DIAGNOSIS.UNIQUE_KEY,
             'age_at_event_days': CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS,
             'source_text_diagnosis': CONCEPT.DIAGNOSIS.NAME,
@@ -139,6 +154,8 @@ target_concepts = {
             }
         ],
         'properties': {
+            target_service_entity_id: CONCEPT.PHENOTYPE.TARGET_SERVICE_ID,
+            'participant_id': CONCEPT.PARTICIPANT.TARGET_SERVICE_ID,
             'external_id': CONCEPT.PHENOTYPE.UNIQUE_KEY,
             'age_at_event_days': CONCEPT.PHENOTYPE.EVENT_AGE_DAYS,
             'source_text_phenotype': CONCEPT.PHENOTYPE.NAME,
@@ -159,6 +176,8 @@ target_concepts = {
             }
         ],
         'properties': {
+            target_service_entity_id: CONCEPT.OUTCOME.TARGET_SERVICE_ID,
+            'participant_id': CONCEPT.PARTICIPANT.TARGET_SERVICE_ID,
             'external_id': CONCEPT.OUTCOME.UNIQUE_KEY,
             'age_at_event_days': CONCEPT.OUTCOME.EVENT_AGE_DAYS,
             'vital_status': CONCEPT.OUTCOME.VITAL_STATUS,
@@ -184,6 +203,10 @@ target_concepts = {
         'properties': {
             'external_sample_id': CONCEPT.BIOSPECIMEN_GROUP.UNIQUE_KEY,
             'external_aliquot_id': CONCEPT.BIOSPECIMEN.ID,
+            target_service_entity_id: CONCEPT.BIOSPECIMEN.TARGET_SERVICE_ID,
+            'participant_id': CONCEPT.PARTICIPANT.TARGET_SERVICE_ID,
+            'sequencing_center_id':
+            CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID,
             'source_text_tissue_type': CONCEPT.BIOSPECIMEN.TISSUE_TYPE,
             'composition': CONCEPT.BIOSPECIMEN.COMPOSITION,
             'source_text_anatomical_site':
@@ -208,6 +231,7 @@ target_concepts = {
     'genomic_file': {
         'standard_concept': CONCEPT.GENOMIC_FILE,
         'properties': {
+            target_service_entity_id: CONCEPT.GENOMIC_FILE.TARGET_SERVICE_ID,
             "external_id": CONCEPT.GENOMIC_FILE.UNIQUE_KEY,
             "file_name": CONCEPT.GENOMIC_FILE.FILE_NAME,
             "file_format": CONCEPT.GENOMIC_FILE.FILE_FORMAT,
@@ -227,6 +251,7 @@ target_concepts = {
     'read_group': {
         'standard_concept': CONCEPT.READ_GROUP,
         'properties': {
+            target_service_entity_id: CONCEPT.READ_GROUP.TARGET_SERVICE_ID,
             'external_id': CONCEPT.READ_GROUP.UNIQUE_KEY,
             'flow_cell': CONCEPT.READ_GROUP.FLOW_CELL,
             'lane_number': CONCEPT.READ_GROUP.LANE_NUMBER,
@@ -245,6 +270,10 @@ target_concepts = {
             }
         ],
         'properties': {
+            target_service_entity_id:
+            CONCEPT.SEQUENCING.TARGET_SERVICE_ID,
+            'sequencing_center_id':
+            CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID,
             'external_id': CONCEPT.SEQUENCING.UNIQUE_KEY,
             'experiment_date': CONCEPT.SEQUENCING.DATE,
             'experiment_strategy': CONCEPT.SEQUENCING.STRATEGY,
@@ -265,6 +294,8 @@ target_concepts = {
     'sequencing_center': {
         'standard_concept': CONCEPT.SEQUENCING.CENTER,
         'properties': {
+            target_service_entity_id:
+            CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID,
             'external_id': CONCEPT.SEQUENCING.CENTER.UNIQUE_KEY,
             'target_attribute': CONCEPT.SEQUENCING.CENTER.NAME,
             'visible': CONCEPT.SEQUENCING.CENTER.VISIBLE
@@ -286,6 +317,10 @@ target_concepts = {
             }
         ],
         'properties': {
+            target_service_entity_id:
+            CONCEPT.BIOSPECIMEN_GENOMIC_FILE.TARGET_SERVICE_ID,
+            'biospecimen_id': CONCEPT.BIOSPECIMEN.TARGET_SERVICE_ID,
+            'genomic_file_id': CONCEPT.GENOMIC_FILE.TARGET_SERVICE_ID,
             'external_id': CONCEPT.BIOSPECIMEN_GENOMIC_FILE.UNIQUE_KEY,
             'visible': CONCEPT.BIOSPECIMEN_GENOMIC_FILE.VISIBLE
         },
@@ -306,6 +341,10 @@ target_concepts = {
             }
         ],
         'properties': {
+            target_service_entity_id:
+            CONCEPT.BIOSPECIMEN_DIAGNOSIS.TARGET_SERVICE_ID,
+            'biospecimen_id': CONCEPT.BIOSPECIMEN.TARGET_SERVICE_ID,
+            'diagnosis_id': CONCEPT.DIAGNOSIS.TARGET_SERVICE_ID,
             'external_id': CONCEPT.BIOSPECIMEN_DIAGNOSIS.UNIQUE_KEY,
             'visible': CONCEPT.BIOSPECIMEN_DIAGNOSIS.VISIBLE
         },
@@ -326,6 +365,10 @@ target_concepts = {
             }
         ],
         'properties': {
+            target_service_entity_id:
+            CONCEPT.READ_GROUP_GENOMIC_FILE.TARGET_SERVICE_ID,
+            'read_group_id': CONCEPT.READ_GROUP.TARGET_SERVICE_ID,
+            'genomic_file_id': CONCEPT.GENOMIC_FILE.TARGET_SERVICE_ID,
             'external_id': CONCEPT.READ_GROUP_GENOMIC_FILE.UNIQUE_KEY,
             'visible': CONCEPT.READ_GROUP_GENOMIC_FILE.VISIBLE
         },
@@ -346,6 +389,10 @@ target_concepts = {
             }
         ],
         'properties': {
+            target_service_entity_id:
+            CONCEPT.SEQUENCING_GENOMIC_FILE.TARGET_SERVICE_ID,
+            'sequencing_experiment_id': CONCEPT.SEQUENCING.TARGET_SERVICE_ID,
+            'genomic_file_id': CONCEPT.GENOMIC_FILE.TARGET_SERVICE_ID,
             'external_id': CONCEPT.SEQUENCING_GENOMIC_FILE.UNIQUE_KEY,
             'visible': CONCEPT.SEQUENCING_GENOMIC_FILE.VISIBLE
         },
@@ -375,3 +422,28 @@ relationships = {
         CONCEPT.SEQUENCING
     }
 }
+
+
+def validate():
+    """
+    Custom validation specific to this target api config
+    """
+    for target_concept, schema in target_concepts.items():
+        # Ensure every schema has a mapping for target service entity id and
+        # linked target service entity ids
+        std_concept = schema['standard_concept']
+        tgt_id_mapping = schema['properties'].get(target_service_entity_id)
+        assert tgt_id_mapping == getattr(std_concept, 'TARGET_SERVICE_ID'), (
+            f'Properties schema for {target_concept} has an incorrect or null '
+            f'mapping {target_service_entity_id}: {tgt_id_mapping}'
+        )
+
+        for link_dict in schema.get('links', []):
+            link_std_concept = link_dict['standard_concept']
+            link_key = link_dict['target_attribute']
+            tgt_id_mapping = schema['properties'].get(link_key)
+            assert tgt_id_mapping == getattr(link_std_concept,
+                                             'TARGET_SERVICE_ID'), (
+                f'Links schema for "{target_concept}" has an '
+                f'incorrect or null mapping, {link_key}: {tgt_id_mapping}'
+            )
