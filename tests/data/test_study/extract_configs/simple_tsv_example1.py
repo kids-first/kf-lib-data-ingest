@@ -29,6 +29,11 @@ operations = [
         out_col=CONCEPT.PARTICIPANT.ID
     ),
     value_map(
+        in_col="participant",
+        m=lambda x: 'PT_3QMCQXHZ' if x == 'PID001' else None,
+        out_col=CONCEPT.PARTICIPANT.TARGET_SERVICE_ID
+    ),
+    value_map(
         in_col="mother",
         m=lambda x: x,
         out_col=CONCEPT.PARTICIPANT.MOTHER_ID
