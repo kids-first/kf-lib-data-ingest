@@ -151,6 +151,9 @@ class TargetAPIConfig(PyModuleConfig):
         self._validate_target_concepts()
         self._validate_relationships()
 
+        if hasattr(self.contents, 'validate'):
+            getattr(self.contents, 'validate')()
+
     def _validate_required_attrs(self):
         """
         Check that all module level required attributes are present and are
