@@ -24,6 +24,7 @@ from kf_lib_data_ingest.common.type_safety import (
     assert_all_safe_type,
     assert_safe_type
 )
+from kf_lib_data_ingest.common import constants
 sqlite3worker.LOGGER.setLevel(logging.WARNING)
 
 
@@ -309,10 +310,10 @@ class LoadStage(IngestStage):
         """
 
         # populate target uid
-        body[self.target_id_key] = (
-            body.get(self.target_id_key)
-            or self._get_target_id(entity_type, entity_id)
-        )
+        target_id_value = body.get(self.target_id_key)
+        if target_id_value == constants.COMMON.NOT_REPORTED:
+            target_id_value = self._get_target_id(entity_type, entity_id)
+        body[self.target_id_key] = target_id_value
 
         # convert list/dict-like strings to their native forms and
         # don't send null attributes
@@ -327,7 +328,11 @@ class LoadStage(IngestStage):
                 if link_key == 'study_id':
                     body[link_key] = self.study_id
                 else:
-                    body[link_key] = self._get_target_id(link_type, link_value)
+                    target_link_value = body.get(link_key)
+                    if target_link_value == constants.COMMON.NOT_REPORTED:
+                        target_link_value = self._get_target_id(link_type,
+                                                                link_value)
+                    body[link_key] = target_link_value
 
         if self.resume_from:
             tgt_id = body.get(self.target_id_key)
@@ -347,12 +352,19 @@ class LoadStage(IngestStage):
                 self.resume_from = None
 
         if self.dry_run:
-            # Fake sending with fake foreign keys
+            # Fake sending with fake primary/foreign keys
+            tgt_id = body.get(self.target_id_key)
+            body[self.target_id_key] = (
+                f'source: {entity_id} --> target: {tgt_id}'
+            )
             for link_dict in links:
                 for link_key, link_value in link_dict.items():
-                    body[link_key] = f'DRY_{link_value}'
+                    if not link_value:
+                        link_value = body[link_key]
+                    body[link_key] = (
+                        f'source: {link_value} --> target: {body[link_key]}'
+                    )
 
-            tgt_id = body.get(self.target_id_key)
             if tgt_id:
                 req_method = 'PATCH'
                 id_str = f' {{{self.target_id_key}: {tgt_id}}}'
