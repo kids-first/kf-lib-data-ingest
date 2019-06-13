@@ -1,10 +1,7 @@
-import os
+import base64
 import logging
-from urllib.parse import (
-    urljoin,
-    urlencode,
-    quote
-)
+import os
+from urllib.parse import quote, urlencode, urljoin
 
 import boto3
 import pytest
@@ -12,14 +9,14 @@ import requests_mock
 from moto import mock_s3
 from requests.auth import HTTPBasicAuth
 
-from kf_lib_data_ingest.common.file_retriever import FileRetriever
 from conftest import (
-    TEST_AUTH0_DOMAIN,
     TEST_AUTH0_AUD,
+    TEST_AUTH0_DOMAIN,
     TEST_CLIENT_ID,
     TEST_CLIENT_SECRET,
     TEST_DATA_DIR
 )
+from kf_lib_data_ingest.common.file_retriever import FileRetriever
 from mocks import OAuth2Mocker
 
 TEST_S3_BUCKET = "s3_bucket"
@@ -86,10 +83,8 @@ def auth_configs():
     auth_configs = {
         'https://api.com/foo': {
             'type': 'basic',
-            'variable_names': {
-                'username': os.environ.get('FOO_SERVICE_UNAME'),
-                'password': os.environ.get('FOO_SERVICE_PW')
-            }
+            'username': os.environ.get('FOO_SERVICE_UNAME'),
+            'password': os.environ.get('FOO_SERVICE_PW')
         },
         'https://test-api.kids-first.io/files/download': {
             'type': 'oauth2',
@@ -210,6 +205,10 @@ def test_get_web_w_auth(caplog, tmpdir, auth_configs, url, auth_type,
                 req_headers = m.request_history[0].headers
                 auth_header = req_headers.get('Authorization')
                 assert auth_header and 'Basic' in auth_header
+                username, password = base64.b64decode(
+                    auth_header.split(' ')[1]
+                ).split(b':')
+                assert (username == b'username') and (password == b'password')
 
             # Token auth
             elif auth_type == 'token':
