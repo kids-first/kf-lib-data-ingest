@@ -1,11 +1,40 @@
+# Kids First Lib Data Ingest Release 0.5.0
+
+## Features
+
+### Summary
+
+Feature Emojis: ♻️ x3 ✨ x6 🐛 x6 🐛🔧 x1 🚸 x1 
+Feature Categories: [bug](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/bug) x6 [feature](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/feature) x6 [other](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/other) x2 [refactor](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/refactor) x3 
+
+### New features and changes
+
+- (#338) 🐛 Remove errant layer from basic auth test config - @fiendish
+- (#333) 🐛 Fix merge col validation bug in merge_wo_duplicates - @znatty22
+- (#330) ♻️ Refactor BIOSPECIMEN concept -> BIOSPECIMEN, BIOSPECIMEN_GROUP - @znatty22
+- (#329) 🐛 Fix invalid use of pytest context managers - @fiendish
+- (#328) 🐛 Fix diagnosis event age concept - @fiendish
+- (#327) ✨ Support resuming load from a given target ID or prefix - @fiendish
+- (#325) 🚸 Add friendly merge column alert - @fiendish
+- (#324) ✨ Add family relationship to concept schema and kids first api config - @znatty22
+- (#322) ♻️ Transform function outputs dict of DataFrames - @znatty22
+- (#319) ♻️ Refactor links in target api cfg  - @znatty22
+- (#316) 🐛 Load objects instead of object-like strings - @fiendish
+- (#315) ✨ Add grouping of Splits - @fiendish
+- (#314) 🐛🔧 Fix/update genomic file std and target concept configuration - @znatty22
+- (#311) ✨ Use supplied target service ids if provided - @znatty22
+- (#309) 🐛 Load entities in order defined by target api cfg - @znatty22
+- (#305) ✨ Write transform stage output to TSV - @znatty22
+- (#299) ✨ Run subsets of ingest pipeline - @znatty22
+
 # Kids First Lib Data Ingest Release 0.4.0
 
 ## Features
 
 ### Summary
 
-Feature Emojis: 🐛 x2 💬 x1 🔊 x1 🚚 x1 
-Feature Categories: [bug](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/bug) x2 [other](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/other) x3 
+Feature Emojis: 🐛 x2 💬 x1 🔊 x1 🚚 x1
+Feature Categories: [bug](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/bug) x2 [other](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/other) x3
 
 ### New features and changes
 
@@ -21,8 +50,8 @@ Feature Categories: [bug](http://api.github.com/repos/kids-first/kf-lib-data-ing
 
 ### Summary
 
-Feature Emojis: ♻️ x2 ✨ x1 🐛 x3 🚸 x1 
-Feature Labels: [bug](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/bug) x3 [feature](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/feature) x1 [other](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/other) x1 [refactor](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/refactor) x2 
+Feature Emojis: ♻️ x2 ✨ x1 🐛 x3 🚸 x1
+Feature Labels: [bug](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/bug) x3 [feature](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/feature) x1 [other](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/other) x1 [refactor](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/refactor) x2
 
 ### New features and changes
 
