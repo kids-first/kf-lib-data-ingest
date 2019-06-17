@@ -1,55 +1,55 @@
-index	PARTICIPANT|ID	DIAGNOSIS|NAME	BIOSPECIMEN|ID	GENOMIC_FILE|FILE_NAME
-0	1	head	1	2.bam
-0	1	head	1	2.vcf
-0	1	head	2	2.bam
-0	1	head	2	2.vcf
-0	1	shoulders	1	2.bam
-0	1	shoulders	1	2.vcf
-0	1	shoulders	2	2.bam
-0	1	shoulders	2	2.vcf
-0	1	knees	1	2.bam
-0	1	knees	1	2.vcf
-0	1	knees	2	2.bam
-0	1	knees	2	2.vcf
-1	2	head	3	3.bam
-1	2	head	3	3.vcf
-1	2	head	4	3.bam
-1	2	head	4	3.vcf
-1	2	shoulders	3	3.bam
-1	2	shoulders	3	3.vcf
-1	2	shoulders	4	3.bam
-1	2	shoulders	4	3.vcf
-1	2	knees	3	3.bam
-1	2	knees	3	3.vcf
-1	2	knees	4	3.bam
-1	2	knees	4	3.vcf
-2	3	head	5	4.bam
-2	3	head	5	4.vcf
-2	3	shoulders	5	4.bam
-2	3	shoulders	5	4.vcf
-2	3	knees	5	4.bam
-2	3	knees	5	4.vcf
-3	4	eyes	6	5.bam
-3	4	eyes	6	5.vcf
-3	4	ears	6	5.bam
-3	4	ears	6	5.vcf
-4	5	eyes	7	6.bam
-4	5	eyes	7	6.vcf
-4	5	eyes	8	6.bam
-4	5	eyes	8	6.vcf
-4	5	eyes	9	6.bam
-4	5	eyes	9	6.vcf
-4	5	ears	7	6.bam
-4	5	ears	7	6.vcf
-4	5	ears	8	6.bam
-4	5	ears	8	6.vcf
-4	5	ears	9	6.bam
-4	5	ears	9	6.vcf
-5	6	head	10	7.bam
-5	6	head	10	7.vcf
-6	7	shoulders	11	8.bam
-6	7	shoulders	11	8.vcf
-7	8		12	9.bam
-7	8		12	9.vcf
-8	9			10.bam
-8	9			10.vcf
+index	BIOSPECIMEN|ID	DIAGNOSIS|NAME	GENOMIC_FILE|FILE_NAME	PARTICIPANT|ID	SEQUENCING|CENTER|TARGET_SERVICE_ID
+0	1.0	head	2.bam	1	SC_A1JNZAZH
+0	2.0	head	2.bam	1	SC_A1JNZAZH
+0	1.0	shoulders	2.bam	1	SC_A1JNZAZH
+0	2.0	shoulders	2.bam	1	SC_A1JNZAZH
+0	1.0	knees	2.bam	1	SC_A1JNZAZH
+0	2.0	knees	2.bam	1	SC_A1JNZAZH
+1	3.0	head	3.bam	2	SC_A1JNZAZH
+1	4.0	head	3.bam	2	SC_A1JNZAZH
+1	3.0	shoulders	3.bam	2	SC_A1JNZAZH
+1	4.0	shoulders	3.bam	2	SC_A1JNZAZH
+1	3.0	knees	3.bam	2	SC_A1JNZAZH
+1	4.0	knees	3.bam	2	SC_A1JNZAZH
+2	5.0	head	4.bam	3	SC_A1JNZAZH
+2	5.0	shoulders	4.bam	3	SC_A1JNZAZH
+2	5.0	knees	4.bam	3	SC_A1JNZAZH
+3	6.0	eyes	5.bam	4	SC_A1JNZAZH
+3	6.0	ears	5.bam	4	SC_A1JNZAZH
+4	7.0	eyes	6.bam	5	SC_A1JNZAZH
+4	8.0	eyes	6.bam	5	SC_A1JNZAZH
+4	9.0	eyes	6.bam	5	SC_A1JNZAZH
+4	7.0	ears	6.bam	5	SC_A1JNZAZH
+4	8.0	ears	6.bam	5	SC_A1JNZAZH
+4	9.0	ears	6.bam	5	SC_A1JNZAZH
+5	10.0	head	7.bam	6	SC_A1JNZAZH
+6	11.0	shoulders	8.bam	7	SC_A1JNZAZH
+7	12.0		9.bam	8	SC_A1JNZAZH
+8			10.bam	9	SC_A1JNZAZH
+0	1.0	head	2.vcf	1	SC_A1JNZAZH
+0	2.0	head	2.vcf	1	SC_A1JNZAZH
+0	1.0	shoulders	2.vcf	1	SC_A1JNZAZH
+0	2.0	shoulders	2.vcf	1	SC_A1JNZAZH
+0	1.0	knees	2.vcf	1	SC_A1JNZAZH
+0	2.0	knees	2.vcf	1	SC_A1JNZAZH
+1	3.0	head	3.vcf	2	SC_A1JNZAZH
+1	4.0	head	3.vcf	2	SC_A1JNZAZH
+1	3.0	shoulders	3.vcf	2	SC_A1JNZAZH
+1	4.0	shoulders	3.vcf	2	SC_A1JNZAZH
+1	3.0	knees	3.vcf	2	SC_A1JNZAZH
+1	4.0	knees	3.vcf	2	SC_A1JNZAZH
+2	5.0	head	4.vcf	3	SC_A1JNZAZH
+2	5.0	shoulders	4.vcf	3	SC_A1JNZAZH
+2	5.0	knees	4.vcf	3	SC_A1JNZAZH
+3	6.0	eyes	5.vcf	4	SC_A1JNZAZH
+3	6.0	ears	5.vcf	4	SC_A1JNZAZH
+4	7.0	eyes	6.vcf	5	SC_A1JNZAZH
+4	8.0	eyes	6.vcf	5	SC_A1JNZAZH
+4	9.0	eyes	6.vcf	5	SC_A1JNZAZH
+4	7.0	ears	6.vcf	5	SC_A1JNZAZH
+4	8.0	ears	6.vcf	5	SC_A1JNZAZH
+4	9.0	ears	6.vcf	5	SC_A1JNZAZH
+5	10.0	head	7.vcf	6	SC_A1JNZAZH
+6	11.0	shoulders	8.vcf	7	SC_A1JNZAZH
+7	12.0		9.vcf	8	SC_A1JNZAZH
+8			10.vcf	9	SC_A1JNZAZH

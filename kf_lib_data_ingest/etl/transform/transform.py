@@ -109,9 +109,16 @@ class TransformStage(IngestStage):
             for target_instance in data:
                 flat_instance = {}
                 for k, v in target_instance.items():
-                    if isinstance(v, dict):
+                    if k == 'properties':
                         flat_instance.update({k1: v1
                                               for k1, v1 in v.items()})
+                    elif k == 'links':
+                        for link_dict in v:
+                            flat_instance.update(
+                                {'source:' + k2: v2
+                                 for k2, v2 in link_dict.items()
+                                 if k2 != 'target_concept'}
+                            )
                     else:
                         flat_instance[k] = v
                 flat_data.append(flat_instance)

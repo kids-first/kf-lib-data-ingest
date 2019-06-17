@@ -212,6 +212,35 @@ def test_endpoints(kids_first_config):
     assert 'requires all items in endpoints to be' in str(e.value)
 
 
+def test_custom_validation(kids_first_config):
+    """
+    Test kids first target api config validation
+    """
+    # Pick a random target concept
+    target_concepts = kids_first_config.contents.target_concepts
+    target_concept = random.choice(list(target_concepts.keys()))
+
+    # Properties - Modify value under test
+    id_key = kids_first_config.target_service_entity_id
+    old_val = target_concepts[target_concept]['properties'][id_key]
+    target_concepts[target_concept]['properties'][id_key] = None
+
+    # Test
+    with pytest.raises(AssertionError) as e:
+        kids_first_config.contents.validate()
+    assert 'incorrect or null mapping' in str(e.value)
+    target_concepts[target_concept]['properties'][id_key] = old_val
+
+    # Links - Modify value under test
+    target_concept = 'biospecimen'
+    id_key = target_concepts[target_concept]['links'][0]['target_attribute']
+    target_concepts[target_concept]['properties'][id_key] = None
+
+    with pytest.raises(AssertionError) as e:
+        kids_first_config.contents.validate()
+    assert 'incorrect or null mapping' in str(e.value)
+
+
 def test_relationships_types_and_values(kids_first_config):
     """
     Test for wrong types and values in relationships graph

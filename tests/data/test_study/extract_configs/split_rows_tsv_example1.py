@@ -27,6 +27,10 @@ operations = [
         },
         out_col=CONCEPT.BIOSPECIMEN.ID
     ),
+    constant_map(
+        out_col=CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID,
+        m='SC_A1JNZAZH'
+    ),
     keep_map(
         in_col=4,
         out_col=CONCEPT.GENOMIC_FILE.FILE_NAME

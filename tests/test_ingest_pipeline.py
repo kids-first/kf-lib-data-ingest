@@ -130,6 +130,11 @@ def test_ingest_cmds(cli_cmd, arg_list):
             result.output)
 
     assert 'DRY' in result.output
+    assert (
+        "'sequencing_center_id': 'source: SC_A1JNZAZH --> "
+        "target: SC_A1JNZAZH'" in result.output
+    )
+    assert "'kf_id': 'source: 1 --> target: PT_3QMCQXHZ'" in result.output
 
 
 def test_ingest_no_transform_module(tmpdir):
