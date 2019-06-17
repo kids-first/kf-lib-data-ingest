@@ -43,7 +43,7 @@ operations = [
         m={
             r'.*': lambda x: _sample_mapping.get(x, x)
         },
-        out_col=CONCEPT.BIOSPECIMEN.ALIQUOT_ID
+        out_col=CONCEPT.BIOSPECIMEN_GROUP.ID
     ),
     keep_map(
         in_col='Participant ID',

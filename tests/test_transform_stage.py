@@ -16,18 +16,28 @@ from kf_lib_data_ingest.etl.transform.transform import VALUE_DELIMITER
 from kf_lib_data_ingest.common.constants import RACE
 
 
+def check_compound_uk(row, ukey_col, col1, col2):
+    return (
+        row[ukey_col].split(VALUE_DELIMITER)[0] == row[col1] and
+        row[ukey_col].split(VALUE_DELIMITER)[1] == row[col2]
+    )
+
+
 @pytest.fixture(scope='function')
 def df():
     """
     Reusable test dataframe
     """
     return pd.DataFrame([{CONCEPT.PARTICIPANT.ID: 'P1',
+                          CONCEPT.BIOSPECIMEN_GROUP.ID: 'G1',
                           CONCEPT.BIOSPECIMEN.ID: 'B1',
                           CONCEPT.PARTICIPANT.RACE: RACE.WHITE},
                          {CONCEPT.PARTICIPANT.ID: 'P1',
+                          CONCEPT.BIOSPECIMEN_GROUP.ID: 'G1',
                           CONCEPT.BIOSPECIMEN.ID: 'B2',
                           CONCEPT.PARTICIPANT.RACE: RACE.WHITE},
                          {CONCEPT.PARTICIPANT.ID: 'P2',
+                          CONCEPT.BIOSPECIMEN_GROUP.ID: 'G1',
                           CONCEPT.BIOSPECIMEN.ID: 'B3',
                           CONCEPT.PARTICIPANT.RACE: RACE.ASIAN}])
 
@@ -80,25 +90,33 @@ def test_unique_keys(guided_transform_stage, df):
     are standard unique keys
     """
 
-    # 3 Columns before
-    assert 3 == len(df.columns)
+    # 4 Columns before
+    assert 4 == len(df.columns)
     df = guided_transform_stage._add_unique_key_cols(
         df, unique_key_composition
     )
 
-    # 3 original + 2 unique key cols for the concepts
-    assert 5 == len(df.columns)
+    # 4 original + 3 unique key cols for the concepts
+    assert 7 == len(df.columns)
 
     # Num of distinct concepts shouldn't change
     concepts = set([concept_from(col) for col in df.columns])
-    assert 2 == len(concepts)
+    assert 3 == len(concepts)
 
     # Check values
     for concept_name in concepts:
         ukey_col = f'{concept_name}{DELIMITER}{UNIQUE_ID_ATTR}'
         id_col = f'{concept_name}{DELIMITER}ID'
         assert ukey_col in df.columns
-        assert df[id_col].equals(df[ukey_col])
+        if concept_name == CONCEPT.BIOSPECIMEN._CONCEPT_NAME:
+            col1 = CONCEPT.BIOSPECIMEN_GROUP.ID
+            col2 = CONCEPT.BIOSPECIMEN.ID
+            ukey_col = CONCEPT.BIOSPECIMEN.UNIQUE_KEY
+            assert df.apply(
+                lambda row: check_compound_uk(row, ukey_col, col1, col2),
+                axis=1).all()
+        else:
+            assert df[id_col].equals(df[ukey_col])
 
 
 def test_compound_unique_keys(guided_transform_stage):
@@ -110,13 +128,13 @@ def test_compound_unique_keys(guided_transform_stage):
     keys which are composed of several other concept attributes.
     """
     df = pd.DataFrame([{CONCEPT.PARTICIPANT.ID: 'P1',
-                        CONCEPT.BIOSPECIMEN.ID: 'B1',
+                        CONCEPT.READ_GROUP.ID: 'R1',
                         CONCEPT.GENOMIC_FILE.ID: 'G1'},
                        {CONCEPT.PARTICIPANT.ID: 'P1',
-                        CONCEPT.BIOSPECIMEN.ID: 'B2',
+                        CONCEPT.READ_GROUP.ID: 'R2',
                         CONCEPT.GENOMIC_FILE.ID: 'G1'},
                        {CONCEPT.PARTICIPANT.ID: 'P2',
-                        CONCEPT.BIOSPECIMEN.ID: 'B3',
+                        CONCEPT.READ_GROUP.ID: 'R3',
                         CONCEPT.GENOMIC_FILE.ID: 'G1'}])
 
     # 3 columns before
@@ -136,18 +154,13 @@ def test_compound_unique_keys(guided_transform_stage):
         id_col = f'{concept_name}{DELIMITER}ID'
         assert ukey_col in df.columns
 
-        if concept_name == CONCEPT.BIOSPECIMEN_GENOMIC_FILE._CONCEPT_NAME:
-            col1 = CONCEPT.BIOSPECIMEN.UNIQUE_KEY
+        if concept_name == CONCEPT.READ_GROUP_GENOMIC_FILE._CONCEPT_NAME:
+            col1 = CONCEPT.READ_GROUP.UNIQUE_KEY
             col2 = CONCEPT.GENOMIC_FILE.UNIQUE_KEY
-
-            def func(row):
-                return (
-                    row[ukey_col].split(VALUE_DELIMITER)[0] == row[col1] and
-                    row[ukey_col].split(VALUE_DELIMITER)[1] == row[col2]
-                )
-
-            assert df.apply(lambda row: func(row), axis=1).all()
-
+            ukey_col = CONCEPT.READ_GROUP_GENOMIC_FILE.UNIQUE_KEY
+            assert df.apply(
+                lambda row: check_compound_uk(row, ukey_col, col1, col2),
+                axis=1).all()
         else:
             assert df[id_col].equals(df[ukey_col])
 
@@ -228,11 +241,13 @@ def test_nulls_in_unique_keys(guided_transform_stage):
         'biospecimen': pd.DataFrame({
             CONCEPT.PARTICIPANT.ID: ['p1', 'p2', 'p2'],
             CONCEPT.BIOSPECIMEN.ID: ['b1', 'b2', 'b3'],
+            CONCEPT.BIOSPECIMEN_GROUP.ID: ['bg1', 'bg1', 'bg1'],
             CONCEPT.BIOSPECIMEN.ANALYTE: ['dna', 'rna', 'dna']
         }),
         'genomic_file': pd.DataFrame({
             CONCEPT.GENOMIC_FILE.ID: ['g1', 'g2', 'g3'],
             CONCEPT.BIOSPECIMEN.ID: ['b1', 'b2', 'b4'],
+            CONCEPT.BIOSPECIMEN_GROUP.ID: ['bg1', 'bg1', 'bg1'],
         })
     }
 
@@ -257,7 +272,7 @@ def test_nulls_in_unique_keys(guided_transform_stage):
     )
     assert (
         df[CONCEPT.BIOSPECIMEN_GENOMIC_FILE.UNIQUE_KEY].values.tolist() ==
-        ['b1-g1', 'b2-g2', None, 'b4-g3']
+        ['bg1-b1-g1', 'bg1-b2-g2', None, 'bg1-b4-g3']
     )
 
     # Test compound unique key with optional components

@@ -40,6 +40,10 @@ operations = [
         in_col='sample',
         out_col=CONCEPT.BIOSPECIMEN.ID
     ),
+    keep_map(
+        in_col='sample',
+        out_col=CONCEPT.BIOSPECIMEN_GROUP.ID
+    ),
     value_map(
         in_col='analyte',
         out_col=CONCEPT.BIOSPECIMEN.ANALYTE,

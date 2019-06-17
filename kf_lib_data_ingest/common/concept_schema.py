@@ -85,8 +85,10 @@ class CONCEPT:
         OBSERVED = None
         EVENT_AGE_DAYS = None
 
+    class BIOSPECIMEN_GROUP(PropertyMixin):
+        pass
+
     class BIOSPECIMEN(PropertyMixin):
-        ALIQUOT_ID = None
         TISSUE_TYPE = None
         NCIT_TISSUE_TYPE_ID = None
         ANATOMY_SITE = None
@@ -249,6 +251,7 @@ concept_set = {
     CONCEPT.FAMILY_RELATIONSHIP,
     CONCEPT.FAMILY_RELATIONSHIP.PERSON1,
     CONCEPT.FAMILY_RELATIONSHIP.PERSON2,
+    CONCEPT.BIOSPECIMEN_GROUP,
     CONCEPT.BIOSPECIMEN,
     CONCEPT.DIAGNOSIS,
     CONCEPT.PHENOTYPE,
@@ -295,6 +298,12 @@ def _create_unique_key_composition():
         identifiers[concept._CONCEPT_NAME] = {'required': [concept.ID]}
 
     # Compound unique keys
+    identifiers[CONCEPT.BIOSPECIMEN._CONCEPT_NAME] = {
+        'required': [
+            CONCEPT.BIOSPECIMEN_GROUP.ID,
+            CONCEPT.BIOSPECIMEN.ID
+        ]
+    }
     identifiers[CONCEPT.INVESTIGATOR._CONCEPT_NAME] = {
         'required': [
             CONCEPT.INVESTIGATOR.NAME,

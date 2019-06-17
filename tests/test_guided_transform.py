@@ -37,10 +37,12 @@ def df_dict():
         'biospecimen': pd.DataFrame({
             CONCEPT.PARTICIPANT.UNIQUE_KEY: ['p1', 'p2', 'p2'],
             CONCEPT.BIOSPECIMEN.UNIQUE_KEY: ['b1', 'b2', 'b3'],
+            CONCEPT.BIOSPECIMEN_GROUP.UNIQUE_KEY: ['b1', 'b2', 'b3'],
             CONCEPT.BIOSPECIMEN.ANALYTE: ['dna', 'rna', 'dna']
         }),
         'sequencing_experiment': pd.DataFrame({
             CONCEPT.BIOSPECIMEN.UNIQUE_KEY: ['b1', 'b2', 'b3'],
+            CONCEPT.BIOSPECIMEN_GROUP.UNIQUE_KEY: ['b1', 'b2', 'b3'],
             CONCEPT.SEQUENCING.LIBRARY_NAME: ['lib1', 'lib2', 'lib3']
         })
     }
@@ -169,3 +171,43 @@ def test_bad_ret_vals_transform_funct(guided_transform_stage, ret_val, error):
             guided_transform_stage._apply_transform_funct({})
     else:
         guided_transform_stage._apply_transform_funct({})
+
+
+def test_biospecimen_validation(caplog, guided_transform_stage):
+    """
+    Test biospecimen data validation
+    """
+    caplog.set_level(logging.DEBUG)
+
+    # Test biospecimen dataframe not present
+    guided_transform_stage._validate_data({})
+    assert 'Did not find a DataFrame for biospecimen' in caplog.text
+
+    # Test neither columns are present
+    df_dict = {
+        'biospecimen': pd.DataFrame({
+            CONCEPT.BIOSPECIMEN.ANALYTE: ['dna', 'rna', 'dna']
+        })
+    }
+    guided_transform_stage._validate_data(df_dict)
+    assert (f'Did not find any {CONCEPT.BIOSPECIMEN._CONCEPT_NAME} '
+            f'or {CONCEPT.BIOSPECIMEN_GROUP._CONCEPT_NAME} concepts '
+            'in the data') in caplog.text
+
+    # Test both columns are present
+    df_dict = {
+        'biospecimen': pd.DataFrame({
+            CONCEPT.BIOSPECIMEN.ID: ['b1', 'b2', 'b3'],
+            CONCEPT.BIOSPECIMEN_GROUP.ID: ['b1', 'b2', 'b3'],
+            CONCEPT.BIOSPECIMEN.ANALYTE: ['dna', 'rna', 'dna']
+        })
+    }
+    guided_transform_stage._validate_data(df_dict)
+    assert '✅ Valid biospecimen DataFrame' in caplog.text
+
+    # Test one column is missing
+    for col in [CONCEPT.BIOSPECIMEN.ID, CONCEPT.BIOSPECIMEN_GROUP.ID]:
+        df = df_dict['biospecimen'].drop(col, axis=1)
+        with pytest.raises(Exception) as e:
+            guided_transform_stage._validate_data({'biospecimen': df})
+        assert '❌ Invalid biospecimen DataFrame' in str(e.value)

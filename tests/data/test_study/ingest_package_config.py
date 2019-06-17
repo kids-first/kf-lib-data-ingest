@@ -24,8 +24,8 @@ extract_config_dir = 'extract_configs'
 transform_function_path = 'transform_module.py'
 
 expected_counts = {
-  CONCEPT.BIOSPECIMEN: 60,
-  CONCEPT.PARTICIPANT.ID: 25
+    CONCEPT.BIOSPECIMEN: 63,
+    CONCEPT.PARTICIPANT.ID: 25
 }
 
 study = 'SD_ME0WME0W'

@@ -40,16 +40,22 @@ def data_df_dict(auto_transform_stage):
                           CONCEPT.PARTICIPANT.ID: 'P2',
                           CONCEPT.PARTICIPANT.RACE: None}],
             'subject_sample': [{CONCEPT.PARTICIPANT.ID: 'P1',
-                                CONCEPT.BIOSPECIMEN.ID: 'B1'},
+                                CONCEPT.BIOSPECIMEN.ID: 'B1',
+                                CONCEPT.BIOSPECIMEN_GROUP.ID: 'BG2'},
                                {CONCEPT.PARTICIPANT.ID: 'P1',
-                                CONCEPT.BIOSPECIMEN.ID: 'B2'},
+                                CONCEPT.BIOSPECIMEN.ID: 'B2',
+                                CONCEPT.BIOSPECIMEN_GROUP.ID: 'BG2'},
                                {CONCEPT.PARTICIPANT.ID: 'P2',
-                                CONCEPT.BIOSPECIMEN.ID: 'B3'}],
+                                CONCEPT.BIOSPECIMEN.ID: 'B3',
+                                CONCEPT.BIOSPECIMEN_GROUP.ID: 'BG3'}],
             'sample': [{CONCEPT.BIOSPECIMEN.ID: 'B1',
-                        CONCEPT.PARTICIPANT.RACE: None},
+                        CONCEPT.PARTICIPANT.RACE: None,
+                        CONCEPT.BIOSPECIMEN_GROUP.ID: 'BG1'},
                        {CONCEPT.BIOSPECIMEN.ID: 'B2',
+                        CONCEPT.BIOSPECIMEN_GROUP.ID: 'BG2',
                         CONCEPT.PARTICIPANT.RACE: None},
                        {CONCEPT.BIOSPECIMEN.ID: 'B3',
+                        CONCEPT.BIOSPECIMEN_GROUP.ID: 'BG3',
                         CONCEPT.PARTICIPANT.RACE: RACE.WHITE}]}
     df_dict = {f's3://bucket/key/{k}.csv':
                (f'file:///study/configs/{k}.py', pd.DataFrame(v))
@@ -96,7 +102,7 @@ def random_data_df_dict(auto_transform_stage):
                                     for i in range(n_participants)],
         CONCEPT.PARTICIPANT.UNIQUE_KEY: [f'P{i}'
                                          for i in range(n_participants)],
-        CONCEPT.BIOSPECIMEN.UNIQUE_KEY: [f'B{i}'
+        CONCEPT.BIOSPECIMEN.UNIQUE_KEY: [f'BG{i}-B{i}'
                                          for i in range(n_participants)],
         CONCEPT.PARTICIPANT.RACE: [random.choice(races)
                                    for i in range(n_participants)],
@@ -156,7 +162,7 @@ def test_populate_model(data_df_dict):
                 # biospecimen nodes should contain pointers to biospecimens
                 # from the subject sample file
                 elif node.key.startswith(CONCEPT.BIOSPECIMEN.UNIQUE_KEY):
-                    assert 'subject_sample' in node.uid
+                    assert 'sample' in node.uid
 
 
 def test_transform_all(target_api_config, random_model):
@@ -219,30 +225,31 @@ def test_transform(target_api_config, random_model):
     assert 0 == len(data['phenotype'])
 
 
-@pytest.mark.parametrize('node_concept,neighbor_key,expected_output',
-                         [
-                             # Study, Family F1
-                             (CONCEPT.STUDY._CONCEPT_NAME,
-                              f'{CONCEPT.FAMILY.UNIQUE_KEY}{DELIMITER}F1',
-                              True),
+@pytest.mark.parametrize(
+    'node_concept,neighbor_key,expected_output',
+    [
+        # Study, Family F1
+        (CONCEPT.STUDY._CONCEPT_NAME,
+         f'{CONCEPT.FAMILY.UNIQUE_KEY}{DELIMITER}F1',
+         True),
 
-                             # Participant, Family F1
-                             (CONCEPT.PARTICIPANT._CONCEPT_NAME,
-                              f'{CONCEPT.FAMILY.UNIQUE_KEY}{DELIMITER}F1',
-                              False),
+        # Participant, Family F1
+        (CONCEPT.PARTICIPANT._CONCEPT_NAME,
+         f'{CONCEPT.FAMILY.UNIQUE_KEY}{DELIMITER}F1',
+         False),
 
-                             # Participant, Biospecimen B1
-                             (CONCEPT.PARTICIPANT._CONCEPT_NAME,
-                              f'{CONCEPT.BIOSPECIMEN.UNIQUE_KEY}{DELIMITER}B1',
-                              True),
+        # Participant, Biospecimen B1
+        (CONCEPT.PARTICIPANT._CONCEPT_NAME,
+         f'{CONCEPT.BIOSPECIMEN.UNIQUE_KEY}{DELIMITER}BG1-B1',
+         True),
 
-                             # Participant, Biospecimen B2
-                             (CONCEPT.PARTICIPANT._CONCEPT_NAME,
-                              f'{CONCEPT.BIOSPECIMEN.UNIQUE_KEY}{DELIMITER}B1',
-                              True)
+        # Participant, Biospecimen B2
+        (CONCEPT.PARTICIPANT._CONCEPT_NAME,
+         f'{CONCEPT.BIOSPECIMEN.UNIQUE_KEY}{DELIMITER}BG1-B1',
+         True)
 
-                         ]
-                         )
+    ]
+)
 def test_is_neighbor_valid(target_api_config, model, node_concept,
                            neighbor_key, expected_output):
     """
@@ -263,21 +270,22 @@ def test_is_neighbor_valid(target_api_config, model, node_concept,
     assert g._is_neighbor_valid(node_concept, neighbor, rg) == expected_output
 
 
-@pytest.mark.parametrize('id_node_key,concept_attr,expected_output',
-                         [
-                             # Participant P1, Race
-                             (f'{CONCEPT.PARTICIPANT.UNIQUE_KEY}{DELIMITER}P1',
-                              CONCEPT.PARTICIPANT.RACE, RACE.ASIAN),
+@pytest.mark.parametrize(
+    'id_node_key,concept_attr,expected_output',
+    [
+        # Participant P1, Race
+        (f'{CONCEPT.PARTICIPANT.UNIQUE_KEY}{DELIMITER}P1',
+         CONCEPT.PARTICIPANT.RACE, RACE.ASIAN),
 
-                             # Participant P2, Race
-                             (f'{CONCEPT.PARTICIPANT.UNIQUE_KEY}{DELIMITER}P2',
-                                 CONCEPT.PARTICIPANT.RACE, RACE.WHITE),
+        # Participant P2, Race
+        (f'{CONCEPT.PARTICIPANT.UNIQUE_KEY}{DELIMITER}P2',
+         CONCEPT.PARTICIPANT.RACE, RACE.WHITE),
 
-                             # Biospecimen B1, Tissue type
-                             (f'{CONCEPT.BIOSPECIMEN.UNIQUE_KEY}{DELIMITER}B1',
-                                 CONCEPT.BIOSPECIMEN.TISSUE_TYPE, None)
-                         ]
-                         )
+        # Biospecimen B1, Tissue type
+        (f'{CONCEPT.BIOSPECIMEN.UNIQUE_KEY}{DELIMITER}BG1-B1',
+         CONCEPT.BIOSPECIMEN.TISSUE_TYPE, None)
+    ]
+)
 def test_find_attribute_value(target_api_config, model, id_node_key,
                               concept_attr, expected_output):
 

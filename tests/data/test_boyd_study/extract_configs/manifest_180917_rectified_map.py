@@ -22,10 +22,10 @@ operations = [
     ),
     keep_map(
         in_col='Sample Name',
-        out_col=CONCEPT.BIOSPECIMEN.ALIQUOT_ID
+        out_col=CONCEPT.BIOSPECIMEN.ID
     ),
     keep_map(
         in_col='Sample Name',
-        out_col=CONCEPT.BIOSPECIMEN.ID
+        out_col=CONCEPT.BIOSPECIMEN_GROUP.ID
     )
 ]

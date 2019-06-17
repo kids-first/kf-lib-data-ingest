@@ -23,12 +23,12 @@ def transform_function(mapped_df_dict):
     bs_gf = outer_merge(manifest,
                         s3_files,
                         with_merge_detail_dfs=False,
-                        on='CONCEPT|SEQUENCING|LIBRARY_NAME')
+                        on=CONCEPT.SEQUENCING.LIBRARY_NAME)
 
     all_data_df = outer_merge(
         clinical,
         bs_gf,
-        on=CONCEPT.BIOSPECIMEN.ALIQUOT_ID,
+        on=CONCEPT.BIOSPECIMEN.ID,
         with_merge_detail_dfs=False)
 
     return {DEFAULT_KEY: all_data_df}

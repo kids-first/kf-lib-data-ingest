@@ -15,6 +15,7 @@ from kf_lib_data_ingest.etl.configuration.base_config import (
     ConfigValidationError
 )
 from kf_lib_data_ingest.common.concept_schema import (
+    CONCEPT,
     UNIQUE_ID_ATTR,
     concept_property_split,
     str_to_CONCEPT
@@ -97,6 +98,62 @@ class GuidedTransformStage(TransformStage):
                 )
 
         return merged_df_dict
+
+    def _validate_data(self, df_dict):
+        """
+        Do data validation on the transform function output that warrants
+        stopping pipeline execution so that the user can go back and fix their
+        data or configs
+
+        BIOSPECIMEN Validation
+            - Any BIOSPECIMEN data must contain both the BIOSPECIMEN.ID and
+            BIOSPECIMEN_GROUP.ID concept identifiers
+
+        :param df_dict: output of the user transform function. A dict of Pandas
+        DataFrames
+        :type df_dict: dict
+        """
+        self.logger.info('Start data validation on transform function output')
+
+        # Biospecimen - must have both BIOSPECIMEN.ID and BIOSPECIMEN_GROUP.ID
+        # columns
+        biospecimen_df = df_dict.get('biospecimen', df_dict.get(DEFAULT_KEY))
+        # No DataFrame found - pass
+        if not isinstance(biospecimen_df, pandas.DataFrame):
+            self.logger.debug(
+                'Skipped validation of biospecimen data. '
+                'Did not find a DataFrame for biospecimen'
+            )
+        # Neither column is found - pass
+        elif (
+            (CONCEPT.BIOSPECIMEN_GROUP.ID not in biospecimen_df) and
+            (CONCEPT.BIOSPECIMEN.ID not in biospecimen_df)
+        ):
+            self.logger.debug(
+                'Skipped validation of biospecimen data. '
+                f'Did not find any {CONCEPT.BIOSPECIMEN._CONCEPT_NAME} '
+                f'or {CONCEPT.BIOSPECIMEN_GROUP._CONCEPT_NAME} concepts '
+                'in the data'
+            )
+        # Only one of the two columns found - fail
+        else:
+            self.logger.debug('Validating biospecimen data')
+            valid = (CONCEPT.BIOSPECIMEN.ID in biospecimen_df and
+                     CONCEPT.BIOSPECIMEN_GROUP.ID in biospecimen_df)
+            if not valid:
+                raise Exception(
+                    '❌ Invalid biospecimen DataFrame in transform function '
+                    'output! DataFrame must have both a '
+                    f'{CONCEPT.BIOSPECIMEN.ID} column and a '
+                    f'{CONCEPT.BIOSPECIMEN_GROUP.ID} column. Check your '
+                    'transform module logic or extract configs.'
+                )
+            else:
+                self.logger.debug('✅ Valid biospecimen DataFrame')
+
+        self.logger.info(
+            'Completed data validation on transform function output'
+        )
 
     def _standard_to_target(self, df_dict):
         """
@@ -275,9 +332,11 @@ class GuidedTransformStage(TransformStage):
         """
         See TransformStage._do_transform
         """
-
         # Apply user transform func
         self.transform_func_output = self._apply_transform_funct(data_dict)
+
+        # Validate transform func output
+        self._validate_data(self.transform_func_output)
 
         for key, df in self.transform_func_output.items():
             # Clean up df
