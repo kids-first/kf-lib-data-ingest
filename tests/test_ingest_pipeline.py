@@ -103,8 +103,8 @@ def test_ingest_cmd_missing_required_args():
 @pytest.mark.parametrize(
     'cli_cmd, arg_list',
     [
-        (cli.test, [TEST_STUDY_CONFIG, '--log_level', 'debug']),
-        (cli.ingest, [TEST_STUDY_CONFIG, '--dry_run', '--log_level', 'debug'])
+        (cli.test, [SIMPLE_STUDY_CONFIG, '--log_level', 'debug']),
+        (cli.ingest, [SIMPLE_STUDY_CONFIG, '--dry_run', '--log_level', 'debug'])
     ]
 )
 def test_ingest_cmds(cli_cmd, arg_list):
@@ -113,7 +113,7 @@ def test_ingest_cmds(cli_cmd, arg_list):
     """
     runner = CliRunner()
     result = runner.invoke(cli_cmd, arg_list)
-    assert result.exit_code == 1
+    assert result.exit_code == 0
 
     assert 'BEGIN data ingestion' in result.output
     assert 'END data ingestion' in result.output
@@ -123,18 +123,13 @@ def test_ingest_cmds(cli_cmd, arg_list):
     # Make sure that post-extract counts run
     assert 'Begin Basic Stage Output Validation' in result.output
     assert (
-        "'BIOSPECIMEN|ID': 64,"
+        "'BIOSPECIMEN|ID': 16,"
         in result.output
     )
-    assert ('| BIOSPECIMEN|ID |         63 |      63 | ✅' in
+    assert ('| BIOSPECIMEN|ID |         16 |      16 | ✅' in
             result.output)
 
-    assert 'DRY' in result.output
-    assert (
-        "'sequencing_center_id': 'source: SC_A1JNZAZH --> "
-        "target: SC_A1JNZAZH'" in result.output
-    )
-    assert "'kf_id': 'source: 1 --> target: PT_3QMCQXHZ'" in result.output
+    assert 'DRY RUN' in result.output
 
 
 def test_ingest_no_transform_module(tmpdir):
