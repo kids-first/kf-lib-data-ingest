@@ -59,7 +59,7 @@ def test_safe_pandas_replace_no_cascade():
 
 def test_merge_wo_duplicates(info_caplog, dfs):
     df1 = dfs[0]
-    df2 = dfs[1]
+    df2 = dfs[0].copy()
 
     # Test when all cols match
     expected_df = df1.copy()
@@ -101,15 +101,36 @@ def test_merge_wo_duplicates(info_caplog, dfs):
         pandas_utils.merge_wo_duplicates(df1, df2, left_on='__lkasjdf__')
     assert 'Missing merge column keyword argument(s)' in str(e.value)
 
-    merged = pandas_utils.merge_wo_duplicates(dfs[0], dfs[1],
+    merged = pandas_utils.merge_wo_duplicates(df1, df1,
                                               left_on='A', right_on='A',
                                               how='outer')
-    assert merged.equals(expected_df)
+    assert merged.equals(df1)
+
+
+def test_merge_wo_duplicates_collisions(info_caplog):
+    """
+    merge_wo_duplicates raises an exception if the two sides of a merge contain
+    incompatible data that prevents the magic merge squashing from producing
+    a correct result
+    """
+    left = pandas.DataFrame({'a': [1, 2, 3], 'b': ['a', None, 'c']})
+    right = pandas.DataFrame({'a': [1, 2, 3], 'b': ['a', 'b', None]})
+    out = pandas_utils.merge_wo_duplicates(left, right, on='a')
+    assert out.equals(pandas.DataFrame(
+        {'a': [1, 2, 3], 'b': ['a', 'b', 'c']}, dtype=object
+    ))
+
+    left = pandas.DataFrame({'a': [1, 2, 3], 'b': ['a', None, 'c']})
+    right = pandas.DataFrame({'a': [1, 2, 3], 'b': ['b', 'b', None]})
+    with pytest.raises(Exception) as e:
+        # b_left[0]=='a' collides with b_right[0]=='b'
+        pandas_utils.merge_wo_duplicates(left, right, on='a')
+    assert 'Inconsistent data between left and right DFs' in str(e.value)
 
 
 def test_outer_merge(info_caplog, dfs):
     df1 = dfs[0]
-    df2 = dfs[1]
+    df2 = dfs[0].copy()
     df2.at[2, 'A'] = 'bloo'
 
     ret_val = pandas_utils.outer_merge(df1, df2,

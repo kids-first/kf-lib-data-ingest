@@ -15,16 +15,16 @@ from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
 TEST_ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 TEST_DATA_DIR = os.path.join(TEST_ROOT_DIR, 'data')
 TEST_INGEST_OUTPUT_DIR = os.path.join(TEST_DATA_DIR,
-                                      'test_study',
+                                      'simple_study',
                                       'output')
 KIDS_FIRST_CONFIG = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                  'kf_lib_data_ingest',
                                  'target_apis', 'kids_first.py')
 TRANSFORM_MODULE_PATH = os.path.join(TEST_DATA_DIR,
-                                     'test_study',
+                                     'simple_study',
                                      'transform_module.py')
-TEST_LOG_DIR = os.path.join(TEST_DATA_DIR, 'test_study', 'logs')
-TEST_INGEST_CONFIG = os.path.join(TEST_DATA_DIR, 'test_study',
+TEST_LOG_DIR = os.path.join(TEST_DATA_DIR, 'simple_study', 'logs')
+TEST_INGEST_CONFIG = os.path.join(TEST_DATA_DIR, 'simple_study',
                                   'ingest_package_config.py')
 
 COMMAND_LINE_ERROR_CODE = 2
@@ -135,7 +135,7 @@ def guided_transform_stage(caplog):
 
     patcher.start()
     yield GuidedTransformStage(os.path.join(TEST_DATA_DIR,
-                                            'test_study',
+                                            'simple_study',
                                             'transform_module_simple.py'),
                                KIDS_FIRST_CONFIG,
                                target_api_url=DEFAULT_TARGET_URL,

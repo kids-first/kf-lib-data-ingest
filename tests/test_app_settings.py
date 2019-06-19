@@ -17,7 +17,7 @@ from conftest import (
     make_ingest_pipeline
 )
 
-TEST_STUDY_DIR = os.path.join(TEST_DATA_DIR, 'test_study')
+TEST_STUDY_DIR = os.path.join(TEST_DATA_DIR, 'simple_study')
 SETTINGS_DIR = os.path.join(ROOT_DIR, 'app', 'settings')
 
 
@@ -107,7 +107,7 @@ def test_non_prod_app_modes(info_caplog, cleanup, source_data_file,
         _mock_download_file(host, m, filename, source_data_file.read())
 
         # Build CLI params + opts
-        params = [os.path.join(TEST_DATA_DIR, 'test_study'), '--dry_run']
+        params = [os.path.join(TEST_DATA_DIR, 'simple_study'), '--dry_run']
         # CLI opt
         if app_mode:
             params.extend(['--app_settings',

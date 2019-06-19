@@ -327,6 +327,22 @@ def merge_wo_duplicates(left, right, left_name=None, right_name=None,
                 if coll.endswith(l_suffix):
                     firstpart = coll.split(l_suffix)[0]
                     colr = firstpart + r_suffix
+                    inconsistent = (
+                        (df[coll] != df[colr])
+                        & df[coll].notna()
+                        & df[colr].notna()
+                    )
+                    if any(inconsistent):
+                        raise Exception(
+                            'Inconsistent data between left and right DFs.\n'
+                            f'Kwargs: {kwargs}\n'
+                            f'Left side was:\n{left}\n'
+                            f'Right side was:\n{right}\n'
+                            f'Intermediate was:\n{df}\n'
+                            f'Merge collision between: {coll} and {colr}\n'
+                            'Mismatching values:\n'
+                            f'{df[[coll, colr]][inconsistent]}'
+                        )
                     df[firstpart] = df[coll].fillna(df[colr])
                     to_del.update([coll, colr])
             if not to_del:

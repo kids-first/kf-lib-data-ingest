@@ -27,7 +27,7 @@ def transform_function(mapped_df_dict):
 
     merged = outer_merge(clinical_df,
                          family_and_phenotype_df,
-                         on=CONCEPT.PARTICIPANT.ID,
+                         on=CONCEPT.BIOSPECIMEN.ID,
                          with_merge_detail_dfs=False)
 
     return {DEFAULT_KEY: merged}
