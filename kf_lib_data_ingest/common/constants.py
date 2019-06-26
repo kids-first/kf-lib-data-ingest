@@ -5,14 +5,16 @@ Use preset constants instead.
 
 
 class COMMON:
+    CANNOT_COLLECT = 'Not Allowed To Collect'
+    MULTIPLE = 'Multiple'
     NOT_APPLICABLE = 'Not Applicable'
     NOT_AVAILABLE = 'Not Available'
     NOT_REPORTED = 'Not Reported'
-    UNKNOWN = 'Reported Unknown'
-    CANNOT_COLLECT = 'Not Allowed To Collect'
     NO_MATCH = 'No Match'
     OTHER = 'Other'
-    MULTIPLE = "Multiple"
+    UNKNOWN = 'Reported Unknown'
+    TRUE = True
+    FALSE = False
 
 
 class FILE:
@@ -26,48 +28,74 @@ class FILE:
 
 class SPECIMEN:
     class COMPOSITION:
-        XENOGRAFT = 'Xenograft Tissue'
-        EBVI = 'Epstein-Barr Virus Immortalized Cells'
-        TISSUE = 'Solid Tissue'
-        BLOOD = 'Blood'
-        PERIPHERAL_BLOOD = 'Peripheral Blood'
-        BUCCAL_SWAB = 'Buccal Cells'
+        BLOOD = 'Peripheral Whole Blood'
+        BONE = 'Bone'
         BONE_MARROW = 'Bone Marrow'
+        BUCCAL_SWAB = 'Buccal Cells'
+        EBVI = 'Epstein-Barr Virus Immortalized Cells'
+        FIBROBLASTS = 'Fibroblasts'
+        LINE = 'Derived Cell Line'
+        LYMPHOCYTES = 'Lymphocytes'
+        MNC = 'Mononuclear Cells'
+        PLASMA = 'Plasma'
         SALIVA = 'Saliva'
-        LINES = 'Cell Lines'
-        BONE = "Bone"
+        TISSUE = 'Solid Tissue'
+        XENOGRAFT = 'Xenograft Tissue'
 
-    class TISSUE_TYPE:
-        TUMOR = 'Tumor'
-        GERMLINE = 'Normal'
+    class SAMPLE_PROCUREMENT:
+        AUTOPSY = 'Autopsy'
+        BIOPSY = 'Biopsy'
+        BLOOD_DRAW = 'Blood Draw'
+        SUBTOTAL_RESECTION = 'Subtotal Resection'
+        TOTAL_RESECTION = 'Gross Total Resection'
 
     class ANATOMY_SITE:
+        BONE_MARROW = 'Bone Marrow'
+        HAIR = 'Hair'
         SKULL = 'Skull'
+        CNS = 'Central Nervous System'
+
+    class TISSUE_TYPE:
+        GERMLINE = 'Normal'
+        NORMAL = 'Normal'
+        TUMOR = 'Tumor'
 
 
 class GENOMIC_FILE:
     class AVAILABILITY:
         IMMEDIATE = 'Immediate Download'
-        COLD_STORAGE = 'In cold storage'
-
-    class FORMAT:
-        FASTQ = 'fastq'
-        BAM = 'bam'
-        CRAM = 'cram'
-        BAI = 'bai'
-        CRAI = 'crai'
-        GVCF = 'gvcf'
-        TBI = 'tbi'
-        VCF = 'vcf'
+        COLD_STORAGE = 'Cold Storage'
 
     class DATA_TYPE:
-        UNALIGNED_READS = 'Unaligned Reads'
         ALIGNED_READS = 'Aligned Reads'
         ALIGNED_READS_INDEX = 'Aligned Reads Index'
+        EXPRESSION = 'Expression'
         GVCF = 'gVCF'
         GVCF_INDEX = 'gVCF Index'
+        HISTOLOGY_IMAGES = 'Histology Images'
+        NUCLEOTIDE_VARIATION = 'Simple Nucleotide Variation'
+        OPERATION_REPORTS = 'Operation Reports'
+        PATHOLOGY_REPORTS = 'Pathology Reports'
+        RADIOLOGY_IMAGES = 'Radiology Images'
+        RADIOLOGY_REPORTS = 'Radiology Reports'
+        UNALIGNED_READS = 'Unaligned Reads'
         VARIANT_CALLS = 'Variant Calls'
         VARIANT_CALLS_INDEX = 'Variant Calls Index'
+
+    class FORMAT:
+        BAI = 'bai'
+        BAM = 'bam'
+        CRAI = 'crai'
+        CRAM = 'cram'
+        DCM = 'dcm'
+        FASTQ = 'fastq'
+        GPR = 'gpr'
+        GVCF = 'gvcf'
+        IDAT = 'idat'
+        PDF = 'pdf'
+        SVS = 'svs'
+        TBI = 'tbi'
+        VCF = 'vcf'
 
 
 class SEQUENCING:
@@ -78,53 +106,106 @@ class SEQUENCING:
         HG19 = 'hg19'
 
     class PLATFORM:
+        GENOMICS = 'Complete Genomics'
         ILLUMINA = 'Illumina'
+        ION_TORRENT = 'Ion Torrent'
+        LS454 = 'LS454'
+        PACBIO = 'PacBio'
+        SOLID = 'SOLiD'
 
     class INSTRUMENT:
         HISEQ_X_v2_5 = 'HiSeq X v2.5'
         HISEQ_X_10 = 'HiSeq X Ten'
 
     class STRAND:
-        UNSTRANDED = 'Unstranded'
         FIRST = 'First Stranded'
         SECOND = 'Second Stranded'
-        OTHER = 'Other'
+        UNSTRANDED = 'Unstranded'
 
     class CENTER:
-        class WASHU:
-            NAME = 'Washington University'
-            KF_ID = 'SC_K52V7463'
+        class BAYLOR:
+            NAME = 'Baylor College of Medicine'
+            KF_ID = 'SC_A1JNZAZH'
+
+        class BC_CANCER_ANGECY:
+            NAME = 'British Columbia Cancer Agency Genome Sciences Centre'
+            KF_ID = 'SC_FN7NH453'
+
+        class BGI:
+            NAME = 'BGI@CHOP Genome Center'
+            KF_ID = 'SC_WWEQ9HFY'
 
         class BROAD:
             NAME = 'Broad Institute'
             KF_ID = 'SC_DGDDQVYR'
 
+        class FELINE_DIAGNOSTICS:
+            NAME = 'Feline Diagnostics LLC'
+            KF_ID = 'SC_CATTVETT'
+
         class HUDSON_ALPHA:
             NAME = 'HudsonAlpha Institute for Biotechnology'
             KF_ID = 'SC_X1N69WJM'
 
-        class BAYLOR:
-            NAME = 'Baylor College of Medicine'
-            KF_ID = 'SC_A1JNZAZH'
+        class NANT:
+            NAME = 'NantOmics'
+            KF_ID = 'SC_N1EVHSME'
+
+        class NOVOGENE:
+            NAME = 'Novogene'
+            KF_ID = 'SC_2ZBAMKK0'
+
+        class NCI:
+            NAME = 'National Cancer Institute, Khan Lab'
+            KF_ID = 'SC_F6RZ51K9'
+
+        class SIDRA:
+            NAME = 'Genomic Clinical Core at Sidra Medical and Research Center'
+            KF_ID = 'SC_KE2ASNJM'
 
         class ST_JUDE:
             NAME = 'St Jude'
             KF_ID = 'SC_1K3QGW4V'
 
+        class TGEN:
+            NAME = 'The Translational Genomics Research Institute'
+            KF_ID = 'SC_KQ9JZG3P'
+
+        class VIRTUAL:
+            NAME = 'Virtual'
+            KF_ID = 'SC_BATJDPHB'
+
+        class WASHU:
+            NAME = 'Washington University'
+            KF_ID = 'SC_K52V7463'
+
     class STRATEGY:
+        LINKED_WGS = 'Linked-Read WGS (10x Chromium)'
+        MRNA = 'miRNA-Seq'
+        RNA = 'RNA-Seq'
         WGS = 'WGS'
+        WXS = 'WXS'
 
     class ANALYTE:
         DNA = 'DNA'
         RNA = 'RNA'
+        VIRTUAL = 'Virtual'
 
 
 class STUDY:
     CANCER = 'Cancer'
     STRUCTURAL_DEFECT = 'Structural Birth Defect'
+    STRUCTURAL_DEFECT_AND_CANCER = 'Structural Birth Defect and Cancer'
 
     class STATUS:
+        CANCELED = 'Canceled'
+        FAILED = 'Failed'
         PENDING = 'Pending'
+        PUBLISHED = 'Published'
+        PUBLISHING = 'Publishing'
+        RUNNING = 'Running'
+        STAGED = 'Staged'
+        WAITING = 'Waiting'
 
 
 class CONSENT_TYPE:
@@ -158,7 +239,7 @@ class CONSENT_TYPE:
     # Health/Medical/Biomedical general research
     DS_CHD_IRB = 'DS-CHD-IRB'
     # Disease specific Cardiac Heart Defect
-    DS_CHD = "DS-CHD"
+    DS_CHD = 'DS-CHD'
     # Disease specific Cardiac Heart Defect
     GRU = 'GRU'
     # General Research Use
@@ -168,46 +249,51 @@ class AUTHORITY:
     DBGAP = 'dbGaP'
 
 
-class VITAL_STATUS:
-    DEAD = 'Deceased'
-    ALIVE = 'Alive'
+class OUTCOME:
+    class DISEASE_RELATED:
+        YES = 'Yes'
+        NO = 'No'
+
+    class VITAL_STATUS:
+        ALIVE = 'Alive'
+        DEAD = 'Deceased'
 
 
 class RELATIONSHIP:
-    PROBAND = "Proband"
-    HUSBAND = "Husband"
-    WIFE = "Wife"
-    SPOUSE = "Spouse"
-    MOTHER = "Mother"
-    FATHER = "Father"
-    PARENT = "Parent"
-    BROTHER = "Brother"
-    SISTER = "Sister"
-    TWIN_BROTHER = "Twin Brother"
-    TWIN_SISTER = "Twin Sister"
-    TWIN = "Twin"
-    SIBLING = "Sibling"
-    DAUGHTER = "Daughter"
-    SON = "Son"
-    CHILD = "Child"
-    MATERNAL_GRANDMOTHER = "Maternal Grandmother"
-    MATERNAL_GRANDFATHER = "Maternal Grandfather"
-    MATERNAL_GRANDPARENT = "Maternal Grandparent"
-    PATERNAL_GRANDMOTHER = "Paternal Grandmother"
-    PATERNAL_GRANDFATHER = "Paternal Grandfather"
-    PATERNAL_GRANDPARENT = "Paternal Grandparent"
-    GRANDMOTHER = "Grandmother"
-    GRANDFATHER = "Grandfather"
-    GRANDPARENT = "Grandparent"
-    MATERNAL_GRANDDAUGHTER = "Maternal Granddaughter"
-    MATERNAL_GRANDSON = "Maternal Grandson"
-    MATERNAL_GRANDCHILD = "Maternal Grandchild"
-    PATERNAL_GRANDDAUGHTER = "Paternal Granddaughter"
-    PATERNAL_GRANDSON = "Paternal Grandson"
-    PATERNAL_GRANDCHILD = "Paternal Grandchild"
-    GRANDDAUGHTER = "Granddaughter"
-    GRANDSON = "Grandson"
-    GRANDCHILD = "Grandchild"
+    PROBAND = 'Proband'
+    HUSBAND = 'Husband'
+    WIFE = 'Wife'
+    SPOUSE = 'Spouse'
+    MOTHER = 'Mother'
+    FATHER = 'Father'
+    PARENT = 'Parent'
+    BROTHER = 'Brother'
+    SISTER = 'Sister'
+    TWIN_BROTHER = 'Twin Brother'
+    TWIN_SISTER = 'Twin Sister'
+    TWIN = 'Twin'
+    SIBLING = 'Sibling'
+    DAUGHTER = 'Daughter'
+    SON = 'Son'
+    CHILD = 'Child'
+    MATERNAL_GRANDMOTHER = 'Maternal Grandmother'
+    MATERNAL_GRANDFATHER = 'Maternal Grandfather'
+    MATERNAL_GRANDPARENT = 'Maternal Grandparent'
+    PATERNAL_GRANDMOTHER = 'Paternal Grandmother'
+    PATERNAL_GRANDFATHER = 'Paternal Grandfather'
+    PATERNAL_GRANDPARENT = 'Paternal Grandparent'
+    GRANDMOTHER = 'Grandmother'
+    GRANDFATHER = 'Grandfather'
+    GRANDPARENT = 'Grandparent'
+    MATERNAL_GRANDDAUGHTER = 'Maternal Granddaughter'
+    MATERNAL_GRANDSON = 'Maternal Grandson'
+    MATERNAL_GRANDCHILD = 'Maternal Grandchild'
+    PATERNAL_GRANDDAUGHTER = 'Paternal Granddaughter'
+    PATERNAL_GRANDSON = 'Paternal Grandson'
+    PATERNAL_GRANDCHILD = 'Paternal Grandchild'
+    GRANDDAUGHTER = 'Granddaughter'
+    GRANDSON = 'Grandson'
+    GRANDCHILD = 'Grandchild'
 
 
 REVERSE_RELATIONSHIPS = {
@@ -295,7 +381,7 @@ RELATIONSHIP_GENDERS = {
     },
     RELATIONSHIP.GRANDPARENT: {
         GENDER.MALE: RELATIONSHIP.GRANDFATHER,
-        GENDER.FEMALE: RELATIONSHIP. GRANDMOTHER
+        GENDER.FEMALE: RELATIONSHIP.GRANDMOTHER
     }
 }
 
