@@ -21,7 +21,7 @@ class FILE:
         SHA1 = 'SHA-1'
         SHA256 = 'SHA-256'
         SHA512 = 'SHA-512'
-        S3_ETAG = 'S3 ETag'
+        S3_ETAG = 'ETag'
 
 
 class SPECIMEN:
