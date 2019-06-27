@@ -1,10 +1,12 @@
 """
 Module for loading the transform output into the dataservice.
 """
+import concurrent.futures
 import logging
 import os
 from collections import defaultdict
 from pprint import pformat
+from threading import Lock, current_thread, main_thread
 from urllib.parse import urlparse
 
 import pandas
@@ -12,20 +14,22 @@ import requests
 from requests import RequestException
 from sqlite3worker import Sqlite3Worker, sqlite3worker
 
+from kf_lib_data_ingest.common import constants
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
 from kf_lib_data_ingest.common.misc import multisplit, str_to_obj
 from kf_lib_data_ingest.common.stage import IngestStage
-from kf_lib_data_ingest.network.utils import requests_retry_session
-from kf_lib_data_ingest.config import DEFAULT_ID_CACHE_FILENAME
-from kf_lib_data_ingest.etl.configuration.target_api_config import (
-    TargetAPIConfig
-)
 from kf_lib_data_ingest.common.type_safety import (
     assert_all_safe_type,
     assert_safe_type
 )
-from kf_lib_data_ingest.common import constants
+from kf_lib_data_ingest.config import DEFAULT_ID_CACHE_FILENAME
+from kf_lib_data_ingest.etl.configuration.target_api_config import (
+    TargetAPIConfig
+)
+from kf_lib_data_ingest.network.utils import requests_retry_session
+
 sqlite3worker.LOGGER.setLevel(logging.WARNING)
+count_lock = Lock()
 
 
 def send(req):
@@ -73,6 +77,8 @@ class LoadStage(IngestStage):
         self.dry_run = dry_run
         self.resume_from = resume_from
         self.study_id = study_id
+        self.totals = {}
+        self.counts = {}
 
         target = urlparse(target_url).netloc or urlparse(target_url).path
         self.uid_cache_filepath = os.path.join(
@@ -308,6 +314,8 @@ class LoadStage(IngestStage):
         :param links: map between entity keys and foreign key source unique IDs
         :type links: dict
         """
+        if current_thread() is not main_thread():
+            current_thread().name = f'{entity_type} {entity_id}'
 
         # populate target uid
         target_id_value = body.get(self.target_id_key)
@@ -367,14 +375,13 @@ class LoadStage(IngestStage):
 
             if tgt_id:
                 req_method = 'PATCH'
-                id_str = f' {{{self.target_id_key}: {tgt_id}}}'
+                id_str = f'{{{self.target_id_key}: {tgt_id}}}'
             else:
                 req_method = 'POST'
-                id_str = ''
+                id_str = f'({entity_id})'
 
-            self.logger.info(f'DRY RUN - {req_method} {endpoint}{id_str}')
             self.logger.debug(f'Request body preview:\n{pformat(body)}')
-
+            done_msg = f'DRY RUN - {req_method} {endpoint} {id_str}'
         else:
             # send to the target service
             entity = self._submit(entity_id, entity_type, endpoint, body)
@@ -383,10 +390,18 @@ class LoadStage(IngestStage):
             tgt_id = entity[self.target_id_key]
             self._store_target_id(entity_type, entity_id, tgt_id)
 
-            # log action
-            self.logger.info(
+            done_msg = (
                 f'Loaded {entity_type} {entity_id} --> {{'
                 f'{self.target_id_key}: {tgt_id}}}'
+            )
+
+        # log action
+        with count_lock:
+            self.counts[entity_type] += 1
+            self.logger.info(
+                done_msg +
+                f' (#{self.counts[entity_type]} '
+                f'of {self.totals[entity_type]})'
             )
 
     def _validate_run_parameters(self, target_entities):
@@ -455,19 +470,30 @@ class LoadStage(IngestStage):
             self.logger.info(f'Begin loading {entity_type}')
 
             self.prev_entity = None
-            total = len(entities)
-            for i, entity in enumerate(entities):
+            self.totals[entity_type] = len(entities)
+            self.counts[entity_type] = 0
+
+            if self.use_async:
+                ex = concurrent.futures.ThreadPoolExecutor()
+
+            for entity in entities:
                 entity_id = entity['id']
                 endpoint = entity['endpoint']
                 body = entity['properties']
                 links = entity['links']
 
-                self.logger.info(
-                    f'Loading {entity_type} {entity_id} (#{i+1} of {total})'
-                )
-                self._load_entity(
-                    entity_type, endpoint, entity_id, body, links
-                )
+                if self.use_async and not self.resume_from:
+                    ex.submit(
+                        self._load_entity,
+                        entity_type, endpoint, entity_id, body, links
+                    )
+                else:
+                    self._load_entity(
+                        entity_type, endpoint, entity_id, body, links
+                    )
+
+            if self.use_async:
+                ex.shutdown()
 
             self.logger.info(f'End loading {entity_type}')
 

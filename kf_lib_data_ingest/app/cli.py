@@ -28,6 +28,7 @@ def common_args_options(func):
                           type=click.Path(exists=True,
                                           file_okay=True,
                                           dir_okay=True))(func)
+
     # App settings
     func = click.option(
         '--app_settings', 'app_settings_filepath',
@@ -51,11 +52,13 @@ def common_args_options(func):
                              for level_name in logging._nameToLevel.keys()]
                         ),
                         help=log_help_txt)(func)
+
     # Target URL
     func = click.option(
         '-t', '--target_url',
               default=DEFAULT_TARGET_URL, show_default=True,
               help='Target service URL where data will be loaded into')(func)
+
     # Stages
     func = click.option(
         '--stages', 'stages_to_run_str',
@@ -68,6 +71,38 @@ def common_args_options(func):
             'execution set by the pipeline and contain no gaps in the '
             'stage sequence.'
         ))(func)
+
+    # Resume loading from
+    func = click.option(
+        '--resume_from',
+        default=None,
+        help=(
+            'Dry run until a given target ID, and then load starting '
+            'there.'
+        )
+    )(func)
+
+    # Multithreaded loading
+    func = click.option(
+        '--use_async',
+        default=False,
+        is_flag=True,
+        help=(
+            'A flag specifying whether to use sync or async loading '
+            'into the target service'
+        )
+    )(func)
+
+    # ** Temporary - until auto transform is further developed **
+    # func = click.option(
+    #     '--auto_transform',
+    #     default=False,
+    #     is_flag=True,
+    #     help=(
+    #         'A flag specifying whether to use auto transformation or '
+    #         'user guided transformation'
+    #     )
+    # )(func)
     return func
 
 
@@ -88,21 +123,6 @@ def cli():
               is_flag=True,
               help='A flag specifying whether to only pretend to send data to '
               'the target service. Overrides the resume_from setting.')
-@click.option('--resume_from',
-              default=None,
-              help='Dry run until a given target ID, and then load starting '
-              'there.')
-@click.option('--use_async',
-              default=False,
-              is_flag=True,
-              help='A flag specifying whether to use sync or async loading '
-              'into the target service')
-# ** Temporary - until auto transform is further developed **
-# @click.option('--auto_transform',
-#               default=False,
-#               is_flag=True,
-#               help='A flag specifying whether to use auto transformation or '
-#               'user guided transformation')
 @common_args_options
 def ingest(ingest_package_config_path, app_settings_filepath, log_level_name,
            target_url, stages_to_run_str, use_async, dry_run, resume_from):
@@ -153,8 +173,10 @@ def ingest(ingest_package_config_path, app_settings_filepath, log_level_name,
 @cli.command()
 @common_args_options
 @click.pass_context
-def test(ctx, ingest_package_config_path, app_settings_filepath,
-         log_level_name, target_url, stages_to_run_str):
+def test(
+    ctx, ingest_package_config_path, app_settings_filepath, log_level_name,
+    target_url, stages_to_run_str, use_async, resume_from
+):
     """
     Run the Kids First data ingest pipeline in dry_run mode (--dry_run=True)
     Used for testing ingest packages.
