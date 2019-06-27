@@ -6,7 +6,7 @@ import logging
 import os
 from collections import defaultdict
 from pprint import pformat
-from threading import Lock
+from threading import Lock, current_thread, main_thread
 from urllib.parse import urlparse
 
 import pandas
@@ -314,6 +314,8 @@ class LoadStage(IngestStage):
         :param links: map between entity keys and foreign key source unique IDs
         :type links: dict
         """
+        if current_thread() is not main_thread():
+            current_thread().name = f'{entity_type} {entity_id}'
 
         # populate target uid
         target_id_value = body.get(self.target_id_key)
@@ -373,13 +375,13 @@ class LoadStage(IngestStage):
 
             if tgt_id:
                 req_method = 'PATCH'
-                id_str = f' {{{self.target_id_key}: {tgt_id}}}'
+                id_str = f'{{{self.target_id_key}: {tgt_id}}}'
             else:
                 req_method = 'POST'
-                id_str = f' ({entity_id})'
+                id_str = f'({entity_id})'
 
             self.logger.debug(f'Request body preview:\n{pformat(body)}')
-            log_msg = f'DRY RUN - {req_method} {endpoint}{id_str}'
+            done_msg = f'DRY RUN - {req_method} {endpoint} {id_str}'
         else:
             # send to the target service
             entity = self._submit(entity_id, entity_type, endpoint, body)
@@ -388,7 +390,7 @@ class LoadStage(IngestStage):
             tgt_id = entity[self.target_id_key]
             self._store_target_id(entity_type, entity_id, tgt_id)
 
-            log_msg = (
+            done_msg = (
                 f'Loaded {entity_type} {entity_id} --> {{'
                 f'{self.target_id_key}: {tgt_id}}}'
             )
@@ -397,7 +399,7 @@ class LoadStage(IngestStage):
         with count_lock:
             self.counts[entity_type] += 1
             self.logger.info(
-                log_msg +
+                done_msg +
                 f' (#{self.counts[entity_type]} '
                 f'of {self.totals[entity_type]})'
             )
