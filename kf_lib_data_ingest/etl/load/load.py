@@ -9,14 +9,13 @@ from pprint import pformat
 from threading import Lock, current_thread, main_thread
 from urllib.parse import urlparse
 
-import pandas
 import requests
 from requests import RequestException
 from sqlite3worker import Sqlite3Worker, sqlite3worker
 
 from kf_lib_data_ingest.common import constants
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
-from kf_lib_data_ingest.common.misc import multisplit, str_to_obj
+from kf_lib_data_ingest.common.misc import multisplit
 from kf_lib_data_ingest.common.stage import IngestStage
 from kf_lib_data_ingest.common.type_safety import (
     assert_all_safe_type,
@@ -299,6 +298,27 @@ class LoadStage(IngestStage):
             self.logger.debug(f'Response error:\n{pformat(resp.__dict__)}')
             raise RequestException(resp.text)
 
+    def _apply_property_value_transformations(self, schema, payload):
+        """
+        For any properties in payload that have a value transform function
+        specified in schema, apply the function to the value of the
+        property
+
+        :param schema: dict containing target concept properties schema for the
+        payload
+        :type schema: dict
+        :param payload: target concept instance
+        :type payload: dict
+        :returns: the modified payload with value transformations applied to it
+        """
+        for attribute, value in payload.items():
+            payload[attribute] = value
+            mapping = schema.get(attribute)
+            if isinstance(mapping, tuple):
+                payload[attribute] = mapping[-1](value)
+
+        return payload
+
     def _load_entity(self, entity_type, endpoint, entity_id, body, links):
         """
         Prepare a single entity for submission to the target service.
@@ -323,12 +343,14 @@ class LoadStage(IngestStage):
             target_id_value = self._get_target_id(entity_type, entity_id)
         body[self.target_id_key] = target_id_value
 
-        # convert list/dict-like strings to their native forms and
-        # don't send null attributes
-        body = {
-            k: str_to_obj(v) for k, v in body.items() if not pandas.isnull(v)
-        }
+        # Remove elements with null values
+        body = {k: v for k, v in body.items() if v is not None}
 
+        # Apply property value transformations, if provided
+        body = self._apply_property_value_transformations(
+            self.target_api_config.target_concepts
+            .get(entity_type).get('properties'), body
+        )
         # link cached foreign keys
         for link_dict in links:
             link_type = link_dict.pop('target_concept', None)

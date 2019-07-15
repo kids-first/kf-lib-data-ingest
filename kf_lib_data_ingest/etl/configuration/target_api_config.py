@@ -274,13 +274,12 @@ class TargetAPIConfig(PyModuleConfig):
                 value, type_map_func = value
                 assert_safe_type(type_map_func, callable)
 
-            mapped_attr = str(value)
-            if mapped_attr not in concept_property_set:
+            if value not in concept_property_set:
                 raise ValueError(
                     f'Error in dict for {target_concept}. '
                     'All target concept attributes must be mapped to '
                     'an existing standard concept attribute. Mapped '
-                    f'attribute {mapped_attr} for target attr '
+                    f'attribute {value} for target attr '
                     f'{target_concept}.{target_attr} does not exist.')
 
     def _validate_link_list(self, target_concept_dict):

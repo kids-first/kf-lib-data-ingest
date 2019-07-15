@@ -303,8 +303,12 @@ class GuidedTransformStage(TransformStage):
 
                 # properties
                 target_instance['properties'] = defaultdict()
-                for (target_attr,
-                     std_concept_attr) in config['properties'].items():
+                for (target_attr, value) in config['properties'].items():
+                    if isinstance(value, tuple):
+                        std_concept_attr = value[0]
+                    else:
+                        std_concept_attr = value
+
                     target_instance[
                         'properties'][target_attr] = row.get(std_concept_attr)
 
