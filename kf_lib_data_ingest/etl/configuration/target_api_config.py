@@ -47,12 +47,15 @@ All but the first of these required attributes must be dicts.
 
                     key: a string containing the target concept property
                     value: a standard concept attribute from
-                    etl.transform.standard_model.concept_schema
+                    etl.transform.standard_model.concept_schema OR a tuple
+                    of the form
+                    (standard concept attribute, a type from ALLOWABLE_TYPES)
 
                 example:
                 {
                     'external_id': CONCEPT.PARTICIPANT.ID,
-                    'race': CONCEPT.PARTICIPANT.RACE
+                    'race': CONCEPT.PARTICIPANT.RACE,
+                    'is_proband': (CONCEPT.PARTICIPANT.IS_PROBAND, bool)
                 }
                 description: the target concept property mappings to standard
                 concept attributes
@@ -258,12 +261,20 @@ class TargetAPIConfig(PyModuleConfig):
         # All property keys are strs
         assert_all_safe_type(props_dict.keys(), str)
 
-        # Are all mapped values valid standard concept attributes?
-        for target_attr, mapped_attr in props_dict.items():
-            if mapped_attr is None:
+        # Mapped value must either be a tuple of the form
+        # (standard concept attribute str, a function/callable) OR
+        # standard concept attribute str
+        for target_attr, value in props_dict.items():
+            if value is None:
                 continue
 
-            mapped_attr = str(mapped_attr)
+            # Check type mapping function/callable
+            assert_safe_type(value, str, tuple)
+            if isinstance(value, tuple):
+                value, type_map_func = value
+                assert_safe_type(type_map_func, callable)
+
+            mapped_attr = str(value)
             if mapped_attr not in concept_property_set:
                 raise ValueError(
                     f'Error in dict for {target_concept}. '
