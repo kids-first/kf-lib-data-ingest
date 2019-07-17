@@ -3,6 +3,7 @@ import os
 import pytest
 
 from conftest import KIDS_FIRST_CONFIG
+from kf_lib_data_ingest.common.misc import str_to_obj
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
 from kf_lib_data_ingest.etl.load.load import LoadStage
 
@@ -74,3 +75,35 @@ def test_uid_cache(tmpdir):
 
     assert b1.uid_cache_filepath != a1.uid_cache_filepath
     assert b1.uid_cache_filepath != b2.uid_cache_filepath
+
+
+@pytest.mark.parametrize(
+    'payload, expected_value',
+    [
+        ({'age': '10'}, 10),
+        ({'affected': 'True'}, True),
+        ({'url_list': '["file1.tsv", "file1.tsv", "file1.tsv"]'},
+         ["file1.tsv", "file1.tsv", "file1.tsv"]),
+        ({'url_set': '{"file1.tsv", "file1.tsv", "file1.tsv"}'},
+         {"file1.tsv", "file1.tsv", "file1.tsv"}),
+        ({'hash_dict': "{'md5': 'value'}"}, {'md5': 'value'}),
+        ({'url_list': 'not a list'}, 'not a list'),
+        ({'foo': '10'}, '10'),
+        ({'race': '10'}, '10'),
+    ]
+
+)
+def test_value_transformation(load_stage, payload, expected_value):
+    schema = {
+        'age': ('PARTICIPANT.AGE', int),
+        'affected': ('PARTICIPANT.STATUS', bool),
+        'volume': ('SPECIMEN.VOLUME', float),
+        'url_list': ('GENOMIC_FILE.URL_LIST', str_to_obj),
+        'url_set': ('GENOMIC_FILE.URL_SET', str_to_obj),
+        'hash_dict': ('GENOMIC_FILE.HASH_DICT', str_to_obj),
+        'property': None,
+        'race': 'PARTICIPANT.RACE'
+    }
+    payload = load_stage._apply_property_value_transformations(schema, payload)
+    val = list(payload.values())[0]
+    assert val == expected_value

@@ -177,9 +177,10 @@ def test_links(kids_first_config, link_list, expected_exc, expected_msg):
         kids_first_config._validate_target_concept_attr_mappings()
 
 
-def test_mapped_target_concept_attr(kids_first_config):
+def test_properties(kids_first_config):
     """
-    Test for non-string type of a target concept attribute
+    Test non-str key in target concept schema properties dict
+    Test invalid value in target concept schema properties dict
     """
     # Pick a random target concept
     target_concepts = kids_first_config.contents.target_concepts
@@ -187,12 +188,35 @@ def test_mapped_target_concept_attr(kids_first_config):
     properties = target_concepts[target_concept]['properties']
 
     # Inject a non-string target concept attribute
-    properties[5] = CONCEPT.STUDY.ID
-
+    invalid_key = 5
+    properties[invalid_key] = CONCEPT.STUDY.ID
     # Test
     with pytest.raises(TypeError) as e:
         kids_first_config._validate_target_concept_attr_mappings()
     assert 'requires all items in props_dict.keys() to be' in str(e.value)
+    properties.pop(invalid_key)
+
+    # Not a str or tuple value in properties dict
+    prop = '_ajlajkdhfk_'
+    with pytest.raises(TypeError) as e:
+        properties[prop] = 5
+        kids_first_config._validate_target_concept_attr_mappings()
+
+    # Tuple with invalid standard concept attr
+    with pytest.raises(ValueError) as e:
+        properties[prop] = (prop, int)
+        kids_first_config._validate_target_concept_attr_mappings()
+    assert (
+        'must be mapped to an existing standard concept attribute.'
+        in str(e.value)
+    )
+    # Tuple with invalid value transformation func
+    with pytest.raises(TypeError) as e:
+        properties[prop] = (CONCEPT.PARTICIPANT.ID, prop)
+        kids_first_config._validate_target_concept_attr_mappings()
+    assert (
+        "one of these types: ['callable']" in str(e.value)
+    )
 
 
 def test_endpoints(kids_first_config):

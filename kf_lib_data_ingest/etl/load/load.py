@@ -302,10 +302,9 @@ class LoadStage(IngestStage):
         """
         For any properties in payload that have a value transform function
         specified in schema, apply the function to the value of the
-        property
+        property in payload
 
-        :param schema: dict containing target concept properties schema for the
-        payload
+        :param schema: target concept properties schema for the payload
         :type schema: dict
         :param payload: target concept instance
         :type payload: dict
