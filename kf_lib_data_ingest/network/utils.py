@@ -13,9 +13,9 @@ from requests.packages.urllib3.util.retry import Retry
 from urllib3 import connectionpool
 
 from kf_lib_data_ingest.common.misc import (
+    read_json,
     upper_camel_case,
-    write_json,
-    read_json
+    write_json
 )
 
 # Hide
@@ -103,6 +103,8 @@ def requests_retry_session(
     :param backoff_factor: affects sleep time between retries
     :param status_forcelist: list of HTTP status codes that force retry
     """
+    total = int(os.environ.get('MAX_RETRIES_ON_CONN_ERROR', total))
+
     session = session or requests.Session()
 
     retry = Retry(

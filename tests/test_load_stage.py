@@ -1,8 +1,10 @@
 import os
 
 import pytest
+from click.testing import CliRunner
 
-from conftest import KIDS_FIRST_CONFIG
+from conftest import KIDS_FIRST_CONFIG, TEST_INGEST_CONFIG
+from kf_lib_data_ingest.app import cli
 from kf_lib_data_ingest.common.misc import str_to_obj
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
 from kf_lib_data_ingest.etl.load.load import LoadStage
@@ -91,7 +93,6 @@ def test_uid_cache(tmpdir):
         ({'foo': '10'}, '10'),
         ({'race': '10'}, '10'),
     ]
-
 )
 def test_value_transformation(load_stage, payload, expected_value):
     schema = {
@@ -107,3 +108,23 @@ def test_value_transformation(load_stage, payload, expected_value):
     payload = load_stage._apply_property_value_transformations(schema, payload)
     val = list(payload.values())[0]
     assert val == expected_value
+
+
+def test_ingest_load_async_error():
+    """
+    Test that async loading exits when threads raise exceptions
+    """
+    prev_environ = os.environ.get('MAX_RETRIES_ON_CONN_ERROR')
+    os.environ['MAX_RETRIES_ON_CONN_ERROR'] = '0'
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli.ingest,
+        [TEST_INGEST_CONFIG, '--use_async', '--target_url', 'http://potato']
+    )
+    assert result.exit_code == 1
+
+    if prev_environ:
+        os.environ['MAX_RETRIES_ON_CONN_ERROR'] = prev_environ
+    else:
+        del os.environ['MAX_RETRIES_ON_CONN_ERROR']

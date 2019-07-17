@@ -496,6 +496,7 @@ class LoadStage(IngestStage):
 
             if self.use_async:
                 ex = concurrent.futures.ThreadPoolExecutor()
+                futures = []
 
             for entity in entities:
                 entity_id = entity['id']
@@ -504,9 +505,11 @@ class LoadStage(IngestStage):
                 links = entity['links']
 
                 if self.use_async and not self.resume_from:
-                    ex.submit(
-                        self._load_entity,
-                        entity_type, endpoint, entity_id, body, links
+                    futures.append(
+                        ex.submit(
+                            self._load_entity,
+                            entity_type, endpoint, entity_id, body, links
+                        )
                     )
                 else:
                     self._load_entity(
@@ -514,6 +517,8 @@ class LoadStage(IngestStage):
                     )
 
             if self.use_async:
+                for f in concurrent.futures.as_completed(futures):
+                    f.result()
                 ex.shutdown()
 
             self.logger.info(f'End loading {entity_type}')
