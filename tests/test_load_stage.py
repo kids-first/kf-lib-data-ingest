@@ -93,10 +93,7 @@ def test_uid_cache(tmpdir):
         ({'foo': '10'}, '10'),
         ({'race': '10'}, '10'),
     ]
-
 )
-
-
 def test_value_transformation(load_stage, payload, expected_value):
     schema = {
         'age': ('PARTICIPANT.AGE', int),
@@ -131,4 +128,3 @@ def test_ingest_load_async_error():
         os.environ['MAX_RETRIES_ON_CONN_ERROR'] = prev_environ
     else:
         del os.environ['MAX_RETRIES_ON_CONN_ERROR']
-
