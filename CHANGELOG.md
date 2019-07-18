@@ -1,3 +1,22 @@
+# Kids First Lib Data Ingest Release 0.6.0
+
+## Features
+
+### Summary
+
+Feature Emojis: ✨ x4 🐛 x1 👷 x2 
+Feature Categories: [bug](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/bug) x1 [devops](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/devops) x2 [feature](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/feature) x4 
+
+### New features and changes
+
+- (#352) 🐛 Exit on thread exception - @fiendish
+- (#350) ✨ Add type mapping to target api config - @znatty22
+- (#349) 👷 Updates Constants - @liberaliscomputing
+- (#348) 👷 Blanket Ignore All Dotfiles - @liberaliscomputing
+- (#347) ✨ Add ETag to constants - @znatty22
+- (#344) ✨ Optional multithreaded loading - @fiendish
+- (#343) ✨ Error on inconsistent merge inputs - @fiendish
+
 # Kids First Lib Data Ingest Release 0.5.0
 
 ## Features
