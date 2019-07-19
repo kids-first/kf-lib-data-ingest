@@ -73,7 +73,7 @@ class GENOMIC_FILE:
         GVCF = 'gVCF'
         GVCF_INDEX = 'gVCF Index'
         HISTOLOGY_IMAGES = 'Histology Images'
-        NUCLEOTIDE_VARIATION = 'Simple Nucleotide Variation'
+        NUCLEOTIDE_VARIATION = 'Simple Nucleotide Variations'
         OPERATION_REPORTS = 'Operation Reports'
         PATHOLOGY_REPORTS = 'Pathology Reports'
         RADIOLOGY_IMAGES = 'Radiology Images'
@@ -81,6 +81,12 @@ class GENOMIC_FILE:
         UNALIGNED_READS = 'Unaligned Reads'
         VARIANT_CALLS = 'Variant Calls'
         VARIANT_CALLS_INDEX = 'Variant Calls Index'
+        ANNOTATED_SOMATIC_MUTATIONS = 'Annotated Somatic Mutations'
+        GENE_EXPRESSION = 'Gene Expression'
+        GENE_FUSIONS = 'Gene Fusions'
+        ISOFORM_EXPRESSION = 'Isoform Expression'
+        SOMATIC_COPY_NUMBER_VARIATIONS = 'Somatic Copy Number Variations'
+        SOMATIC_STRUCTURAL_VARIATIONS = 'Somatic Structural Variations'
 
     class FORMAT:
         BAI = 'bai'
