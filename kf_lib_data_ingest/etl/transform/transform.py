@@ -415,9 +415,9 @@ class TransformStage(IngestStage):
         columns added to each DataFrame
         """
         self.logger.info('Begin unique key creation for standard concepts ...')
-        for extract_config_url, (source_file_url, df) in df_dict.items():
+        for reference, (df_name, df) in df_dict.items():
             # Insert unique key columns
-            self.logger.info(f'Creating unique keys for {source_file_url}...')
+            self.logger.info(f'Creating unique keys for {df_name}...')
             df = self._add_unique_key_cols(df, unique_key_composition)
 
             # If no unique key columns are present raise an error.
@@ -431,8 +431,8 @@ class TransformStage(IngestStage):
                     'No unique keys were created for table! There must '
                     'be at least 1 unique key column in a table. Zero unique '
                     'keys in a table means there is no way to identify any '
-                    ' concept instances. Source of error is '
-                    f'{extract_config_url} : {source_file_url}'
+                    'concept instances. Source of error is '
+                    f'{reference} : {df_name}'
                 )
 
     def _add_unique_key_cols(self, df, unique_key_composition):

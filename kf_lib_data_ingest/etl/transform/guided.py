@@ -38,26 +38,6 @@ class GuidedTransformStage(TransformStage):
         self.transform_func_dir = os.path.join(self.stage_cache_dir,
                                                'transform_function_output')
 
-    def _write_output(self, output):
-        """
-        Write normal transform stage output (see TransformStage._write_output)
-        and also the write out the dataframe from the user defined transform
-        function (output from _apply_transform_funct).
-
-        :param output: See TransformStage._write_output
-        :type output: dict
-        """
-        self.logger.info(f'Writing intermediate data - output of user defined'
-                         f' transform func to {self.transform_func_dir}')
-
-        os.makedirs(self.transform_func_dir, exist_ok=True)
-
-        for key, df in self.transform_func_output.items():
-            fp = os.path.join(self.transform_func_dir, key + '.tsv')
-            df.to_csv(fp, sep='\t', index=True)
-
-        super()._write_output(output)
-
     def _apply_transform_funct(self, data_dict):
         """
         Apply user supplied transform function to merge dataframes in data_dict
@@ -73,8 +53,8 @@ class GuidedTransformStage(TransformStage):
                          f'{filepath} ...')
 
         # Reformat the data_dict into expected form for transform_funct
-        # Turn data_dict[<extract config url>] = (source data url, dataframe)
-        # into df_dict[<extract config url>] = dataframe
+        # Turn data_dict[<extract config file>] = (source data url, dataframe)
+        # into df_dict[<extract config file>] = dataframe
         df_dict = {k: v[1] for k, v in data_dict.items()}
 
         # Apply user supplied transform function
@@ -342,11 +322,20 @@ class GuidedTransformStage(TransformStage):
         # Validate transform func output
         self._validate_data(self.transform_func_output)
 
+        # Clean up dfs
         for key, df in self.transform_func_output.items():
-            # Clean up df
             self.transform_func_output[key] = clean_up_df(df)
 
-            # Insert unique key columns
+        # Write transform func output to disk
+        self.logger.info(f'Writing intermediate data - output of user defined'
+                         f' transform func to {self.transform_func_dir}')
+        os.makedirs(self.transform_func_dir, exist_ok=True)
+        for key, df in self.transform_func_output.items():
+            fp = os.path.join(self.transform_func_dir, key + '.tsv')
+            df.to_csv(fp, sep='\t', index=True)
+
+        # Insert unique key columns
+        for key, df in self.transform_func_output.items():
             self._insert_unique_keys(
                 {
                     os.path.join(self.transform_func_dir, key + '.tsv'): (
