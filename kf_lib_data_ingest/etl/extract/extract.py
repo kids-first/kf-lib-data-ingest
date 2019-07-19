@@ -14,7 +14,12 @@ from kf_lib_data_ingest.common.file_retriever import (
     FileRetriever,
     split_protocol
 )
-from kf_lib_data_ingest.common.misc import clean_up_df, read_json, write_json
+from kf_lib_data_ingest.common.misc import (
+    clean_up_df,
+    clean_walk,
+    read_json,
+    write_json
+)
 from kf_lib_data_ingest.common.pandas_utils import split_df_rows_on_splits
 from kf_lib_data_ingest.common.stage import IngestStage
 from kf_lib_data_ingest.common.type_safety import (
@@ -39,15 +44,22 @@ def lcm(number_list):
 
 class ExtractStage(IngestStage):
     def __init__(
-        self, stage_cache_dir, extract_config_paths, auth_configs=None
+        self, stage_cache_dir, extract_config_dir, auth_configs=None
     ):
         super().__init__(stage_cache_dir)
-        if isinstance(extract_config_paths, list):
-            self.extract_configs = [ExtractConfig(config_filepath)
-                                    for config_filepath
-                                    in extract_config_paths]
-        elif isinstance(extract_config_paths, str):
-            self.extract_configs = [ExtractConfig(extract_config_paths)]
+
+        assert_safe_type(extract_config_dir, str)
+        self.extract_config_dir = extract_config_dir
+        self.extract_configs = [
+            ExtractConfig(filepath)
+            for filepath in clean_walk(self.extract_config_dir)
+            if filepath.endswith('.py')
+        ]
+        for ec in self.extract_configs:
+            ec.config_file_relpath = os.path.relpath(
+                ec.config_filepath,
+                start=self.extract_config_dir
+            )
 
         self.FR = FileRetriever(auth_configs=auth_configs)
 
@@ -384,7 +396,7 @@ class ExtractStage(IngestStage):
             # standardize values again after operations
             df_out = clean_up_df(df_out)
 
-            output[extract_config.config_filepath] = (data_path, df_out)
+            output[extract_config.config_file_relpath] = (data_path, df_out)
 
         # return dictionary of all dataframes keyed by extract config paths
         return output
