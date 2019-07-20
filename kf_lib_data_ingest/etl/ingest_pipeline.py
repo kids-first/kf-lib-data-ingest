@@ -183,7 +183,7 @@ class DataIngestPipeline(object):
 
         yield ExtractStage(
             self.ingest_output_dir,
-            self.data_ingest_config.extract_config_paths,
+            self.data_ingest_config.extract_config_dir,
             self.auth_configs
         )
 
