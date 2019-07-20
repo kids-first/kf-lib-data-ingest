@@ -48,11 +48,6 @@ class IngestPackageConfig(PyModuleConfig):
             os.path.dirname(self.config_filepath),
             self.extract_config_dir
         )
-        self.extract_config_paths = [
-            os.path.join(self.extract_config_dir, filename)
-            for filename in os.listdir(self.extract_config_dir)
-            if filename.endswith('.py')
-        ]
 
         self._set_log_params()
 

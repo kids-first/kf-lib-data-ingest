@@ -15,25 +15,18 @@ from kf_lib_data_ingest.etl.extract.extract import ExtractStage
 TEST_FILE_PATH = os.path.join(TEST_DATA_DIR, 'data.csv')
 
 study_1 = os.path.join(TEST_DATA_DIR, 'test_study')
+study_subdirs = {
+    study_1: {
+        'config': 'extract_configs',
+        'output': 'extract_outputs'
+    }
+}
 expected_results = {
     study_1: {
-        os.path.join(study_1, 'extract_configs', 'simple_tsv_example1.py'):
-            os.path.join(
-                study_1, 'extract_outputs', 'simple_tsv_example1_output.tsv'
-        ),
-        os.path.join(study_1, 'extract_configs', 'simple_tsv_example2.py'):
-            os.path.join(
-                study_1, 'extract_outputs', 'simple_tsv_example2_output.tsv'
-        ),
-        os.path.join(study_1, 'extract_configs', 'unsimple_xlsx_example1.py'):
-            os.path.join(
-                study_1, 'extract_outputs', 'unsimple_xlsx_example1_output.tsv'
-        ),
-        os.path.join(study_1, 'extract_configs', 'split_rows_tsv_example1.py'):
-            os.path.join(
-                study_1,
-                'extract_outputs', 'split_rows_tsv_example1_output.tsv'
-        )
+        'simple_tsv_example1.py': 'simple_tsv_example1_output.tsv',
+        'simple_tsv_example2.py': 'simple_tsv_example2_output.tsv',
+        'unsimple_xlsx_example1.py': 'unsimple_xlsx_example1_output.tsv',
+        'split_rows_tsv_example1.py': 'split_rows_tsv_example1_output.tsv'
     }
 }
 
@@ -72,14 +65,20 @@ def rectify_cols_and_datatypes(A, B):
 def test_extracts():
     for study_dir, study_configs in expected_results.items():
         extract_configs = list(study_configs.keys())
-        es = ExtractStage(os.path.join(study_dir, 'output'), extract_configs)
+        es = ExtractStage(
+            os.path.join(study_dir, 'output'),
+            os.path.join(study_dir, study_subdirs[study_dir]['config'])
+        )
         df_out = es.run()
         recycled_output = es.read_output()
-
         for config in extract_configs:
-            extracted = df_out[config][1]
+            extracted = df_out[os.path.basename(config)][1]
             expected = es._source_file_to_df(
-                'file://' + study_configs[config]
+                'file://' + os.path.join(
+                    study_dir,
+                    study_subdirs[study_dir]['output'],
+                    study_configs[config]
+                )
             )
 
             expected.set_index('index', inplace=True)
@@ -88,7 +87,7 @@ def test_extracts():
 
             # test serialize/deserialize equivalence
             A, B = rectify_cols_and_datatypes(
-                extracted, recycled_output[config][1]
+                extracted, recycled_output[os.path.basename(config)][1]
             )
             pandas.testing.assert_frame_equal(A, B)
 
@@ -99,7 +98,7 @@ def test_extracts():
 
 @requests_mock.Mocker(kw='mock')
 def test_bad_file_types(**kwargs):
-    es = ExtractStage(None, None)
+    es = ExtractStage('', '')
     mock = kwargs['mock']
 
     # no type
@@ -132,7 +131,7 @@ def test_no_load_return():
     f = os.path.join(
         study_1, 'extract_outputs', 'simple_tsv_example1_output.tsv'
     )
-    es = ExtractStage(None, None)
+    es = ExtractStage('', '')
     with pytest.raises(ConfigValidationError):
         es._source_file_to_df(
             'file://' + f,
@@ -141,7 +140,7 @@ def test_no_load_return():
 
 
 def test_visibility():
-    es = ExtractStage(None, None)
+    es = ExtractStage('', '')
 
     a = [True, False, None]
     b = [False, True, None]

@@ -18,6 +18,25 @@ from kf_lib_data_ingest.common.type_safety import (
 )
 
 
+def clean_walk(start_dir):
+    """
+    Like os.walk but without hidden secrets
+    """
+    paths = []
+    exclude_prefixes = ('__', '.')
+
+    for root, dirs, filenames in os.walk(start_dir):
+        paths.extend([
+            os.path.join(root, f) for f in filenames
+            if not f.startswith(exclude_prefixes)
+        ])
+        # Don't traverse any dirs starting with exclude_prefixes.
+        # os.walk reinspects the dirs list, so we modify it in place.
+        dirs[:] = [d for d in dirs if not d.startswith(exclude_prefixes)]
+
+    return paths
+
+
 def import_module_from_file(filepath):
     """
     Import a Python module given a filepath
