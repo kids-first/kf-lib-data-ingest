@@ -18,6 +18,13 @@ from kf_lib_data_ingest.common.misc import str_to_obj
 
 target_service_entity_id = 'kf_id'
 
+
+def indexd_hashes(dictstr):
+    return {
+        k.lower().replace('-', ''): v for k, v in str_to_obj(dictstr).items()
+    }
+
+
 target_concepts = {
     'investigator': {
         'standard_concept': CONCEPT.INVESTIGATOR,
@@ -240,7 +247,7 @@ target_concepts = {
             "availability": CONCEPT.GENOMIC_FILE.AVAILABILITY,
             "controlled_access": None,
             "is_harmonized": CONCEPT.GENOMIC_FILE.HARMONIZED,
-            "hashes": (CONCEPT.GENOMIC_FILE.HASH_DICT, str_to_obj),
+            "hashes": (CONCEPT.GENOMIC_FILE.HASH_DICT, indexd_hashes),
             "size": (CONCEPT.GENOMIC_FILE.SIZE, int),
             "urls": (CONCEPT.GENOMIC_FILE.URL_LIST, str_to_obj),
             "acl": None,
