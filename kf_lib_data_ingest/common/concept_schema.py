@@ -9,6 +9,11 @@ class FileMixin(object):
     FILE_NAME = None
     HASH_DICT = None
     URL_LIST = None
+    ACL = None
+    AVAILABILITY = None
+    CONTROLLED_ACCESS = None
+    FILE_FORMAT = None
+    DATA_TYPE = None
 
 
 class PropertyMixin(object):
@@ -105,12 +110,9 @@ class CONCEPT:
         VOLUME_ML = None
 
     class GENOMIC_FILE(PropertyMixin, FileMixin):
-        AVAILABILITY = None
         HARMONIZED = None
         CAVATICA_OUTPUT_FILE = None
         REFERENCE_GENOME = None
-        FILE_FORMAT = None
-        DATA_TYPE = None
 
     class READ_GROUP(PropertyMixin):
         PAIRED_END = None
