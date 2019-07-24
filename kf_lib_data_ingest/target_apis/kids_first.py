@@ -245,12 +245,14 @@ target_concepts = {
             "file_format": CONCEPT.GENOMIC_FILE.FILE_FORMAT,
             "data_type": CONCEPT.GENOMIC_FILE.DATA_TYPE,
             "availability": CONCEPT.GENOMIC_FILE.AVAILABILITY,
-            "controlled_access": None,
+            "controlled_access": (
+                CONCEPT.GENOMIC_FILE.CONTROLLED_ACCESS, str_to_obj
+            ),
             "is_harmonized": CONCEPT.GENOMIC_FILE.HARMONIZED,
             "hashes": (CONCEPT.GENOMIC_FILE.HASH_DICT, indexd_hashes),
             "size": (CONCEPT.GENOMIC_FILE.SIZE, int),
             "urls": (CONCEPT.GENOMIC_FILE.URL_LIST, str_to_obj),
-            "acl": None,
+            "acl": (CONCEPT.GENOMIC_FILE.ACL, str_to_obj),
             "reference_genome": CONCEPT.GENOMIC_FILE.REFERENCE_GENOME,
             'visible': CONCEPT.GENOMIC_FILE.VISIBLE
         },
