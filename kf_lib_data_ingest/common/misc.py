@@ -185,16 +185,22 @@ def convert_to_downcasted_str(val, replace_na=False, na=None):
 
 def str_to_obj(var):
     """
-    Convert a string that looks like a list, dict, or tuple back into its
+    Convert a string that looks like a list, dict, tuple, or bool back into its
     native object form.
     """
     if not isinstance(var, str):
         return var
-    if var.startswith(("[", "{", "(")):
+    elif var.startswith(("[", "{", "(")):
         try:
             return ast.literal_eval(var)
         except Exception:
             pass
+    else:
+        lowvar = var.strip().lower()
+        if lowvar == 'false':
+            return False
+        elif lowvar == 'true':
+            return True
     return var
 
 

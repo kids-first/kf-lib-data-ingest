@@ -121,8 +121,6 @@ def constant_map(m, out_col):
         populate
     :returns: A function that applies the specified m operation
     """
-    assert_safe_type(m, int, float, bool, str, bytes)
-
     def constant_map_func(df):
         new_df = DataFrame(index=df.index.copy())
         new_df[out_col] = [m] * len(df)

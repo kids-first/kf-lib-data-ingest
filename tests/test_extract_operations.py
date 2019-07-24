@@ -141,12 +141,6 @@ def test_row_map():
 
 
 def test_constant_map():
-    # tests passing allowed and disallowed types
-    _test_map_allowed_types(
-        operations.constant_map,
-        {int, float, bool, str, bytes},
-        out_col='OUT_COL'
-    )
     func = operations.constant_map(5, "OUT_COL")
     assert func(df).equals(
         pandas.DataFrame({'OUT_COL': [5, 5, 5]})
