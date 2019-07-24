@@ -259,6 +259,13 @@ class DataIngestPipeline(object):
                         output = stage.run()  # First stage gets no input
                     else:
                         output = stage.run(output)
+
+                    # Standard stage output validation
+                    if stage.concept_discovery_dict:
+                        passed, messages = self.check_stage_counts(stage)
+                        all_passed = passed and all_passed
+                        all_messages.extend(messages)
+
                 # Load cached output and concept counts
                 else:
                     self.logger.info(
@@ -267,12 +274,6 @@ class DataIngestPipeline(object):
                     )
                     output = stage.read_output()
                     stage.read_concept_counts()
-
-                # Standard stage output validation
-                if stage.concept_discovery_dict:
-                    passed, messages = self.check_stage_counts(stage)
-                    all_passed = passed and all_passed
-                    all_messages.extend(messages)
 
             self._log_count_results(all_passed, all_messages)
 
