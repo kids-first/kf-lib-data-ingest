@@ -25,14 +25,10 @@ from kf_lib_data_ingest.config import DEFAULT_ID_CACHE_FILENAME
 from kf_lib_data_ingest.etl.configuration.target_api_config import (
     TargetAPIConfig
 )
-from kf_lib_data_ingest.network.utils import requests_retry_session
+from kf_lib_data_ingest.network.utils import RetrySession
 
 sqlite3worker.LOGGER.setLevel(logging.WARNING)
 count_lock = Lock()
-
-
-def send(req):
-    return requests_retry_session().send(req)
 
 
 class LoadStage(IngestStage):
@@ -181,9 +177,9 @@ class LoadStage(IngestStage):
     def _write_output(self, output):
         pass  # TODO
 
-    def _prepare_patch(self, endpoint, target_id, body):
+    def _PATCH(self, endpoint, target_id, body):
         """
-        Prepare a PATCH request for the target service.
+        Send a PATCH request to the target service.
 
         :param endpoint: which target service endpoint to hit
         :type endpoint: str
@@ -191,51 +187,48 @@ class LoadStage(IngestStage):
         :type target_id: str
         :param body: map between entity keys and values
         :type body: dict
-        :return: prepared PATCH request object
-        :rtype: requests.PreparedRequest
+        :return: PATCH request response
+        :rtype: requests.Response
         """
         host = self.target_url
-        return requests.Request(
-            method='PATCH',
+        return RetrySession().patch(
             url='/'.join([v.strip('/') for v in [host, endpoint, target_id]]),
             json=body
-        ).prepare()
+        )
 
-    def _prepare_post(self, endpoint, body):
+    def _POST(self, endpoint, body):
         """
-        Prepare a POST request for the target service.
+        Send a POST request to the target service.
 
         :param endpoint: which target service endpoint to hit
         :type endpoint: str
         :param body: map between entity keys and values
         :type body: dict
-        :return: prepared POST request object
-        :rtype: requests.PreparedRequest
+        :return: POST request response
+        :rtype: requests.Response
         """
         host = self.target_url
-        return requests.Request(
-            method='POST',
+        return RetrySession().post(
             url='/'.join([v.strip('/') for v in [host, endpoint]]),
             json=body
-        ).prepare()
+        )
 
-    def _prepare_get(self, endpoint, body):
+    def _GET(self, endpoint, body):
         """
-        Prepare a GET request for the target service.
+        Send a GET request to the target service.
 
         :param endpoint: which target service endpoint to hit
         :type endpoint: str
         :param body: filter arguments keys and values
         :type body: dict
-        :return: prepared GET request object
-        :rtype: requests.PreparedRequest
+        :return: GET request response
+        :rtype: requests.Response
         """
         host = self.target_url
-        return requests.Request(
-            method='GET',
+        return RetrySession().get(
             url='/'.join([v.strip('/') for v in [host, endpoint]]),
             params=body
-        ).prepare()
+        )
 
     def _submit(self, entity_id, entity_type, endpoint, body):
         """
@@ -259,10 +252,9 @@ class LoadStage(IngestStage):
             self.logger.debug(
                 f'Trying to PATCH {entity_type} {target_id}.'
             )
-            req = self._prepare_patch(
+            resp = self._PATCH(
                 endpoint, target_id, body
             )
-            resp = send(req)
             if resp.status_code == 404:
                 self.logger.debug(
                     f'Entity {entity_type} {target_id} not found in target '
@@ -274,8 +266,7 @@ class LoadStage(IngestStage):
             self.logger.debug(
                 f'Trying to POST new {entity_type} {entity_id}.'
             )
-            req = self._prepare_post(endpoint, body)
-            resp = send(req)
+            resp = self._POST(endpoint, body)
 
         self.logger.debug(f'Request body: \n{pformat(body)}')
 
@@ -290,8 +281,8 @@ class LoadStage(IngestStage):
             # Our dataservice returns 400 if a relationship already exists
             # even though that's a silly thing to do.
             # See https://github.com/kids-first/kf-api-dataservice/issues/419
-            req = self._prepare_get(endpoint, body)
-            result = send(req).json()['results'][0]
+            resp = self._GET(endpoint, body)
+            result = resp.json()['results'][0]
             self.logger.debug(f'Already exists:\n{pformat(result)}')
             return result
         else:
