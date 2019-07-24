@@ -5,23 +5,18 @@ import cgi
 import logging
 import os
 import urllib.parse
+from pprint import pformat
 
 import requests
 from requests.adapters import HTTPAdapter
 from requests.exceptions import ConnectionError
 from requests.packages.urllib3.util.retry import Retry
-from urllib3 import connectionpool
 
 from kf_lib_data_ingest.common.misc import (
     read_json,
     upper_camel_case,
     write_json
 )
-
-# Hide
-# urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000         # noqa E501
-# urllib3.connectionpool - DEBUG - http://localhost:5000 "POST /families HTTP/1.1" 201 371  # noqa E501
-connectionpool.log.setLevel(logging.INFO)
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +35,7 @@ def http_get_file(url, dest_obj, **kwargs):
     """
 
     kwargs['stream'] = True
-    response = requests_retry_session(connect=1).get(url, **kwargs)
+    response = RetrySession(connect=1).get(url, **kwargs)
 
     if response.status_code == 200:
         # Get filename from Content-Disposition header
@@ -84,17 +79,13 @@ def http_get_file(url, dest_obj, **kwargs):
     return response
 
 
-def requests_retry_session(
-        session=None, total=10, read=10, connect=10, status=10,
-        backoff_factor=5, status_forcelist=(500, 502, 503, 504)
-):
+class RetrySession(requests.Session):
     """
-    Send an http request and retry on failures or redirects
+    Session for sending http requests with retry on failures or redirects
 
-    See urllib3.Retry docs for details on all kwargs except `session`
+    See urllib3.Retry docs for details on all kwargs
     Modified source: https://www.peterbe.com/plog/best-practice-with-retries-with-requests # noqa E501
 
-    :param session: the requests.Session to use
     :param total: total retry attempts
     :param read: total retries on read errors
     :param connect: total retries on connection errors
@@ -103,23 +94,30 @@ def requests_retry_session(
     :param backoff_factor: affects sleep time between retries
     :param status_forcelist: list of HTTP status codes that force retry
     """
-    total = int(os.environ.get('MAX_RETRIES_ON_CONN_ERROR', total))
+    def __init__(
+        self, total=10, read=10, connect=10, status=10, backoff_factor=5,
+        status_forcelist=(500, 502, 503, 504)
+    ):
+        self.logger = logging.getLogger(type(self).__name__)
+        total = int(os.environ.get('MAX_RETRIES_ON_CONN_ERROR', total))
 
-    session = session or requests.Session()
+        super().__init__()
 
-    retry = Retry(
-        total=total,
-        read=read,
-        connect=connect,
-        backoff_factor=backoff_factor,
-        status_forcelist=status_forcelist,
-        method_whitelist=False
-    )
-    adapter = HTTPAdapter(max_retries=retry)
-    session.mount('http://', adapter)
-    session.mount('https://', adapter)
+        retry = Retry(
+            total=total,
+            read=read,
+            connect=connect,
+            backoff_factor=backoff_factor,
+            status_forcelist=status_forcelist,
+            method_whitelist=False
+        )
+        adapter = HTTPAdapter(max_retries=retry)
+        self.mount('http://', adapter)
+        self.mount('https://', adapter)
 
-    return session
+    def send(self, req, **kwargs):
+        self.logger.debug("Sending request: " + pformat(vars(req)))
+        return super().send(req, **kwargs)
 
 
 def get_open_api_v2_schema(url, entity_names,
@@ -204,7 +202,7 @@ def get_open_api_v2_schema(url, entity_names,
         # like dataservice were causing tests to hang. What we really need
         # to do is remove this flag and do integration tests with a
         # live dataservice server - Natasha
-        response = requests_retry_session(connect=0).get(schema_url)
+        response = RetrySession(connect=0).get(schema_url)
 
     except ConnectionError as e:
 

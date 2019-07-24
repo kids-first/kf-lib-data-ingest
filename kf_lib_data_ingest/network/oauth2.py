@@ -46,8 +46,7 @@ def get_service_token(provider_domain, audience, client_id, client_secret):
     logging.info(f'Fetching token from {oauth_token_url} to access '
                  f'{audience} resources')
 
-    response = utils.requests_retry_session(connect=1).post(oauth_token_url,
-                                                            json=body)
+    response = utils.RetrySession(connect=1).post(oauth_token_url, json=body)
 
     if response.status_code != 200:
         logger.error(
