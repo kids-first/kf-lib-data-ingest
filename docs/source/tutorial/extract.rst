@@ -33,8 +33,8 @@ Here's a example source data file:
 
 You can `download/copy this file
 <https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/update-tutorial/docs/data/family_and_phenotype.tsv>`_
-into your ingest package's data directory if you want to test implementing the
-extract config as you go through this tutorial.
+if you want to view it directly or test local data file loading instead of
+remote as you go through this tutorial.
 
 In order to ingest this data into the Kids First ecosystem, we need to:
 -----------------------------------------------------------------------
@@ -70,7 +70,7 @@ The following extract configuration file accomplishes all of those needs
     )
     import re
 
-    source_data_url = 'file://path/to/family_and_phenotype.tsv'
+    source_data_url = 'https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/update-tutorial/docs/data/family_and_phenotype.tsv'
 
     source_data_loading_parameters = {
         "header": 1,
@@ -170,12 +170,14 @@ Imports!
 It's a Python module! Cool! That lets us do all kinds of neat stuff like
 import predefined constants and functions.
 
+.. _Fetching-the-Data:
+
 Fetching the data
 -----------------
 
 .. code-block:: python
 
-    source_data_url = 'file://path/to/family_and_phenotype.tsv'
+    source_data_url = 'https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/update-tutorial/docs/data/family_and_phenotype.tsv'
 
 The first thing that the extractor does for every config file is fetch the
 related source data. This specifies where the file lives so that the code can
@@ -184,7 +186,17 @@ fetch it.
 Supported protocol prefixes are:
 ``file://``, ``s3://``, ``http://``, ``https://``
 
-Loading the data
+For files stored by the Kids First Study Creator, see the
+:ref:`Tutorial-Study-Creator` tutorial.
+
+If you downloaded the test data file and want to load your local copy instead
+of from a remote server, you would use:
+
+.. code-block:: python
+
+    source_data_url = 'file://path/to/family_and_phenotype.tsv'
+
+Reading the file
 ----------------
 
 .. code-block:: python
@@ -194,18 +206,29 @@ Loading the data
         usecols: :lambda x: x != "[ignore]"
     }
 
-The arguments that we put into the ``source_data_loading_parameters`` table
-correspond with the Python pandas IO parameters described in
+Extract tries to automatically pick the right pandas file reader for the given
+file extension (read_json for json files, read_csv for csv/tsv, read_excel for
+excel files). To pass keyword arguments to the chosen file reader, we define a
+dict called ``source_data_loading_parameters`` which corresponds with the
+Python pandas IO parameters described in
 http://pandas.pydata.org/pandas-docs/stable/user_guide/io.html
 
-This example file contains tab-separated values (hence the filename ending with
-'.tsv') with a non-standard layout where we need to ignore the first row. For
-demonstration purposes we're also ignoring the first column.
+The example data file contains tab-separated values (hence the filename ending
+with '.tsv') with a non-standard layout where we need to ignore the first row.
+For demonstration purposes we're also ignoring the first column.
 
 If the data had had the simplest layout (the column headers being on the first
 row, etc), then it would get loaded correctly by default without needing any
-parameters here, but with complex arrangements we have to define how to load
-the data.
+parameters here, but with complex arrangements we have to configure the reader.
+
+If the right reader cannot be inferred, you'll need to define a
+``load_func`` function that takes a file path and kwargs (also given in
+``source_data_loading_parameters``) and returns a pandas DataFrame:
+
+.. code-block:: python
+
+    # a special custom file reader which must return a pandas DataFrame
+    load_func = my_custom_reader_function
 
 Extract operations
 ------------------
@@ -224,7 +247,8 @@ select subsets of source data and then clean and map that data to the desired
 attributes and value formats. The most useful functions are already written for
 you. You just have to invoke them appropriately.
 
-For more information about extract operation functions, read <TODO>.
+For more information about extract operation functions, read
+:ref:`Extract-Mapping`.
 
 A value map operation with functional replacements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -318,17 +342,6 @@ the regular expression pattern ``^F$`` with the standard code for Female and
 replace everything that matches ``^M$`` with the standard code for Male, and
 then output the result to a standard concept column for participant gender."
 
-Technically we could do a more complex operation here to recover the mother and
-father genders by determining whether the participant ID exists in the "mother"
-or "father" column, but we can also do that later during the Transform stage.
-
-.. note::
-
-    The right side of ``m={...}`` fields can be values (replace with `this`) or
-    functions (apply `this` and replace with the result). The same is true for
-    ``m`` itself if you want the same value or sme function for every row
-    without first matching patterns.
-
 The resulting intermediate output will look like:
 
 .. csv-table::
@@ -361,9 +374,10 @@ standard concept column for biospecimen ID."
 
 .. note::
 
-    We use a special ``Split()`` object for lists of values that we want to
+    We use the special ``Split()`` object for lists of values that we want to
     split apart into multiple rows. Just returning a list will not split the
-    contained items apart.
+    contained items apart. Read :ref:`Splitting-Cells` in
+    :ref:`Extract-Mapping`.
 
 The resulting intermediate output will look like:
 
@@ -577,92 +591,3 @@ magic, the final extracted result given the data and our configuration is:
     "7", "8", "", "", "", "SP008B", "2.166666667", "Extra eardrum", "Positive"
     "8", "9", "", "", "", "SP009A", "1.041666667", "Extra eardrum", "Positive"
     "8", "9", "", "", "", "SP009B", "1.041666667", "Extra eardrum", "Positive"
-
-
-Accessing Protected Source Data
-===============================
-
-In the :ref:`Tutorial-Ingest-App` section you learned that source data files
-for Kids First studies are managed by the Kids First Study Creator API. The
-tutorial above uses a file on your local file system for example purposes.
-
-In a more realistic scenario, the source data files for a study would already
-have been uploaded to the Study Creator. Your ingest package would then need to
-be configured to access these files with the proper authentication parameters.
-
-Let's walk through an example.
-
-.. note::
-
-    We are not going to show how to upload files to the Study Creator API
-    because it is outside of the scope of this tutorial. See the
-    `Study Creator API docs <https://kids-first.github.io/kf-api-study-creator/>`_
-    or visit the `Data Tracker web app <https://kf-ui-data-tracker.kidsfirstdrc.org>`_
-    to learn more about how to do this.
-
-Get URL of Source Data File
----------------------------
-
-The ``family_and_phenotype.tsv`` file has already been uploaded to the
-``SD_ME0WME0W`` study via the Data Tracker web app. Here is the file's URL:
-
-https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_ND1PHHW4
-
-Update Your Extract Config
---------------------------
-
-Update the source_data_url parameter in your extract config to store this URL.
-
-.. code-block:: python
-
-    # my_study/extract_configs/family_and_phenotype.py
-
-    source_data_url = 'https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_ND1PHHW4'
-
-Get Your Developer Token
-------------------------
-
-All source data files in the Study Creator API are protected by some sort of
-authentication depending on the type of user trying to access them. As an
-ingest package developer, you will need a developer token to access files.
-The developer token grants authorization to download any source data file.
-
-To generate a token, go to https://kf-ui-data-tracker.kidsfirstdrc.org/tokens
-
-Set Your Environment
---------------------
-
-Now that you have your token, you're going to store it in your environment so
-that ingest app can read it and use it when fetching Study Creator API files.
-
-If you recall from the :ref:`Tutorial-Ingest-App` section, in
-``development`` mode, the ``kf_lib_data_ingest/app/settings/development.py``
-app settings are used. If you take a glance at that file, you'll be able to see
-what environment variable you should use to store your token.
-
-.. literalinclude:: ../../../kf_lib_data_ingest/app/settings/development.py
-   :language: python
-   :caption: kf_lib_data_ingest/app/settings/development.py
-
-As you can see from above, for source data file URLs that match this pattern:
-
-`https://kf-study-creator.kidsfirstdrc.org/download/study`
-
-you should use the ``KF_STUDY_CREATOR_API_TOKEN`` environment variable to
-store your token:
-
-.. code-block:: bash
-
-   export KF_STUDY_CREATOR_API_TOKEN=YOUR_TOKEN
-
-Be careful with this token and make sure to keep it secret, as it has a lot of
-privileges.
-
-Try It
-------
-
-Now if you try running ingest and the file was fetched successfully, you should
-see something like this in your log::
-
-    2019-04-24 11:19:31,719 - FileRetriever - INFO - Selected `token` authentication to fetch https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_ND1PHHW4
-    2019-04-24 11:19:32,269 - kf_lib_data_ingest.network.utils - INFO - Successfully fetched https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_ND1PHHW4 with original file name "family_and_phenotype.tsv"
