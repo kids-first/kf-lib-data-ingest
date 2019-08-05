@@ -51,30 +51,41 @@ def value_map(m, in_col, out_col):
     Wraps the value mapping operation in a function that takes a DataFrame as
     input and returns a single column DataFrame (plus index).
 
-    :param m: Can be a dict or a function that takes a basic string. If a
-        function, the return columns values wil be the result of applying that
-        function to each cell of the <in_col> column in the DataFrame. If a
-        dict, each dict key is a regex pattern that is forced to have ^$
-        anchors if not already present (or none type), and each dict value is
-        either a constant or a function that takes one or more basic strings.
-        When a cell in the <in_col> column in the DataFrame matches the regex
-        pattern, corresponding cells in the <out_col> column of the output will
-        be either replaced by the indicated constant value or they will be
-        filled by application of the indicated function to the value of the
-        cell in <in_col>. If the regex pattern has capture groups, those become
-        the function inputs instead of the entire cell value. For more details,
-        read the docstring for safe_pandas_replace in common/pandas_utils.py
+    :param m: Can be a dict, regex pattern string, or a function that takes a
+        string.
+
+        If a function, the return column values wil be the result of applying
+        that function to each cell of the <in_col> column in the DataFrame.
+
+        If a dict, each dict key is a regex pattern string that is forced to
+        have ^$ anchors if not already present (or none type), and each dict
+        value is either a constant or a function that takes one or more basic
+        strings. When a cell in the <in_col> column in the DataFrame matches
+        the regex pattern, corresponding cells in the <out_col> column of the
+        output will be either replaced by the indicated constant value or they
+        will be filled by application of the indicated function to the value of
+        the cell in <in_col>. If the regex pattern has capture groups, those
+        become the function inputs instead of the entire cell value.
+        For more details, read the docstring for safe_pandas_replace in
+        common/pandas_utils.py
+
+        If a regex string, the result will be the same as if it had been
+        `{m: lambda x: x}`.
+
     :param in_col: The name of the column in the input DataFrame (the file)
     :param out_col: The standard concept column in the extract output to
-        populate
-    :returns: A function that applies the specified m operation
+    populate :returns: A function that applies the specified m operation
     """
-    assert_safe_type(m, function, dict)
+    assert_safe_type(m, function, dict, str)
 
     def value_map_func(df):
         new_df = DataFrame()
         if function(m):
             new_df[out_col] = get_col(df, in_col).apply(m)
+        elif isinstance(m, str):
+            new_df[out_col] = safe_pandas_replace(
+                get_col(df, in_col), {m: lambda x: x}, True
+            )
         else:  # dict
             new_df[out_col] = safe_pandas_replace(
                 get_col(df, in_col), m, True

@@ -89,7 +89,7 @@ def test_value_map():
     # tests passing allowed and disallowed types
     _test_map_allowed_types(
         operations.value_map,
-        {function, dict},
+        {function, dict, str},
         in_col='COL_A', out_col='OUT_COL'
     )
 
