@@ -17,6 +17,7 @@ bigger_df = pandas.DataFrame({
     'COL_C': ['z', 'y', 'x'],
     'COL_D': ['3', '2', '1']
 })
+longvalue_df = pandas.DataFrame({'COL_A': ['1a1', '2a2', '3a3']})
 
 
 def _in_out_variants(map_wrap, val, in_col=None, out_col=None):
@@ -89,7 +90,7 @@ def test_value_map():
     # tests passing allowed and disallowed types
     _test_map_allowed_types(
         operations.value_map,
-        {function, dict},
+        {function, dict, str},
         in_col='COL_A', out_col='OUT_COL'
     )
 
@@ -114,6 +115,12 @@ def test_value_map():
     )
     assert func(df).equals(
         pandas.DataFrame({'OUT_COL': ['a', 'b', 'c']})
+    )
+
+    # mapper regex
+    func = operations.value_map(r'^\d(.)\d$', 'COL_A', 'OUT_COL')
+    assert func(longvalue_df).equals(
+        pandas.DataFrame({'OUT_COL': ['a', 'a', 'a']})
     )
 
 
