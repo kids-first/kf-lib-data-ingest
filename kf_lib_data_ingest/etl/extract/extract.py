@@ -60,6 +60,12 @@ class ExtractStage(IngestStage):
         super().__init__(stage_cache_dir)
 
         assert_safe_type(extract_config_dir, str)
+
+        # must set FileRetriever.static_auth_configs before extract configs are
+        # loaded
+        FileRetriever.static_auth_configs = auth_configs
+        self.FR = FileRetriever()
+
         self.extract_config_dir = extract_config_dir
         self.extract_configs = [
             ExtractConfig(filepath)
@@ -71,8 +77,6 @@ class ExtractStage(IngestStage):
                 ec.config_filepath,
                 start=self.extract_config_dir
             )
-
-        self.FR = FileRetriever(auth_configs=auth_configs)
 
     def _output_path(self):
         """

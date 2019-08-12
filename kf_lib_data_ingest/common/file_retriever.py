@@ -222,6 +222,7 @@ class FileRetriever(object):
         "https": _web_save,
         "file": _file_save
     }
+    static_auth_configs = None
 
     def __init__(self, storage_dir=None, cleanup_at_exit=True,
                  auth_configs=None):
@@ -271,10 +272,10 @@ class FileRetriever(object):
                                                         dir=".")
             self.storage_dir = self.__tmpdir.name
         self._files = {}
-        self.auth_configs = auth_configs
+        self.auth_configs = auth_configs or FileRetriever.static_auth_configs
 
         if self.auth_configs:
-            assert_safe_type(auth_configs, dict)
+            assert_safe_type(self.auth_configs, dict)
 
     def get(self, url, auth_config=None):
         """

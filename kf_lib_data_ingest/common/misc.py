@@ -45,7 +45,6 @@ def import_module_from_file(filepath):
     spec = importlib.util.spec_from_file_location(module_name, filepath)
     imported_module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(imported_module)
-
     return imported_module
 
 
