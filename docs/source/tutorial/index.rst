@@ -27,9 +27,11 @@ In this tutorial we will cover:
    :maxdepth: 2
 
    app.rst
+   files.rst
    ingest_package.rst
-   project_setup.rst
+   package_setup.rst
    extract.rst
+   study_creator.rst
    package_testing.rst
    debugging.rst
    transform.rst
