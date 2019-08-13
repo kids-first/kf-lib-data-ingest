@@ -31,6 +31,7 @@ from kf_lib_data_ingest.etl.configuration.base_config import (
     ConfigValidationError
 )
 from kf_lib_data_ingest.etl.configuration.extract_config import ExtractConfig
+from kf_lib_data_ingest.etl.extract import operations as extract_operations
 
 
 def lcm(number_list):
@@ -40,6 +41,16 @@ def lcm(number_list):
     return reduce(
         lambda x, y: x * y // gcd(x, y), number_list
     )
+
+
+def ordinal(n):
+    """
+    Convert a positive integer into its ordinal representation
+    """
+    suffix = ['th', 'st', 'nd', 'rd', 'th'][min(n % 10, 4)]
+    if 11 <= (n % 100) <= 13:
+        suffix = 'th'
+    return str(n) + suffix
 
 
 class ExtractStage(IngestStage):
@@ -138,13 +149,18 @@ class ExtractStage(IngestStage):
         # Extract stage does not expect any args
         pass
 
-    def _log_operation(self, op):
+    def _log_operation(self, op, nth):
         """Log execution of an extract operation.
 
         :param op: an extract operation
         :type op: function
+        :param nth: which operation number
+        :type nth: int
         """
-        msg = f'Applying {op.__qualname__}'
+        opname = op.__qualname__
+        if op.__module__ == extract_operations.__name__:
+            opname = opname.split('.')[0]
+        msg = f'Applying {ordinal(nth)} operation: {opname}'
         if op.__closure__:
             msg += ' with ' + str({
                 k: v.cell_contents for k, v
@@ -236,7 +252,7 @@ class ExtractStage(IngestStage):
 
         return df
 
-    def _chain_operations(self, df_in, operations):
+    def _chain_operations(self, df_in, operations, _nth=1, _is_nested=False):
         """
         Performs the operations sequence for extracting columns of data from
         the source data files.
@@ -250,18 +266,32 @@ class ExtractStage(IngestStage):
         original_length = df_in.index.size
 
         # collect columns of extracted data
-        for op in operations:
+        for i, op in enumerate(operations):
             # apply operation(s), get result
             if is_function(op):
-                self._log_operation(op)
+                self._log_operation(op, i+_nth)
                 res = op(df_in)
+
+                # result length must be a whole multiple of the original
+                # length, otherwise we've lost rows
+                if res.index.size % original_length != 0:
+                    raise ConfigValidationError(
+                        "Operation result length is not a multiple of the "
+                        "source data length."
+                    )
+
+                if (res.index.size / original_length > 1) and not _is_nested:
+                    raise ConfigValidationError(
+                        "Operations returning results longer than the source "
+                        "data length are required to be nested in "
+                        "context-appropriate sublists as a safeguard against "
+                        "accidental misuse. To learn about the importance of "
+                        "nested operation sublists, read "
+                        "https://kids-first.github.io/kf-lib-data-ingest/design/extract_mapping.html#nested-operations-sublists"  # noqa E501
+                    )
             else:  # list
                 self.logger.info("Diving into nested operation sublist.")
-                res = self._chain_operations(df_in, op)
-
-            # result length must be a whole multiple of the original length,
-            # otherwise we've lost rows
-            assert res.index.size % original_length == 0
+                res = self._chain_operations(df_in, op, i+_nth, True)
 
             for col_name, col_series in res.iteritems():
                 out_cols[col_name] = out_cols[col_name].append(
