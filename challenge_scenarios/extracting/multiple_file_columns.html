@@ -1,0 +1,319 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Multiple Columns of The Same Kind of Thing &mdash; Kids First Data Ingest Libraries  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Multiple Meltable Groups" href="multiple_groups.html" />
+    <link rel="prev" title="Values Embedded in Other Values" href="embedded_values.html" />
+    <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
+ 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html">
+          
+
+          
+            
+            <img src="../../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/index.html">Tutorial</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Challenges when Extracting</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="embedded_values.html">Values Embedded in Other Values</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Multiple Columns of The Same Kind of Thing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#scenario">Scenario</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#correct-output">Correct Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#solution-with-parallel-column-stacking">Solution with Parallel Column Stacking</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#solution-with-multiple-extractions">Solution with Multiple Extractions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="multiple_groups.html">Multiple Meltable Groups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shared_operations.html">Sharing Operations Across Multiple Extracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multifile_fusion.html">Data That Only Makes Sense In Relation To Another File</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer.html">Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/index.html">Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Kids First Data Ingest Libraries</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Challenges when Extracting</a> &raquo;</li>
+        
+      <li>Multiple Columns of The Same Kind of Thing</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/challenge_scenarios/extracting/multiple_file_columns.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="multiple-columns-of-the-same-kind-of-thing">
+<h1>Multiple Columns of The Same Kind of Thing<a class="headerlink" href="#multiple-columns-of-the-same-kind-of-thing" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="scenario">
+<h2>Scenario<a class="headerlink" href="#scenario" title="Permalink to this headline">¶</a></h2>
+<p>You want to extract specimen IDs and file names from data that looks like this:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Specimen</th>
+<th class="head">BAM File</th>
+<th class="head">Index File</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>S1</td>
+<td>S1.bam</td>
+<td>S1.index</td>
+</tr>
+<tr class="row-odd"><td>S2</td>
+<td>S2.bam</td>
+<td>S2.index</td>
+</tr>
+</tbody>
+</table>
+<p>Note that there are two columns with file names in them.</p>
+</div>
+<div class="section" id="correct-output">
+<h2>Correct Output<a class="headerlink" href="#correct-output" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">BIOSPECIMEN.ID</th>
+<th class="head">GENOMIC_FILE.FILE_NAME</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>S1</td>
+<td>S1.bam</td>
+</tr>
+<tr class="row-odd"><td>S2</td>
+<td>S2.bam</td>
+</tr>
+<tr class="row-even"><td>S1</td>
+<td>S1.index</td>
+</tr>
+<tr class="row-odd"><td>S2</td>
+<td>S2.index</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="solution-with-parallel-column-stacking">
+<h2>Solution with Parallel Column Stacking<a class="headerlink" href="#solution-with-parallel-column-stacking" title="Permalink to this headline">¶</a></h2>
+<p>Use <a class="reference internal" href="../../design/extract_mapping.html#column-stacking"><span class="std std-ref">Parallel Column Stacking</span></a> to send both of the file columns to “File Name”:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">operations</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">keep_map</span><span class="p">(</span><span class="n">in_col</span><span class="o">=</span><span class="s2">&quot;Specimen&quot;</span><span class="p">,</span> <span class="n">out_col</span><span class="o">=</span><span class="n">CONCEPTS</span><span class="o">.</span><span class="n">BIOSPECIMEN</span><span class="o">.</span><span class="n">ID</span><span class="p">),</span>
+    <span class="n">keep_map</span><span class="p">(</span><span class="n">in_col</span><span class="o">=</span><span class="s2">&quot;BAM File&quot;</span><span class="p">,</span> <span class="n">out_col</span><span class="o">=</span><span class="n">CONCEPTS</span><span class="o">.</span><span class="n">GENOMIC_FILE</span><span class="o">.</span><span class="n">FILE_NAME</span><span class="p">),</span>
+    <span class="n">keep_map</span><span class="p">(</span><span class="n">in_col</span><span class="o">=</span><span class="s2">&quot;Index File&quot;</span><span class="p">,</span> <span class="n">out_col</span><span class="o">=</span><span class="n">CONCEPTS</span><span class="o">.</span><span class="n">GENOMIC_FILE</span><span class="o">.</span><span class="n">FILE_NAME</span><span class="p">)</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="solution-with-multiple-extractions">
+<h2>Solution with Multiple Extractions<a class="headerlink" href="#solution-with-multiple-extractions" title="Permalink to this headline">¶</a></h2>
+<p>Do separate extractions. One with:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">operations</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">keep_map</span><span class="p">(</span><span class="n">in_col</span><span class="o">=</span><span class="s2">&quot;Specimen&quot;</span><span class="p">,</span> <span class="n">out_col</span><span class="o">=</span><span class="n">CONCEPTS</span><span class="o">.</span><span class="n">BIOSPECIMEN</span><span class="o">.</span><span class="n">ID</span><span class="p">),</span>
+    <span class="n">keep_map</span><span class="p">(</span><span class="n">in_col</span><span class="o">=</span><span class="s2">&quot;BAM File&quot;</span><span class="p">,</span> <span class="n">out_col</span><span class="o">=</span><span class="n">CONCEPTS</span><span class="o">.</span><span class="n">GENOMIC_FILE</span><span class="o">.</span><span class="n">FILE_NAME</span><span class="p">),</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>And one with:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">operations</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">keep_map</span><span class="p">(</span><span class="n">in_col</span><span class="o">=</span><span class="s2">&quot;Specimen&quot;</span><span class="p">,</span> <span class="n">out_col</span><span class="o">=</span><span class="n">CONCEPTS</span><span class="o">.</span><span class="n">BIOSPECIMEN</span><span class="o">.</span><span class="n">ID</span><span class="p">),</span>
+    <span class="n">keep_map</span><span class="p">(</span><span class="n">in_col</span><span class="o">=</span><span class="s2">&quot;Index File&quot;</span><span class="p">,</span> <span class="n">out_col</span><span class="o">=</span><span class="n">CONCEPTS</span><span class="o">.</span><span class="n">GENOMIC_FILE</span><span class="o">.</span><span class="n">FILE_NAME</span><span class="p">),</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>And then stack them later in your Transform function.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="multiple_groups.html" class="btn btn-neutral float-right" title="Multiple Meltable Groups" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="embedded_values.html" class="btn btn-neutral float-left" title="Values Embedded in Other Values" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Kids First
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

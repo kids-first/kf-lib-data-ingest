@@ -36,8 +36,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Project Setup" href="project_setup.html" />
-    <link rel="prev" title="Kids First Ingest App" href="app.html" />
+    <link rel="next" title="New Ingest Package Setup" href="package_setup.html" />
+    <link rel="prev" title="Study Data Files" href="files.html" />
     <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
  
 </head>
@@ -94,24 +94,23 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Overview</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorial</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="app.html">Kids First Ingest App</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Ingest Package Configuration</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#the-ingest-package-directory">The ingest package directory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ingest-package-config-py">ingest_package_config.py</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="project_setup.html">Project Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="files.html">Study Data Files</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Ingest Package Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="package_setup.html">New Ingest Package Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extract.html">Extract Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="package_testing.html">Test Your Ingest Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="debugging.html">Debugging and Developing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="transform.html">Transform Stage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="load.html">Load Stage</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../challenge_scenarios/extracting/index.html">Challenges when Extracting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developer.html">Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Design</a></li>
 </ul>
 
             
@@ -181,65 +180,59 @@
   <div class="section" id="ingest-package-configuration">
 <h1>Ingest Package Configuration<a class="headerlink" href="#ingest-package-configuration" title="Permalink to this headline">¶</a></h1>
 <p>Each study that needs to be ingested will have a single directory that contains
-all of the configuration/inputs needed by the ingest pipeline to extract,
-transform, and load the study into a target data store or service.</p>
+all of the configuration needed by the ingest pipeline to extract, transform,
+and load the study into a target data store or service.</p>
 <p>The ingest package contains three components:</p>
 <ol class="arabic simple">
 <li><dl class="first docutils">
 <dt>A top-level configuration file called <code class="docutils literal notranslate"><span class="pre">ingest_package_config.py</span></code></dt>
-<dd>This defines metadata about the study itself such as the study’s
-target ID as well as paths to the other two components.</dd>
+<dd>This defines study metadata such as the study’s target ID as well as paths
+to the other two components and logging parameters.
+It will look something like:</dd>
 </dl>
 </li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">study</span> <span class="o">=</span> <span class="s1">&#39;SD_ME0WME0W&#39;</span>
+<span class="n">extract_config_dir</span> <span class="o">=</span> <span class="s1">&#39;extract_configs&#39;</span>
+<span class="n">transform_function_path</span> <span class="o">=</span> <span class="s1">&#39;transform_module.py&#39;</span>
+<span class="n">log_level</span> <span class="o">=</span> <span class="s1">&#39;debug&#39;</span>
+<span class="n">overwrite_log</span> <span class="o">=</span> <span class="bp">True</span>
+</pre></div>
+</div>
+<ol class="arabic" start="2">
 <li><dl class="first docutils">
 <dt>A directory of <cite>Extract Configuration</cite> files</dt>
-<dd>This is the configuration needed by the extract stage. These files define
-how data is interpreted and extracted from each of the files provided by
-the investigator.</dd>
+<dd><p class="first last">These files define how the extract stage interprets each of the data files
+provided by the investigator. These are described in the
+<a class="reference internal" href="extract.html#tutorial-extract-stage"><span class="std std-ref">Extract Stage</span></a> section.</p>
+</dd>
 </dl>
 </li>
 <li><dl class="first docutils">
 <dt>(optional) A guided <cite>Transform Module</cite> file</dt>
-<dd>This is the configuration used by the transform stage. The
-<cite>Transform Module</cite> file replaces automatic graph-based transformation with
-a predictable set of user-programmed operations. If this file does not
-exist, then automatic graph-based transformation will be used by the
-transform stage. More on this later in the tutorial.</dd>
+<dd><p class="first">This is used by the transform stage and replaces automatic graph-based
+transformation with a predictable set of user-programmed operations. This
+is described in the <a class="reference internal" href="transform.html#tutorial-transform-stage"><span class="std std-ref">Transform Stage</span></a> section.</p>
+<p>If this file does not exist, then automatic graph-based transformation will
+be used by the transform stage. More on this later in the tutorial.</p>
+<p class="last"><strong>NOTE: automatic graph-based transformation is NYI, so this is not
+actually optional.</strong></p>
+</dd>
 </dl>
 </li>
 </ol>
-<div class="section" id="the-ingest-package-directory">
-<h2>The ingest package directory<a class="headerlink" href="#the-ingest-package-directory" title="Permalink to this headline">¶</a></h2>
-<p>Your complete ingest package for a study will look like this:</p>
+<p>Your ingest package directory for a study would look something like this:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>my_study/
 ├── ingest_package_config.py
 ├── extract_configs/
 │   ├── one_file_extract_config.py
 │   ├── another_file_extract_config.py
 │   └── ...
-└── transform_module.py  (optional)
+└── transform_module.py
 </pre></div>
 </div>
-</div>
-<div class="section" id="ingest-package-config-py">
-<h2>ingest_package_config.py<a class="headerlink" href="#ingest-package-config-py" title="Permalink to this headline">¶</a></h2>
-<p>This file contains details that control ingestion of the study as a whole. It
-includes study metadata, the list of investigators, logging parameters, and
-paths to the extract configs directory and the optional transform module.</p>
-<p>It looks something like:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">study</span> <span class="o">=</span> <span class="s1">&#39;SD_ME0WME0W&#39;</span>
-
-<span class="n">extract_config_dir</span> <span class="o">=</span> <span class="s1">&#39;extract_configs&#39;</span>
-
-<span class="n">transform_function_path</span> <span class="o">=</span> <span class="s1">&#39;transform_module.py&#39;</span>
-
-<span class="n">log_level</span> <span class="o">=</span> <span class="s1">&#39;debug&#39;</span>
-<span class="n">overwrite_log</span> <span class="o">=</span> <span class="bp">True</span>
-</pre></div>
-</div>
-<p>Ok, let’s head on over to <a class="reference internal" href="project_setup.html#tutorial-project-setup"><span class="std std-ref">Project Setup</span></a> to start building
+<p>Ok, let’s head on over to <a class="reference internal" href="package_setup.html#tutorial-package-setup"><span class="std std-ref">New Ingest Package Setup</span></a> to start building
 the study.</p>
-</div>
 </div>
 
 
@@ -250,10 +243,10 @@ the study.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="project_setup.html" class="btn btn-neutral float-right" title="Project Setup" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="package_setup.html" class="btn btn-neutral float-right" title="New Ingest Package Setup" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="app.html" class="btn btn-neutral float-left" title="Kids First Ingest App" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="files.html" class="btn btn-neutral float-left" title="Study Data Files" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

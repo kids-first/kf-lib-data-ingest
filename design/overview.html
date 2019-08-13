@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Design &mdash; Kids First Data Ingest Libraries  documentation</title>
+  <title>Overview &mdash; Kids First Data Ingest Libraries  documentation</title>
   
 
   
@@ -36,8 +36,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Extract stage" href="extract.html" />
-    <link rel="prev" title="Common" href="../reference/common.html" />
+    <link rel="next" title="Value Principles" href="value_principles.html" />
+    <link rel="prev" title="Quickstart" href="../quickstart.html" />
     <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
  
 </head>
@@ -94,15 +94,17 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../developer.html">Developers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Design</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="extract.html">Extract stage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="value_principles.html">Value Principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extract_mapping.html">Extract Mapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="transform.html">Transform Stage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="load.html">Load stage</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../challenge_scenarios/extracting/index.html">Challenges when Extracting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer.html">Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
 </ul>
 
             
@@ -148,7 +150,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>Design</li>
+      <li>Overview</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -167,19 +169,68 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="design">
-<h1>Design<a class="headerlink" href="#design" title="Permalink to this headline">¶</a></h1>
-<p>Under Construction</p>
-<a class="reference internal image-reference" href="../_images/construction.svg"><img alt="Under Construction" height="150px" src="../_images/construction.svg" width="150px" /></a>
-<p>But coming soon …</p>
-<ul class="simple">
-<li>Overview</li>
-<li>Design goals</li>
-</ul>
+  <div class="section" id="overview">
+<span id="design-overview"></span><h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<p>The ultimate goal for ingest is to take raw investigator data and compose from
+it a series of simple and unambiguous factual statements of the form:</p>
+<ol class="arabic simple">
+<li>There is a thing X.</li>
+<li>Thing X has properties A, B, and C.</li>
+<li>Thing Y comes from thing X.</li>
+</ol>
+<p>Example:</p>
+<ol class="arabic simple">
+<li>There is a participant P1.</li>
+<li>Participant P1 has properties age=7, sex=male, and race=unknown.</li>
+<li>There is a biospecimen S1.</li>
+<li>Biospecimen S1 comes from Participant P1.</li>
+</ol>
+<p>For the most part, the investigator’s raw data tables already implicitly encode
+the above statements as row colinearity. When the investigator puts a specimen
+ID in the same row as a participant ID, usually that means that the specimen
+came from that participant.</p>
+<p>For instance, the above statements might have been written like this:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Participant ID</th>
+<th class="head">Specimen ID</th>
+<th class="head">Participant Age</th>
+<th class="head">Participant Sex</th>
+<th class="head">Participant Race</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>P1</td>
+<td>S1</td>
+<td>7</td>
+<td>m</td>
+<td>unknown</td>
+</tr>
+</tbody>
+</table>
+<p>The Extract stage exists to fix any source data that either does <em>not</em> encode
+the three fundamental statements by row colinearity or accidentally encodes a
+relationship that does not actually exist among the things being described.</p>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="extract.html">Extract stage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="value_principles.html">Value Principles</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="value_principles.html#practical-implications">Practical Implications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="value_principles.html#the-analyst-s-challenge">The Analyst’s Challenge</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="extract_mapping.html">Extract Mapping</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="extract_mapping.html#mapping-operations">Mapping Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extract_mapping.html#important-strategic-details">Important Strategic Details</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="transform.html">Transform Stage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="load.html">Load stage</a></li>
 </ul>
@@ -194,10 +245,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="extract.html" class="btn btn-neutral float-right" title="Extract stage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="value_principles.html" class="btn btn-neutral float-right" title="Value Principles" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../reference/common.html" class="btn btn-neutral float-left" title="Common" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../quickstart.html" class="btn btn-neutral float-left" title="Quickstart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

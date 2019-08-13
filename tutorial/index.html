@@ -37,7 +37,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Kids First Ingest App" href="app.html" />
-    <link rel="prev" title="Quickstart" href="../quickstart.html" />
+    <link rel="prev" title="Load stage" href="../design/load.html" />
     <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
  
 </head>
@@ -94,20 +94,23 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Overview</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="app.html">Kids First Ingest App</a></li>
+<li class="toctree-l2"><a class="reference internal" href="files.html">Study Data Files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ingest_package.html">Ingest Package Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="project_setup.html">Project Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="package_setup.html">New Ingest Package Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extract.html">Extract Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="package_testing.html">Test Your Ingest Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="debugging.html">Debugging and Developing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="transform.html">Transform Stage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="load.html">Load Stage</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../challenge_scenarios/extracting/index.html">Challenges when Extracting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developer.html">Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Design</a></li>
 </ul>
 
             
@@ -197,22 +200,25 @@ more depth.</p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="app.html">Kids First Ingest App</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="app.html#app-settings">App Settings</a></li>
-<li class="toctree-l2"><a class="reference internal" href="app.html#ingest-app-mode">Ingest App Mode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="app.html#developing-for-kids-first">Developing for Kids First</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="ingest_package.html">Ingest Package Configuration</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="ingest_package.html#the-ingest-package-directory">The ingest package directory</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ingest_package.html#ingest-package-config-py">ingest_package_config.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="files.html">Study Data Files</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="files.html#upload-files">Upload Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="files.html#download-files">Download Files</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="project_setup.html">Project Setup</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="project_setup.html#create-your-ingest-project">Create Your Ingest Project</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="ingest_package.html">Ingest Package Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package_setup.html">New Ingest Package Setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extract.html">Extract Stage</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="extract.html#write-extract-configuration-files">Write Extract Configuration Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extract.html#accessing-protected-source-data">Accessing Protected Source Data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="study_creator.html">Source Data stored by the Kids First Data Tracker</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="study_creator.html#get-the-url-of-the-source-data-file">Get the URL of the Source Data File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="study_creator.html#update-your-extract-config">Update Your Extract Config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="study_creator.html#get-your-developer-token">Get Your Developer Token</a></li>
+<li class="toctree-l2"><a class="reference internal" href="study_creator.html#set-your-environment">Set Your Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="study_creator.html#try-it">Try It</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="package_testing.html">Test Your Ingest Package</a><ul>
@@ -254,7 +260,7 @@ more depth.</p>
         <a href="app.html" class="btn btn-neutral float-right" title="Kids First Ingest App" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../quickstart.html" class="btn btn-neutral float-left" title="Quickstart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../design/load.html" class="btn btn-neutral float-left" title="Load stage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

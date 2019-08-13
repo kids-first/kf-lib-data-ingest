@@ -1,0 +1,279 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Sharing Operations Across Multiple Extracts &mdash; Kids First Data Ingest Libraries  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Data That Only Makes Sense In Relation To Another File" href="multifile_fusion.html" />
+    <link rel="prev" title="Multiple Meltable Groups" href="multiple_groups.html" />
+    <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
+ 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html">
+          
+
+          
+            
+            <img src="../../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/index.html">Tutorial</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Challenges when Extracting</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="embedded_values.html">Values Embedded in Other Values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiple_file_columns.html">Multiple Columns of The Same Kind of Thing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiple_groups.html">Multiple Meltable Groups</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Sharing Operations Across Multiple Extracts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#scenario">Scenario</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#solution-with-imports">Solution with Imports</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="multifile_fusion.html">Data That Only Makes Sense In Relation To Another File</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer.html">Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/index.html">Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Kids First Data Ingest Libraries</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Challenges when Extracting</a> &raquo;</li>
+        
+      <li>Sharing Operations Across Multiple Extracts</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/challenge_scenarios/extracting/shared_operations.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="sharing-operations-across-multiple-extracts">
+<h1>Sharing Operations Across Multiple Extracts<a class="headerlink" href="#sharing-operations-across-multiple-extracts" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="scenario">
+<h2>Scenario<a class="headerlink" href="#scenario" title="Permalink to this headline">¶</a></h2>
+<p>You have ten data files, and you want to do the same set of extraction
+operations in all of them.</p>
+</div>
+<div class="section" id="solution-with-imports">
+<h2>Solution with Imports<a class="headerlink" href="#solution-with-imports" title="Permalink to this headline">¶</a></h2>
+<p>In this example solution we would make a shared_operations.py file containing
+whatever set of operations we want to share, and we’ll put it somewhere outside
+of our designated extract_configs directory (so that it isn’t treated as an
+extract config) like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>my_study/
+├── ingest_package_config.py
+├── extract_configs/
+│   ├── my_extract_config.py
+│   └── ...
+├── shared_operations.py     &lt;- contains shared operations
+└── transform_module.py
+</pre></div>
+</div>
+<p>Then in the extract configuration files, import the shared operations like this
+(using the library method for turning a file into an importable module):</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.misc</span> <span class="kn">import</span> <span class="n">import_module_from_file</span>
+
+<span class="n">shmod</span> <span class="o">=</span> <span class="n">import_module_from_file</span><span class="p">(</span>
+    <span class="n">Path</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="s1">&#39;shared_operations.py&#39;</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">operations</span> <span class="o">=</span> <span class="n">shmod</span><span class="o">.</span><span class="n">operations</span> <span class="o">+</span> <span class="p">[</span>
+    <span class="c1"># new operations go here</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>or like this (using the standard Python importer):</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kf_ingest_packages.packages.my_study.shared_operations</span> <span class="kn">import</span> <span class="n">operations</span> <span class="k">as</span> <span class="n">shared</span>
+
+<span class="n">operations</span> <span class="o">=</span> <span class="n">shared</span> <span class="o">+</span> <span class="p">[</span>
+    <span class="c1"># new operations go here</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<div class="admonition caution">
+<p class="first admonition-title">Caution</p>
+<p class="last">If you use the standard Python importer, be careful to not modify
+the imported shared operations list, because it will change everywhere.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="multifile_fusion.html" class="btn btn-neutral float-right" title="Data That Only Makes Sense In Relation To Another File" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="multiple_groups.html" class="btn btn-neutral float-left" title="Multiple Meltable Groups" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Kids First
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

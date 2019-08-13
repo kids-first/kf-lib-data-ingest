@@ -36,8 +36,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Test Your Ingest Package" href="package_testing.html" />
-    <link rel="prev" title="Project Setup" href="project_setup.html" />
+    <link rel="next" title="Source Data stored by the Kids First Data Tracker" href="study_creator.html" />
+    <link rel="prev" title="New Ingest Package Setup" href="package_setup.html" />
     <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
  
 </head>
@@ -94,10 +94,12 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Overview</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorial</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="app.html">Kids First Ingest App</a></li>
+<li class="toctree-l2"><a class="reference internal" href="files.html">Study Data Files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ingest_package.html">Ingest Package Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="project_setup.html">Project Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="package_setup.html">New Ingest Package Setup</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Extract Stage</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#write-extract-configuration-files">Write Extract Configuration Files</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#here-s-a-example-source-data-file">Here’s a example source data file:</a></li>
@@ -105,30 +107,23 @@
 <li class="toctree-l4"><a class="reference internal" href="#the-following-extract-configuration-file-accomplishes-all-of-those-needs">The following extract configuration file accomplishes all of those needs</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#imports">Imports!</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#fetching-the-data">Fetching the data</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#loading-the-data">Loading the data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reading-the-file">Reading the file</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#extract-operations">Extract operations</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#the-final-extraction-product">The final Extraction product</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#accessing-protected-source-data">Accessing Protected Source Data</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#get-url-of-source-data-file">Get URL of Source Data File</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#update-your-extract-config">Update Your Extract Config</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#get-your-developer-token">Get Your Developer Token</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#set-your-environment">Set Your Environment</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#try-it">Try It</a></li>
 </ul>
 </li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="package_testing.html">Test Your Ingest Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="debugging.html">Debugging and Developing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="transform.html">Transform Stage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="load.html">Load Stage</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../challenge_scenarios/extracting/index.html">Challenges when Extracting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developer.html">Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Design</a></li>
 </ul>
 
             
@@ -215,8 +210,8 @@ this section.</p>
 data file.</p>
 <div class="section" id="here-s-a-example-source-data-file">
 <h3>Here’s a example source data file:<a class="headerlink" href="#here-s-a-example-source-data-file" title="Permalink to this headline">¶</a></h3>
-<table border="1" class="docutils" id="id1">
-<caption><span class="caption-text">family_and_phenotype.tsv</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<table border="1" class="docutils" id="id2">
+<caption><span class="caption-text">family_and_phenotype.tsv</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col width="9%" />
 <col width="9%" />
@@ -366,8 +361,8 @@ data file.</p>
 </tbody>
 </table>
 <p>You can <a class="reference external" href="https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/update-tutorial/docs/data/family_and_phenotype.tsv">download/copy this file</a>
-into your ingest package’s data directory if you want to test implementing the
-extract config as you go through this tutorial.</p>
+if you want to view it directly or test local data file loading instead of
+remote as you go through this tutorial.</p>
 </div>
 <div class="section" id="in-order-to-ingest-this-data-into-the-kids-first-ecosystem-we-need-to">
 <h3>In order to ingest this data into the Kids First ecosystem, we need to:<a class="headerlink" href="#in-order-to-ingest-this-data-into-the-kids-first-ecosystem-we-need-to" title="Permalink to this headline">¶</a></h3>
@@ -400,7 +395,7 @@ events</li>
 <span class="p">)</span>
 <span class="kn">import</span> <span class="nn">re</span>
 
-<span class="n">source_data_url</span> <span class="o">=</span> <span class="s1">&#39;file://path/to/family_and_phenotype.tsv&#39;</span>
+<span class="n">source_data_url</span> <span class="o">=</span> <span class="s1">&#39;https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/update-tutorial/docs/data/family_and_phenotype.tsv&#39;</span>
 
 <span class="n">source_data_loading_parameters</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
@@ -500,8 +495,8 @@ events</li>
 import predefined constants and functions.</p>
 </div>
 <div class="section" id="fetching-the-data">
-<h3>Fetching the data<a class="headerlink" href="#fetching-the-data" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">source_data_url</span> <span class="o">=</span> <span class="s1">&#39;file://path/to/family_and_phenotype.tsv&#39;</span>
+<span id="id1"></span><h3>Fetching the data<a class="headerlink" href="#fetching-the-data" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">source_data_url</span> <span class="o">=</span> <span class="s1">&#39;https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/update-tutorial/docs/data/family_and_phenotype.tsv&#39;</span>
 </pre></div>
 </div>
 <p>The first thing that the extractor does for every config file is fetch the
@@ -509,25 +504,41 @@ related source data. This specifies where the file lives so that the code can
 fetch it.</p>
 <p>Supported protocol prefixes are:
 <code class="docutils literal notranslate"><span class="pre">file://</span></code>, <code class="docutils literal notranslate"><span class="pre">s3://</span></code>, <code class="docutils literal notranslate"><span class="pre">http://</span></code>, <code class="docutils literal notranslate"><span class="pre">https://</span></code></p>
+<p>For files stored by the Kids First Study Creator, see the
+<a class="reference internal" href="study_creator.html#tutorial-study-creator"><span class="std std-ref">Source Data stored by the Kids First Data Tracker</span></a> tutorial.</p>
+<p>If you downloaded the test data file and want to load your local copy instead
+of from a remote server, you would use:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">source_data_url</span> <span class="o">=</span> <span class="s1">&#39;file://path/to/family_and_phenotype.tsv&#39;</span>
+</pre></div>
 </div>
-<div class="section" id="loading-the-data">
-<h3>Loading the data<a class="headerlink" href="#loading-the-data" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="reading-the-file">
+<h3>Reading the file<a class="headerlink" href="#reading-the-file" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">source_data_loading_parameters</span> <span class="o">=</span> <span class="p">{</span>
     <span class="n">header</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">usecols</span><span class="p">:</span> <span class="p">:</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">!=</span> <span class="s2">&quot;[ignore]&quot;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The arguments that we put into the <code class="docutils literal notranslate"><span class="pre">source_data_loading_parameters</span></code> table
-correspond with the Python pandas IO parameters described in
+<p>Extract tries to automatically pick the right pandas file reader for the given
+file extension (read_json for json files, read_csv for csv/tsv, read_excel for
+excel files). To pass keyword arguments to the chosen file reader, we define a
+dict called <code class="docutils literal notranslate"><span class="pre">source_data_loading_parameters</span></code> which corresponds with the
+Python pandas IO parameters described in
 <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/user_guide/io.html">http://pandas.pydata.org/pandas-docs/stable/user_guide/io.html</a></p>
-<p>This example file contains tab-separated values (hence the filename ending with
-‘.tsv’) with a non-standard layout where we need to ignore the first row. For
-demonstration purposes we’re also ignoring the first column.</p>
+<p>The example data file contains tab-separated values (hence the filename ending
+with ‘.tsv’) with a non-standard layout where we need to ignore the first row.
+For demonstration purposes we’re also ignoring the first column.</p>
 <p>If the data had had the simplest layout (the column headers being on the first
 row, etc), then it would get loaded correctly by default without needing any
-parameters here, but with complex arrangements we have to define how to load
-the data.</p>
+parameters here, but with complex arrangements we have to configure the reader.</p>
+<p>If the right reader cannot be inferred, you’ll need to define a
+<code class="docutils literal notranslate"><span class="pre">load_func</span></code> function that takes a file path and kwargs (also given in
+<code class="docutils literal notranslate"><span class="pre">source_data_loading_parameters</span></code>) and returns a pandas DataFrame:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># a special custom file reader which must return a pandas DataFrame</span>
+<span class="n">load_func</span> <span class="o">=</span> <span class="n">my_custom_reader_function</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="extract-operations">
 <h3>Extract operations<a class="headerlink" href="#extract-operations" title="Permalink to this headline">¶</a></h3>
@@ -542,7 +553,8 @@ the data.</p>
 select subsets of source data and then clean and map that data to the desired
 attributes and value formats. The most useful functions are already written for
 you. You just have to invoke them appropriately.</p>
-<p>For more information about extract operation functions, read &lt;TODO&gt;.</p>
+<p>For more information about extract operation functions, read
+<a class="reference internal" href="../design/extract_mapping.html#extract-mapping"><span class="std std-ref">Extract Mapping</span></a>.</p>
 </div>
 <div class="section" id="a-value-map-operation-with-functional-replacements">
 <h4>A value map operation with functional replacements<a class="headerlink" href="#a-value-map-operation-with-functional-replacements" title="Permalink to this headline">¶</a></h4>
@@ -679,16 +691,6 @@ is mapped to itself.</p>
 the regular expression pattern <code class="docutils literal notranslate"><span class="pre">^F$</span></code> with the standard code for Female and
 replace everything that matches <code class="docutils literal notranslate"><span class="pre">^M$</span></code> with the standard code for Male, and
 then output the result to a standard concept column for participant gender.”</p>
-<p>Technically we could do a more complex operation here to recover the mother and
-father genders by determining whether the participant ID exists in the “mother”
-or “father” column, but we can also do that later during the Transform stage.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The right side of <code class="docutils literal notranslate"><span class="pre">m={...}</span></code> fields can be values (replace with <cite>this</cite>) or
-functions (apply <cite>this</cite> and replace with the result). The same is true for
-<code class="docutils literal notranslate"><span class="pre">m</span></code> itself if you want the same value or sme function for every row
-without first matching patterns.</p>
-</div>
 <p>The resulting intermediate output will look like:</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -745,9 +747,10 @@ delimited values apart into their own entries, and then output the result to a
 standard concept column for biospecimen ID.”</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">We use a special <code class="docutils literal notranslate"><span class="pre">Split()</span></code> object for lists of values that we want to
+<p class="last">We use the special <code class="docutils literal notranslate"><span class="pre">Split()</span></code> object for lists of values that we want to
 split apart into multiple rows. Just returning a list will not split the
-contained items apart.</p>
+contained items apart. Read <a class="reference internal" href="../design/extract_mapping.html#splitting-cells"><span class="std std-ref">Splitting Cells</span></a> in
+<a class="reference internal" href="../design/extract_mapping.html#extract-mapping"><span class="std std-ref">Extract Mapping</span></a>.</p>
 </div>
 <p>The resulting intermediate output will look like:</p>
 <table border="1" class="docutils">
@@ -1666,93 +1669,6 @@ magic, the final extracted result given the data and our configuration is:</p>
 </table>
 </div>
 </div>
-<div class="section" id="accessing-protected-source-data">
-<h2>Accessing Protected Source Data<a class="headerlink" href="#accessing-protected-source-data" title="Permalink to this headline">¶</a></h2>
-<p>In the <a class="reference internal" href="app.html#tutorial-ingest-app"><span class="std std-ref">Kids First Ingest App</span></a> section you learned that source data files
-for Kids First studies are managed by the Kids First Study Creator API. The
-tutorial above uses a file on your local file system for example purposes.</p>
-<p>In a more realistic scenario, the source data files for a study would already
-have been uploaded to the Study Creator. Your ingest package would then need to
-be configured to access these files with the proper authentication parameters.</p>
-<p>Let’s walk through an example.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">We are not going to show how to upload files to the Study Creator API
-because it is outside of the scope of this tutorial. See the
-<a class="reference external" href="https://kids-first.github.io/kf-api-study-creator/">Study Creator API docs</a>
-or visit the <a class="reference external" href="https://kf-ui-data-tracker.kidsfirstdrc.org">Data Tracker web app</a>
-to learn more about how to do this.</p>
-</div>
-<div class="section" id="get-url-of-source-data-file">
-<h3>Get URL of Source Data File<a class="headerlink" href="#get-url-of-source-data-file" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">family_and_phenotype.tsv</span></code> file has already been uploaded to the
-<code class="docutils literal notranslate"><span class="pre">SD_ME0WME0W</span></code> study via the Data Tracker web app. Here is the file’s URL:</p>
-<p><a class="reference external" href="https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_ND1PHHW4">https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_ND1PHHW4</a></p>
-</div>
-<div class="section" id="update-your-extract-config">
-<h3>Update Your Extract Config<a class="headerlink" href="#update-your-extract-config" title="Permalink to this headline">¶</a></h3>
-<p>Update the source_data_url parameter in your extract config to store this URL.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># my_study/extract_configs/family_and_phenotype.py</span>
-
-<span class="n">source_data_url</span> <span class="o">=</span> <span class="s1">&#39;https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_ND1PHHW4&#39;</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="get-your-developer-token">
-<h3>Get Your Developer Token<a class="headerlink" href="#get-your-developer-token" title="Permalink to this headline">¶</a></h3>
-<p>All source data files in the Study Creator API are protected by some sort of
-authentication depending on the type of user trying to access them. As an
-ingest package developer, you will need a developer token to access files.
-The developer token grants authorization to download any source data file.</p>
-<p>To generate a token, go to <a class="reference external" href="https://kf-ui-data-tracker.kidsfirstdrc.org/tokens">https://kf-ui-data-tracker.kidsfirstdrc.org/tokens</a></p>
-</div>
-<div class="section" id="set-your-environment">
-<h3>Set Your Environment<a class="headerlink" href="#set-your-environment" title="Permalink to this headline">¶</a></h3>
-<p>Now that you have your token, you’re going to store it in your environment so
-that ingest app can read it and use it when fetching Study Creator API files.</p>
-<p>If you recall from the <a class="reference internal" href="app.html#tutorial-ingest-app"><span class="std std-ref">Kids First Ingest App</span></a> section, in
-<code class="docutils literal notranslate"><span class="pre">development</span></code> mode, the <code class="docutils literal notranslate"><span class="pre">kf_lib_data_ingest/app/settings/development.py</span></code>
-app settings are used. If you take a glance at that file, you’ll be able to see
-what environment variable you should use to store your token.</p>
-<div class="literal-block-wrapper docutils container" id="id2">
-<div class="code-block-caption"><span class="caption-text">kf_lib_data_ingest/app/settings/development.py</span><a class="headerlink" href="#id2" title="Permalink to this code">¶</a></div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Testing settings for Kids First Ingest App</span>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">os</span>
-
-<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.app.settings.base</span> <span class="kn">import</span> <span class="o">*</span>
-
-<span class="n">AUTH_CONFIGS</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
-    <span class="s1">&#39;https://kf-study-creator.kidsfirstdrc.org/download/study&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;token&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;token_location&#39;</span><span class="p">:</span> <span class="s1">&#39;header&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;token&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SECRETS</span><span class="o">.</span><span class="n">KF_STUDY_CREATOR_API_TOKEN</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">})</span>
-</pre></div>
-</div>
-</div>
-<p>As you can see from above, for source data file URLs that match this pattern:</p>
-<p><cite>https://kf-study-creator.kidsfirstdrc.org/download/study</cite></p>
-<p>you should use the <code class="docutils literal notranslate"><span class="pre">KF_STUDY_CREATOR_API_TOKEN</span></code> environment variable to
-store your token:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">KF_STUDY_CREATOR_API_TOKEN</span><span class="o">=</span>YOUR_TOKEN
-</pre></div>
-</div>
-<p>Be careful with this token and make sure to keep it secret, as it has a lot of
-privileges.</p>
-</div>
-<div class="section" id="try-it">
-<h3>Try It<a class="headerlink" href="#try-it" title="Permalink to this headline">¶</a></h3>
-<p>Now if you try running ingest and the file was fetched successfully, you should
-see something like this in your log:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>2019-04-24 11:19:31,719 - FileRetriever - INFO - Selected `token` authentication to fetch https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_ND1PHHW4
-2019-04-24 11:19:32,269 - kf_lib_data_ingest.network.utils - INFO - Successfully fetched https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_ND1PHHW4 with original file name &quot;family_and_phenotype.tsv&quot;
-</pre></div>
-</div>
-</div>
-</div>
 </div>
 
 
@@ -1763,10 +1679,10 @@ see something like this in your log:</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="package_testing.html" class="btn btn-neutral float-right" title="Test Your Ingest Package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="study_creator.html" class="btn btn-neutral float-right" title="Source Data stored by the Kids First Data Tracker" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="project_setup.html" class="btn btn-neutral float-left" title="Project Setup" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="package_setup.html" class="btn btn-neutral float-left" title="New Ingest Package Setup" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

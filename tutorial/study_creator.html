@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Kids First Ingest App &mdash; Kids First Data Ingest Libraries  documentation</title>
+  <title>Source Data stored by the Kids First Data Tracker &mdash; Kids First Data Ingest Libraries  documentation</title>
   
 
   
@@ -36,8 +36,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Study Data Files" href="files.html" />
-    <link rel="prev" title="Tutorial" href="index.html" />
+    <link rel="next" title="Test Your Ingest Package" href="package_testing.html" />
+    <link rel="prev" title="Extract Stage" href="extract.html" />
     <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
  
 </head>
@@ -96,19 +96,19 @@
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Overview</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorial</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Kids First Ingest App</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#app-settings">App Settings</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#authorization-configs">Authorization Configs</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ingest-app-deployment-mode">Ingest App Deployment Mode</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="app.html">Kids First Ingest App</a></li>
 <li class="toctree-l2"><a class="reference internal" href="files.html">Study Data Files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ingest_package.html">Ingest Package Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="package_setup.html">New Ingest Package Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extract.html">Extract Stage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Source Data stored by the Kids First Data Tracker</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#get-the-url-of-the-source-data-file">Get the URL of the Source Data File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#update-your-extract-config">Update Your Extract Config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#get-your-developer-token">Get Your Developer Token</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#set-your-environment">Set Your Environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#try-it">Try It</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="package_testing.html">Test Your Ingest Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="debugging.html">Debugging and Developing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="transform.html">Transform Stage</a></li>
@@ -165,13 +165,13 @@
         
           <li><a href="index.html">Tutorial</a> &raquo;</li>
         
-      <li>Kids First Ingest App</li>
+      <li>Source Data stored by the Kids First Data Tracker</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/tutorial/app.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/tutorial/study_creator.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -184,20 +184,55 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="kids-first-ingest-app">
-<span id="tutorial-ingest-app"></span><h1>Kids First Ingest App<a class="headerlink" href="#kids-first-ingest-app" title="Permalink to this headline">¶</a></h1>
-<p>While the ingest library aims to be fairly generic, the built-in ingest app
-is an example of how the library can be used to support specific project(s) or
-scenarios. This section will explain what app settings are and how they help
-us tailor usage of the library for specific projects.</p>
-<p>If you will be developing ingest packages for Kids First study datasets,
-then this section will also explain where source data files should live
-(not on your computer!) and how to access them.</p>
-<div class="section" id="app-settings">
-<h2>App Settings<a class="headerlink" href="#app-settings" title="Permalink to this headline">¶</a></h2>
-<p>App settings include configuration that applies to a group of ingest packages
-which are all part of the same project.</p>
-<p>Here’s what an example app settings file looks like:</p>
+  <div class="section" id="source-data-stored-by-the-kids-first-data-tracker">
+<span id="tutorial-study-creator"></span><h1>Source Data stored by the Kids First Data Tracker<a class="headerlink" href="#source-data-stored-by-the-kids-first-data-tracker" title="Permalink to this headline">¶</a></h1>
+<p>The <a class="reference internal" href="extract.html#tutorial-extract-stage"><span class="std std-ref">Extract Stage</span></a> tutorial uses an unprotected file for example
+purposes, but, in a more realistic scenario, the source data files for a study
+would have been uploaded to the Data Tracker, and your ingest package would
+need to be configured to access these files with the proper authorization
+headers.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Uploading files to the Data Tracker is outside of the scope of this
+tutorial. Read the <a class="reference external" href="https://kids-first.github.io/kf-api-study-creator/">Study Creator API docs</a> or visit the <a class="reference external" href="https://kf-ui-data-tracker.kidsfirstdrc.org">Data
+Tracker web app</a> to learn
+more about how to do that.</p>
+</div>
+<div class="section" id="get-the-url-of-the-source-data-file">
+<h2>Get the URL of the Source Data File<a class="headerlink" href="#get-the-url-of-the-source-data-file" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">family_and_phenotype.tsv</span></code> file has already been uploaded to the
+<code class="docutils literal notranslate"><span class="pre">SD_ME0WME0W</span></code> study via the Data Tracker web app. Here is the file’s URL:</p>
+<p><a class="reference external" href="https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_ND1PHHW4">https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_ND1PHHW4</a></p>
+<p>You will not be able to download the file unless you log in.</p>
+</div>
+<div class="section" id="update-your-extract-config">
+<h2>Update Your Extract Config<a class="headerlink" href="#update-your-extract-config" title="Permalink to this headline">¶</a></h2>
+<p>Use this URL for the <code class="docutils literal notranslate"><span class="pre">source_data_url</span> <span class="pre">parameter</span></code> in your extract config.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># my_study/extract_configs/family_and_phenotype.py</span>
+
+<span class="n">source_data_url</span> <span class="o">=</span> <span class="s1">&#39;https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_ND1PHHW4&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="get-your-developer-token">
+<h2>Get Your Developer Token<a class="headerlink" href="#get-your-developer-token" title="Permalink to this headline">¶</a></h2>
+<p>All source data files in the Data Tracker are protected by some sort of
+authentication depending on the type of user trying to access them. As an
+ingest package developer, you will need a developer token to access files. The
+developer token grants authorization to download any source data file.</p>
+<p>To generate a token, go to <a class="reference external" href="https://kf-ui-data-tracker.kidsfirstdrc.org/tokens">https://kf-ui-data-tracker.kidsfirstdrc.org/tokens</a></p>
+</div>
+<div class="section" id="set-your-environment">
+<h2>Set Your Environment<a class="headerlink" href="#set-your-environment" title="Permalink to this headline">¶</a></h2>
+<p>Now that you have your token, you’re going to store it in your shell
+environment so that the ingest app can read it and use it when fetching files
+through the Study Creator API.</p>
+<p>If you recall from the <a class="reference internal" href="app.html#tutorial-ingest-app"><span class="std std-ref">Kids First Ingest App</span></a> section, in <code class="docutils literal notranslate"><span class="pre">development</span></code>
+mode, the <code class="docutils literal notranslate"><span class="pre">kf_lib_data_ingest/app/settings/development.py</span></code> app settings are
+used. If you look at that file, you’ll see that the ingest app is already
+configured to use whatever is stored in an environment variable called
+<code class="docutils literal notranslate"><span class="pre">KF_STUDY_CREATOR_API_TOKEN</span></code> when accessing URLs that start with
+<code class="docutils literal notranslate"><span class="pre">https://kf-study-creator.kidsfirstdrc.org/download/study</span></code>.</p>
 <div class="literal-block-wrapper docutils container" id="id1">
 <div class="code-block-caption"><span class="caption-text">kf_lib_data_ingest/app/settings/development.py</span><a class="headerlink" href="#id1" title="Permalink to this code">¶</a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
@@ -217,54 +252,19 @@ which are all part of the same project.</p>
 </pre></div>
 </div>
 </div>
-<p>Each app settings file is a Python module, and all app settings files live in
-the <code class="docutils literal notranslate"><span class="pre">kf_lib_data_ingest/app/settings</span></code> directory. Common settings can be
-imported from <code class="docutils literal notranslate"><span class="pre">base.py</span></code>.</p>
-<p>App level settings currently include but are not limited to:</p>
-<ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">TARGET_API_CONFIG</span></code> the path to the target API configuration module
-which specifies how to transform data into a form expected by the target
-service</li>
-<li><code class="docutils literal notranslate"><span class="pre">AUTH_CONFIGS</span></code> dict, which specifies what authentication parameters to use
-when fetching remote source data files that require authentication.</li>
-</ul>
-<div class="section" id="authorization-configs">
-<span id="tutorial-authorization-configs"></span><h3>Authorization Configs<a class="headerlink" href="#authorization-configs" title="Permalink to this headline">¶</a></h3>
-<p>TODO</p>
-<img alt="../_images/construction_small.gif" src="../_images/construction_small.gif" />
+<p>Therefore in your shell environment when testing you can use:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">KF_STUDY_CREATOR_API_TOKEN</span><span class="o">=</span>YOUR_TOKEN
+</pre></div>
 </div>
-<div class="section" id="ingest-app-deployment-mode">
-<h3>Ingest App Deployment Mode<a class="headerlink" href="#ingest-app-deployment-mode" title="Permalink to this headline">¶</a></h3>
-<p>There are 2 app settings files, each pertaining to a different mode of
-deployment. The deployment mode can be controlled by the <code class="docutils literal notranslate"><span class="pre">KF_INGEST_APP_MODE</span></code>
-environment variable.</p>
-<ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">KF_INGEST_APP_MODE=production</span></code> -&gt; loads settings from <code class="docutils literal notranslate"><span class="pre">production.py</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">KF_INGEST_APP_MODE=development</span></code> -&gt; loads settings from <code class="docutils literal notranslate"><span class="pre">development.py</span></code></li>
-</ul>
-<div class="section" id="development-mode">
-<h4>Development Mode<a class="headerlink" href="#development-mode" title="Permalink to this headline">¶</a></h4>
-<p>As a Kids First ingest package developer, you will want to make sure your
-environment has the following set: <code class="docutils literal notranslate"><span class="pre">KF_INGEST_APP_MODE=development</span></code></p>
-<p>This will instruct the ingest app to load the development settings, which
-include authentication configuration for accessing files via the Kids First
-Study Creator API, the single source of truth for source data files within the
-Kids First ecosystem.</p>
+<p>Be careful with this token and make sure to keep it secret.</p>
 </div>
-<div class="section" id="production-mode">
-<h4>Production Mode<a class="headerlink" href="#production-mode" title="Permalink to this headline">¶</a></h4>
-<p>This mode is used when the ingest/test commands are run as part of a CI/CD
-process. It contains authentication configuration that is only used in a CI/CD
-scenario.</p>
-<p>An ingest package developer should never use this mode.</p>
-</div>
-<div class="section" id="cli-option-override">
-<h4>CLI Option Override<a class="headerlink" href="#cli-option-override" title="Permalink to this headline">¶</a></h4>
-<p>As an ingest package developer you should never need to worry about changing
-app level settings. However, if you do need to, you can supply your own
-settings file via the <code class="docutils literal notranslate"><span class="pre">--app_settings</span></code> CLI option. See <code class="docutils literal notranslate"><span class="pre">kidsfirst</span> <span class="pre">ingest</span>
-<span class="pre">--help</span></code> for details.</p>
-</div>
+<div class="section" id="try-it">
+<h2>Try It<a class="headerlink" href="#try-it" title="Permalink to this headline">¶</a></h2>
+<p>If you try running ingest and the file was fetched successfully, you should see
+something like this in your log:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>2019-04-24 11:19:31,719 - FileRetriever - INFO - Selected `token` authentication to fetch https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_ND1PHHW4
+2019-04-24 11:19:32,269 - kf_lib_data_ingest.network.utils - INFO - Successfully fetched https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_ND1PHHW4 with original file name &quot;family_and_phenotype.tsv&quot;
+</pre></div>
 </div>
 </div>
 </div>
@@ -277,10 +277,10 @@ settings file via the <code class="docutils literal notranslate"><span class="pr
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="files.html" class="btn btn-neutral float-right" title="Study Data Files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="package_testing.html" class="btn btn-neutral float-right" title="Test Your Ingest Package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral float-left" title="Tutorial" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="extract.html" class="btn btn-neutral float-left" title="Extract Stage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
