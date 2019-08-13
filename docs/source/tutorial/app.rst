@@ -5,8 +5,8 @@ Kids First Ingest App
 =====================
 
 While the ingest library aims to be fairly generic, the built-in ingest app
-is an example of how the library can be use used to support specific project(s)
-or use cases. This section will explain what app settings are and how they help
+is an example of how the library can be used to support specific project(s) or
+scenarios. This section will explain what app settings are and how they help
 us tailor usage of the library for specific projects.
 
 If you will be developing ingest packages for Kids First study datasets,
@@ -25,7 +25,7 @@ Here's what an example app settings file looks like:
    :language: python
    :caption: kf_lib_data_ingest/app/settings/development.py
 
-Each app settings file is a Python module and all app settings files live in
+Each app settings file is a Python module, and all app settings files live in
 the ``kf_lib_data_ingest/app/settings`` directory. Common settings can be
 imported from ``base.py``.
 
@@ -37,70 +37,49 @@ App level settings currently include but are not limited to:
 - ``AUTH_CONFIGS`` dict, which specifies what authentication parameters to use
   when fetching remote source data files that require authentication.
 
+.. _Tutorial-Authorization-Configs:
 
-CLI Option Override
--------------------
+Authorization Configs
+---------------------
 
-As an ingest package developer you will rarely need to worry about changing
-app level settings. However, if you do need to modify settings you can do so by
-supplying your own settings file via the ``--app_settings`` CLI option.
-See ``kidsfirst ingest --help`` for details.
+TODO
 
+.. image:: /_static/images/construction_small.gif
 
-Ingest App Mode
-===============
+Ingest App Deployment Mode
+--------------------------
 
-For Kids First projects, there are 2 settings files, each pertaining to a
-different mode of operation. The mode of operation can be controlled by the
-``KF_INGEST_APP_MODE`` environment variable.
+There are 2 app settings files, each pertaining to a different mode of
+deployment. The deployment mode can be controlled by the ``KF_INGEST_APP_MODE``
+environment variable.
 
-- ``KF_INGEST_APP_MODE=production`` -> loads production.py settings
-- ``KF_INGEST_APP_MODE=development`` -> loads development.py settings
-
-Production Mode
----------------
-
-This mode is used when the ingest/test commands are run as part of a
-CI/CD process. It contains authentication configuration that is only used
-in a CI/CD scenario.
-
-As an ingest package developer you will never use this mode.
+- ``KF_INGEST_APP_MODE=production`` -> loads settings from ``production.py``
+- ``KF_INGEST_APP_MODE=development`` -> loads settings from ``development.py``
 
 Development Mode
-----------------
+~~~~~~~~~~~~~~~~
 
 As a Kids First ingest package developer, you will want to make sure your
 environment has the following set: ``KF_INGEST_APP_MODE=development``
 
-This will instruct the ingest app to load the development settings,
-which include authentication configuration for accessing files
-via the Kids First Study Creator API, the single source of truth for source
-data files within the Kids First ecosystem.
+This will instruct the ingest app to load the development settings, which
+include authentication configuration for accessing files via the Kids First
+Study Creator API, the single source of truth for source data files within the
+Kids First ecosystem.
 
-Developing for Kids First
-=========================
+Production Mode
+~~~~~~~~~~~~~~~
 
-If you are developing an ingest package for Kids First study data, then the
-source data files for the study will be managed by the Kids First Study Creator
-API. Read more about the study creator API at https://kids-first.github.io/kf-api-study-creator/
+This mode is used when the ingest/test commands are run as part of a CI/CD
+process. It contains authentication configuration that is only used in a CI/CD
+scenario.
 
-Upload Files
-------------
+An ingest package developer should never use this mode.
 
-Source data files must be uploaded to an existing Kids First study in the
-study creator API. The easiest way to do this is via the
-Kids First Data Tracker web app at https://kf-ui-data-tracker.kidsfirstdrc.org/
+CLI Option Override
+~~~~~~~~~~~~~~~~~~~
 
-Currently, new studies must be created via the Kids First Dataservice API and
-will then be mirrored/synced in the study creator API. This will likely change
-in the near future so that studies may be created via the Data Tracker UI.
-
-Download Files
---------------
-
-Once files are uploaded into a study, they may be downloaded via the study
-creator API's file endpoint with a developer token in the authorization header
-of the request.
-
-You will learn how to configure your ingest package to access these files
-in the :ref:`Tutorial-Extract-Stage` section of the tutorial.
+As an ingest package developer you should never need to worry about changing
+app level settings. However, if you do need to, you can supply your own
+settings file via the ``--app_settings`` CLI option. See ``kidsfirst ingest
+--help`` for details.

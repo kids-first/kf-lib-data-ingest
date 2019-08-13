@@ -203,7 +203,8 @@ Head on over to the :ref:`tutorial` to get started with data ingestion!
 
    install
    quickstart
+   design/overview
    tutorial/index.rst
+   challenge_scenarios/extracting/index.rst
    developer
    reference/index.rst
-   design/overview
