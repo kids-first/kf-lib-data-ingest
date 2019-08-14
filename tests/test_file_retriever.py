@@ -1,4 +1,5 @@
 import base64
+import importlib
 import logging
 import os
 from urllib.parse import quote, urlencode, urljoin
@@ -338,3 +339,24 @@ def _assert_file(storage_dir, file_path):
     ]) == storage_dir
 
     assert os.path.isfile(file_path)
+
+
+def test_static_auth_configs():
+    FileRetriever.static_auth_configs = {'test': 'test'}
+
+    # test persists locally
+    fr = FileRetriever()
+    assert fr.static_auth_configs == {'test': 'test'}
+
+    # test persists across modules
+    test_spec = importlib.util.spec_from_loader('test_module', loader=None)
+    test_module = importlib.util.module_from_spec(test_spec)
+    test_code = (
+        'def test_static_auth_configs():\n'
+        ' from kf_lib_data_ingest.common.file_retriever import FileRetriever\n'
+        ' fr = FileRetriever()\n'
+        ' assert fr.static_auth_configs == {"test": "test"}\n'
+    )
+    exec(test_code, test_module.__dict__)
+    test_module.test_static_auth_configs()
+    fr.static_auth_configs = None
