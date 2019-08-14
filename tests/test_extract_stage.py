@@ -11,6 +11,7 @@ from kf_lib_data_ingest.etl.configuration.base_config import (
     ConfigValidationError
 )
 from kf_lib_data_ingest.etl.extract.extract import ExtractStage
+from kf_lib_data_ingest.etl.extract.operations import column_map
 
 TEST_FILE_PATH = os.path.join(TEST_DATA_DIR, 'data.csv')
 
@@ -166,3 +167,31 @@ def test_visibility():
     )
     with pytest.raises(AssertionError):
         es._obvert_visibility(df_a)
+
+
+def test_operation_length_erors():
+    es = ExtractStage('', '')
+    df = pandas.DataFrame({'A': [1, 2], 'B': [1, 2]})
+
+    # test too long result not in sublist
+    op = [
+        [
+            column_map(
+                in_col='A',
+                out_col='NAME',
+                m=lambda x: x.append(x)
+            )
+        ]
+    ]
+    es._chain_operations(df, op)
+    with pytest.raises(ConfigValidationError) as e:
+        es._chain_operations(df, op[0])
+    assert "nested operation sublists" in str(e.value)
+
+    # test result not a multiple
+    op = [
+        lambda x: pandas.Series([1])
+    ]
+    with pytest.raises(ConfigValidationError) as e:
+        es._chain_operations(df, op)
+    assert "not a multiple" in str(e.value)
