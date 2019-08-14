@@ -384,6 +384,7 @@
         <span class="s2">&quot;https&quot;</span><span class="p">:</span> <span class="n">_web_save</span><span class="p">,</span>
         <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">_file_save</span>
     <span class="p">}</span>
+    <span class="n">static_auth_configs</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">storage_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cleanup_at_exit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">auth_configs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -433,10 +434,10 @@
                                                         <span class="nb">dir</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">storage_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__tmpdir</span><span class="o">.</span><span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_files</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">auth_configs</span> <span class="o">=</span> <span class="n">auth_configs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">auth_configs</span> <span class="o">=</span> <span class="n">auth_configs</span> <span class="ow">or</span> <span class="n">FileRetriever</span><span class="o">.</span><span class="n">static_auth_configs</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth_configs</span><span class="p">:</span>
-            <span class="n">assert_safe_type</span><span class="p">(</span><span class="n">auth_configs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+            <span class="n">assert_safe_type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">auth_configs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
 
 <div class="viewcode-block" id="FileRetriever.get"><a class="viewcode-back" href="../../../reference/common.html#kf_lib_data_ingest.common.file_retriever.FileRetriever.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">auth_config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
