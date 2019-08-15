@@ -8,7 +8,11 @@ from pprint import pformat
 import pandas
 
 from kf_lib_data_ingest.common.concept_schema import concept_set
-from kf_lib_data_ingest.common.datafile_readers import read_excel_file
+from kf_lib_data_ingest.common.datafile_readers import (
+    read_excel_file,
+    read_json_file,
+    read_table_file
+)
 from kf_lib_data_ingest.common.file_retriever import (
     PROTOCOL_SEP,
     FileRetriever,
@@ -142,7 +146,7 @@ class ExtractStage(IngestStage):
         for filepath, info in metadata.items():
             output[info['extract_config_url']] = (
                 info['source_data_url'],
-                pandas.read_csv(filepath, delimiter='\t', index_col=0)
+                read_table_file(filepath, delimiter='\t', index_col=0)
             )
 
         self.logger.info(f'Reading {type(self).__name__} output:\n'
@@ -214,21 +218,11 @@ class ExtractStage(IngestStage):
             self.logger.info("Using custom load_func function.")
         else:
             if f.original_name.endswith(('.xlsx', '.xls')):
-                load_args['dtype'] = str
-                load_args['na_filter'] = False
                 load_func = read_excel_file
             elif f.original_name.endswith(('.tsv', '.csv')):
-                load_args['sep'] = (
-                    load_args.pop('delimiter', None) or
-                    load_args.pop('sep', None)
-                )
-                load_args['engine'] = 'python'
-                load_args['dtype'] = str
-                load_args['na_filter'] = False
-                load_func = pandas.read_csv
+                load_func = read_table_file
             elif f.original_name.endswith('.json'):
-                load_func = pandas.read_json
-                load_args['convert_dates'] = False
+                load_func = read_json_file
 
         if load_func:
             try:
