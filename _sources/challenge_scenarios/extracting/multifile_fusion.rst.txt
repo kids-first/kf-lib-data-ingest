@@ -18,10 +18,10 @@ do:
 .. code-block:: Python
 
     from kf_lib_data_ingest.common.file_retriever import FileRetriever
+    from kf_lib_data_ingest.common.datafile_readers import read_table_file
 
-    f = FileRetriever().get("<URL for your TSV file>")
-    file_df = pandas.read_csv(
-        f.name, dtype=str, engine='python', na_filter=False, sep='\t'
+    file_df = read_table_file(
+        FileRetriever().get("<URL for your TSV file>")
     )
 
 Keep in mind that ``in_col`` arguments in the :ref:`operations list
