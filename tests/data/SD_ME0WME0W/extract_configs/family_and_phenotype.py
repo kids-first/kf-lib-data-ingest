@@ -10,7 +10,7 @@ host = 'https://kf-study-creator.kidsfirstdrc.org'
 kfid = 'SF_HH5PMCJX'
 source_data_url = f'{host}/download/study/SD_ME0WME0W/file/{kfid}'
 
-source_data_loading_parameters = {
+source_data_read_params = {
     "header": 1,
     "usecols": lambda x: x != "[ignore]"
 }

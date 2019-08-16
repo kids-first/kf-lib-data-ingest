@@ -9,7 +9,9 @@ source_data_url = (
     'manifest_180917_rectified.tsv'
 )
 
-source_data_loading_parameters = {}
+source_data_read_params = {
+    "sep": "\t"
+}
 
 operations = [
     keep_map(

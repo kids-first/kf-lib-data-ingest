@@ -66,7 +66,7 @@ class ExtractStage(IngestStage):
         assert_safe_type(extract_config_dir, str)
 
         # must set FileRetriever.static_auth_configs before extract configs are
-        # loaded
+        # read
         FileRetriever.static_auth_configs = auth_configs
         self.FR = FileRetriever()
 
@@ -198,15 +198,15 @@ class ExtractStage(IngestStage):
                 assert df[concept.HIDDEN].equals(flip_col(df[concept.VISIBLE]))
 
     def _source_file_to_df(
-        self, file_path, do_after_load=None, load_func=None, **load_args
+        self, file_path, do_after_read=None, read_func=None, **read_args
     ):
         """
-        Load the file using either load_func if given or according to the file
-        extension otherwise. Any load_args get forwarded to the load function.
+        Read the file using either read_func if given or according to the file
+        extension otherwise. Any read_args get forwarded to the read function.
 
         :param file_path: <protocol>://<path> for a source data file
-        :param load_func: A function used for custom loading
-        :kwargs load_args: Options passed to the loading functions
+        :param read_func: A function used for custom reading
+        :kwargs read_args: Options passed to the reading functions
 
         :returns: A pandas dataframe containing the requested data
         """
@@ -214,29 +214,29 @@ class ExtractStage(IngestStage):
         f = self.FR.get(file_path)
 
         err = None
-        if load_func:
-            self.logger.info("Using custom load_func function.")
+        if read_func:
+            self.logger.info("Using custom read function.")
         else:
             if f.original_name.endswith(('.xlsx', '.xls')):
-                load_func = read_excel_file
+                read_func = read_excel_file
             elif f.original_name.endswith(('.tsv', '.csv')):
-                load_func = read_table_file
+                read_func = read_table_file
             elif f.original_name.endswith('.json'):
-                load_func = read_json_file
+                read_func = read_json_file
 
-        if load_func:
+        if read_func:
             try:
-                df = load_func(f.name, **load_args)
+                df = read_func(f.name, **read_args)
                 if not isinstance(df, pandas.DataFrame):
                     err = (
-                        "Custom load_func must return a pandas.DataFrame"
+                        "Custom read function must return a pandas.DataFrame"
                     )
             except Exception as e:
-                err = f"In load_func {load_func.__name__} : {str(e)}"
+                err = f"In read_func {read_func.__name__} : {str(e)}"
         else:
             err = (
-                f"Could not determine appropriate loader for '{file_path}'."
-                "\nYou may need to define a custom load_func function."
+                f"Could not determine appropriate reader for '{file_path}'."
+                "\nYou may need to define a custom read function."
             )
 
         if err:
@@ -244,9 +244,9 @@ class ExtractStage(IngestStage):
 
         df = clean_up_df(df)
 
-        if do_after_load:
-            self.logger.info("Calling custom do_after_load function.")
-            df = do_after_load(df)
+        if do_after_read:
+            self.logger.info("Calling custom do_after_read function.")
+            df = do_after_read(df)
 
         return df
 
@@ -256,8 +256,7 @@ class ExtractStage(IngestStage):
         the source data files.
 
         :param df_in: A pandas dataframe containing all of the file data
-        :param operations: See the extract_config_format spec for the
-            the operations sequence
+        :param operations: List of operations to perform
         :returns: A pandas dataframe containing extracted mapped data
         """
         out_cols = defaultdict(pandas.Series)
@@ -388,9 +387,9 @@ class ExtractStage(IngestStage):
             try:
                 df_in = self._source_file_to_df(
                     data_path,
-                    do_after_load=extract_config.do_after_load,
-                    load_func=extract_config.load_func,
-                    **(extract_config.loading_params)
+                    do_after_read=extract_config.do_after_read,
+                    read_func=extract_config.source_data_read_func,
+                    **(extract_config.source_data_read_params or {})
                 )
             except ConfigValidationError as e:
                 raise type(e)(
@@ -399,7 +398,7 @@ class ExtractStage(IngestStage):
                 )
 
             self.logger.debug(
-                f'Loaded DataFrame with dimensions {df_in.shape}'
+                f'Read DataFrame with dimensions {df_in.shape}'
             )
             self.logger.debug(f'Column headers are: {list(df_in.columns)}')
 

@@ -12,9 +12,11 @@ from etl.extract.operations import *
 source_data_url = '<protocol>://<path>'
 
 
-# REQUIRED: source data loading arguments
-source_data_loading_parameters = {
-    "load_function": <function pointer>,
+# OPTIONAL: custom source data reading function
+source_data_read_func = <function>
+
+# OPTIONAL: source data reading arguments
+source_data_read_params = {
     <argument name>: <value>,
     # etc...
 }

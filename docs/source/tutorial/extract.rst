@@ -72,7 +72,7 @@ The following extract configuration file accomplishes all of those needs
 
     source_data_url = 'https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/update-tutorial/docs/data/family_and_phenotype.tsv'
 
-    source_data_loading_parameters = {
+    source_data_read_params = {
         "header": 1,
         "usecols": :lambda x: x != "[ignore]"
     }
@@ -201,7 +201,7 @@ Reading the file
 
 .. code-block:: python
 
-    source_data_loading_parameters = {
+    source_data_read_params = {
         header: 1,
         usecols: :lambda x: x != "[ignore]"
     }
@@ -209,7 +209,7 @@ Reading the file
 Extract tries to automatically pick the right pandas file reader for the given
 file extension (read_json for json files, read_csv for csv/tsv, read_excel for
 excel files). To pass keyword arguments to the chosen file reader, we define a
-dict called ``source_data_loading_parameters`` which corresponds with the
+dict called ``source_data_read_params`` which corresponds with the
 Python pandas IO parameters described in
 http://pandas.pydata.org/pandas-docs/stable/user_guide/io.html
 
@@ -222,13 +222,13 @@ row, etc), then it would get loaded correctly by default without needing any
 parameters here, but with complex arrangements we have to configure the reader.
 
 If the right reader cannot be inferred, you'll need to define a
-``load_func`` function that takes a file path and kwargs (also given in
-``source_data_loading_parameters``) and returns a pandas DataFrame:
+``read_func`` function that takes a file path and kwargs (also given in
+``source_data_read_params``) and returns a pandas DataFrame:
 
 .. code-block:: python
 
     # a special custom file reader which must return a pandas DataFrame
-    load_func = my_custom_reader_function
+    read_func = my_custom_reader_function
 
 Extract operations
 ------------------

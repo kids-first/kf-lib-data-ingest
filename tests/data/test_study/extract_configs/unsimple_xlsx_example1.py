@@ -7,7 +7,7 @@ from kf_lib_data_ingest.common.concept_schema import (
 source_data_url = 'file://../data/unsimple_xlsx_1.xlsx'
 
 # we use pandas.read_excel internally for xlsx files
-source_data_loading_parameters = {
+source_data_read_params = {
     'sheet_name': 'Sheet2',
     'usecols': 'B:D',
     'header': None,
