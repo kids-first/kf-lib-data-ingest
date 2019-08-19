@@ -9,12 +9,11 @@ source_data_url = (
     's3_files_kf-seq-data-hudsonalpha_haib17SB5136.tsv'
 )
 
-source_data_loading_parameters = {}
-
 operations = [
-    keep_map(
+    value_map(
         in_col='ETag',
-        out_col=CONCEPT.GENOMIC_FILE.ETAG
+        out_col=CONCEPT.GENOMIC_FILE.HASH_DICT,
+        m=lambda x: {'etag': x}
     ),
     keep_map(
         in_col='ContentLength',
