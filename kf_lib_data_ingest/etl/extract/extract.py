@@ -401,7 +401,7 @@ class ExtractStage(IngestStage):
             self.logger.debug(
                 f'Loaded DataFrame with dimensions {df_in.shape}'
             )
-            self.logger.debug(f'Column headers are: {df_in.columns}')
+            self.logger.debug(f'Column headers are: {list(df_in.columns)}')
 
             if not extract_config.operations:
                 self.logger.info("The operation list is empty. Nothing to do.")
