@@ -11,9 +11,6 @@ source_data_url = (
     'Boyd_Minimal_Data_Elements_Cuellar_9-2-2018_EDITED_v2.tsv'
 )
 
-source_data_loading_parameters = {}
-
-
 # Boyd re-issued new samples without updating their data table with the new
 # sample IDs, so we track the mappings from the sample manifest and then apply
 # them here when extracting the sample/aliquot IDs.

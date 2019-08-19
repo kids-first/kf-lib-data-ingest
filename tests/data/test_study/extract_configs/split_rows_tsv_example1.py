@@ -6,7 +6,6 @@ from kf_lib_data_ingest.common.concept_schema import (
 
 source_data_url = 'file://../data/split_rows_tsv_1.tsv'
 
-source_data_loading_parameters = {}
 
 operations = [
     keep_map(

@@ -6,8 +6,6 @@ from kf_lib_data_ingest.common.concept_schema import (
 
 source_data_url = 'file://../data/simple_headered_tsv_1.tsv'
 
-source_data_loading_parameters = {}
-
 
 def observed_yes_no(x):
     if isinstance(x, str):

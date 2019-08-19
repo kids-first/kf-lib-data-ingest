@@ -16,7 +16,10 @@ from kf_lib_data_ingest.common.concept_schema import (
 source_data_url = 'file://../data/clinical.tsv'
 
 # TODO (Optional) Fill in special loading parameters here
-source_data_loading_parameters = {}
+source_data_read_params = {}
+
+# TODO (Optional) You can set a custom read function with
+# source_data_read_func
 
 
 # TODO - Replace this with operations that make sense for your own data file

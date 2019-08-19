@@ -19,10 +19,6 @@ kfid = 'SF_SCW1DPBC'
 source_data_url = f'{host}/download/study/SD_ME0WME0W/file/{kfid}'
 
 
-# TODO (Optional) Fill in special loading parameters here
-source_data_loading_parameters = {}
-
-
 # TODO - Replace this with operations that make sense for your own data file
 operations = [
     keep_map(

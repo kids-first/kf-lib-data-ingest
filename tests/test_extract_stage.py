@@ -109,7 +109,7 @@ def test_bad_file_types(**kwargs):
         mock.get(url, content=tf.read(), status_code=200)
     with pytest.raises(ConfigValidationError) as e:
         es._source_file_to_df(url)
-    assert "Could not determine appropriate loader" in str(e.value)
+    assert "Could not determine appropriate reader" in str(e.value)
 
     # unknown type
     with pytest.raises(ConfigValidationError) as e:
@@ -117,7 +117,7 @@ def test_bad_file_types(**kwargs):
             'file://' +
             os.path.join(TEST_DATA_DIR, 'yaml_schema.yml')
         )
-    assert "Could not determine appropriate loader" in str(e.value)
+    assert "Could not determine appropriate reader" in str(e.value)
 
     # good type but error in load function
     with pytest.raises(ConfigValidationError) as e:
@@ -125,7 +125,7 @@ def test_bad_file_types(**kwargs):
             'file://' +
             os.path.join(TEST_DATA_DIR, 'concept_graph.json')
         )
-    assert "Could not determine appropriate loader" not in str(e.value)
+    assert "Could not determine appropriate reader" not in str(e.value)
 
 
 def test_no_load_return():
@@ -136,7 +136,7 @@ def test_no_load_return():
     with pytest.raises(ConfigValidationError):
         es._source_file_to_df(
             'file://' + f,
-            load_func=lambda x: None
+            read_func=lambda x: None
         )
 
 
