@@ -1,3 +1,31 @@
+# Kids First Lib Data Ingest Release 0.7.0
+
+## Features
+
+### Summary
+
+Feature Emojis: ♻️ x2 ♻️⚡️ x1 ♻️💥 x1 ✨ x2 🐛 x5 💡 x1 💬 x3 📝 x1 
+Feature Categories: [bug](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/bug) x5 [documentation](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/documentation) x1 [feature](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/feature) x2 [other](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/other) x6 [refactor](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/refactor) x2 
+
+### New features and changes
+
+- (#383) 💡 Cols is optional, delimiters is not - @fiendish
+- (#381) 🐛 Replace obsolete etag concept in boyd test - @fiendish
+- (#380) 💬 Print column lists nicer - @fiendish
+- (#379) ♻️💥 Change "load" to "read" - @fiendish
+- (#377) ♻️ Factor out pandas read file functions - @fiendish
+- (#375) 💬 Nicer op messages - @fiendish
+- (#374) ✨ FileRetriever static auth configs - @fiendish
+- (#372) ✨ Let value_map take a regex pattern also - @fiendish
+- (#369) 📝 Docs expansion - @fiendish
+- (#365) ♻️⚡️ Don't validate counts from prior run - @fiendish
+- (#364) ♻️ Move request logging into session object - @fiendish
+- (#363) 🐛 Indexd mandates a specific hash key format - @fiendish
+- (#362) 🐛 Add GF ACLs to concepts and target_schema - @fiendish
+- (#359) 🐛 Make sure the interim output gets written - @fiendish
+- (#358) 💬 Add new datatype constants - @fiendish
+- (#357) 🐛 Use relative path as extract output key instead of full path - @fiendish
+
 # Kids First Lib Data Ingest Release 0.6.0
 
 ## Features
