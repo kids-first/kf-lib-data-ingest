@@ -179,9 +179,9 @@ def test_split_df_rows():
     out_on_splits = pandas_utils.split_df_rows_on_splits(df_splits)
     out_on_delims = pandas_utils.split_df_rows_on_delims(
         pandas_utils.split_df_rows_on_delims(
-            df_delims, ['a', 'b'], [','], False
+            df_delims, [','], cols=['a', 'b'], cartesian=False
         ),
-        ['c'], [',']
+         [','], cols=['c']
     )
 
     for out in [out_on_splits, out_on_delims]:

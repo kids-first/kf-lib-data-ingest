@@ -104,14 +104,25 @@ def split_df_rows_on_splits(df):
     return df
 
 
-def split_df_rows_on_delims(
-    df, cols: list = None, delimiters: list = None, cartesian: bool = True
-):
+def split_df_rows_on_delims(df, delimiters, cols=None, cartesian=True):
     """
-    Split row into multiple rows based on delimited strings in df[col]
-    for all columns in cols
+    Split row into multiple rows based on delimited strings for all columns in
+    cols or df.columns.
+
+    Converts delimited entries into Split objects and then calls
+    split_df_rows_on_splits. If cartesian is false, the Splits get assigned to
+    a collective group. See docstring for split_df_rows_on_splits.
+
+    :param df: a DataFrame
+    :param delimiters: delimiters to split on
+    :type delimiters: list
+    :param cols: columns to split in (optional)
+    :type cols: list
+    :param cartesian: generate the cartesian product of split values
+    :type cartesian: bool
+    :return: a new DataFrame
     """
-    assert_safe_type(cols, list)
+    assert_safe_type(cols, list, None)
     assert_safe_type(delimiters, list)
     assert_safe_type(cartesian, bool)
     group = None if cartesian else 1
