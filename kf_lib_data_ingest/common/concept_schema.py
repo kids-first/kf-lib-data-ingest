@@ -112,6 +112,7 @@ class CONCEPT:
     class GENOMIC_FILE(PropertyMixin, FileMixin):
         HARMONIZED = None
         CAVATICA_OUTPUT_FILE = None
+        SOURCE_FILE = None
         REFERENCE_GENOME = None
 
     class READ_GROUP(PropertyMixin):
