@@ -281,9 +281,13 @@ class LoadStage(IngestStage):
             # Our dataservice returns 400 if a relationship already exists
             # even though that's a silly thing to do.
             # See https://github.com/kids-first/kf-api-dataservice/issues/419
+            extid = body.pop("external_id", None)
             resp = self._GET(endpoint, body)
             result = resp.json()['results'][0]
             self.logger.debug(f'Already exists:\n{pformat(result)}')
+            if extid != result["external_id"]:
+                self.logger.debug(f"Patching with new external_id: {extid}")
+                self._PATCH(endpoint, result["kf_id"], {"external_id": extid})
             return result
         else:
             self.logger.debug(f'Response error:\n{pformat(resp.__dict__)}')
