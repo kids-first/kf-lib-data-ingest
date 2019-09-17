@@ -227,7 +227,7 @@ class LoadStage(IngestStage):
         host = self.target_url
         return RetrySession().get(
             url='/'.join([v.strip('/') for v in [host, endpoint]]),
-            params=body
+            params={k: v for k, v in body.items() if v is not None}
         )
 
     def _submit(self, entity_id, entity_type, endpoint, body):
