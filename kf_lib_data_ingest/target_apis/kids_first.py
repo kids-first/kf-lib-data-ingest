@@ -121,7 +121,8 @@ target_concepts = {
             CONCEPT.FAMILY_RELATIONSHIP.PERSON2.TARGET_SERVICE_ID,
             'external_id': CONCEPT.FAMILY_RELATIONSHIP.UNIQUE_KEY,
             'participant1_to_participant2_relation':
-                CONCEPT.FAMILY_RELATIONSHIP.RELATION_FROM_1_TO_2
+                CONCEPT.FAMILY_RELATIONSHIP.RELATION_FROM_1_TO_2,
+            'visible': CONCEPT.FAMILY_RELATIONSHIP.VISIBLE
         },
         'endpoint': '/family-relationships'
     },
