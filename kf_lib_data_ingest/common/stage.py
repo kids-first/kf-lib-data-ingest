@@ -7,12 +7,12 @@ from kf_lib_data_ingest.common.misc import write_json, read_json
 
 
 class IngestStage(ABC):
-
     def __init__(self, ingest_output_dir=None):
         self.ingest_output_dir = ingest_output_dir
         if self.ingest_output_dir:
-            self.stage_cache_dir = os.path.join(self.ingest_output_dir,
-                                                type(self).__name__)
+            self.stage_cache_dir = os.path.join(
+                self.ingest_output_dir, type(self).__name__
+            )
         else:
             self.stage_cache_dir = None
 
@@ -40,9 +40,11 @@ class IngestStage(ABC):
         :returns: the output produced by _read_output (defined by sublcasses)
         """
         if not (self.stage_cache_dir and os.path.isdir(self.stage_cache_dir)):
-            raise FileNotFoundError(f'Error reading {type(self).__name__} '
-                                    f'output. The output directory: '
-                                    f'"{self.stage_cache_dir}" does not exist')
+            raise FileNotFoundError(
+                f"Error reading {type(self).__name__} "
+                f"output. The output directory: "
+                f'"{self.stage_cache_dir}" does not exist'
+            )
         else:
             return self._read_output()
 
@@ -53,10 +55,10 @@ class IngestStage(ABC):
         implemented by subclasses.
         """
         if self.stage_cache_dir:
-            self.logger.info(f'Writing {type(self).__name__} output')
+            self.logger.info(f"Writing {type(self).__name__} output")
             os.makedirs(self.stage_cache_dir, exist_ok=True)
             self._write_output(output)
-            self.logger.info(f'Done writing {type(self).__name__} output')
+            self.logger.info(f"Done writing {type(self).__name__} output")
 
     @abstractmethod
     def _run(self, *args, **kwargs):
@@ -94,7 +96,7 @@ class IngestStage(ABC):
         containing them and 2) concept values map to lists of linked concept
         values
         """
-        return {'sources': None, 'links': None, 'values': None}
+        return {"sources": None, "links": None, "values": None}
 
     @abstractmethod
     def _validate_run_parameters(self, *args, **kwargs):
@@ -131,6 +133,7 @@ class IngestStage(ABC):
 
         Log begin, end and time elapsed
         """
+
         @wraps(func)
         def wrapper(instance, *args, **kwargs):
             logger = instance.logger
@@ -139,7 +142,7 @@ class IngestStage(ABC):
             stage_name = instance.__class__.__name__
 
             # Log start run
-            logger.info('BEGIN {}'.format(stage_name))
+            logger.info("BEGIN {}".format(stage_name))
 
             # Run the stage
             start = time.time()
@@ -150,11 +153,13 @@ class IngestStage(ABC):
             delta_sec = end - start
             min, sec = divmod(delta_sec, 60)
             hour, min = divmod(min, 60)
-            time_string = ("Time elapsed: Sec: {} Min: {} Hours: {}"
-                           .format(sec, min, hour))
-            logger.info('END {}. {}'.format(stage_name, time_string))
+            time_string = "Time elapsed: Sec: {} Min: {} Hours: {}".format(
+                sec, min, hour
+            )
+            logger.info("END {}. {}".format(stage_name, time_string))
 
             return r
+
         return wrapper
 
     def _concept_discovery_filepath(self):
@@ -163,7 +168,7 @@ class IngestStage(ABC):
         """
         return os.path.join(
             self.ingest_output_dir,
-            self.stage_type.__name__ + '_concept_discovery.json'
+            self.stage_type.__name__ + "_concept_discovery.json",
         )
 
     def write_concept_counts(self):

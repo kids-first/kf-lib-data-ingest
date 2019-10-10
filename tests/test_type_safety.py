@@ -11,7 +11,7 @@ from kf_lib_data_ingest.common.type_safety import (
     _name_of_arg_at_caller,
     assert_all_safe_type,
     assert_safe_type,
-    function
+    function,
 )
 
 
@@ -29,7 +29,7 @@ def test__name_of_arg_at_caller():
         test_func([])
 
     test_var = 5
-    assert test_func(test_var) == 'test_var'
+    assert test_func(test_var) == "test_var"
 
 
 # Values and the type of value that they are.
@@ -52,7 +52,7 @@ type_exemplars = [
     ([5, 5], list),
     ({5, 6}, set),
     ((5, 5), tuple),
-    (int, callable)
+    (int, callable),
 ]
 
 
@@ -130,27 +130,29 @@ def test_name_in_error_message():
     pockle = 5
     with pytest.raises(TypeError) as e:
         assert_safe_type(pickle, bool)
-    assert 'pickle' in str(e.value)
+    assert "pickle" in str(e.value)
 
     with pytest.raises(TypeError) as e:
         assert_safe_type(pockle, bool)
-    assert 'pockle' in str(e.value)
+    assert "pockle" in str(e.value)
 
 
 def test_attribute_type_checking():
     """
     Not just variables, but object member attributes too.
     """
+
     class foo:
         class bar:
             baz = 5
+
         qux = "5"
 
         def test_self(self):
             assert_safe_type(self.bar.baz, int)
             with pytest.raises(TypeError) as e:
                 assert_safe_type(self.bar.baz, str)
-            assert 'self.bar.baz' in str(e.value)
+            assert "self.bar.baz" in str(e.value)
 
     assert_safe_type(foo.bar.baz, int)
     assert_safe_type(foo.qux, str)
@@ -159,15 +161,15 @@ def test_attribute_type_checking():
 
     with pytest.raises(TypeError) as e:
         assert_safe_type(foo.bar, str)
-    assert 'foo.bar' in str(e.value)
+    assert "foo.bar" in str(e.value)
 
     with pytest.raises(TypeError) as e:
         assert_safe_type(foo.bar.baz, str)
-    assert 'foo.bar.baz' in str(e.value)
+    assert "foo.bar.baz" in str(e.value)
 
     with pytest.raises(TypeError) as e:
         assert_safe_type(foo.qux, int)
-    assert 'foo.qux' in str(e.value)
+    assert "foo.qux" in str(e.value)
 
 
 def test_direct_list_values():
@@ -177,11 +179,7 @@ def test_direct_list_values():
     """
     my_list = [1, 2, 3, 4]
     assert_all_safe_type(my_list, int)
-    for my_list in [
-        [1, 2, 3, 4],
-        [1, 2.0, 3.0, 4.0],
-        [1.0, 2.0, 3.0, 4]
-    ]:
+    for my_list in [[1, 2, 3, 4], [1, 2.0, 3.0, 4.0], [1.0, 2.0, 3.0, 4]]:
         with pytest.raises(TypeError) as e:
             assert_all_safe_type(my_list, float)
         assert __ALL_SIGNIFIER in str(e.value)
@@ -193,9 +191,9 @@ def test_direct_list_values():
     assert __ALL_SIGNIFIER in str(e.value)
     assert __UNNAMED_OBJECT in str(e.value)
 
-    assert_all_safe_type({'a': 1, 'b': 2, 'c': 3}, str)
+    assert_all_safe_type({"a": 1, "b": 2, "c": 3}, str)
     with pytest.raises(TypeError) as e:
-        assert_all_safe_type({'a': 1, 'b': 2, 'c': 3}, int)
+        assert_all_safe_type({"a": 1, "b": 2, "c": 3}, int)
     assert __ALL_SIGNIFIER in str(e.value)
     assert __UNNAMED_OBJECT in str(e.value)
 
@@ -215,7 +213,7 @@ def test_call_values():
     assert_safe_type(test_obj(1).foo(arg=5), int)
     with pytest.raises(TypeError) as e:
         assert_safe_type(test_obj(1).foo(arg=5), float)
-    assert 'test_obj(1).foo(arg=5)' in str(e.value)
+    assert "test_obj(1).foo(arg=5)" in str(e.value)
 
 
 def test_call_list_values():
@@ -223,18 +221,18 @@ def test_call_list_values():
     assert_all_safe_type checks every value in the given iterable.
     This function tests iterables returned by a call.
     """
-    my_dict = {'a': 1, 'b': 2, 'c': 3}
+    my_dict = {"a": 1, "b": 2, "c": 3}
     assert_all_safe_type(my_dict.keys(), str)
     assert_all_safe_type(my_dict.values(), int)
     with pytest.raises(TypeError) as e:
         assert_all_safe_type(my_dict.values(), float)
     assert __ALL_SIGNIFIER in str(e.value)
-    assert 'my_dict.values()' in str(e.value)
+    assert "my_dict.values()" in str(e.value)
 
     with pytest.raises(TypeError) as e:
         assert_all_safe_type(my_dict.keys(), bool)
     assert __ALL_SIGNIFIER in str(e.value)
-    assert 'my_dict.keys()' in str(e.value)
+    assert "my_dict.keys()" in str(e.value)
 
 
 # test checking outside of a function (yes this matters)
@@ -242,7 +240,7 @@ foo = 5
 assert_safe_type(foo, int)
 with pytest.raises(TypeError) as e:
     assert_safe_type(foo, float)
-assert 'foo' in str(e.value)
+assert "foo" in str(e.value)
 
 assert_all_safe_type([1.0, 2.0, 3.0, 4.0], float)
 with pytest.raises(TypeError) as e:

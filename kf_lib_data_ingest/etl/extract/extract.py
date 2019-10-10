@@ -11,28 +11,28 @@ from kf_lib_data_ingest.common.concept_schema import concept_set
 from kf_lib_data_ingest.common.datafile_readers import (
     read_excel_file,
     read_json_file,
-    read_table_file
+    read_table_file,
 )
 from kf_lib_data_ingest.common.file_retriever import (
     PROTOCOL_SEP,
     FileRetriever,
-    split_protocol
+    split_protocol,
 )
 from kf_lib_data_ingest.common.misc import (
     clean_up_df,
     clean_walk,
     read_json,
-    write_json
+    write_json,
 )
 from kf_lib_data_ingest.common.pandas_utils import split_df_rows_on_splits
 from kf_lib_data_ingest.common.stage import IngestStage
 from kf_lib_data_ingest.common.type_safety import (
     assert_all_safe_type,
     assert_safe_type,
-    is_function
+    is_function,
 )
 from kf_lib_data_ingest.etl.configuration.base_config import (
-    ConfigValidationError
+    ConfigValidationError,
 )
 from kf_lib_data_ingest.etl.configuration.extract_config import ExtractConfig
 from kf_lib_data_ingest.etl.extract import operations as extract_operations
@@ -42,25 +42,21 @@ def lcm(number_list):
     """
     Returns the least common multiple from a list of numbers.
     """
-    return reduce(
-        lambda x, y: x * y // gcd(x, y), number_list
-    )
+    return reduce(lambda x, y: x * y // gcd(x, y), number_list)
 
 
 def ordinal(n):
     """
     Convert a positive integer into its ordinal representation
     """
-    suffix = ['th', 'st', 'nd', 'rd', 'th'][min(n % 10, 4)]
+    suffix = ["th", "st", "nd", "rd", "th"][min(n % 10, 4)]
     if 11 <= (n % 100) <= 13:
-        suffix = 'th'
+        suffix = "th"
     return str(n) + suffix
 
 
 class ExtractStage(IngestStage):
-    def __init__(
-        self, stage_cache_dir, extract_config_dir, auth_configs=None
-    ):
+    def __init__(self, stage_cache_dir, extract_config_dir, auth_configs=None):
         super().__init__(stage_cache_dir)
 
         assert_safe_type(extract_config_dir, str)
@@ -74,12 +70,11 @@ class ExtractStage(IngestStage):
         self.extract_configs = [
             ExtractConfig(filepath)
             for filepath in clean_walk(self.extract_config_dir)
-            if filepath.endswith('.py')
+            if filepath.endswith(".py")
         ]
         for ec in self.extract_configs:
             ec.config_file_relpath = os.path.relpath(
-                ec.config_filepath,
-                start=self.extract_config_dir
+                ec.config_filepath, start=self.extract_config_dir
             )
 
     def _output_path(self):
@@ -92,7 +87,7 @@ class ExtractStage(IngestStage):
         :rtype: string
         """
         return os.path.join(
-            self.stage_cache_dir, type(self).__name__ + '_cache.txt'
+            self.stage_cache_dir, type(self).__name__ + "_cache.txt"
         )
 
     def _write_output(self, output):
@@ -116,16 +111,16 @@ class ExtractStage(IngestStage):
         :param output: the return from ExtractStage._run
         :type output: dict
         """
-        meta_fp = os.path.join(self.stage_cache_dir, 'metadata.json')
+        meta_fp = os.path.join(self.stage_cache_dir, "metadata.json")
         metadata = {}
         for extract_config_url, (source_url, df) in output.items():
-            filename = os.path.basename(extract_config_url).split('.')[0]
-            filepath = os.path.join(self.stage_cache_dir, filename + '.tsv')
+            filename = os.path.basename(extract_config_url).split(".")[0]
+            filepath = os.path.join(self.stage_cache_dir, filename + ".tsv")
             metadata[filepath] = {
-                'extract_config_url': extract_config_url,
-                'source_data_url': source_url
+                "extract_config_url": extract_config_url,
+                "source_data_url": source_url,
             }
-            df.to_csv(filepath, sep='\t', index=True)
+            df.to_csv(filepath, sep="\t", index=True)
 
         write_json(metadata, meta_fp)
 
@@ -140,17 +135,19 @@ class ExtractStage(IngestStage):
         """
         output = {}
 
-        meta_fp = os.path.join(self.stage_cache_dir, 'metadata.json')
+        meta_fp = os.path.join(self.stage_cache_dir, "metadata.json")
         metadata = read_json(meta_fp)
 
         for filepath, info in metadata.items():
-            output[info['extract_config_url']] = (
-                info['source_data_url'],
-                read_table_file(filepath, delimiter='\t', index_col=0)
+            output[info["extract_config_url"]] = (
+                info["source_data_url"],
+                read_table_file(filepath, delimiter="\t", index_col=0),
             )
 
-        self.logger.info(f'Reading {type(self).__name__} output:\n'
-                         f'{pformat(list(metadata.keys()))}')
+        self.logger.info(
+            f"Reading {type(self).__name__} output:\n"
+            f"{pformat(list(metadata.keys()))}"
+        )
         return output
 
     def _validate_run_parameters(self):
@@ -167,13 +164,15 @@ class ExtractStage(IngestStage):
         """
         opname = op.__qualname__
         if op.__module__ == extract_operations.__name__:
-            opname = opname.split('.')[0]
-        msg = f'Applying {ordinal(nth)} operation: {opname}'
+            opname = opname.split(".")[0]
+        msg = f"Applying {ordinal(nth)} operation: {opname}"
         if op.__closure__:
-            msg += ' with ' + str({
-                k: v.cell_contents for k, v
-                in zip(op.__code__.co_freevars, op.__closure__)
-            })
+            msg += " with " + str(
+                {
+                    k: v.cell_contents
+                    for k, v in zip(op.__code__.co_freevars, op.__closure__)
+                }
+            )
         self.logger.info(msg)
 
     def _obvert_visibility(self, df):
@@ -217,20 +216,18 @@ class ExtractStage(IngestStage):
         if read_func:
             self.logger.info("Using custom read function.")
         else:
-            if f.original_name.endswith(('.xlsx', '.xls')):
+            if f.original_name.endswith((".xlsx", ".xls")):
                 read_func = read_excel_file
-            elif f.original_name.endswith(('.tsv', '.csv')):
+            elif f.original_name.endswith((".tsv", ".csv")):
                 read_func = read_table_file
-            elif f.original_name.endswith('.json'):
+            elif f.original_name.endswith(".json"):
                 read_func = read_json_file
 
         if read_func:
             try:
                 df = read_func(f.name, **read_args)
                 if not isinstance(df, pandas.DataFrame):
-                    err = (
-                        "Custom read function must return a pandas.DataFrame"
-                    )
+                    err = "Custom read function must return a pandas.DataFrame"
             except Exception as e:
                 err = f"In read_func {read_func.__name__} : {str(e)}"
         else:
@@ -266,7 +263,7 @@ class ExtractStage(IngestStage):
         for i, op in enumerate(operations):
             # apply operation(s), get result
             if is_function(op):
-                self._log_operation(op, i+_nth)
+                self._log_operation(op, i + _nth)
                 res = op(df_in)
 
                 # result length must be a whole multiple of the original
@@ -288,7 +285,7 @@ class ExtractStage(IngestStage):
                     )
             else:  # list
                 self.logger.info("Diving into nested operation sublist.")
-                res = self._chain_operations(df_in, op, i+_nth, True)
+                res = self._chain_operations(df_in, op, i + _nth, True)
 
             for col_name, col_series in res.iteritems():
                 out_cols[col_name] = out_cols[col_name].append(
@@ -369,13 +366,13 @@ class ExtractStage(IngestStage):
                 "Extract config: %s", extract_config.config_filepath
             )
             protocol, path = split_protocol(extract_config.source_data_url)
-            if protocol == 'file':
-                if path.startswith('.'):
+            if protocol == "file":
+                if path.startswith("."):
                     # relative paths from the extract config location
                     path = os.path.normpath(
                         os.path.join(
                             os.path.dirname(extract_config.config_filepath),
-                            path
+                            path,
                         )
                     )
                 else:
@@ -389,32 +386,28 @@ class ExtractStage(IngestStage):
                     data_path,
                     do_after_read=extract_config.do_after_read,
                     read_func=extract_config.source_data_read_func,
-                    **(extract_config.source_data_read_params or {})
+                    **(extract_config.source_data_read_params or {}),
                 )
             except ConfigValidationError as e:
                 raise type(e)(
-                    f'In extract config {extract_config.config_filepath}'
-                    f' : {str(e)}'
+                    f"In extract config {extract_config.config_filepath}"
+                    f" : {str(e)}"
                 )
 
-            self.logger.debug(
-                f'Read DataFrame with dimensions {df_in.shape}'
-            )
-            self.logger.debug(f'Column headers are: {list(df_in.columns)}')
+            self.logger.debug(f"Read DataFrame with dimensions {df_in.shape}")
+            self.logger.debug(f"Column headers are: {list(df_in.columns)}")
 
             if not extract_config.operations:
                 self.logger.info("The operation list is empty. Nothing to do.")
                 return output
 
             # extraction
-            df_out = self._chain_operations(
-                df_in, extract_config.operations
-            )
+            df_out = self._chain_operations(df_in, extract_config.operations)
 
             # split value lists into separate rows
-            df_out = split_df_rows_on_splits(
-                df_out.reset_index()
-            ).set_index('index')
+            df_out = split_df_rows_on_splits(df_out.reset_index()).set_index(
+                "index"
+            )
             del df_out.index.name
 
             # VISIBLE = not HIDDEN
@@ -432,30 +425,26 @@ class ExtractStage(IngestStage):
         """
         See the docstring for IngestStage._postrun_concept_discovery
         """
-        sources = defaultdict(
-            lambda: defaultdict(set)
-        )
-        links = defaultdict(
-            lambda: defaultdict(set)
-        )
+        sources = defaultdict(lambda: defaultdict(set))
+        links = defaultdict(lambda: defaultdict(set))
 
         for config_path, (data_file, df) in run_output.items():
             cols = df.columns
-            self.logger.debug(f'Recording {config_path} sources')
+            self.logger.debug(f"Recording {config_path} sources")
             for key in cols:
                 sk = sources[key]
                 for val in df[key]:
                     # sources entry
                     sk[val].add(data_file)
 
-            self.logger.debug(f'Recording {config_path} links')
+            self.logger.debug(f"Recording {config_path} links")
             for _, row in df.iterrows():
                 for keyA, vA in row.items():
-                    lk_prefix = keyA + '::'
+                    lk_prefix = keyA + "::"
                     if vA:
                         for keyB, vB in row.items():
                             if vB and (keyB != keyA):
                                 # links entry
                                 links[lk_prefix + keyB][vA].add(vB)
 
-        return {'sources': sources, 'links': links, 'values': None}
+        return {"sources": sources, "links": links, "values": None}

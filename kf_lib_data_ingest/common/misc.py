@@ -14,7 +14,7 @@ from pandas import isnull
 
 from kf_lib_data_ingest.common.type_safety import (
     assert_all_safe_type,
-    assert_safe_type
+    assert_safe_type,
 )
 
 
@@ -23,13 +23,16 @@ def clean_walk(start_dir):
     Like os.walk but without hidden secrets
     """
     paths = []
-    exclude_prefixes = ('__', '.')
+    exclude_prefixes = ("__", ".")
 
     for root, dirs, filenames in os.walk(start_dir):
-        paths.extend([
-            os.path.join(root, f) for f in filenames
-            if not f.startswith(exclude_prefixes)
-        ])
+        paths.extend(
+            [
+                os.path.join(root, f)
+                for f in filenames
+                if not f.startswith(exclude_prefixes)
+            ]
+        )
         # Don't traverse any dirs starting with exclude_prefixes.
         # os.walk reinspects the dirs list, so we modify it in place.
         dirs[:] = [d for d in dirs if not d.startswith(exclude_prefixes)]
@@ -49,7 +52,7 @@ def import_module_from_file(filepath):
 
 
 def read_yaml(filepath):
-    with open(filepath, 'r') as yaml_file:
+    with open(filepath, "r") as yaml_file:
         return yaml.load(yaml_file, Loader=yaml.FullLoader)
 
 
@@ -70,7 +73,7 @@ def read_json(filepath, default=None, use_jsonpickle=True):
     if (default is not None) and (not os.path.isfile(filepath)):
         return default
 
-    with open(filepath, 'r') as json_file:
+    with open(filepath, "r") as json_file:
         if use_jsonpickle:
             json_str = json_file.read()
             return jsonpickle.decode(json_str, keys=True)
@@ -90,11 +93,11 @@ def write_json(data, filepath, use_jsonpickle=True, **kwargs):
     :type use_jsonpickle: bool, optional
     :param \**kwargs: keyword arguments to pass to json.dump
     """
-    if 'indent' not in kwargs:
-        kwargs['indent'] = 4
-    if 'sort_keys' not in kwargs:
-        kwargs['sort_keys'] = True
-    with open(filepath, 'w') as json_file:
+    if "indent" not in kwargs:
+        kwargs["indent"] = 4
+    if "sort_keys" not in kwargs:
+        kwargs["sort_keys"] = True
+    with open(filepath, "w") as json_file:
         if use_jsonpickle:
             data = json.loads(jsonpickle.encode(data, keys=True))
         json.dump(data, json_file, **kwargs)
@@ -140,14 +143,16 @@ def convert_to_downcasted_str(val, replace_na=False, na=None):
     """
     if isinstance(val, list):
         # make hashable without changing style or losing comparability
-        return str(sorted(
-            convert_to_downcasted_str(v) for v in val
-        ))
+        return str(sorted(convert_to_downcasted_str(v) for v in val))
     if isinstance(val, dict):
         # make hashable without changing style or losing comparability
-        return str(dict(sorted(
-            (k, convert_to_downcasted_str(v)) for k, v in val.items()
-        )))
+        return str(
+            dict(
+                sorted(
+                    (k, convert_to_downcasted_str(v)) for k, v in val.items()
+                )
+            )
+        )
     if isnull(val):
         if replace_na:
             return na
@@ -155,7 +160,7 @@ def convert_to_downcasted_str(val, replace_na=False, na=None):
             return val
 
     val = str(val).strip()
-    if val != '':
+    if val != "":
         # Try downcasting val
         i_val = None
         f_val = None
@@ -168,8 +173,9 @@ def convert_to_downcasted_str(val, replace_na=False, na=None):
         # Don't automatically change anything with leading zeros
         # (except something that equates to int 0), scientific
         # notation, or underscores (I don't care what PEP 515 says).
-        if (i_val != 0) and ((val[0] == '0') or
-                             (not re.fullmatch(r'[\d.]+', val))):
+        if (i_val != 0) and (
+            (val[0] == "0") or (not re.fullmatch(r"[\d.]+", val))
+        ):
             return val
 
         # Return str version of downcasted val
@@ -196,9 +202,9 @@ def str_to_obj(var):
             pass
     else:
         lowvar = var.strip().lower()
-        if lowvar == 'false':
+        if lowvar == "false":
             return False
-        elif lowvar == 'true':
+        elif lowvar == "true":
             return True
     return var
 
@@ -244,12 +250,14 @@ def obj_attrs_to_dict(cls):
     Create a dict of obj attributes and values, including inherited attrs
     """
     # Get non function attributes
-    attributes = inspect.getmembers(cls, lambda x: not(inspect.isroutine(x)))
+    attributes = inspect.getmembers(cls, lambda x: not (inspect.isroutine(x)))
 
     # Get non-hidden attrs
-    attributes = [a for a in attributes
-                  if not(a[0].startswith('__') and
-                         a[0].endswith('__'))]
+    attributes = [
+        a
+        for a in attributes
+        if not (a[0].startswith("__") and a[0].endswith("__"))
+    ]
     return dict(attributes)
 
 
@@ -267,7 +275,7 @@ def multisplit(string: str, delimiters: list):
     assert_safe_type(string, str)
     assert_safe_type(delimiters, list)
     assert_all_safe_type(delimiters, str)
-    regexPattern = '|'.join(map(re.escape, delimiters))
+    regexPattern = "|".join(map(re.escape, delimiters))
     return re.split(regexPattern, string)
 
 
@@ -275,8 +283,8 @@ def upper_camel_case(snake_str):
     """
     Convert a snake case str to upper camel case
     """
-    words = snake_str.split('_')
-    return ''.join([w.title() for w in words])
+    words = snake_str.split("_")
+    return "".join([w.title() for w in words])
 
 
 def timestamp():
@@ -291,7 +299,10 @@ def timestamp():
     else:
         utc_offset_sec = time.timezone
     utc_offset = datetime.timedelta(seconds=-utc_offset_sec)
-    t = datetime.datetime.now().replace(
-        tzinfo=datetime.timezone(offset=utc_offset)).isoformat()
+    t = (
+        datetime.datetime.now()
+        .replace(tzinfo=datetime.timezone(offset=utc_offset))
+        .isoformat()
+    )
 
     return str(t)

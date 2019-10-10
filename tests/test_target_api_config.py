@@ -6,17 +6,19 @@ import pytest
 from conftest import TEST_ROOT_DIR
 
 from kf_lib_data_ingest.etl.configuration.target_api_config import (
-    TargetAPIConfig
+    TargetAPIConfig,
 )
-from kf_lib_data_ingest.common.concept_schema import (
-    CONCEPT
+from kf_lib_data_ingest.common.concept_schema import CONCEPT
+
+KIDS_FIRST_CONFIG = os.path.join(
+    os.path.dirname(TEST_ROOT_DIR),
+    "kf_lib_data_ingest",
+    "target_apis",
+    "kids_first.py",
 )
-KIDS_FIRST_CONFIG = os.path.join(os.path.dirname(TEST_ROOT_DIR),
-                                 'kf_lib_data_ingest',
-                                 'target_apis', 'kids_first.py')
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def kids_first_config():
     """
     Use the kids_first.py target api config module for all of the tests
@@ -30,11 +32,10 @@ def kids_first_config():
     return TargetAPIConfig(KIDS_FIRST_CONFIG)
 
 
-@pytest.mark.parametrize('test_attr',
-                         [('target_concepts'),
-                          ('relationships'),
-                          ('target_service_entity_id')
-                          ])
+@pytest.mark.parametrize(
+    "test_attr",
+    [("target_concepts"), ("relationships"), ("target_service_entity_id")],
+)
 def test_missing_req_attrs(kids_first_config, test_attr):
     """
     Test for missing required module attributes in a target API config
@@ -44,14 +45,17 @@ def test_missing_req_attrs(kids_first_config, test_attr):
 
     with pytest.raises(AttributeError) as e:
         kids_first_config._validate_required_attrs()
-    assert 'Missing one of the required keys' in str(e.value)
+    assert "Missing one of the required keys" in str(e.value)
 
 
-@pytest.mark.parametrize('test_attr,test_value',
-                         [('target_concepts', '_asdfasdfasdfasdf_'),
-                          ('relationships', '_asdfasdfasdfasdf_'),
-                          ('target_service_entity_id', {})
-                          ])
+@pytest.mark.parametrize(
+    "test_attr,test_value",
+    [
+        ("target_concepts", "_asdfasdfasdfasdf_"),
+        ("relationships", "_asdfasdfasdfasdf_"),
+        ("target_service_entity_id", {}),
+    ],
+)
 def test_req_attr_wrong_type(kids_first_config, test_attr, test_value):
     """
     Test for wrong type of required attributes in a target api config
@@ -64,11 +68,9 @@ def test_req_attr_wrong_type(kids_first_config, test_attr, test_value):
         kids_first_config._validate_required_attrs()
 
 
-@pytest.mark.parametrize('test_key',
-                         [('standard_concept'),
-                          ('properties'),
-                          ('endpoint')
-                          ])
+@pytest.mark.parametrize(
+    "test_key", [("standard_concept"), ("properties"), ("endpoint")]
+)
 def test_missing_req_target_concept_keys(kids_first_config, test_key):
     """
     Test for missing required keys in target concept dict
@@ -76,13 +78,13 @@ def test_missing_req_target_concept_keys(kids_first_config, test_key):
     target_concepts = kids_first_config.contents.target_concepts
 
     # Delete a req key
-    target_concepts['study'].pop(test_key, None)
+    target_concepts["study"].pop(test_key, None)
 
     # Test
     with pytest.raises(KeyError) as e:
         kids_first_config._validate_required_keys()
     assert test_key in str(e.value)
-    assert 'missing one of target concept dict required keys' in str(e.value)
+    assert "missing one of target concept dict required keys" in str(e.value)
 
 
 def test_mapped_standard_concepts(kids_first_config):
@@ -95,13 +97,13 @@ def test_mapped_standard_concepts(kids_first_config):
     target_concept = random.choice(list(target_concepts.keys()))
 
     # Invalid mapping
-    mapped_value = '_asdfasdfasdfasdf_'
-    target_concepts[target_concept]['standard_concept'] = mapped_value
+    mapped_value = "_asdfasdfasdfasdf_"
+    target_concepts[target_concept]["standard_concept"] = mapped_value
 
     # Test
     with pytest.raises(ValueError) as e:
         kids_first_config._validate_mapped_standard_concepts()
-    assert f'The mapped standard concept: {mapped_value}' in str(e.value)
+    assert f"The mapped standard concept: {mapped_value}" in str(e.value)
 
 
 def test_target_concept_attr(kids_first_config):
@@ -112,52 +114,72 @@ def test_target_concept_attr(kids_first_config):
     # Pick a random target concept and attr
     target_concepts = kids_first_config.contents.target_concepts
     target_concept = random.choice(list(target_concepts.keys()))
-    properties = target_concepts[target_concept]['properties']
+    properties = target_concepts[target_concept]["properties"]
     attr = random.choice(list(properties.keys()))
 
     # Invalid mapping
-    mapped_value = '_asdfasdfasdfasdf_'
+    mapped_value = "_asdfasdfasdfasdf_"
     properties[attr] = mapped_value
 
     # Test
     with pytest.raises(ValueError) as e:
         kids_first_config._validate_target_concept_attr_mappings()
     assert mapped_value in str(e.value)
-    assert f'{target_concept}.{attr}' in str(e.value)
+    assert f"{target_concept}.{attr}" in str(e.value)
 
 
 @pytest.mark.parametrize(
-    'link_list, expected_exc, expected_msg',
+    "link_list, expected_exc, expected_msg",
     [
-        ('wrong type', TypeError, ''),
-        (['wrong type'], TypeError, ''),
-        ([{'bad format': ''}], KeyError, 'Badly formatted'),
-        ([
-            {'target_attribute': None,
-             'standard_concept': None,
-             'target_concept': None
-             }
-        ], TypeError, ''),
-        ([
-            {'target_attribute': 'family_id',
-             'standard_concept': 'does not exist',
-             'target_concept': ''
-             }
-        ], ValueError, 'Invalid link found'),
-        ([
-            {'target_attribute': 'family_id',
-             'standard_concept': CONCEPT.FAMILY,
-             'target_concept': 'does not exist'
-             }
-        ], ValueError, 'Invalid link found'),
-        ([
-            {'target_attribute': 'family_id',
-             'standard_concept': CONCEPT.FAMILY,
-             'target_concept': 'family'
-             }
-        ], None, ''),
-
-    ])
+        ("wrong type", TypeError, ""),
+        (["wrong type"], TypeError, ""),
+        ([{"bad format": ""}], KeyError, "Badly formatted"),
+        (
+            [
+                {
+                    "target_attribute": None,
+                    "standard_concept": None,
+                    "target_concept": None,
+                }
+            ],
+            TypeError,
+            "",
+        ),
+        (
+            [
+                {
+                    "target_attribute": "family_id",
+                    "standard_concept": "does not exist",
+                    "target_concept": "",
+                }
+            ],
+            ValueError,
+            "Invalid link found",
+        ),
+        (
+            [
+                {
+                    "target_attribute": "family_id",
+                    "standard_concept": CONCEPT.FAMILY,
+                    "target_concept": "does not exist",
+                }
+            ],
+            ValueError,
+            "Invalid link found",
+        ),
+        (
+            [
+                {
+                    "target_attribute": "family_id",
+                    "standard_concept": CONCEPT.FAMILY,
+                    "target_concept": "family",
+                }
+            ],
+            None,
+            "",
+        ),
+    ],
+)
 def test_links(kids_first_config, link_list, expected_exc, expected_msg):
     """
     Test for improperly named links
@@ -166,7 +188,7 @@ def test_links(kids_first_config, link_list, expected_exc, expected_msg):
     target_concepts = kids_first_config.contents.target_concepts
 
     # Invalid link
-    target_concepts['participant']['links'] = link_list
+    target_concepts["participant"]["links"] = link_list
 
     # Test
     if expected_exc:
@@ -185,7 +207,7 @@ def test_properties(kids_first_config):
     # Pick a random target concept
     target_concepts = kids_first_config.contents.target_concepts
     target_concept = random.choice(list(target_concepts.keys()))
-    properties = target_concepts[target_concept]['properties']
+    properties = target_concepts[target_concept]["properties"]
 
     # Inject a non-string target concept attribute
     invalid_key = 5
@@ -193,11 +215,11 @@ def test_properties(kids_first_config):
     # Test
     with pytest.raises(TypeError) as e:
         kids_first_config._validate_target_concept_attr_mappings()
-    assert 'requires all items in props_dict.keys() to be' in str(e.value)
+    assert "requires all items in props_dict.keys() to be" in str(e.value)
     properties.pop(invalid_key)
 
     # Not a str or tuple value in properties dict
-    prop = '_ajlajkdhfk_'
+    prop = "_ajlajkdhfk_"
     with pytest.raises(TypeError) as e:
         properties[prop] = 5
         kids_first_config._validate_target_concept_attr_mappings()
@@ -206,17 +228,14 @@ def test_properties(kids_first_config):
     with pytest.raises(ValueError) as e:
         properties[prop] = (prop, int)
         kids_first_config._validate_target_concept_attr_mappings()
-    assert (
-        'must be mapped to an existing standard concept attribute.'
-        in str(e.value)
+    assert "must be mapped to an existing standard concept attribute." in str(
+        e.value
     )
     # Tuple with invalid value transformation func
     with pytest.raises(TypeError) as e:
         properties[prop] = (CONCEPT.PARTICIPANT.ID, prop)
         kids_first_config._validate_target_concept_attr_mappings()
-    assert (
-        "one of these types: ['callable']" in str(e.value)
-    )
+    assert "one of these types: ['callable']" in str(e.value)
 
 
 def test_endpoints(kids_first_config):
@@ -228,12 +247,12 @@ def test_endpoints(kids_first_config):
     target_concept = random.choice(list(target_concepts.keys()))
 
     # Modify value under test
-    target_concepts[target_concept]['endpoint'] = 5
+    target_concepts[target_concept]["endpoint"] = 5
 
     # Test
     with pytest.raises(TypeError) as e:
         kids_first_config._validate_endpoints()
-    assert 'requires all items in endpoints to be' in str(e.value)
+    assert "requires all items in endpoints to be" in str(e.value)
 
 
 def test_custom_validation(kids_first_config):
@@ -246,23 +265,23 @@ def test_custom_validation(kids_first_config):
 
     # Properties - Modify value under test
     id_key = kids_first_config.target_service_entity_id
-    old_val = target_concepts[target_concept]['properties'][id_key]
-    target_concepts[target_concept]['properties'][id_key] = None
+    old_val = target_concepts[target_concept]["properties"][id_key]
+    target_concepts[target_concept]["properties"][id_key] = None
 
     # Test
     with pytest.raises(AssertionError) as e:
         kids_first_config.contents.validate()
-    assert 'incorrect or null mapping' in str(e.value)
-    target_concepts[target_concept]['properties'][id_key] = old_val
+    assert "incorrect or null mapping" in str(e.value)
+    target_concepts[target_concept]["properties"][id_key] = old_val
 
     # Links - Modify value under test
-    target_concept = 'biospecimen'
-    id_key = target_concepts[target_concept]['links'][0]['target_attribute']
-    target_concepts[target_concept]['properties'][id_key] = None
+    target_concept = "biospecimen"
+    id_key = target_concepts[target_concept]["links"][0]["target_attribute"]
+    target_concepts[target_concept]["properties"][id_key] = None
 
     with pytest.raises(AssertionError) as e:
         kids_first_config.contents.validate()
-    assert 'incorrect or null mapping' in str(e.value)
+    assert "incorrect or null mapping" in str(e.value)
 
 
 def test_relationships_types_and_values(kids_first_config):
@@ -275,31 +294,33 @@ def test_relationships_types_and_values(kids_first_config):
     parent_concept = random.choice(list(relationships.keys()))
     _saved = relationships[parent_concept]
 
-    relationships[parent_concept] = 'bar'
+    relationships[parent_concept] = "bar"
     with pytest.raises(TypeError) as e:
         kids_first_config._validate_relationships()
-    assert (
-        'requires all items in relationships.values() to be'
-    ) in str(e.value)
+    assert ("requires all items in relationships.values() to be") in str(
+        e.value
+    )
     # Reset
     relationships[parent_concept] = _saved
 
     # Test non-standard_concept key
-    relationships['_asdfasdfasdfasdf_'] = {'bar'}
+    relationships["_asdfasdfasdfasdf_"] = {"bar"}
     with pytest.raises(ValueError) as e:
         kids_first_config._validate_relationships()
     assert (
-        'Keys in relationships dict must be one of the standard concepts'
+        "Keys in relationships dict must be one of the standard concepts"
     ) in str(e.value)
     # Remove invalid key
-    relationships.pop('_asdfasdfasdfasdf_')
+    relationships.pop("_asdfasdfasdfasdf_")
 
     # Test non-standard_concept set member
-    relationships[parent_concept] = {'baz'}
+    relationships[parent_concept] = {"baz"}
     with pytest.raises(ValueError) as e:
         kids_first_config._validate_relationships()
-    assert ('Set values in relationships dict must be one of the standard '
-            'concepts.') in str(e.value)
+    assert (
+        "Set values in relationships dict must be one of the standard "
+        "concepts."
+    ) in str(e.value)
 
 
 def test_relationships_dag(kids_first_config):
@@ -315,4 +336,4 @@ def test_relationships_dag(kids_first_config):
 
     with pytest.raises(ValueError) as e:
         kids_first_config._validate_relationships()
-    assert 'MUST be a directed acyclic graph' in str(e.value)
+    assert "MUST be a directed acyclic graph" in str(e.value)

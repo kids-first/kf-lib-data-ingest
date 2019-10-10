@@ -1,10 +1,8 @@
 from kf_lib_data_ingest.common import constants
 from kf_lib_data_ingest.etl.extract.operations import *
-from kf_lib_data_ingest.common.concept_schema import (
-    CONCEPT
-)
+from kf_lib_data_ingest.common.concept_schema import CONCEPT
 
-source_data_url = 'file://../data/simple_headered_tsv_1.tsv'
+source_data_url = "file://../data/simple_headered_tsv_1.tsv"
 
 
 def observed_yes_no(x):
@@ -21,74 +19,60 @@ def observed_yes_no(x):
 operations = [
     value_map(
         in_col="participant",
-        m={
-            r"PID(\d+)": lambda x: int(x),  # strip PID and 0-padding
-        },
-        out_col=CONCEPT.PARTICIPANT.ID
+        m={r"PID(\d+)": lambda x: int(x)},  # strip PID and 0-padding
+        out_col=CONCEPT.PARTICIPANT.ID,
     ),
     value_map(
         in_col="participant",
-        m=lambda x: 'PT_3QMCQXHZ' if x == 'PID001' else None,
-        out_col=CONCEPT.PARTICIPANT.TARGET_SERVICE_ID
+        m=lambda x: "PT_3QMCQXHZ" if x == "PID001" else None,
+        out_col=CONCEPT.PARTICIPANT.TARGET_SERVICE_ID,
     ),
     value_map(
-        in_col="mother",
-        m=lambda x: x,
-        out_col=CONCEPT.PARTICIPANT.MOTHER_ID
+        in_col="mother", m=lambda x: x, out_col=CONCEPT.PARTICIPANT.MOTHER_ID
     ),
     value_map(
-        in_col="father",
-        m=lambda x: x,
-        out_col=CONCEPT.PARTICIPANT.FATHER_ID
+        in_col="father", m=lambda x: x, out_col=CONCEPT.PARTICIPANT.FATHER_ID
     ),
     value_map(
         in_col="gender",
         # Don't worry about mother/father gender here.
         # We can create them in a later phase.
-        m={
-            "F": constants.GENDER.FEMALE,
-            "M": constants.GENDER.MALE
-        },
-        out_col=CONCEPT.PARTICIPANT.GENDER
+        m={"F": constants.GENDER.FEMALE, "M": constants.GENDER.MALE},
+        out_col=CONCEPT.PARTICIPANT.GENDER,
     ),
     value_map(
         in_col="consent",
         m={
             "1": constants.CONSENT_TYPE.GRU,
             "2": constants.CONSENT_TYPE.HMB_IRB,
-            "3": constants.CONSENT_TYPE.DS_OC_PUB_MDS
+            "3": constants.CONSENT_TYPE.DS_OC_PUB_MDS,
         },
-        out_col=CONCEPT.PARTICIPANT.CONSENT_TYPE
+        out_col=CONCEPT.PARTICIPANT.CONSENT_TYPE,
     ),
     [
         value_map(
             in_col=6,  # age in hours (first)
             m=lambda x: int(x) / 24,
-            out_col=CONCEPT.PHENOTYPE.EVENT_AGE_DAYS
+            out_col=CONCEPT.PHENOTYPE.EVENT_AGE_DAYS,
         ),
         melt_map(
             var_name=CONCEPT.PHENOTYPE.NAME,
-            map_for_vars={
-                "CLEFT_EGO": "Cleft ego",
-                "CLEFT_ID": "Cleft id"
-            },
+            map_for_vars={"CLEFT_EGO": "Cleft ego", "CLEFT_ID": "Cleft id"},
             value_name=CONCEPT.PHENOTYPE.OBSERVED,
-            map_for_values=observed_yes_no
-        )
+            map_for_values=observed_yes_no,
+        ),
     ],
     [
         value_map(
             in_col=9,  # age in hours (second)
             m=lambda x: int(x) / 24,
-            out_col=CONCEPT.PHENOTYPE.EVENT_AGE_DAYS
+            out_col=CONCEPT.PHENOTYPE.EVENT_AGE_DAYS,
         ),
         melt_map(
             var_name=CONCEPT.PHENOTYPE.NAME,
-            map_for_vars={
-                "EXTRA_EARDRUM": "Extra eardrum"
-            },
+            map_for_vars={"EXTRA_EARDRUM": "Extra eardrum"},
             value_name=CONCEPT.PHENOTYPE.OBSERVED,
-            map_for_values=observed_yes_no
-        )
-    ]
+            map_for_values=observed_yes_no,
+        ),
+    ],
 ]

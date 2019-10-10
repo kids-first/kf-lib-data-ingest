@@ -15,13 +15,13 @@ from urllib3.util import retry
 
 from kf_lib_data_ingest.common.type_safety import (
     assert_all_safe_type,
-    assert_safe_type
+    assert_safe_type,
 )
 from kf_lib_data_ingest.network import oauth2, utils
 
-logging.getLogger('boto3').setLevel(logging.WARNING)
-logging.getLogger('botocore').setLevel(logging.WARNING)
-logging.getLogger('s3transfer').setLevel(logging.WARNING)
+logging.getLogger("boto3").setLevel(logging.WARNING)
+logging.getLogger("botocore").setLevel(logging.WARNING)
+logging.getLogger("s3transfer").setLevel(logging.WARNING)
 
 # hide
 # urllib3.util.retry - DEBUG - Converted retries value: False -> Retry(total=False, connect=None, read=None, redirect=0, status=None)  # noqa E501
@@ -74,7 +74,7 @@ def _s3_save(protocol, source_loc, dest_obj, auth_config=None, logger=None):
     logger = logger or logging.getLogger(__name__)
 
     if auth_config:
-        aws_profiles = auth_config.get('aws_profile')
+        aws_profiles = auth_config.get("aws_profile")
     else:
         aws_profiles = boto3.Session().available_profiles + [None]
 
@@ -90,7 +90,7 @@ def _s3_save(protocol, source_loc, dest_obj, auth_config=None, logger=None):
             # HACK: ClientError is too generic but (I think) all we get for now
             # See https://github.com/boto/botocore/issues/1400
             botocore.exceptions.ClientError,
-            botocore.exceptions.NoCredentialsError
+            botocore.exceptions.NoCredentialsError,
         ):
             pass
 
@@ -135,33 +135,38 @@ def _web_save(protocol, source_loc, dest_obj, auth_config=None, logger=None):
 
     # Fetch a protected file using auth scheme and parameters in auth_config
     if auth_config:
-        auth_scheme = auth_config['type']
+        auth_scheme = auth_config["type"]
 
         # Basic auth
-        if auth_scheme == 'basic':
-            auth = HTTPBasicAuth(auth_config.get('username'),
-                                 auth_config.get('password'))
+        if auth_scheme == "basic":
+            auth = HTTPBasicAuth(
+                auth_config.get("username"), auth_config.get("password")
+            )
             utils.http_get_file(url, dest_obj, auth=auth)
 
         # Token auth
-        if auth_scheme == 'token':
-            token = auth_config.get('token')
+        if auth_scheme == "token":
+            token = auth_config.get("token")
 
-            if auth_config.get('token_location') == 'url':
+            if auth_config.get("token_location") == "url":
                 utils.http_get_file(
-                    f"{url}?{urlencode({'token': token})}", dest_obj)
+                    f"{url}?{urlencode({'token': token})}", dest_obj
+                )
             else:
                 utils.http_get_file(
-                    url, dest_obj, headers={'Authorization': f'Token {token}'})
+                    url, dest_obj, headers={"Authorization": f"Token {token}"}
+                )
 
         # OAuth 2
-        elif auth_scheme == 'oauth2':
+        elif auth_scheme == "oauth2":
             kwargs = {
                 var_name: auth_config.get(var_name)
-                for var_name in ['provider_domain',
-                                 'audience',
-                                 'client_id',
-                                 'client_secret']
+                for var_name in [
+                    "provider_domain",
+                    "audience",
+                    "client_id",
+                    "client_secret",
+                ]
             }
             oauth2.get_file(url, dest_obj, **kwargs)
 
@@ -216,16 +221,18 @@ class FileRetriever(object):
     files to local temp files. When the FileRetriever instance loses scope, the
     temp files optionally go away.
     """
+
     _getters = {
         "s3": _s3_save,
         "http": _web_save,
         "https": _web_save,
-        "file": _file_save
+        "file": _file_save,
     }
     static_auth_configs = None
 
-    def __init__(self, storage_dir=None, cleanup_at_exit=True,
-                 auth_configs=None):
+    def __init__(
+        self, storage_dir=None, cleanup_at_exit=True, auth_configs=None
+    ):
         """
         Construct FileRetriever instance
 
@@ -268,8 +275,9 @@ class FileRetriever(object):
             self.__tmpdir = None
             self.storage_dir = storage_dir
         else:
-            self.__tmpdir = tempfile.TemporaryDirectory(prefix=".ingest_tmp_",
-                                                        dir=".")
+            self.__tmpdir = tempfile.TemporaryDirectory(
+                prefix=".ingest_tmp_", dir="."
+            )
             self.storage_dir = self.__tmpdir.name
         self._files = {}
         self.auth_configs = auth_configs or FileRetriever.static_auth_configs
@@ -295,7 +303,8 @@ class FileRetriever(object):
 
         self.logger.info(
             "Detected protocol '%s' --> Using getter %s",
-            protocol, FileRetriever._getters[protocol].__name__
+            protocol,
+            FileRetriever._getters[protocol].__name__,
         )
 
         # TODO: Either remove this try wrapper or remove this message.
@@ -307,7 +316,7 @@ class FileRetriever(object):
                 # isn't already being deleted)
                 self._files[url] = tempfile.NamedTemporaryFile(
                     dir=self.storage_dir,
-                    delete=self.cleanup_at_exit and not self.__tmpdir
+                    delete=self.cleanup_at_exit and not self.__tmpdir,
                 )
 
                 # Select one auth config based inspection of url
@@ -319,18 +328,23 @@ class FileRetriever(object):
                     self._validate_auth_config(auth_config)
                     self.logger.info(
                         f'Selected `{auth_config["type"]}` authentication to '
-                        f'fetch {url}')
-                elif protocol != 'file':
+                        f"fetch {url}"
+                    )
+                elif protocol != "file":
                     self.logger.warning(
-                        f'Authentication scheme not found for url {url}')
+                        f"Authentication scheme not found for url {url}"
+                    )
 
                 # Fetch the remote data
                 FileRetriever._getters[protocol](
-                    protocol, path, self._files[url],
-                    logger=self.logger, auth_config=auth_config
+                    protocol,
+                    path,
+                    self._files[url],
+                    logger=self.logger,
+                    auth_config=auth_config,
                 )
-                if not hasattr(self._files[url], 'original_name'):
-                    filename = urlparse(url).path.rsplit('/', 1)[-1]
+                if not hasattr(self._files[url], "original_name"):
+                    filename = urlparse(url).path.rsplit("/", 1)[-1]
                     self._files[url].original_name = filename
 
             self._files[url].seek(0)
@@ -354,6 +368,8 @@ class FileRetriever(object):
         """
         assert_safe_type(auth_config, dict)
         assert_all_safe_type(list(auth_config.keys()), str)
-        auth_scheme = auth_config.get('type')
-        assert auth_scheme, ('An `auth_config` dict must have `type` '
-                             'key to define the authentication scheme')
+        auth_scheme = auth_config.get("type")
+        assert auth_scheme, (
+            "An `auth_config` dict must have `type` "
+            "key to define the authentication scheme"
+        )

@@ -2,8 +2,8 @@ import ast
 import inspect
 import types
 
-__UNNAMED_OBJECT = 'unnamed object of type'
-__ALL_SIGNIFIER = 'all items in '
+__UNNAMED_OBJECT = "unnamed object of type"
+__ALL_SIGNIFIER = "all items in "
 
 
 # This function supports finding the _name_ of the first argument passed to
@@ -16,22 +16,20 @@ def _ast_object_name(obj):
     """
     if not isinstance(obj, ast.Name):
         if isinstance(obj, ast.Attribute):
-            return _ast_object_name(obj.value) + '.' + obj.attr
+            return _ast_object_name(obj.value) + "." + obj.attr
         elif isinstance(obj, ast.Call):
             call = _ast_object_name(obj.func)
             arguments = []
-            if hasattr(obj, 'keywords'):
-                arguments = [
-                    str(ast.literal_eval(a)) for a in obj.args
-                ] + [
-                    kob.arg + '=' + str(ast.literal_eval(kob.value))
+            if hasattr(obj, "keywords"):
+                arguments = [str(ast.literal_eval(a)) for a in obj.args] + [
+                    kob.arg + "=" + str(ast.literal_eval(kob.value))
                     for kob in obj.keywords
                 ]
-            return call + '(' + ', '.join(arguments) + ')'
+            return call + "(" + ", ".join(arguments) + ")"
         else:
             # unnamed values (5, 'foo', etc.) obviously have no name
             raise ValueError(
-                __UNNAMED_OBJECT + ' <{}>'.format(type(obj).__name__)
+                __UNNAMED_OBJECT + " <{}>".format(type(obj).__name__)
             )
     return obj.id
 
@@ -116,7 +114,7 @@ def _name_of_arg_at_caller(which_arg=0, frames_higher=1):
     # no code file then you should already know the answer and shouldn't be
     # calling this function!
     file_src = inspect.findsource(calling_frame[0])[0]
-    ast_nodes = ast.parse(''.join(file_src))
+    ast_nodes = ast.parse("".join(file_src))
 
     # finding the right AST node
     call_node = None
@@ -127,7 +125,7 @@ def _name_of_arg_at_caller(which_arg=0, frames_higher=1):
         if node.lineno > call_line:
             break
         func = node.func
-        if hasattr(func, 'id') and func.id == asking_name:
+        if hasattr(func, "id") and func.id == asking_name:
             call_node = node
 
     # find the argument name from the node that has the call
@@ -213,16 +211,16 @@ def _raise_error(safe_types, is_container=False):
         name = str(e)
 
     type_names = [
-        t.__name__ if hasattr(t, '__name__') else t for t in safe_types
+        t.__name__ if hasattr(t, "__name__") else t for t in safe_types
     ]
 
     if is_container:
         name = __ALL_SIGNIFIER + name
 
     err = TypeError(
-        '{}:{}:{} requires {} to be one of these types: {}'
-        .format(caller.filename, caller.lineno, caller.function, name,
-                type_names)
+        "{}:{}:{} requires {} to be one of these types: {}".format(
+            caller.filename, caller.lineno, caller.function, name, type_names
+        )
     )
     try:  # Python before 3.7 doesn't let you create traceback objects
         new_tb = types.TracebackType(

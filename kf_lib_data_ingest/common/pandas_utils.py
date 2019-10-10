@@ -57,6 +57,7 @@ def split_df_rows_on_splits(df):
     :param df: a DataFrame
     :return: a new DataFrame
     """
+
     def split_row(df_row_dict):
         # Collate groups
         split_groups = defaultdict(dict)
@@ -73,8 +74,8 @@ def split_df_rows_on_splits(df):
         for group, col_dict in split_groups.items():
             if group is not None:  # Non-cartesian-product splits
                 for col, things in col_dict.items():
-                    col_dict[col] += (
-                        [None] * (split_group_lengths[group] - len(things))
+                    col_dict[col] += [None] * (
+                        split_group_lengths[group] - len(things)
                     )
                 # Now group_1 = {col1: [1, 2, 3], col2: [a, b, None]}}
                 for i in range(split_group_lengths[group]):
@@ -93,13 +94,13 @@ def split_df_rows_on_splits(df):
         return row_list or [df_row_dict]
 
     split_out = []
-    index_key = '__index_IQDBDZVSME7L8YSKX__'  # don't name a column this :)
+    index_key = "__index_IQDBDZVSME7L8YSKX__"  # don't name a column this :)
     df.index.name = index_key
-    for row in df.reset_index().to_dict(orient='records'):
+    for row in df.reset_index().to_dict(orient="records"):
         split_out += split_row(row)
-    df = pandas.DataFrame.from_dict(
-        split_out, dtype=object
-    ).set_index(index_key)
+    df = pandas.DataFrame.from_dict(split_out, dtype=object).set_index(
+        index_key
+    )
     del df.index.name
     return df
 
@@ -163,7 +164,7 @@ def get_col(df, key):
             return df[key]
     except KeyError as e:
         raise Exception(
-            f'Column {key} not found in df. Options are: {list(df.columns)}'
+            f"Column {key} not found in df. Options are: {list(df.columns)}"
         ) from e
 
 
@@ -218,9 +219,9 @@ def safe_pandas_replace(data, mappings, regex=False):
             output[k] = safe_pandas_replace(
                 safe_pandas_replace(s, series_maps.get(k), regex),
                 dataframe_maps,
-                regex
+                regex,
             )
-    else:   # one column Series
+    else:  # one column Series
         # Forcing dtype to `object` allows differentiating None from np.nan,
         # which means that you can replace cells with None and not have those
         # changes overwritten.
@@ -260,8 +261,8 @@ def safe_pandas_replace(data, mappings, regex=False):
 
                 new = data.copy()
                 # create new values using the returns from the function calls
-                new[pandas.notnull(matches[0])] = (
-                    matches.astype(str).apply(lambda row: v(*row), axis=1)
+                new[pandas.notnull(matches[0])] = matches.astype(str).apply(
+                    lambda row: v(*row), axis=1
                 )
             else:  # basic replacement
                 new = data.replace({k: v}, regex=True)
@@ -276,8 +277,9 @@ def safe_pandas_replace(data, mappings, regex=False):
     return output
 
 
-def merge_wo_duplicates(left, right, left_name=None, right_name=None,
-                        **kwargs):
+def merge_wo_duplicates(
+    left, right, left_name=None, right_name=None, **kwargs
+):
     """
     Merge two dataframes and return a dataframe with no duplicate columns.
 
@@ -298,8 +300,8 @@ def merge_wo_duplicates(left, right, left_name=None, right_name=None,
     """
     left = left.astype(object)
     right = right.astype(object)
-    left_name = left_name or 'Left'
-    right_name = right_name or 'Right'
+    left_name = left_name or "Left"
+    right_name = right_name or "Right"
 
     # Check if merge col(s) are present in DataFrame
     def check_merge_col(merge_col, df_name, df, err_msgs):
@@ -310,23 +312,25 @@ def merge_wo_duplicates(left, right, left_name=None, right_name=None,
         return err_msgs
 
     err = []
-    if 'on' in kwargs:
-        merge_col = kwargs['on']
+    if "on" in kwargs:
+        merge_col = kwargs["on"]
         err = check_merge_col(merge_col, left_name, left, err)
         err = check_merge_col(merge_col, right_name, right, err)
-    elif ('left_on' in kwargs) and ('right_on' in kwargs):
-        merge_col = kwargs['left_on']
+    elif ("left_on" in kwargs) and ("right_on" in kwargs):
+        merge_col = kwargs["left_on"]
         err = check_merge_col(merge_col, left_name, left, err)
-        merge_col = kwargs['right_on']
+        merge_col = kwargs["right_on"]
         err = check_merge_col(merge_col, right_name, right, err)
     else:
-        err = [(
-            'Missing merge column keyword argument(s). Must supply either `on`'
-            ' or both `left_on` and `right_on` arguments.'
-        )]
+        err = [
+            (
+                "Missing merge column keyword argument(s). Must supply either `on`"
+                " or both `left_on` and `right_on` arguments."
+            )
+        ]
 
     if err:
-        raise Exception('\n'.join(err))
+        raise Exception("\n".join(err))
 
     def resolve_duplicates(df, suffixes):
         l_suffix = suffixes[0]
@@ -345,14 +349,14 @@ def merge_wo_duplicates(left, right, left_name=None, right_name=None,
                     )
                     if any(inconsistent):
                         raise Exception(
-                            'Inconsistent data between left and right DFs.\n'
-                            f'Kwargs: {kwargs}\n'
-                            f'Left side was:\n{left}\n'
-                            f'Right side was:\n{right}\n'
-                            f'Intermediate was:\n{df}\n'
-                            f'Merge collision between: {coll} and {colr}\n'
-                            'Mismatching values:\n'
-                            f'{df[[coll, colr]][inconsistent]}'
+                            "Inconsistent data between left and right DFs.\n"
+                            f"Kwargs: {kwargs}\n"
+                            f"Left side was:\n{left}\n"
+                            f"Right side was:\n{right}\n"
+                            f"Intermediate was:\n{df}\n"
+                            f"Merge collision between: {coll} and {colr}\n"
+                            "Mismatching values:\n"
+                            f"{df[[coll, colr]][inconsistent]}"
                         )
                     df[firstpart] = df[coll].fillna(df[colr])
                     to_del.update([coll, colr])
@@ -364,9 +368,9 @@ def merge_wo_duplicates(left, right, left_name=None, right_name=None,
         return df
 
     merged = pandas.merge(left, right, **kwargs)
-    reduced = resolve_duplicates(merged, kwargs.pop('suffixes', ('_x', '_y')))
+    reduced = resolve_duplicates(merged, kwargs.pop("suffixes", ("_x", "_y")))
 
-    default_how = signature(pandas.merge).parameters['how'].default
+    default_how = signature(pandas.merge).parameters["how"].default
 
     # Hopefully this will help us know that we didn't lose anything important
     # in the merge
@@ -380,18 +384,23 @@ def merge_wo_duplicates(left, right, left_name=None, right_name=None,
     )
     msg = (
         f'*** {kwargs.get("how", default_how).title()} merge {left_name} with '
-        f'{right_name}***\n'
-        f'-- Left+Right Collective Uniques --\n{collective_uniques}\n'
-        f'-- Merged DataFrame Uniques --\n{reduced.nunique()}'
-
+        f"{right_name}***\n"
+        f"-- Left+Right Collective Uniques --\n{collective_uniques}\n"
+        f"-- Merged DataFrame Uniques --\n{reduced.nunique()}"
     )
     logger.info(msg)
 
     return reduced
 
 
-def outer_merge(df1, df2, with_merge_detail_dfs=True, left_name=None,
-                right_name=None, **kwargs):
+def outer_merge(
+    df1,
+    df2,
+    with_merge_detail_dfs=True,
+    left_name=None,
+    right_name=None,
+    **kwargs,
+):
     """
     Do Pandas outer merge, return merge result and 3 additional dfs if
     with_merge_details=True. The 3 merge detail dataframes are useful for
@@ -420,20 +429,21 @@ def outer_merge(df1, df2, with_merge_detail_dfs=True, left_name=None,
     :type kwargs: dict
     :returns: 1 dataframe or tuple of 4 dataframes
     """
-    kwargs['how'] = 'outer'
-    kwargs['indicator'] = with_merge_detail_dfs
-    outer = merge_wo_duplicates(df1, df2,
-                                left_name=left_name,
-                                right_name=right_name,
-                                **kwargs)
+    kwargs["how"] = "outer"
+    kwargs["indicator"] = with_merge_detail_dfs
+    outer = merge_wo_duplicates(
+        df1, df2, left_name=left_name, right_name=right_name, **kwargs
+    )
 
     if with_merge_detail_dfs:
-        detail_dfs = [outer[outer['_merge'] == keyword]
-                      for keyword in ['both', 'left_only', 'right_only']]
+        detail_dfs = [
+            outer[outer["_merge"] == keyword]
+            for keyword in ["both", "left_only", "right_only"]
+        ]
 
         ret = []
         for df in [outer] + detail_dfs:
-            del df['_merge']
+            del df["_merge"]
             ret.append(df.dropna(how="all"))
 
         return tuple(ret)

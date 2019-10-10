@@ -2,24 +2,24 @@ import os
 import logging
 
 ROOT_DIR = os.path.dirname(__file__)
-TEMPLATES_DIR = os.path.join(os.path.dirname(ROOT_DIR), 'templates')
+TEMPLATES_DIR = os.path.join(os.path.dirname(ROOT_DIR), "templates")
 
-INGEST_PACKAGE_CONFIG_DEFAULT_FILENAME = 'ingest_package_config.py'
+INGEST_PACKAGE_CONFIG_DEFAULT_FILENAME = "ingest_package_config.py"
 
-USE_ASYNC_KEY = 'use_async'
-TARGET_URL_KEY = 'target_url'
-DEFAULT_TARGET_URL = 'http://localhost:5000'
+USE_ASYNC_KEY = "use_async"
+TARGET_URL_KEY = "target_url"
+DEFAULT_TARGET_URL = "http://localhost:5000"
 
-DEFAULT_LOG_FILENAME = 'ingest.log'
+DEFAULT_LOG_FILENAME = "ingest.log"
 DEFAULT_LOG_LEVEL = logging.INFO
 DEFAULT_LOG_OVERWRITE_OPT = True
 
-INGEST_PKG_TEMPLATE_NAME = 'my_study'
+INGEST_PKG_TEMPLATE_NAME = "my_study"
 
-DEFAULT_ID_CACHE_FILENAME = 'uid_cache.db'
+DEFAULT_ID_CACHE_FILENAME = "uid_cache.db"
 
-VERSION = __import__('kf_lib_data_ingest').__version__
+VERSION = __import__("kf_lib_data_ingest").__version__
 
 # Key in transform func's output dict whose value is the default DataFrame
 # to use when transforming from DataFrame into target concept instances
-DEFAULT_KEY = 'default'
+DEFAULT_KEY = "default"

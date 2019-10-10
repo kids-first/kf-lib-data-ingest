@@ -8,26 +8,23 @@ from conftest import TEST_DATA_DIR
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
 from kf_lib_data_ingest.common.misc import convert_to_downcasted_str
 from kf_lib_data_ingest.etl.configuration.base_config import (
-    ConfigValidationError
+    ConfigValidationError,
 )
 from kf_lib_data_ingest.etl.extract.extract import ExtractStage
 from kf_lib_data_ingest.etl.extract.operations import column_map
 
-TEST_FILE_PATH = os.path.join(TEST_DATA_DIR, 'data.csv')
+TEST_FILE_PATH = os.path.join(TEST_DATA_DIR, "data.csv")
 
-study_1 = os.path.join(TEST_DATA_DIR, 'test_study')
+study_1 = os.path.join(TEST_DATA_DIR, "test_study")
 study_subdirs = {
-    study_1: {
-        'config': 'extract_configs',
-        'output': 'extract_outputs'
-    }
+    study_1: {"config": "extract_configs", "output": "extract_outputs"}
 }
 expected_results = {
     study_1: {
-        'simple_tsv_example1.py': 'simple_tsv_example1_output.tsv',
-        'simple_tsv_example2.py': 'simple_tsv_example2_output.tsv',
-        'unsimple_xlsx_example1.py': 'unsimple_xlsx_example1_output.tsv',
-        'split_rows_tsv_example1.py': 'split_rows_tsv_example1_output.tsv'
+        "simple_tsv_example1.py": "simple_tsv_example1_output.tsv",
+        "simple_tsv_example2.py": "simple_tsv_example2_output.tsv",
+        "unsimple_xlsx_example1.py": "unsimple_xlsx_example1_output.tsv",
+        "split_rows_tsv_example1.py": "split_rows_tsv_example1_output.tsv",
     }
 }
 
@@ -44,10 +41,10 @@ def rectify_cols_and_datatypes(A, B):
     # account for datatype mismatches induced by loading the expected
     # result directly from a file
     A = A.applymap(
-        lambda x: convert_to_downcasted_str(x, replace_na=True, na='')
+        lambda x: convert_to_downcasted_str(x, replace_na=True, na="")
     )
     B = B.applymap(
-        lambda x: convert_to_downcasted_str(x, replace_na=True, na='')
+        lambda x: convert_to_downcasted_str(x, replace_na=True, na="")
     )
 
     for col in A.columns:
@@ -59,7 +56,7 @@ def rectify_cols_and_datatypes(A, B):
 
     return (
         A.sort_values(list(A.columns)).sort_index().reset_index(),
-        B.sort_values(list(B.columns)).sort_index().reset_index()
+        B.sort_values(list(B.columns)).sort_index().reset_index(),
     )
 
 
@@ -67,22 +64,23 @@ def test_extracts():
     for study_dir, study_configs in expected_results.items():
         extract_configs = list(study_configs.keys())
         es = ExtractStage(
-            os.path.join(study_dir, 'output'),
-            os.path.join(study_dir, study_subdirs[study_dir]['config'])
+            os.path.join(study_dir, "output"),
+            os.path.join(study_dir, study_subdirs[study_dir]["config"]),
         )
         df_out = es.run()
         recycled_output = es.read_output()
         for config in extract_configs:
             extracted = df_out[os.path.basename(config)][1]
             expected = es._source_file_to_df(
-                'file://' + os.path.join(
+                "file://"
+                + os.path.join(
                     study_dir,
-                    study_subdirs[study_dir]['output'],
-                    study_configs[config]
+                    study_subdirs[study_dir]["output"],
+                    study_configs[config],
                 )
             )
 
-            expected.set_index('index', inplace=True)
+            expected.set_index("index", inplace=True)
             expected.index = expected.index.astype(int)
             expected.index.name = None
 
@@ -97,14 +95,14 @@ def test_extracts():
             pandas.testing.assert_frame_equal(A, B)
 
 
-@requests_mock.Mocker(kw='mock')
+@requests_mock.Mocker(kw="mock")
 def test_bad_file_types(**kwargs):
-    es = ExtractStage('', '')
-    mock = kwargs['mock']
+    es = ExtractStage("", "")
+    mock = kwargs["mock"]
 
     # no type
     filename = os.path.basename(TEST_FILE_PATH)
-    url = f'http://localhost:1234/{filename}/download'
+    url = f"http://localhost:1234/{filename}/download"
     with open(TEST_FILE_PATH, "rb") as tf:
         mock.get(url, content=tf.read(), status_code=200)
     with pytest.raises(ConfigValidationError) as e:
@@ -114,34 +112,29 @@ def test_bad_file_types(**kwargs):
     # unknown type
     with pytest.raises(ConfigValidationError) as e:
         es._source_file_to_df(
-            'file://' +
-            os.path.join(TEST_DATA_DIR, 'yaml_schema.yml')
+            "file://" + os.path.join(TEST_DATA_DIR, "yaml_schema.yml")
         )
     assert "Could not determine appropriate reader" in str(e.value)
 
     # good type but error in load function
     with pytest.raises(ConfigValidationError) as e:
         es._source_file_to_df(
-            'file://' +
-            os.path.join(TEST_DATA_DIR, 'concept_graph.json')
+            "file://" + os.path.join(TEST_DATA_DIR, "concept_graph.json")
         )
     assert "Could not determine appropriate reader" not in str(e.value)
 
 
 def test_no_load_return():
     f = os.path.join(
-        study_1, 'extract_outputs', 'simple_tsv_example1_output.tsv'
+        study_1, "extract_outputs", "simple_tsv_example1_output.tsv"
     )
-    es = ExtractStage('', '')
+    es = ExtractStage("", "")
     with pytest.raises(ConfigValidationError):
-        es._source_file_to_df(
-            'file://' + f,
-            read_func=lambda x: None
-        )
+        es._source_file_to_df("file://" + f, read_func=lambda x: None)
 
 
 def test_visibility():
-    es = ExtractStage('', '')
+    es = ExtractStage("", "")
 
     a = [True, False, None]
     b = [False, True, None]
@@ -170,28 +163,18 @@ def test_visibility():
 
 
 def test_operation_length_erors():
-    es = ExtractStage('', '')
-    df = pandas.DataFrame({'A': [1, 2], 'B': [1, 2]})
+    es = ExtractStage("", "")
+    df = pandas.DataFrame({"A": [1, 2], "B": [1, 2]})
 
     # test too long result not in sublist
-    op = [
-        [
-            column_map(
-                in_col='A',
-                out_col='NAME',
-                m=lambda x: x.append(x)
-            )
-        ]
-    ]
+    op = [[column_map(in_col="A", out_col="NAME", m=lambda x: x.append(x))]]
     es._chain_operations(df, op)
     with pytest.raises(ConfigValidationError) as e:
         es._chain_operations(df, op[0])
     assert "nested operation sublists" in str(e.value)
 
     # test result not a multiple
-    op = [
-        lambda x: pandas.Series([1])
-    ]
+    op = [lambda x: pandas.Series([1])]
     with pytest.raises(ConfigValidationError) as e:
         es._chain_operations(df, op)
     assert "not a multiple" in str(e.value)

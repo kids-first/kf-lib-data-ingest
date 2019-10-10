@@ -12,21 +12,21 @@ import pandas
 
 from kf_lib_data_ingest.config import DEFAULT_KEY
 from kf_lib_data_ingest.etl.configuration.base_config import (
-    ConfigValidationError
+    ConfigValidationError,
 )
 from kf_lib_data_ingest.common.concept_schema import (
     CONCEPT,
     UNIQUE_ID_ATTR,
     concept_property_split,
-    str_to_CONCEPT
+    str_to_CONCEPT,
 )
 from kf_lib_data_ingest.common.misc import clean_up_df
 from kf_lib_data_ingest.common.type_safety import (
     assert_safe_type,
-    assert_all_safe_type
+    assert_all_safe_type,
 )
 from kf_lib_data_ingest.etl.configuration.transform_module import (
-    TransformModule
+    TransformModule,
 )
 from kf_lib_data_ingest.etl.transform.transform import TransformStage
 
@@ -35,8 +35,9 @@ class GuidedTransformStage(TransformStage):
     def __init__(self, transform_function_path, *args, **kwargs):
         self.transform_module = TransformModule(transform_function_path)
         super().__init__(*args, **kwargs)
-        self.transform_func_dir = os.path.join(self.stage_cache_dir,
-                                               'transform_function_output')
+        self.transform_func_dir = os.path.join(
+            self.stage_cache_dir, "transform_function_output"
+        )
 
     def _apply_transform_funct(self, data_dict):
         """
@@ -49,8 +50,9 @@ class GuidedTransformStage(TransformStage):
         :returns: a dict of dataframes
         """
         filepath = self.transform_module.config_filepath
-        self.logger.info('Applying user supplied transform function '
-                         f'{filepath} ...')
+        self.logger.info(
+            "Applying user supplied transform function " f"{filepath} ..."
+        )
 
         # Reformat the data_dict into expected form for transform_funct
         # Turn data_dict[<extract config file>] = (source data url, dataframe)
@@ -72,9 +74,9 @@ class GuidedTransformStage(TransformStage):
             if key not in valid_keys:
                 raise ConfigValidationError(
                     f'Invalid dict key "{key}" found in transform function '
-                    f'output! A Key must be one of:\n {pformat(valid_keys)} '
-                    f'\nCheck your transform module: '
-                    f'{self.transform_module.config_filepath}'
+                    f"output! A Key must be one of:\n {pformat(valid_keys)} "
+                    f"\nCheck your transform module: "
+                    f"{self.transform_module.config_filepath}"
                 )
 
         return merged_df_dict
@@ -93,46 +95,47 @@ class GuidedTransformStage(TransformStage):
         DataFrames
         :type df_dict: dict
         """
-        self.logger.info('Start data validation on transform function output')
+        self.logger.info("Start data validation on transform function output")
 
         # Biospecimen - must have both BIOSPECIMEN.ID and BIOSPECIMEN_GROUP.ID
         # columns
-        biospecimen_df = df_dict.get('biospecimen', df_dict.get(DEFAULT_KEY))
+        biospecimen_df = df_dict.get("biospecimen", df_dict.get(DEFAULT_KEY))
         # No DataFrame found - pass
         if not isinstance(biospecimen_df, pandas.DataFrame):
             self.logger.debug(
-                'Skipped validation of biospecimen data. '
-                'Did not find a DataFrame for biospecimen'
+                "Skipped validation of biospecimen data. "
+                "Did not find a DataFrame for biospecimen"
             )
         # Neither column is found - pass
-        elif (
-            (CONCEPT.BIOSPECIMEN_GROUP.ID not in biospecimen_df) and
-            (CONCEPT.BIOSPECIMEN.ID not in biospecimen_df)
+        elif (CONCEPT.BIOSPECIMEN_GROUP.ID not in biospecimen_df) and (
+            CONCEPT.BIOSPECIMEN.ID not in biospecimen_df
         ):
             self.logger.debug(
-                'Skipped validation of biospecimen data. '
-                f'Did not find any {CONCEPT.BIOSPECIMEN._CONCEPT_NAME} '
-                f'or {CONCEPT.BIOSPECIMEN_GROUP._CONCEPT_NAME} concepts '
-                'in the data'
+                "Skipped validation of biospecimen data. "
+                f"Did not find any {CONCEPT.BIOSPECIMEN._CONCEPT_NAME} "
+                f"or {CONCEPT.BIOSPECIMEN_GROUP._CONCEPT_NAME} concepts "
+                "in the data"
             )
         # Only one of the two columns found - fail
         else:
-            self.logger.debug('Validating biospecimen data')
-            valid = (CONCEPT.BIOSPECIMEN.ID in biospecimen_df and
-                     CONCEPT.BIOSPECIMEN_GROUP.ID in biospecimen_df)
+            self.logger.debug("Validating biospecimen data")
+            valid = (
+                CONCEPT.BIOSPECIMEN.ID in biospecimen_df
+                and CONCEPT.BIOSPECIMEN_GROUP.ID in biospecimen_df
+            )
             if not valid:
                 raise Exception(
-                    '❌ Invalid biospecimen DataFrame in transform function '
-                    'output! DataFrame must have both a '
-                    f'{CONCEPT.BIOSPECIMEN.ID} column and a '
-                    f'{CONCEPT.BIOSPECIMEN_GROUP.ID} column. Check your '
-                    'transform module logic or extract configs.'
+                    "❌ Invalid biospecimen DataFrame in transform function "
+                    "output! DataFrame must have both a "
+                    f"{CONCEPT.BIOSPECIMEN.ID} column and a "
+                    f"{CONCEPT.BIOSPECIMEN_GROUP.ID} column. Check your "
+                    "transform module logic or extract configs."
                 )
             else:
-                self.logger.debug('✅ Valid biospecimen DataFrame')
+                self.logger.debug("✅ Valid biospecimen DataFrame")
 
         self.logger.info(
-            'Completed data validation on transform function output'
+            "Completed data validation on transform function output"
         )
 
     def _standard_to_target(self, df_dict):
@@ -231,84 +234,93 @@ class GuidedTransformStage(TransformStage):
         :returns target_instances: dict (keyed by target concept) of lists
         of dicts (target concept instances)
         """
-        self.logger.info('Begin transformation from standard concepts '
-                         'to target concepts ...')
+        self.logger.info(
+            "Begin transformation from standard concepts "
+            "to target concepts ..."
+        )
 
         target_instances = defaultdict(list)
-        for (target_concept,
-             config) in self.target_api_config.target_concepts.items():
+        for (
+            target_concept,
+            config,
+        ) in self.target_api_config.target_concepts.items():
 
             # Get the df containing data for this target concept
             all_data_df = df_dict.get(target_concept)
             if all_data_df is not None:
-                self.logger.info(f'Using {target_concept} DataFrame')
+                self.logger.info(f"Using {target_concept} DataFrame")
             else:
                 all_data_df = df_dict.get(DEFAULT_KEY)
 
             if all_data_df is not None:
-                self.logger.info(f'Using {DEFAULT_KEY} DataFrame')
+                self.logger.info(f"Using {DEFAULT_KEY} DataFrame")
             else:
                 self.logger.warning(
-                    f'Cannot build target concept instances for '
-                    f'{target_concept}! No DataFrame found in transform '
-                    'function output dict.'
+                    f"Cannot build target concept instances for "
+                    f"{target_concept}! No DataFrame found in transform "
+                    "function output dict."
                 )
                 continue
 
             # Unique key for the target concept must exist
-            standard_concept = config.get('standard_concept')
+            standard_concept = config.get("standard_concept")
             std_concept_ukey = getattr(standard_concept, UNIQUE_ID_ATTR)
             if std_concept_ukey not in all_data_df.columns:
                 self.logger.info(
-                    'No unique key found in table for target '
-                    f'concept: {target_concept}. Skip instance creation')
+                    "No unique key found in table for target "
+                    f"concept: {target_concept}. Skip instance creation"
+                )
                 continue
 
             # Drop duplicates using unique key of std concept
             df = all_data_df.drop_duplicates(subset=std_concept_ukey)
 
             # Build target instances for target_concept (i.e. participant)
-            self.logger.info(f'Building {target_concept} concepts ...')
+            self.logger.info(f"Building {target_concept} concepts ...")
             for _, row in df.iterrows():
                 target_instance = {}
                 # id
-                target_instance['id'] = row[std_concept_ukey]
+                target_instance["id"] = row[std_concept_ukey]
 
                 # Skip building target instances with null ids
-                if not target_instance['id']:
+                if not target_instance["id"]:
                     continue
 
                 # endpoint
-                target_instance['endpoint'] = config['endpoint']
+                target_instance["endpoint"] = config["endpoint"]
 
                 # properties
-                target_instance['properties'] = defaultdict()
-                for (target_attr, value) in config['properties'].items():
+                target_instance["properties"] = defaultdict()
+                for (target_attr, value) in config["properties"].items():
                     if isinstance(value, tuple):
                         std_concept_attr = value[0]
                     else:
                         std_concept_attr = value
 
-                    target_instance[
-                        'properties'][target_attr] = row.get(std_concept_attr)
+                    target_instance["properties"][target_attr] = row.get(
+                        std_concept_attr
+                    )
 
                 # links
-                target_instance['links'] = []
-                if 'links' in config:
-                    for link_dict in config['links']:
-                        unique_k_col = getattr(link_dict['standard_concept'],
-                                               UNIQUE_ID_ATTR)
+                target_instance["links"] = []
+                if "links" in config:
+                    for link_dict in config["links"]:
+                        unique_k_col = getattr(
+                            link_dict["standard_concept"], UNIQUE_ID_ATTR
+                        )
                         unique_k_val = row.get(unique_k_col)
-                        target_instance['links'].append(
+                        target_instance["links"].append(
                             {
-                                link_dict['target_attribute']: unique_k_val,
-                                'target_concept': link_dict['target_concept']
+                                link_dict["target_attribute"]: unique_k_val,
+                                "target_concept": link_dict["target_concept"],
                             }
                         )
                 target_instances[target_concept].append(target_instance)
 
-            self.logger.info(f'Built {len(target_instances[target_concept])} '
-                             f'{target_concept} concepts')
+            self.logger.info(
+                f"Built {len(target_instances[target_concept])} "
+                f"{target_concept} concepts"
+            )
 
         return target_instances
 
@@ -327,20 +339,23 @@ class GuidedTransformStage(TransformStage):
             self.transform_func_output[key] = clean_up_df(df)
 
         # Write transform func output to disk
-        self.logger.info(f'Writing intermediate data - output of user defined'
-                         f' transform func to {self.transform_func_dir}')
+        self.logger.info(
+            f"Writing intermediate data - output of user defined"
+            f" transform func to {self.transform_func_dir}"
+        )
         os.makedirs(self.transform_func_dir, exist_ok=True)
         for key, df in self.transform_func_output.items():
-            fp = os.path.join(self.transform_func_dir, key + '.tsv')
-            df.to_csv(fp, sep='\t', index=True)
+            fp = os.path.join(self.transform_func_dir, key + ".tsv")
+            df.to_csv(fp, sep="\t", index=True)
 
         # Insert unique key columns
         for key, df in self.transform_func_output.items():
             self._insert_unique_keys(
                 {
-                    os.path.join(self.transform_func_dir, key + '.tsv'): (
-                        f'Transform Module Output: {key} df',
-                        self.transform_func_output[key])
+                    os.path.join(self.transform_func_dir, key + ".tsv"): (
+                        f"Transform Module Output: {key} df",
+                        self.transform_func_output[key],
+                    )
                 }
             )
 
@@ -354,17 +369,13 @@ class GuidedTransformStage(TransformStage):
         See the docstring for IngestStage._postrun_concept_discovery
         """
         sources = defaultdict(dict)
-        links = defaultdict(
-            lambda: defaultdict(set)
-        )
-        values = defaultdict(
-            lambda: defaultdict(set)
-        )
+        links = defaultdict(lambda: defaultdict(set))
+        values = defaultdict(lambda: defaultdict(set))
 
         for df_name, df in self.transform_func_output.items():
             self.logger.info(
-                f'Doing concept discovery for {df_name} DataFrame in '
-                'transform function output'
+                f"Doing concept discovery for {df_name} DataFrame in "
+                "transform function output"
             )
             for key in df.columns:
                 sk = sources[key]
@@ -380,7 +391,7 @@ class GuidedTransformStage(TransformStage):
                             vB = row[keyB]
                             if vA and vB:
                                 # links entry
-                                links[keyA + '::' + keyB][vA].add(vB)
+                                links[keyA + "::" + keyB][vA].add(vB)
 
                                 # values entry
                                 CA, attrA = concept_property_split[keyA]
@@ -391,4 +402,4 @@ class GuidedTransformStage(TransformStage):
                                     if CA == CB:
                                         values[keyB][vB].add(vA)
 
-        return {'sources': sources, 'links': links, 'values': values}
+        return {"sources": sources, "links": links, "values": values}

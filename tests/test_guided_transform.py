@@ -3,10 +3,10 @@ import pytest
 import pandas as pd
 
 from kf_lib_data_ingest.etl.configuration.base_config import (
-    ConfigValidationError
+    ConfigValidationError,
 )
 from kf_lib_data_ingest.etl.configuration.transform_module import (
-    TransformModule
+    TransformModule,
 )
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
@@ -16,53 +16,67 @@ from kf_lib_data_ingest.config import DEFAULT_KEY
 from conftest import TRANSFORM_MODULE_PATH
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def df_dict():
     """
     Mock input to GuidedTransformStage._standard_to_target
     """
     dfs = {
-        'family': pd.DataFrame({
-            CONCEPT.PARTICIPANT.UNIQUE_KEY: ['p1', 'p2', 'p2'],
-            CONCEPT.FAMILY.UNIQUE_KEY: ['f1', 'f2', 'f3']
-        }),
-        'participant': pd.DataFrame({
-            CONCEPT.PARTICIPANT.UNIQUE_KEY: ['p1', 'p2', 'p2'],
-            CONCEPT.DIAGNOSIS.NAME: ['cold', 'cold', None],
-            CONCEPT.PARTICIPANT.GENDER: ['Female', 'Male', 'Female']
-        }),
-        'diagnosis': pd.DataFrame({
-            CONCEPT.DIAGNOSIS.UNIQUE_KEY: ['p1-cold', 'p2-cold', None]
-        }),
-        'biospecimen': pd.DataFrame({
-            CONCEPT.PARTICIPANT.UNIQUE_KEY: ['p1', 'p2', 'p2'],
-            CONCEPT.BIOSPECIMEN.UNIQUE_KEY: ['b1', 'b2', 'b3'],
-            CONCEPT.BIOSPECIMEN_GROUP.UNIQUE_KEY: ['b1', 'b2', 'b3'],
-            CONCEPT.BIOSPECIMEN.ANALYTE: ['dna', 'rna', 'dna']
-        }),
-        'sequencing_experiment': pd.DataFrame({
-            CONCEPT.BIOSPECIMEN.UNIQUE_KEY: ['b1', 'b2', 'b3'],
-            CONCEPT.BIOSPECIMEN_GROUP.UNIQUE_KEY: ['b1', 'b2', 'b3'],
-            CONCEPT.SEQUENCING.LIBRARY_NAME: ['lib1', 'lib2', 'lib3']
-        })
+        "family": pd.DataFrame(
+            {
+                CONCEPT.PARTICIPANT.UNIQUE_KEY: ["p1", "p2", "p2"],
+                CONCEPT.FAMILY.UNIQUE_KEY: ["f1", "f2", "f3"],
+            }
+        ),
+        "participant": pd.DataFrame(
+            {
+                CONCEPT.PARTICIPANT.UNIQUE_KEY: ["p1", "p2", "p2"],
+                CONCEPT.DIAGNOSIS.NAME: ["cold", "cold", None],
+                CONCEPT.PARTICIPANT.GENDER: ["Female", "Male", "Female"],
+            }
+        ),
+        "diagnosis": pd.DataFrame(
+            {CONCEPT.DIAGNOSIS.UNIQUE_KEY: ["p1-cold", "p2-cold", None]}
+        ),
+        "biospecimen": pd.DataFrame(
+            {
+                CONCEPT.PARTICIPANT.UNIQUE_KEY: ["p1", "p2", "p2"],
+                CONCEPT.BIOSPECIMEN.UNIQUE_KEY: ["b1", "b2", "b3"],
+                CONCEPT.BIOSPECIMEN_GROUP.UNIQUE_KEY: ["b1", "b2", "b3"],
+                CONCEPT.BIOSPECIMEN.ANALYTE: ["dna", "rna", "dna"],
+            }
+        ),
+        "sequencing_experiment": pd.DataFrame(
+            {
+                CONCEPT.BIOSPECIMEN.UNIQUE_KEY: ["b1", "b2", "b3"],
+                CONCEPT.BIOSPECIMEN_GROUP.UNIQUE_KEY: ["b1", "b2", "b3"],
+                CONCEPT.SEQUENCING.LIBRARY_NAME: ["lib1", "lib2", "lib3"],
+            }
+        ),
     }
 
-    df = outer_merge(dfs['family'], dfs['participant'],
-                     on=CONCEPT.PARTICIPANT.UNIQUE_KEY,
-                     with_merge_detail_dfs=False)
-    df = outer_merge(df, dfs['biospecimen'],
-                     on=CONCEPT.PARTICIPANT.UNIQUE_KEY,
-                     with_merge_detail_dfs=False)
-    df = outer_merge(df, dfs['sequencing_experiment'],
-                     on=CONCEPT.BIOSPECIMEN.UNIQUE_KEY,
-                     with_merge_detail_dfs=False)
-    return {
-        'participant': df,
-        DEFAULT_KEY: df
-    }
+    df = outer_merge(
+        dfs["family"],
+        dfs["participant"],
+        on=CONCEPT.PARTICIPANT.UNIQUE_KEY,
+        with_merge_detail_dfs=False,
+    )
+    df = outer_merge(
+        df,
+        dfs["biospecimen"],
+        on=CONCEPT.PARTICIPANT.UNIQUE_KEY,
+        with_merge_detail_dfs=False,
+    )
+    df = outer_merge(
+        df,
+        dfs["sequencing_experiment"],
+        on=CONCEPT.BIOSPECIMEN.UNIQUE_KEY,
+        with_merge_detail_dfs=False,
+    )
+    return {"participant": df, DEFAULT_KEY: df}
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def transform_module():
     """
     Reusable fixture for transform tests
@@ -70,8 +84,7 @@ def transform_module():
     return TransformModule(TRANSFORM_MODULE_PATH)
 
 
-def test_standard_to_target_transform(caplog, df_dict,
-                                      guided_transform_stage):
+def test_standard_to_target_transform(caplog, df_dict, guided_transform_stage):
     """
     Test GuidedTransformStage._standard_to_target transformation
     """
@@ -84,35 +97,34 @@ def test_standard_to_target_transform(caplog, df_dict,
 
     # Check that output only contains concepts that had data and unique key
     output_concepts = set(target_instances.keys())
-    expected_concepts = output_concepts - {'sequencing_experiment'}
+    expected_concepts = output_concepts - {"sequencing_experiment"}
     assert output_concepts == expected_concepts
 
     # Check instances counts and values
     for target_concept, instances in target_instances.items():
         # Only 2 unique participants
-        if target_concept == 'participant' or target_concept == 'diagnosis':
+        if target_concept == "participant" or target_concept == "diagnosis":
             assert len(instances) == 2
         else:
             assert 3 == len(instances)
 
         for instance in instances:
-            assert instance.get('id')
-            assert instance.get('properties')
-            assert 'links' in instance
-            for link_dict in instance['links']:
+            assert instance.get("id")
+            assert instance.get("properties")
+            assert "links" in instance
+            for link_dict in instance["links"]:
                 for k, v in link_dict.items():
-                    if k in {'study_id', 'sequencing_center_id'}:
+                    if k in {"study_id", "sequencing_center_id"}:
                         continue
                     assert v
 
     # Check log output
-    no_data_concepts = (
-        set(guided_transform_stage.target_api_config.target_concepts.keys())
-        .symmetric_difference(set(expected_concepts))
-    )
-    no_unique_key_msg = 'No unique key found in table for target concept:'
+    no_data_concepts = set(
+        guided_transform_stage.target_api_config.target_concepts.keys()
+    ).symmetric_difference(set(expected_concepts))
+    no_unique_key_msg = "No unique key found in table for target concept:"
     for c in no_data_concepts:
-        assert f'{no_unique_key_msg} {c}' in caplog.text
+        assert f"{no_unique_key_msg} {c}" in caplog.text
 
 
 def test_transform_module(transform_module):
@@ -123,13 +135,13 @@ def test_transform_module(transform_module):
     assert transform_module
 
     # Test that transform_function must be a func
-    setattr(transform_module.contents, 'transform_function', 'hello')
+    setattr(transform_module.contents, "transform_function", "hello")
 
     with pytest.raises(TypeError):
         transform_module._validate()
 
     # Test that transform_function exist in the module
-    delattr(transform_module.contents, 'transform_function')
+    delattr(transform_module.contents, "transform_function")
 
     with pytest.raises(ConfigValidationError):
         transform_module._validate()
@@ -142,25 +154,32 @@ def test_no_transform_module(target_api_config):
     """
     with pytest.raises(ConfigValidationError) as e:
         GuidedTransformStage(None)
-    assert 'Guided transformation requires a' in str(e.value)
+    assert "Guided transformation requires a" in str(e.value)
 
 
 @pytest.mark.parametrize(
-    'ret_val, error',
+    "ret_val, error",
     [
         (None, TypeError),
-        ('foo', TypeError),
-        ({'foo': pd.DataFrame()}, ConfigValidationError),
-        ({'foo': pd.DataFrame(),
-          'participant': pd.DataFrame(),
-          'default': pd.DataFrame()}, ConfigValidationError),
-        ({'default': pd.DataFrame()}, None),
-        ({'participant': pd.DataFrame()}, None)
-    ])
+        ("foo", TypeError),
+        ({"foo": pd.DataFrame()}, ConfigValidationError),
+        (
+            {
+                "foo": pd.DataFrame(),
+                "participant": pd.DataFrame(),
+                "default": pd.DataFrame(),
+            },
+            ConfigValidationError,
+        ),
+        ({"default": pd.DataFrame()}, None),
+        ({"participant": pd.DataFrame()}, None),
+    ],
+)
 def test_bad_ret_vals_transform_funct(guided_transform_stage, ret_val, error):
     """
     Test wrong return values from transform function
     """
+
     def f(df_dict):
         return ret_val
 
@@ -181,33 +200,37 @@ def test_biospecimen_validation(caplog, guided_transform_stage):
 
     # Test biospecimen dataframe not present
     guided_transform_stage._validate_data({})
-    assert 'Did not find a DataFrame for biospecimen' in caplog.text
+    assert "Did not find a DataFrame for biospecimen" in caplog.text
 
     # Test neither columns are present
     df_dict = {
-        'biospecimen': pd.DataFrame({
-            CONCEPT.BIOSPECIMEN.ANALYTE: ['dna', 'rna', 'dna']
-        })
+        "biospecimen": pd.DataFrame(
+            {CONCEPT.BIOSPECIMEN.ANALYTE: ["dna", "rna", "dna"]}
+        )
     }
     guided_transform_stage._validate_data(df_dict)
-    assert (f'Did not find any {CONCEPT.BIOSPECIMEN._CONCEPT_NAME} '
-            f'or {CONCEPT.BIOSPECIMEN_GROUP._CONCEPT_NAME} concepts '
-            'in the data') in caplog.text
+    assert (
+        f"Did not find any {CONCEPT.BIOSPECIMEN._CONCEPT_NAME} "
+        f"or {CONCEPT.BIOSPECIMEN_GROUP._CONCEPT_NAME} concepts "
+        "in the data"
+    ) in caplog.text
 
     # Test both columns are present
     df_dict = {
-        'biospecimen': pd.DataFrame({
-            CONCEPT.BIOSPECIMEN.ID: ['b1', 'b2', 'b3'],
-            CONCEPT.BIOSPECIMEN_GROUP.ID: ['b1', 'b2', 'b3'],
-            CONCEPT.BIOSPECIMEN.ANALYTE: ['dna', 'rna', 'dna']
-        })
+        "biospecimen": pd.DataFrame(
+            {
+                CONCEPT.BIOSPECIMEN.ID: ["b1", "b2", "b3"],
+                CONCEPT.BIOSPECIMEN_GROUP.ID: ["b1", "b2", "b3"],
+                CONCEPT.BIOSPECIMEN.ANALYTE: ["dna", "rna", "dna"],
+            }
+        )
     }
     guided_transform_stage._validate_data(df_dict)
-    assert '✅ Valid biospecimen DataFrame' in caplog.text
+    assert "✅ Valid biospecimen DataFrame" in caplog.text
 
     # Test one column is missing
     for col in [CONCEPT.BIOSPECIMEN.ID, CONCEPT.BIOSPECIMEN_GROUP.ID]:
-        df = df_dict['biospecimen'].drop(col, axis=1)
+        df = df_dict["biospecimen"].drop(col, axis=1)
         with pytest.raises(Exception) as e:
-            guided_transform_stage._validate_data({'biospecimen': df})
-        assert '❌ Invalid biospecimen DataFrame' in str(e.value)
+            guided_transform_stage._validate_data({"biospecimen": df})
+        assert "❌ Invalid biospecimen DataFrame" in str(e.value)

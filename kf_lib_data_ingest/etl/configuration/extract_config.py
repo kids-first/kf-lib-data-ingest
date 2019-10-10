@@ -2,12 +2,11 @@ from kf_lib_data_ingest.etl.configuration.base_config import PyModuleConfig
 from kf_lib_data_ingest.common.type_safety import (
     assert_safe_type,
     assert_all_safe_type,
-    function
+    function,
 )
 
 
 class ExtractConfig(PyModuleConfig):
-
     def __init__(self, filepath):
         super().__init__(filepath)
 

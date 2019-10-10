@@ -1,7 +1,7 @@
 from kf_lib_data_ingest.common.misc import obj_attrs_to_dict
 
-DELIMITER = '|'
-UNIQUE_ID_ATTR = 'UNIQUE_KEY'
+DELIMITER = "|"
+UNIQUE_ID_ATTR = "UNIQUE_KEY"
 
 
 class FileMixin(object):
@@ -26,7 +26,6 @@ class PropertyMixin(object):
 
 
 class CONCEPT:
-
     class INVESTIGATOR(PropertyMixin):
         NAME = None
         INSTITUTION = None
@@ -52,6 +51,7 @@ class CONCEPT:
 
         class PERSON2(PropertyMixin):
             pass
+
         RELATION_FROM_1_TO_2 = None
 
     class PARTICIPANT(PropertyMixin):
@@ -168,16 +168,18 @@ def compile_schema():
 
     property_path = []
     property_paths = set()
-    _set_cls_attrs(CONCEPT, None, property_path, property_paths,
-                   include_root=False)
+    _set_cls_attrs(
+        CONCEPT, None, property_path, property_paths, include_root=False
+    )
     return property_paths
 
 
 str_to_CONCEPT = {}
 
 
-def _set_cls_attrs(node, prev_node, property_path, property_paths,
-                   include_root=False):
+def _set_cls_attrs(
+    node, prev_node, property_path, property_paths, include_root=False
+):
     """
     Recursive method to traverse a class hierarchy and set class attributes
     equal to a string which represents a path in the hierarchy to reach the
@@ -204,15 +206,21 @@ def _set_cls_attrs(node, prev_node, property_path, property_paths,
         for attr_name, value in obj_attrs_to_dict(node).items():
             # Recurse
             if callable(value):
-                _set_cls_attrs(value, node,
-                               property_path,
-                               property_paths,
-                               include_root=include_root)
+                _set_cls_attrs(
+                    value,
+                    node,
+                    property_path,
+                    property_paths,
+                    include_root=include_root,
+                )
             else:
-                _set_cls_attrs(attr_name, node,
-                               property_path,
-                               property_paths,
-                               include_root=include_root)
+                _set_cls_attrs(
+                    attr_name,
+                    node,
+                    property_path,
+                    property_paths,
+                    include_root=include_root,
+                )
     # Process leaf nodes
     else:
         # Don't include root in property path
@@ -226,7 +234,7 @@ def _set_cls_attrs(node, prev_node, property_path, property_paths,
         property_path_str = DELIMITER.join(property_path)
         # Set attribute on class to equal the property path string OR
         # The concept name path string if the attribute is _CONCEPT_NAME
-        if node == '_CONCEPT_NAME':
+        if node == "_CONCEPT_NAME":
             setattr(prev_node, node, concept_name_str)
             str_to_CONCEPT[concept_name_str] = prev_node
         else:
@@ -264,7 +272,7 @@ concept_set = {
     CONCEPT.BIOSPECIMEN_GENOMIC_FILE,
     CONCEPT.BIOSPECIMEN_DIAGNOSIS,
     CONCEPT.READ_GROUP_GENOMIC_FILE,
-    CONCEPT.SEQUENCING_GENOMIC_FILE
+    CONCEPT.SEQUENCING_GENOMIC_FILE,
 }
 
 
@@ -297,76 +305,65 @@ def _create_unique_key_composition():
     # Default unique keys
     identifiers = {}
     for concept in concept_set:
-        identifiers[concept._CONCEPT_NAME] = {'required': [concept.ID]}
+        identifiers[concept._CONCEPT_NAME] = {"required": [concept.ID]}
 
     # Compound unique keys
     identifiers[CONCEPT.BIOSPECIMEN._CONCEPT_NAME] = {
-        'required': [
-            CONCEPT.BIOSPECIMEN_GROUP.ID,
-            CONCEPT.BIOSPECIMEN.ID
-        ]
+        "required": [CONCEPT.BIOSPECIMEN_GROUP.ID, CONCEPT.BIOSPECIMEN.ID]
     }
     identifiers[CONCEPT.INVESTIGATOR._CONCEPT_NAME] = {
-        'required': [
+        "required": [
             CONCEPT.INVESTIGATOR.NAME,
-            CONCEPT.INVESTIGATOR.INSTITUTION
+            CONCEPT.INVESTIGATOR.INSTITUTION,
         ]
     }
     identifiers[CONCEPT.DIAGNOSIS._CONCEPT_NAME] = {
-        'required': [
-            CONCEPT.PARTICIPANT.UNIQUE_KEY,
-            CONCEPT.DIAGNOSIS.NAME
-        ],
-        'optional': [CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS]
+        "required": [CONCEPT.PARTICIPANT.UNIQUE_KEY, CONCEPT.DIAGNOSIS.NAME],
+        "optional": [CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS],
     }
     identifiers[CONCEPT.PHENOTYPE._CONCEPT_NAME] = {
-        'required': [
-            CONCEPT.PARTICIPANT.UNIQUE_KEY,
-            CONCEPT.PHENOTYPE.NAME
-        ],
-        'optional': [
+        "required": [CONCEPT.PARTICIPANT.UNIQUE_KEY, CONCEPT.PHENOTYPE.NAME],
+        "optional": [
             CONCEPT.PHENOTYPE.OBSERVED,
-            CONCEPT.PHENOTYPE.EVENT_AGE_DAYS
-        ]
+            CONCEPT.PHENOTYPE.EVENT_AGE_DAYS,
+        ],
     }
     identifiers[CONCEPT.OUTCOME._CONCEPT_NAME] = {
-        'required': [
+        "required": [
             CONCEPT.PARTICIPANT.UNIQUE_KEY,
-            CONCEPT.OUTCOME.VITAL_STATUS
+            CONCEPT.OUTCOME.VITAL_STATUS,
         ],
-        'optional': [
-            CONCEPT.OUTCOME.EVENT_AGE_DAYS
-        ]
+        "optional": [CONCEPT.OUTCOME.EVENT_AGE_DAYS],
     }
     identifiers[CONCEPT.BIOSPECIMEN_GENOMIC_FILE._CONCEPT_NAME] = {
-        'required': [
+        "required": [
             CONCEPT.BIOSPECIMEN.UNIQUE_KEY,
-            CONCEPT.GENOMIC_FILE.UNIQUE_KEY
+            CONCEPT.GENOMIC_FILE.UNIQUE_KEY,
         ]
     }
     identifiers[CONCEPT.BIOSPECIMEN_DIAGNOSIS._CONCEPT_NAME] = {
-        'required': [
+        "required": [
             CONCEPT.BIOSPECIMEN.UNIQUE_KEY,
-            CONCEPT.DIAGNOSIS.UNIQUE_KEY
+            CONCEPT.DIAGNOSIS.UNIQUE_KEY,
         ]
     }
     identifiers[CONCEPT.READ_GROUP_GENOMIC_FILE._CONCEPT_NAME] = {
-        'required': [
+        "required": [
             CONCEPT.READ_GROUP.UNIQUE_KEY,
-            CONCEPT.GENOMIC_FILE.UNIQUE_KEY
+            CONCEPT.GENOMIC_FILE.UNIQUE_KEY,
         ]
     }
     identifiers[CONCEPT.SEQUENCING_GENOMIC_FILE._CONCEPT_NAME] = {
-        'required': [
+        "required": [
             CONCEPT.SEQUENCING.UNIQUE_KEY,
-            CONCEPT.GENOMIC_FILE.UNIQUE_KEY
+            CONCEPT.GENOMIC_FILE.UNIQUE_KEY,
         ]
     }
     identifiers[CONCEPT.FAMILY_RELATIONSHIP._CONCEPT_NAME] = {
-        'required': [
+        "required": [
             CONCEPT.FAMILY_RELATIONSHIP.PERSON1.UNIQUE_KEY,
             CONCEPT.FAMILY_RELATIONSHIP.RELATION_FROM_1_TO_2,
-            CONCEPT.FAMILY_RELATIONSHIP.PERSON2.UNIQUE_KEY
+            CONCEPT.FAMILY_RELATIONSHIP.PERSON2.UNIQUE_KEY,
         ]
     }
     return identifiers

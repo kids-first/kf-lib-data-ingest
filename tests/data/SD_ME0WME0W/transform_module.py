@@ -16,18 +16,16 @@ from kf_lib_data_ingest.config import DEFAULT_KEY
 
 
 def transform_function(mapped_df_dict):
-    dfs = {
-        os.path.basename(fp): df
-        for fp, df in
-        mapped_df_dict.items()
-    }
+    dfs = {os.path.basename(fp): df for fp, df in mapped_df_dict.items()}
 
-    clinical_df = dfs['clinical.py']
-    family_and_phenotype_df = dfs['family_and_phenotype.py']
+    clinical_df = dfs["clinical.py"]
+    family_and_phenotype_df = dfs["family_and_phenotype.py"]
 
-    merged = outer_merge(clinical_df,
-                         family_and_phenotype_df,
-                         on=CONCEPT.BIOSPECIMEN.ID,
-                         with_merge_detail_dfs=False)
+    merged = outer_merge(
+        clinical_df,
+        family_and_phenotype_df,
+        on=CONCEPT.BIOSPECIMEN.ID,
+        with_merge_detail_dfs=False,
+    )
 
     return {DEFAULT_KEY: merged}

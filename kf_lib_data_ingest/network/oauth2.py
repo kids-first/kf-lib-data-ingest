@@ -33,44 +33,57 @@ def get_service_token(provider_domain, audience, client_id, client_secret):
     token = None
     if not (client_id and client_secret):
         logger.error(
-            'Client ID and secret are required to fetch an access token!')
+            "Client ID and secret are required to fetch an access token!"
+        )
         return token
 
     body = {
-        'audience': audience,
-        'grant_type': 'client_credentials',
-        'client_id': client_id,
-        'client_secret': client_secret
+        "audience": audience,
+        "grant_type": "client_credentials",
+        "client_id": client_id,
+        "client_secret": client_secret,
     }
-    oauth_token_url = f'https://{provider_domain}/oauth/token'
-    logging.info(f'Fetching token from {oauth_token_url} to access '
-                 f'{audience} resources')
+    oauth_token_url = f"https://{provider_domain}/oauth/token"
+    logging.info(
+        f"Fetching token from {oauth_token_url} to access "
+        f"{audience} resources"
+    )
 
     response = utils.RetrySession(connect=1).post(oauth_token_url, json=body)
 
     if response.status_code != 200:
         logger.error(
-            f'Could not fetch access token from {oauth_token_url}! '
-            f'Caused by {response.text}, status_code: {response.status_code}')
+            f"Could not fetch access token from {oauth_token_url}! "
+            f"Caused by {response.text}, status_code: {response.status_code}"
+        )
 
         return token
 
     resp_body = response.json()
 
-    token = resp_body.pop('access_token', None)
+    token = resp_body.pop("access_token", None)
 
     if not token:
-        logger.error(f'Unexpected response content from {oauth_token_url}, '
-                     f'status_code: {response.status_code}')
+        logger.error(
+            f"Unexpected response content from {oauth_token_url}, "
+            f"status_code: {response.status_code}"
+        )
         return
 
-    logger.info(f'Successfully fetched token,\n{pformat(resp_body)}')
+    logger.info(f"Successfully fetched token,\n{pformat(resp_body)}")
 
     return token
 
 
-def get_file(url, dest_obj, provider_domain=None, audience=None,
-             client_id=None, client_secret=None, **kwargs):
+def get_file(
+    url,
+    dest_obj,
+    provider_domain=None,
+    audience=None,
+    client_id=None,
+    client_secret=None,
+    **kwargs,
+):
     """
     Get an OAuth2 protected file at URL, `url`. Forward `kwargs` to
     kf_lib_data_ingest.network.utils.http_get_file
@@ -90,10 +103,9 @@ def get_file(url, dest_obj, provider_domain=None, audience=None,
     :returns response: the requests.Response object
     """
     # Get access token to request resource
-    token = get_service_token(provider_domain,
-                              audience,
-                              client_id,
-                              client_secret)
+    token = get_service_token(
+        provider_domain, audience, client_id, client_secret
+    )
 
     # Something went wrong with getting token
     # Error messages already logged in get_service_token, just return None
@@ -101,21 +113,23 @@ def get_file(url, dest_obj, provider_domain=None, audience=None,
         return None
 
     # Send request with token
-    headers = kwargs.pop('headers', {})
-    headers.update({'Authorization': f'Bearer {token}'})
-    kwargs['headers'] = headers
+    headers = kwargs.pop("headers", {})
+    headers.update({"Authorization": f"Bearer {token}"})
+    kwargs["headers"] = headers
 
     # Force HTTPS for security
-    if not url.lower().startswith('https://'):
-        url = 'https://' + url.split('://', 1)[1]
+    if not url.lower().startswith("https://"):
+        url = "https://" + url.split("://", 1)[1]
 
     response = utils.http_get_file(url, dest_obj, **kwargs)
 
     if response.status_code == 200:
-        logger.info('Successfully authenticated and fetched protected file')
+        logger.info("Successfully authenticated and fetched protected file")
         return response
     else:
-        logger.error(f'Could not get {url}! Caused by {response.text}, '
-                     f'status_code: {response.status_code}')
+        logger.error(
+            f"Could not get {url}! Caused by {response.text}, "
+            f"status_code: {response.status_code}"
+        )
 
     return response
