@@ -4,6 +4,7 @@ import types
 
 __UNNAMED_OBJECT = "unnamed object of type"
 __ALL_SIGNIFIER = "all items in "
+__bad_val = None
 
 
 # This function supports finding the _name_ of the first argument passed to
@@ -175,13 +176,15 @@ def all_safe_type_check(val_list, *safe_types):
     """
     Like safe_type_check but for multiple values in a list.
     """
+    global __bad_val
     for val in val_list:
         if not safe_type_check(val, *safe_types):
+            __bad_val = val
             return False
     return True
 
 
-def _raise_error(safe_types, is_container=False):
+def _raise_error(safe_types, bad_val, is_container=False):
     """
     Raise a fancy error message that contains details like
     where the assert request happened and what was being tested.
@@ -214,12 +217,20 @@ def _raise_error(safe_types, is_container=False):
         t.__name__ if hasattr(t, "__name__") else t for t in safe_types
     ]
 
+    bad_type = type(bad_val).__name__
     if is_container:
         name = __ALL_SIGNIFIER + name
+        bad_val = f"[...{repr(bad_val)}...]"
 
     err = TypeError(
-        "{}:{}:{} requires {} to be one of these types: {}".format(
-            caller.filename, caller.lineno, caller.function, name, type_names
+        "{}:{}:{} requires {} (val={}, type={}) to be one of these types: {}".format(
+            caller.filename,
+            caller.lineno,
+            caller.function,
+            name,
+            bad_val,
+            bad_type,
+            type_names,
         )
     )
     try:  # Python before 3.7 doesn't let you create traceback objects
@@ -246,7 +257,7 @@ def assert_safe_type(val, *safe_types):
     """
     assert safe_types
     if not safe_type_check(val, *safe_types):
-        _raise_error(safe_types)
+        _raise_error(safe_types, val)
 
 
 def assert_all_safe_type(val_list, *safe_types):
@@ -265,4 +276,4 @@ def assert_all_safe_type(val_list, *safe_types):
     """
     assert safe_types
     if not all_safe_type_check(val_list, *safe_types):
-        _raise_error(safe_types, is_container=True)
+        _raise_error(safe_types, __bad_val, is_container=True)

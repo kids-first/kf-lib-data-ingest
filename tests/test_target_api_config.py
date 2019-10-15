@@ -215,7 +215,7 @@ def test_properties(kids_first_config):
     # Test
     with pytest.raises(TypeError) as e:
         kids_first_config._validate_target_concept_attr_mappings()
-    assert "requires all items in props_dict.keys() to be" in str(e.value)
+    assert "requires all items in props_dict.keys()" in str(e.value)
     properties.pop(invalid_key)
 
     # Not a str or tuple value in properties dict
@@ -252,7 +252,7 @@ def test_endpoints(kids_first_config):
     # Test
     with pytest.raises(TypeError) as e:
         kids_first_config._validate_endpoints()
-    assert "requires all items in endpoints to be" in str(e.value)
+    assert "requires all items in endpoints" in str(e.value)
 
 
 def test_custom_validation(kids_first_config):
@@ -297,9 +297,7 @@ def test_relationships_types_and_values(kids_first_config):
     relationships[parent_concept] = "bar"
     with pytest.raises(TypeError) as e:
         kids_first_config._validate_relationships()
-    assert ("requires all items in relationships.values() to be") in str(
-        e.value
-    )
+    assert ("requires all items in relationships.values()") in str(e.value)
     # Reset
     relationships[parent_concept] = _saved
 
