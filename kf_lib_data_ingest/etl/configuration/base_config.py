@@ -1,14 +1,8 @@
 import os
 import jsonschema
-from abc import (
-    ABC,
-    abstractmethod
-)
+from abc import ABC, abstractmethod
 
-from kf_lib_data_ingest.common.misc import (
-    import_module_from_file,
-    read_yaml
-)
+from kf_lib_data_ingest.common.misc import import_module_from_file, read_yaml
 
 
 class ConfigValidationError(Exception):
@@ -16,17 +10,16 @@ class ConfigValidationError(Exception):
 
 
 class AbstractConfig(ABC):
-
     def __init__(self, filepath, **kwargs):
         self.config_filepath = filepath
         if not os.path.isfile(filepath):
-            raise FileNotFoundError('File {} not found'.format(filepath))
+            raise FileNotFoundError("File {} not found".format(filepath))
         self.contents = self._read_file(filepath)
         try:
             self._validate(**kwargs)
         except Exception as e:
             raise ConfigValidationError(
-                f'{self.config_filepath} failed validation'
+                f"{self.config_filepath} failed validation"
             ) from e
 
     def __getattr__(self, attr):
@@ -51,7 +44,6 @@ class AbstractConfig(ABC):
 
 
 class YamlConfig(AbstractConfig):
-
     def _read_file(self, filepath):
         return read_yaml(filepath)
 
@@ -61,13 +53,12 @@ class YamlConfig(AbstractConfig):
 
 
 class PyModuleConfig(AbstractConfig):
-
     def _read_file(self, filepath):
         try:
             return import_module_from_file(filepath)
         except SyntaxError as e:
             raise ConfigValidationError(
-                f'{self.config_filepath} not a valid Python Module'
+                f"{self.config_filepath} not a valid Python Module"
             ) from e
 
     def _validate(self, **kwargs):

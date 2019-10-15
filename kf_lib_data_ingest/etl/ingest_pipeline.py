@@ -11,12 +11,9 @@ import kf_lib_data_ingest.etl.stage_analyses as stage_analyses
 from kf_lib_data_ingest.common.concept_schema import UNIQUE_ID_ATTR
 from kf_lib_data_ingest.common.misc import timestamp
 from kf_lib_data_ingest.common.type_safety import assert_safe_type
-from kf_lib_data_ingest.config import (
-    DEFAULT_TARGET_URL,
-    VERSION
-)
+from kf_lib_data_ingest.config import DEFAULT_TARGET_URL, VERSION
 from kf_lib_data_ingest.etl.configuration.ingest_package_config import (
-    IngestPackageConfig
+    IngestPackageConfig,
 )
 from kf_lib_data_ingest.etl.configuration.log import setup_logger
 from kf_lib_data_ingest.etl.extract.extract import ExtractStage
@@ -25,11 +22,7 @@ from kf_lib_data_ingest.etl.transform.auto import AutoTransformStage
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
 from kf_lib_data_ingest.etl.transform.transform import TransformStage
 
-CODE_TO_STAGE_MAP = {
-    'e': ExtractStage,
-    't': TransformStage,
-    'l': LoadStage
-}
+CODE_TO_STAGE_MAP = {"e": ExtractStage, "t": TransformStage, "l": LoadStage}
 
 
 def _valid_stages_to_run_strs():
@@ -41,24 +34,30 @@ def _valid_stages_to_run_strs():
     for i in range(len(DEFAULT_STAGES_TO_RUN_STR)):
         s = DEFAULT_STAGES_TO_RUN_STR[i:]
         for j in range(len(s)):
-            valid_run_strs.append(s[0:j+1])
+            valid_run_strs.append(s[0 : j + 1])
     return valid_run_strs
 
 
 # Char sequence representing the full ingest pipeline: e.g. 'etl'
-DEFAULT_STAGES_TO_RUN_STR = ''.join(list(CODE_TO_STAGE_MAP.keys()))
+DEFAULT_STAGES_TO_RUN_STR = "".join(list(CODE_TO_STAGE_MAP.keys()))
 VALID_STAGES_TO_RUN_STRS = _valid_stages_to_run_strs()
 
 
 class DataIngestPipeline(object):
-
     def __init__(
-        self, ingest_package_config_path, target_api_config_path,
-        auth_configs=None, auto_transform=False, use_async=False,
-        target_url=DEFAULT_TARGET_URL, log_level_name=None, log_dir=None,
-        overwrite_log=None, dry_run=False,
+        self,
+        ingest_package_config_path,
+        target_api_config_path,
+        auth_configs=None,
+        auto_transform=False,
+        use_async=False,
+        target_url=DEFAULT_TARGET_URL,
+        log_level_name=None,
+        log_dir=None,
+        overwrite_log=None,
+        dry_run=False,
         stages_to_run_str=DEFAULT_STAGES_TO_RUN_STR,
-        resume_from=None
+        resume_from=None,
     ):
         """
         Setup data ingest pipeline. Create the config object and setup logging
@@ -106,7 +105,7 @@ class DataIngestPipeline(object):
         self.ingest_config_dir = os.path.dirname(
             self.data_ingest_config.config_filepath
         )
-        self.ingest_output_dir = os.path.join(self.ingest_config_dir, 'output')
+        self.ingest_output_dir = os.path.join(self.ingest_config_dir, "output")
 
         self.target_api_config_path = target_api_config_path
         self.auth_configs = auth_configs
@@ -119,23 +118,25 @@ class DataIngestPipeline(object):
 
         # Get log params from ingest_package_config
         log_dir = log_dir or self.data_ingest_config.log_dir
-        log_kwargs = {param: getattr(self.data_ingest_config, param)
-                      for param in ['overwrite_log', 'log_level']}
+        log_kwargs = {
+            param: getattr(self.data_ingest_config, param)
+            for param in ["overwrite_log", "log_level"]
+        }
 
         if overwrite_log is not None:
-            log_kwargs['overwrite_log'] = overwrite_log
+            log_kwargs["overwrite_log"] = overwrite_log
 
         # Apply any log parameter overrides
         log_level = logging._nameToLevel.get(str(log_level_name).upper())
         if log_level:
-            log_kwargs['log_level'] = log_level
+            log_kwargs["log_level"] = log_level
 
         # Setup logger
         self.log_file_path = setup_logger(log_dir, **log_kwargs)
         self.logger = logging.getLogger(type(self).__name__)
 
         head, tail = os.path.split(self.log_file_path)
-        self.counts_file_path = os.path.join(head, 'counts_for_' + tail)
+        self.counts_file_path = os.path.join(head, "counts_for_" + tail)
 
         # Remove the previous counts file. This isn't important. I just don't
         # want the previous run's file sitting around until the new one gets
@@ -148,15 +149,13 @@ class DataIngestPipeline(object):
         args, _, _, values = inspect.getargvalues(frame)
         kwargs = {arg: values[arg] for arg in args[2:]}
         # Don't log anything that might have secrets!
-        kwargs.pop('auth_configs', None)
+        kwargs.pop("auth_configs", None)
 
         # Log ingest package dir, ingest lib version, and commit hash
-        kwargs['ingest_package_dir'] = self.ingest_config_dir
-        kwargs['version'] = VERSION
+        kwargs["ingest_package_dir"] = self.ingest_config_dir
+        kwargs["version"] = VERSION
 
-        self.logger.info(
-            f'-- Ingest Params --\n{pformat(kwargs)}'
-        )
+        self.logger.info(f"-- Ingest Params --\n{pformat(kwargs)}")
 
     def _validate_stages_to_run_str(self, stages_to_run_str):
         """
@@ -175,7 +174,7 @@ class DataIngestPipeline(object):
         """
         assert stages_to_run_str in set(VALID_STAGES_TO_RUN_STRS), (
             f'Invalid value for stages to run option: "{stages_to_run_str}"! '
-            f'Must be one of the valid strings: {VALID_STAGES_TO_RUN_STRS} '
+            f"Must be one of the valid strings: {VALID_STAGES_TO_RUN_STRS} "
         )
 
     def _iterate_stages(self):
@@ -184,7 +183,7 @@ class DataIngestPipeline(object):
         yield ExtractStage(
             self.ingest_output_dir,
             self.data_ingest_config.extract_config_dir,
-            self.auth_configs
+            self.auth_configs,
         )
 
         # Transform stage #####################################################
@@ -199,15 +198,16 @@ class DataIngestPipeline(object):
                 self.ingest_config_dir,
                 os.path.relpath(
                     self.data_ingest_config.transform_function_path
-                )
+                ),
             )
 
         if not transform_fp:
             # ** Temporary - until auto transform is further developed **
             raise FileNotFoundError(
-                'Transform module file has not been created yet! '
-                'You must define a transform function in order for ingest '
-                'to continue.')
+                "Transform module file has not been created yet! "
+                "You must define a transform function in order for ingest "
+                "to continue."
+            )
             #
             # yield AutoTransformStage(
             #     self.target_api_config_path, self.target_url,
@@ -215,18 +215,23 @@ class DataIngestPipeline(object):
             # )
         else:
             yield GuidedTransformStage(
-                transform_fp, self.target_api_config_path, self.target_url,
-                self.ingest_output_dir
+                transform_fp,
+                self.target_api_config_path,
+                self.target_url,
+                self.ingest_output_dir,
             )
 
         # Load stage ##########################################################
 
         yield LoadStage(
-            self.target_api_config_path, self.target_url,
+            self.target_api_config_path,
+            self.target_url,
             self.data_ingest_config.target_service_entities,
             self.data_ingest_config.study,
-            uid_cache_dir=self.ingest_output_dir, use_async=self.use_async,
-            dry_run=self.dry_run, resume_from=self.resume_from
+            uid_cache_dir=self.ingest_output_dir,
+            use_async=self.use_async,
+            dry_run=self.dry_run,
+            resume_from=self.resume_from,
         )
 
     def run(self):
@@ -234,7 +239,7 @@ class DataIngestPipeline(object):
         Entry point for data ingestion. Run ingestion in the top level
         exception handler so that exceptions are logged.
         """
-        self.logger.info('BEGIN data ingestion.')
+        self.logger.info("BEGIN data ingestion.")
         self.stages = {}
         all_passed = True
         all_messages = []
@@ -269,8 +274,8 @@ class DataIngestPipeline(object):
                 # Load cached output and concept counts
                 else:
                     self.logger.info(
-                        'Loading previously cached output and concept counts '
-                        f'from {type(stage).__name__}'
+                        "Loading previously cached output and concept counts "
+                        f"from {type(stage).__name__}"
                     )
                     output = stage.read_output()
                     stage.read_concept_counts()
@@ -282,34 +287,34 @@ class DataIngestPipeline(object):
 
         except Exception as e:
             self.logger.exception(str(e))
-            self.logger.info('Exiting.')
+            self.logger.info("Exiting.")
             sys.exit(1)
 
         # Log the end of the run
-        self.logger.info('END data ingestion')
+        self.logger.info("END data ingestion")
         return all_passed
 
     def _log_count_results(self, all_passed, messages):
         if all_passed:
-            summary = '✅ Count Analysis Passed!\n'
+            summary = "✅ Count Analysis Passed!\n"
         else:
-            summary = '❌ Count Analysis Failed!\n'
+            summary = "❌ Count Analysis Failed!\n"
 
-        self.logger.info(summary + f'See {self.counts_file_path} for details')
+        self.logger.info(summary + f"See {self.counts_file_path} for details")
 
         summary += (
-            'Ingest package: '
-            f'{self.data_ingest_config.config_filepath}\n'
-            f'Completed at: {timestamp()}'
+            "Ingest package: "
+            f"{self.data_ingest_config.config_filepath}\n"
+            f"Completed at: {timestamp()}"
         )
         header = [
-            '======================\n'
-            'COUNT ANALYSIS RESULTS\n'
-            '======================',
-            summary
+            "======================\n"
+            "COUNT ANALYSIS RESULTS\n"
+            "======================",
+            summary,
         ]
-        doc = '\n\n'.join(header + messages)
-        with open(self.counts_file_path, 'w') as cfp:
+        doc = "\n\n".join(header + messages)
+        with open(self.counts_file_path, "w") as cfp:
             cfp.write(doc)
         self.logger.debug(doc)
 
@@ -320,14 +325,14 @@ class DataIngestPipeline(object):
         also whether any values were lost between Extract and Transform.
         """
         stage_name = stage.stage_type.__name__
-        stage.logger.info('Begin Basic Stage Output Validation')
-        discovery_sources = stage.concept_discovery_dict.get('sources')
+        stage.logger.info("Begin Basic Stage Output Validation")
+        discovery_sources = stage.concept_discovery_dict.get("sources")
 
-        all_messages = [stage_name + '\n' + '='*len(stage_name)]
+        all_messages = [stage_name + "\n" + "=" * len(stage_name)]
 
         # Missing data
         if not discovery_sources:
-            stage.logger.info('❌ Discovery Data Sources Not Found')
+            stage.logger.info("❌ Discovery Data Sources Not Found")
             return False, all_messages
 
         passed_all = True
@@ -344,15 +349,16 @@ class DataIngestPipeline(object):
         # Extract and Transform
         if stage.stage_type == TransformStage:
             extract_disc = self.stages[ExtractStage].concept_discovery_dict
-            if extract_disc and extract_disc.get('sources'):
+            if extract_disc and extract_disc.get("sources"):
                 passed, messages = stage_analyses.compare_counts(
                     ExtractStage.__name__,
-                    extract_disc['sources'],
+                    extract_disc["sources"],
                     TransformStage.__name__,
                     {
-                        k: v for k, v in discovery_sources.items()
+                        k: v
+                        for k, v in discovery_sources.items()
                         if UNIQUE_ID_ATTR not in k
-                    }
+                    },
                 )
                 passed_all = passed_all and passed
                 all_messages.extend(messages)
@@ -360,9 +366,9 @@ class DataIngestPipeline(object):
                 # Missing data
                 passed_all = False
                 stage.logger.info(
-                    '❌ No ExtractStage Discovery Data Sources To Compare'
+                    "❌ No ExtractStage Discovery Data Sources To Compare"
                 )
-        stage.logger.info('End Basic Stage Output Validation')
+        stage.logger.info("End Basic Stage Output Validation")
 
         return passed_all, all_messages
 
@@ -378,17 +384,20 @@ class DataIngestPipeline(object):
 
         :returns boolean indiciating whether all tests passed or failed
         """
-        user_defined_test_dir = os.path.join(self.ingest_config_dir,
-                                             'tests')
+        user_defined_test_dir = os.path.join(self.ingest_config_dir, "tests")
         # No user defined tests exist
         if not os.path.isdir(user_defined_test_dir):
-            self.logger.info('No user defined unit tests exist for ingest '
-                             f'package: {self.ingest_config_dir}')
+            self.logger.info(
+                "No user defined unit tests exist for ingest "
+                f"package: {self.ingest_config_dir}"
+            )
             return True
 
         # Execute user defined unit tests
-        self.logger.info('Running user defined data validation tests '
-                         f'{user_defined_test_dir} ...')
+        self.logger.info(
+            "Running user defined data validation tests "
+            f"{user_defined_test_dir} ..."
+        )
 
         exit_code = pytest.main([user_defined_test_dir])
 
@@ -398,14 +407,17 @@ class DataIngestPipeline(object):
         passed = exit_code in {0, 5}
 
         if exit_code == 0:
-            self.logger.info(f'✅ User defined data validation tests passed')
+            self.logger.info(f"✅ User defined data validation tests passed")
         elif exit_code == 5:
             self.logger.warning(
-                f'⚠️ pytest did not collect any user defined tests, '
-                'even though user tests directory exists: '
-                f'{user_defined_test_dir}')
+                f"⚠️ pytest did not collect any user defined tests, "
+                "even though user tests directory exists: "
+                f"{user_defined_test_dir}"
+            )
         else:
-            self.logger.info(f'❌ User defined data validation tests failed '
-                             f'with exit_code {exit_code}')
+            self.logger.info(
+                f"❌ User defined data validation tests failed "
+                f"with exit_code {exit_code}"
+            )
 
         return passed

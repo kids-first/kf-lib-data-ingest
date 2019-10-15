@@ -17,7 +17,7 @@ from pandas import DataFrame
 from kf_lib_data_ingest.common.pandas_utils import (
     Split,
     get_col,
-    safe_pandas_replace
+    safe_pandas_replace,
 )
 from kf_lib_data_ingest.common.type_safety import assert_safe_type, function
 
@@ -87,9 +87,7 @@ def value_map(m, in_col, out_col):
                 get_col(df, in_col), {m: lambda x: x}, True
             )
         else:  # dict
-            new_df[out_col] = safe_pandas_replace(
-                get_col(df, in_col), m, True
-            )
+            new_df[out_col] = safe_pandas_replace(get_col(df, in_col), m, True)
         assert new_df.index.equals(df.index)
         return new_df
 
@@ -132,6 +130,7 @@ def constant_map(m, out_col):
         populate
     :returns: A function that applies the specified m operation
     """
+
     def constant_map_func(df):
         new_df = DataFrame(index=df.index.copy())
         new_df[out_col] = [m] * len(df)
@@ -197,18 +196,15 @@ def melt_map(var_name, map_for_vars, value_name, map_for_values):
     def melt_map_func(df):
         new_df = DataFrame()
         for k, v in map_for_vars.items():
-            col_melt_df = DataFrame(
-                {v: get_col(df, k)}
-            ).melt(
-                var_name=var_name,
-                value_name=value_name
+            col_melt_df = DataFrame({v: get_col(df, k)}).melt(
+                var_name=var_name, value_name=value_name
             )
             col_melt_df.index = df.index.copy()
             new_df = new_df.append(col_melt_df, sort=False)
 
-        new_df[value_name] = value_map(
-            map_for_values, value_name, value_name
-        )(new_df)
+        new_df[value_name] = value_map(map_for_values, value_name, value_name)(
+            new_df
+        )
         return new_df
 
     return melt_map_func

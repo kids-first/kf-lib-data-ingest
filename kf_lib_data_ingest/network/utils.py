@@ -15,7 +15,7 @@ from requests.packages.urllib3.util.retry import Retry
 from kf_lib_data_ingest.common.misc import (
     read_json,
     upper_camel_case,
-    write_json
+    write_json,
 )
 
 logger = logging.getLogger(__name__)
@@ -34,34 +34,36 @@ def http_get_file(url, dest_obj, **kwargs):
     :returns response: requests.Response object
     """
 
-    kwargs['stream'] = True
+    kwargs["stream"] = True
     response = RetrySession(connect=1).get(url, **kwargs)
 
     if response.status_code == 200:
         # Get filename from Content-Disposition header
-        content_disposition = response.headers.get('Content-Disposition', '')
+        content_disposition = response.headers.get("Content-Disposition", "")
         _, cdisp_params = cgi.parse_header(content_disposition)
-        filename = cdisp_params.get('filename*')
+        filename = cdisp_params.get("filename*")
         # RFC 5987 ext-parameter is actually more complicated than this,
         # but this should get us 90% there, and the rfc6266 python lib is
         # broken after PEP 479. *sigh* - Avi K
-        if filename and filename.lower().startswith('utf-8'):
+        if filename and filename.lower().startswith("utf-8"):
             filename = urllib.parse.unquote(filename.split("'", 2)[2])
         else:
-            filename = cdisp_params.get('filename')
+            filename = cdisp_params.get("filename")
 
-        success_msg = f'Successfully fetched {url}'
+        success_msg = f"Successfully fetched {url}"
         if filename:
             dest_obj.original_name = filename
-            success_msg += f' with original file name {filename}'
+            success_msg += f" with original file name {filename}"
         else:
             # Header did not provide filename
-            logging.warning(f'{url} returned unhelpful or missing '
-                            'Content-Disposition header '
-                            f'{content_disposition}. '
-                            'HTTP(S) file responses should include a '
-                            'Content-Disposition header specifying '
-                            'filename.')
+            logging.warning(
+                f"{url} returned unhelpful or missing "
+                "Content-Disposition header "
+                f"{content_disposition}. "
+                "HTTP(S) file responses should include a "
+                "Content-Disposition header specifying "
+                "filename."
+            )
 
         for chunk in response.iter_content(chunk_size=8192):
             if chunk:
@@ -73,8 +75,7 @@ def http_get_file(url, dest_obj, **kwargs):
         logger.info(success_msg)
 
     else:
-        logger.error(f'Could not fetch {url}. Caused by '
-                     f'{response.text}')
+        logger.error(f"Could not fetch {url}. Caused by " f"{response.text}")
 
     return response
 
@@ -94,12 +95,18 @@ class RetrySession(requests.Session):
     :param backoff_factor: affects sleep time between retries
     :param status_forcelist: list of HTTP status codes that force retry
     """
+
     def __init__(
-        self, total=10, read=10, connect=10, status=10, backoff_factor=5,
-        status_forcelist=(500, 502, 503, 504)
+        self,
+        total=10,
+        read=10,
+        connect=10,
+        status=10,
+        backoff_factor=5,
+        status_forcelist=(500, 502, 503, 504),
     ):
         self.logger = logging.getLogger(type(self).__name__)
-        total = int(os.environ.get('MAX_RETRIES_ON_CONN_ERROR', total))
+        total = int(os.environ.get("MAX_RETRIES_ON_CONN_ERROR", total))
 
         super().__init__()
 
@@ -109,19 +116,20 @@ class RetrySession(requests.Session):
             connect=connect,
             backoff_factor=backoff_factor,
             status_forcelist=status_forcelist,
-            method_whitelist=False
+            method_whitelist=False,
         )
         adapter = HTTPAdapter(max_retries=retry)
-        self.mount('http://', adapter)
-        self.mount('https://', adapter)
+        self.mount("http://", adapter)
+        self.mount("https://", adapter)
 
     def send(self, req, **kwargs):
         self.logger.debug("Sending request: " + pformat(vars(req)))
         return super().send(req, **kwargs)
 
 
-def get_open_api_v2_schema(url, entity_names,
-                           cached_schema_filepath=None, logger=None):
+def get_open_api_v2_schema(
+    url, entity_names, cached_schema_filepath=None, logger=None
+):
     """
     Get schemas for entities in the target API using {url}/swagger
     endpoint. Will extract parts of the {url}/swagger response to create the
@@ -187,13 +195,14 @@ def get_open_api_v2_schema(url, entity_names,
     """
     output = None
     err = None
-    common_msg = 'Unable to retrieve target schema from target service!'
-    schema_url = f'{url}/swagger'
+    common_msg = "Unable to retrieve target schema from target service!"
+    schema_url = f"{url}/swagger"
 
     # Create default cached_schema filepath
     if not cached_schema_filepath:
-        cached_schema_filepath = os.path.join(os.getcwd(),
-                                              'cached_schema.json')
+        cached_schema_filepath = os.path.join(
+            os.getcwd(), "cached_schema.json"
+        )
 
     # Try to get schemas and version from the target service
     try:
@@ -206,14 +215,14 @@ def get_open_api_v2_schema(url, entity_names,
 
     except ConnectionError as e:
 
-        err = f'{common_msg}\nCaused by {str(e)}'
+        err = f"{common_msg}\nCaused by {str(e)}"
 
     else:
         if response.status_code == 200:
             # API Version
-            version = response.json()['info']['version']
+            version = response.json()["info"]["version"]
             # Schemas
-            defs = response.json()['definitions']
+            defs = response.json()["definitions"]
             schemas = {
                 k: defs[upper_camel_case(k)]
                 for k in entity_names
@@ -221,23 +230,25 @@ def get_open_api_v2_schema(url, entity_names,
             }
             # Make output
             output = {
-                'target_service': url,
-                'definitions': schemas,
-                'version': version
+                "target_service": url,
+                "definitions": schemas,
+                "version": version,
             }
             # Update cache file
             write_json(output, cached_schema_filepath)
         else:
-            err = f'{common_msg}\nCaused by unexpected response(s):'
+            err = f"{common_msg}\nCaused by unexpected response(s):"
             if response.status_code != 200:
-                err += f'\nFrom {schema_url}/swagger:\n{response.text}'
+                err += f"\nFrom {schema_url}/swagger:\n{response.text}"
 
     if err:
         if os.path.isfile(cached_schema_filepath):
             return read_json(cached_schema_filepath)
         else:
-            err += ('\nTried loading from cache '
-                    f'but could not find file: {cached_schema_filepath}')
+            err += (
+                "\nTried loading from cache "
+                f"but could not find file: {cached_schema_filepath}"
+            )
         # Report error
         if logger:
             logger.warning(err)

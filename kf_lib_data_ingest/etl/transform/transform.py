@@ -13,33 +13,38 @@ from kf_lib_data_ingest.common.concept_schema import (
     DELIMITER,
     UNIQUE_ID_ATTR,
     concept_from,
-    is_identifier
+    is_identifier,
 )
-from kf_lib_data_ingest.common.concept_schema import \
-    unique_key_composition as DEFAULT_KEY_COMP
+from kf_lib_data_ingest.common.concept_schema import (
+    unique_key_composition as DEFAULT_KEY_COMP,
+)
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
 from kf_lib_data_ingest.common.misc import (
     convert_to_downcasted_str,
     read_json,
-    write_json
+    write_json,
 )
 from kf_lib_data_ingest.network.utils import get_open_api_v2_schema
 from kf_lib_data_ingest.common.stage import IngestStage
 from kf_lib_data_ingest.common.type_safety import (
     assert_all_safe_type,
-    assert_safe_type
+    assert_safe_type,
 )
 from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
 from kf_lib_data_ingest.etl.configuration.target_api_config import (
-    TargetAPIConfig
+    TargetAPIConfig,
 )
 
-VALUE_DELIMITER = '-'
+VALUE_DELIMITER = "-"
 
 
 class TransformStage(IngestStage):
-    def __init__(self, target_api_config_path,
-                 target_api_url=DEFAULT_TARGET_URL, ingest_output_dir=None):
+    def __init__(
+        self,
+        target_api_config_path,
+        target_api_url=DEFAULT_TARGET_URL,
+        ingest_output_dir=None,
+    ):
 
         super().__init__(ingest_output_dir=ingest_output_dir)
 
@@ -71,12 +76,15 @@ class TransformStage(IngestStage):
         """
         output = {
             os.path.splitext(filename)[0]: read_json(
-                os.path.join(self.stage_cache_dir, filename))
+                os.path.join(self.stage_cache_dir, filename)
+            )
             for filename in os.listdir(self.stage_cache_dir)
-            if filename.endswith('.json')
+            if filename.endswith(".json")
         }
-        self.logger.info(f'Reading {type(self).__name__} output:\n'
-                         f'{pformat(list(output.keys()))}')
+        self.logger.info(
+            f"Reading {type(self).__name__} output:\n"
+            f"{pformat(list(output.keys()))}"
+        )
 
         return output
 
@@ -92,40 +100,42 @@ class TransformStage(IngestStage):
         assert_safe_type(output, dict)
         assert_all_safe_type(output.values(), list)
 
-        tsv_dir = os.path.join(self.stage_cache_dir, 'tsv')
+        tsv_dir = os.path.join(self.stage_cache_dir, "tsv")
         os.makedirs(tsv_dir, exist_ok=True)
 
         paths = []
         for key, data in output.items():
             # JSON output
-            fp = os.path.join(self.stage_cache_dir, key) + '.json'
+            fp = os.path.join(self.stage_cache_dir, key) + ".json"
             paths.append(fp)
             write_json(data, fp)
 
             # TSV output
-            fp = os.path.join(tsv_dir, key) + '.tsv'
+            fp = os.path.join(tsv_dir, key) + ".tsv"
             paths.append(fp)
             flat_data = []
             for target_instance in data:
                 flat_instance = {}
                 for k, v in target_instance.items():
-                    if k == 'properties':
-                        flat_instance.update({k1: v1
-                                              for k1, v1 in v.items()})
-                    elif k == 'links':
+                    if k == "properties":
+                        flat_instance.update({k1: v1 for k1, v1 in v.items()})
+                    elif k == "links":
                         for link_dict in v:
                             flat_instance.update(
-                                {'source:' + k2: v2
-                                 for k2, v2 in link_dict.items()
-                                 if k2 != 'target_concept'}
+                                {
+                                    "source:" + k2: v2
+                                    for k2, v2 in link_dict.items()
+                                    if k2 != "target_concept"
+                                }
                             )
                     else:
                         flat_instance[k] = v
                 flat_data.append(flat_instance)
-            pandas.DataFrame(flat_data).to_csv(fp, sep='\t')
+            pandas.DataFrame(flat_data).to_csv(fp, sep="\t")
 
-        self.logger.info(f'Writing {type(self).__name__} output:\n'
-                         f'{pformat(paths)}')
+        self.logger.info(
+            f"Writing {type(self).__name__} output:\n" f"{pformat(paths)}"
+        )
 
     def _validate_run_parameters(self, data_dict):
         """
@@ -159,8 +169,8 @@ class TransformStage(IngestStage):
 
         if not data_dict:
             raise Exception(
-                f'{self.stage_type.__name__} received no input. '
-                f'Did the previous stage produce anything?'
+                f"{self.stage_type.__name__} received no input. "
+                f"Did the previous stage produce anything?"
             )
 
     def handle_nulls(self, target_instances, target_schema):
@@ -245,41 +255,44 @@ class TransformStage(IngestStage):
         :param target_schema: the target service concept schemas
         :returns target_instances: Updated version of the input
         """
-        version = target_schema.get('version')
-        schemas = target_schema.get('definitions')
-        self.logger.info(f'Do null processing using target schema '
-                         f'{target_schema.get("target_service")}, '
-                         f'version {pformat(version)}')
+        version = target_schema.get("version")
+        schemas = target_schema.get("definitions")
+        self.logger.info(
+            f"Do null processing using target schema "
+            f'{target_schema.get("target_service")}, '
+            f"version {pformat(version)}"
+        )
 
         for target_concept, list_of_instances in target_instances.items():
             # Get schema for target concept
             schema = schemas.get(target_concept)
             if not schema:
                 self.logger.info(
-                    f'Skip handle nulls for {target_concept}. No schema '
-                    'was found.')
+                    f"Skip handle nulls for {target_concept}. No schema "
+                    "was found."
+                )
                 continue
             # Convert nulls
             conversions = dict()
             for i, instance in enumerate(list_of_instances):
-                for attr, value in instance['properties'].items():
+                for attr, value in instance["properties"].items():
                     if value is not None:
                         continue
                     if attr in conversions:
-                        instance['properties'][attr] = conversions[attr]
+                        instance["properties"][attr] = conversions[attr]
                         continue
 
-                    property_def = schema['properties'].get(attr)
+                    property_def = schema["properties"].get(attr)
                     mapped_value = None
                     if not property_def:
                         self.logger.warning(
-                            'No property definition found for '
-                            f'{target_concept}.{attr} in target schema '
-                            'This property may not exist '
-                            'anymore in the target service.'
+                            "No property definition found for "
+                            f"{target_concept}.{attr} in target schema "
+                            "This property may not exist "
+                            "anymore in the target service."
                         )
                     else:
-                        if property_def['type'] == 'string':
+                        if property_def["type"] == "string":
                             mapped_value = constants.COMMON.NOT_REPORTED
                             # Note - the dataservice should tell us if the
                             # format of the string is `date-time`, then we
@@ -289,17 +302,18 @@ class TransformStage(IngestStage):
                             # That's what we should use to determine what null
                             # value to use. For now, we're just using the name
                             # of the attribute
-                            if 'date' in attr:
+                            if "date" in attr:
                                 mapped_value = None
                         else:
                             mapped_value = None
 
                     self.logger.debug(
-                        f'Mapping {target_concept}.{attr} value {value} to '
-                        f'{mapped_value}')
+                        f"Mapping {target_concept}.{attr} value {value} to "
+                        f"{mapped_value}"
+                    )
                     conversions[attr] = mapped_value
 
-                    instance['properties'][attr] = mapped_value
+                    instance["properties"][attr] = mapped_value
 
     def _run(self, data_dict):
         """
@@ -318,13 +332,15 @@ class TransformStage(IngestStage):
         target_api_schema = get_open_api_v2_schema(
             self.target_api_url,
             list(target_instances.keys()),
-            logger=self.logger
+            logger=self.logger,
         )
         if target_api_schema:
             self.handle_nulls(target_instances, target_api_schema)
         else:
-            self.logger.warning('Skipping null processing because no target '
-                                'schema was found')
+            self.logger.warning(
+                "Skipping null processing because no target "
+                "schema was found"
+            )
 
         return target_instances
 
@@ -414,10 +430,10 @@ class TransformStage(IngestStage):
         :returns df_dict: a modified version of the input, with UNIQUE_KEY
         columns added to each DataFrame
         """
-        self.logger.info('Begin unique key creation for standard concepts ...')
+        self.logger.info("Begin unique key creation for standard concepts ...")
         for reference, (df_name, df) in df_dict.items():
             # Insert unique key columns
-            self.logger.info(f'Creating unique keys for {df_name}...')
+            self.logger.info(f"Creating unique keys for {df_name}...")
             df = self._add_unique_key_cols(df, unique_key_composition)
 
             # If no unique key columns are present raise an error.
@@ -428,11 +444,11 @@ class TransformStage(IngestStage):
             is_any_unique_keys = any(is_identifier(col) for col in df.columns)
             if not is_any_unique_keys:
                 raise ValueError(
-                    'No unique keys were created for table! There must '
-                    'be at least 1 unique key column in a table. Zero unique '
-                    'keys in a table means there is no way to identify any '
-                    'concept instances. Source of error is '
-                    f'{reference} : {df_name}'
+                    "No unique keys were created for table! There must "
+                    "be at least 1 unique key column in a table. Zero unique "
+                    "keys in a table means there is no way to identify any "
+                    "concept instances. Source of error is "
+                    f"{reference} : {df_name}"
                 )
 
     def _add_unique_key_cols(self, df, unique_key_composition):
@@ -494,25 +510,30 @@ class TransformStage(IngestStage):
             unique_key_cols = []
             required = set()
             optional = set()
-            self.logger.debug(f'Creating unique key for {concept_name}')
+            self.logger.debug(f"Creating unique key for {concept_name}")
             self._unique_key_cols(
                 concept_name,
-                df, unique_key_composition,
-                unique_key_cols, required, optional
+                df,
+                unique_key_composition,
+                unique_key_cols,
+                required,
+                optional,
             )
 
             # Missing required column needed to make the unique key
-            missing_req_cols = [col for col in required
-                                if col not in df.columns]
+            missing_req_cols = [
+                col for col in required if col not in df.columns
+            ]
             if len(missing_req_cols) > 0:
                 self.logger.debug(
-                    f'Could not create unique key for {concept_name}. '
-                    f'Missing required columns {missing_req_cols} needed to '
-                    'create the key')
+                    f"Could not create unique key for {concept_name}. "
+                    f"Missing required columns {missing_req_cols} needed to "
+                    "create the key"
+                )
                 continue
 
             # Insert unique key column for the concept
-            unique_key_col = f'{concept_name}{DELIMITER}{UNIQUE_ID_ATTR}'
+            unique_key_col = f"{concept_name}{DELIMITER}{UNIQUE_ID_ATTR}"
 
             # Make unique key string out of the individual col values
             # Any required cols must be non-null
@@ -534,7 +555,7 @@ class TransformStage(IngestStage):
                         convert_to_downcasted_str(
                             row[c],
                             replace_na=True,
-                            na=constants.COMMON.NOT_REPORTED
+                            na=constants.COMMON.NOT_REPORTED,
                         )
                     )
 
@@ -543,21 +564,27 @@ class TransformStage(IngestStage):
             df[unique_key_col] = df.apply(
                 lambda row: make_unique_key_value(row), axis=1
             )
-            self.logger.debug(f'Done creating unique key for {concept_name}')
+            self.logger.debug(f"Done creating unique key for {concept_name}")
 
         unique_concepts_found = [
-            col for col in df.columns
-            if col.endswith(UNIQUE_ID_ATTR)
+            col for col in df.columns if col.endswith(UNIQUE_ID_ATTR)
         ]
         self.logger.info(
-            f'Found {len(unique_concepts_found)} standard concepts in '
-            f'table:\n{pformat(unique_concepts_found)}'
+            f"Found {len(unique_concepts_found)} standard concepts in "
+            f"table:\n{pformat(unique_concepts_found)}"
         )
 
         return df
 
-    def _unique_key_cols(self, concept_name, df, unique_key_composition,
-                         unique_key_cols, required_cols, optional_cols):
+    def _unique_key_cols(
+        self,
+        concept_name,
+        df,
+        unique_key_composition,
+        unique_key_cols,
+        required_cols,
+        optional_cols,
+    ):
         """
         Compose the list of column names that are needed to build a unique key
         for a particular concept.
@@ -601,26 +628,26 @@ class TransformStage(IngestStage):
         :param optional_cols: the additional columns that can be
         used in the construction of the unique key if they are present
         """
-        self.logger.debug(f'Composing unique key columns for {concept_name}')
+        self.logger.debug(f"Composing unique key columns for {concept_name}")
         # Get the cols needed to make a unique key for this concept
         key_comp = deepcopy(unique_key_composition.get(concept_name))
 
         # If key cols don't exist for a concept, then we have made a dev
         # error in concept_schema.py
         assert key_comp, (
-            'Unique key composition not defined in concept '
-            f'schema for concept {concept_name}!'
+            "Unique key composition not defined in concept "
+            f"schema for concept {concept_name}!"
         )
 
         # If unique key col for this concept already exists return that
-        unique_key_col = f'{concept_name}{DELIMITER}{UNIQUE_ID_ATTR}'
+        unique_key_col = f"{concept_name}{DELIMITER}{UNIQUE_ID_ATTR}"
         if unique_key_col in df.columns:
             unique_key_cols.append(unique_key_col)
             required_cols.add(unique_key_col)
             return
 
-        required = key_comp.pop('required', [])
-        optional = key_comp.pop('optional', [])
+        required = key_comp.pop("required", [])
+        optional = key_comp.pop("optional", [])
         key_cols = required + optional
 
         # Expand any unique keys into their basic components
@@ -629,8 +656,11 @@ class TransformStage(IngestStage):
                 # The col is a unique key so recurse
                 self._unique_key_cols(
                     concept_from(key_col),
-                    df, unique_key_composition,
-                    unique_key_cols, required_cols, optional_cols
+                    df,
+                    unique_key_composition,
+                    unique_key_cols,
+                    required_cols,
+                    optional_cols,
                 )
             else:
                 # Add to list of cols needed to make unique key
@@ -639,4 +669,4 @@ class TransformStage(IngestStage):
                     required_cols.add(key_col)
                 elif key_col in optional:
                     optional_cols.add(key_col)
-        self.logger.debug(f'Done composing columns for {concept_name}')
+        self.logger.debug(f"Done composing columns for {concept_name}")

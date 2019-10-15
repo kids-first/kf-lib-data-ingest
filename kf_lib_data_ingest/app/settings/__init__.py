@@ -33,7 +33,7 @@ import os
 
 from kf_lib_data_ingest.common.misc import import_module_from_file
 
-APP_MODE_ENV_VAR = 'KF_INGEST_APP_MODE'
+APP_MODE_ENV_VAR = "KF_INGEST_APP_MODE"
 
 
 def load(app_settings_filepath=None):
@@ -50,16 +50,17 @@ def load(app_settings_filepath=None):
     :returns imported settings module
     """
     # App mode of operation
-    app_mode = os.environ.get(APP_MODE_ENV_VAR) or 'development'
+    app_mode = os.environ.get(APP_MODE_ENV_VAR) or "development"
 
     # Load default app settings for the app mode
     if not app_settings_filepath:
-        app_settings_filepath = os.path.join(
-            os.path.dirname(__file__), app_mode) + '.py'
+        app_settings_filepath = (
+            os.path.join(os.path.dirname(__file__), app_mode) + ".py"
+        )
 
     # Import module
     app_settings = import_module_from_file(app_settings_filepath)
-    setattr(app_settings, 'APP_MODE', app_mode)
-    setattr(app_settings, 'FILEPATH', app_settings_filepath)
+    setattr(app_settings, "APP_MODE", app_mode)
+    setattr(app_settings, "FILEPATH", app_settings_filepath)
 
     return app_settings

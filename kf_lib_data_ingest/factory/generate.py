@@ -5,10 +5,7 @@ Module to keep code for generating code or files
 import os
 import shutil
 
-from kf_lib_data_ingest.config import (
-    INGEST_PKG_TEMPLATE_NAME,
-    TEMPLATES_DIR
-)
+from kf_lib_data_ingest.config import INGEST_PKG_TEMPLATE_NAME, TEMPLATES_DIR
 
 
 def new_ingest_pkg(dest_dir=None):
@@ -37,10 +34,12 @@ def new_ingest_pkg(dest_dir=None):
     try:
         shutil.copytree(src_dir, dest_dir)
     except FileExistsError:
-        print(f'Cannot create a new ingest package here: {dest_dir}. '
-              'Directory already exists!')
+        print(
+            f"Cannot create a new ingest package here: {dest_dir}. "
+            "Directory already exists!"
+        )
         return None
 
-    print(f'Created new ingest package at: {dest_dir}')
+    print(f"Created new ingest package at: {dest_dir}")
 
     return dest_dir

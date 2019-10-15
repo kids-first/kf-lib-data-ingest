@@ -12,19 +12,13 @@ import os
 # Use these merge funcs, not pandas.merge
 from kf_lib_data_ingest.common.pandas_utils import (
     outer_merge,
-    merge_wo_duplicates
+    merge_wo_duplicates,
 )
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
 from kf_lib_data_ingest.config import DEFAULT_KEY
 
 
 def transform_function(mapped_df_dict):
-    dfs = {
-        os.path.basename(fp): df
-        for fp, df in
-        mapped_df_dict.items()
-    }
+    dfs = {os.path.basename(fp): df for fp, df in mapped_df_dict.items()}
 
-    return {
-        DEFAULT_KEY: dfs['extract_config.py']
-    }
+    return {DEFAULT_KEY: dfs["extract_config.py"]}

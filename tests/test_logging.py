@@ -9,7 +9,7 @@ from kf_lib_data_ingest.app import cli
 from kf_lib_data_ingest.config import (
     DEFAULT_LOG_FILENAME,
     DEFAULT_LOG_LEVEL,
-    DEFAULT_LOG_OVERWRITE_OPT
+    DEFAULT_LOG_OVERWRITE_OPT,
 )
 from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
 
@@ -23,8 +23,10 @@ def test_defaults(ingest_pipeline):
     log_dir = ingest_pipeline.data_ingest_config.log_dir
     assert log_dir == TEST_LOG_DIR
     assert ingest_pipeline.data_ingest_config.log_level == DEFAULT_LOG_LEVEL
-    assert (ingest_pipeline.data_ingest_config.overwrite_log ==
-            DEFAULT_LOG_OVERWRITE_OPT)
+    assert (
+        ingest_pipeline.data_ingest_config.overwrite_log
+        == DEFAULT_LOG_OVERWRITE_OPT
+    )
 
     # Test that ingest.log was created
     ingest_pipeline.run()
@@ -36,7 +38,7 @@ def test_log_dir(tmpdir):
     """
     Test non-default log dir
     """
-    log_dir = tmpdir.mkdir('my_logs')
+    log_dir = tmpdir.mkdir("my_logs")
     ingest_pipeline = make_ingest_pipeline(log_dir=log_dir.strpath)
 
     # Run and generate logs
@@ -77,7 +79,7 @@ def test_log_level(ingest_pipeline):
     Test that configuration of logging level works
     """
     # Update data ingest config
-    ingest_pipeline.data_ingest_config.contents.log_level = 'warning'
+    ingest_pipeline.data_ingest_config.contents.log_level = "warning"
     ingest_pipeline.data_ingest_config.contents.overwrite_log = True
     ingest_pipeline.data_ingest_config._set_log_params()
 
@@ -85,10 +87,11 @@ def test_log_level(ingest_pipeline):
     ingest_pipeline.run()
 
     # Check log content
-    log_filepath = os.path.join(ingest_pipeline.data_ingest_config.log_dir,
-                                DEFAULT_LOG_FILENAME)
-    with open(log_filepath, 'r') as logfile:
-        _check_log_levels(logfile.read(), {'info', 'debug', 'notset'})
+    log_filepath = os.path.join(
+        ingest_pipeline.data_ingest_config.log_dir, DEFAULT_LOG_FILENAME
+    )
+    with open(log_filepath, "r") as logfile:
+        _check_log_levels(logfile.read(), {"info", "debug", "notset"})
 
 
 def test_cli_log_overrides(caplog):
@@ -97,16 +100,16 @@ def test_cli_log_overrides(caplog):
     """
     # Pytest caplog fixture is set to WARNING by default. Set to DEBUG so
     # we can capture log messages
-    caplog.set_level(logging._nameToLevel.get('DEBUG'))
+    caplog.set_level(logging._nameToLevel.get("DEBUG"))
 
     # Run with no override, log level should be info
     runner = CliRunner()
     runner.invoke(cli.ingest, [])
-    _check_log_levels(caplog.text, {'debug', 'notset'})
+    _check_log_levels(caplog.text, {"debug", "notset"})
 
     # Run with cli option override, log level should be warning
-    runner.invoke(cli.ingest, ['--log_level', 'warning'])
-    _check_log_levels(caplog.text, {'info', 'debug', 'notset'})
+    runner.invoke(cli.ingest, ["--log_level", "warning"])
+    _check_log_levels(caplog.text, {"info", "debug", "notset"})
 
 
 def test_log_exceptions(ingest_pipeline):
@@ -119,30 +122,31 @@ def test_log_exceptions(ingest_pipeline):
     class NewPipeline(DataIngestPipeline):
         # Override iterate method to throw exception
         def _iterate_stages(self):
-            raise Exception('Exception')
+            raise Exception("Exception")
 
     # Create pipeline instance
     p = NewPipeline(
         ingest_pipeline.data_ingest_config.config_filepath,
         ingest_pipeline.target_api_config_path,
-        overwrite_log=True
+        overwrite_log=True,
     )
 
     # Exception is thrown and log should include exception
     with pytest.raises(SystemExit):
         p.run()
-    log_filepath = os.path.join(p.data_ingest_config.log_dir,
-                                DEFAULT_LOG_FILENAME)
-    with open(log_filepath, 'r') as logfile:
+    log_filepath = os.path.join(
+        p.data_ingest_config.log_dir, DEFAULT_LOG_FILENAME
+    )
+    with open(log_filepath, "r") as logfile:
         lines = logfile.readlines()
-        assert 'Exiting' in lines[-1]
-        assert 'Exception: Exception' in lines[-2]
+        assert "Exiting" in lines[-1]
+        assert "Exception: Exception" in lines[-2]
 
 
 def _check_log_levels(log_text, levels):
     """
     Check that no log msg in `log_text` has any of the log levels in `levels`
     """
-    for line in log_text.split('\n'):
-        level = line.split('-')[-1]
+    for line in log_text.split("\n"):
+        level = line.split("-")[-1]
         assert level.lower() not in levels

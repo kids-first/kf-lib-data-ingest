@@ -7,7 +7,7 @@ from kf_lib_data_ingest.common.misc import timestamp
 from kf_lib_data_ingest.config import (
     DEFAULT_LOG_FILENAME,
     DEFAULT_LOG_LEVEL,
-    DEFAULT_LOG_OVERWRITE_OPT
+    DEFAULT_LOG_OVERWRITE_OPT,
 )
 
 VERBOTEN_STRINGS = {
@@ -26,14 +26,17 @@ class NoTokenFormatter(logging.Formatter):
 
 
 DEFAULT_FORMAT = (
-    '%(asctime)s - %(name)s'
-    ' - Thread: %(threadName)s - %(levelname)s - %(message)s'
+    "%(asctime)s - %(name)s"
+    " - Thread: %(threadName)s - %(levelname)s - %(message)s"
 )
 DEFAULT_FORMATTER = NoTokenFormatter(DEFAULT_FORMAT)
 
 
-def setup_logger(log_dir, overwrite_log=DEFAULT_LOG_OVERWRITE_OPT,
-                 log_level=DEFAULT_LOG_LEVEL):
+def setup_logger(
+    log_dir,
+    overwrite_log=DEFAULT_LOG_OVERWRITE_OPT,
+    log_level=DEFAULT_LOG_LEVEL,
+):
     """
     Configure and create the logger
 
@@ -50,13 +53,12 @@ def setup_logger(log_dir, overwrite_log=DEFAULT_LOG_OVERWRITE_OPT,
 
     # Create a new log file named with a timestamp
     if not overwrite_log:
-        filename = 'ingest-{}.log'.format(timestamp())
+        filename = "ingest-{}.log".format(timestamp())
 
     log_filepath = os.path.join(log_dir, filename)
 
     # Setup rotating file handler
-    fileHandler = logging.handlers.RotatingFileHandler(log_filepath,
-                                                       mode='w')
+    fileHandler = logging.handlers.RotatingFileHandler(log_filepath, mode="w")
     fileHandler.setFormatter(DEFAULT_FORMATTER)
 
     # Setup console handler

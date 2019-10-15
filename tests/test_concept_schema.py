@@ -4,7 +4,7 @@ from kf_lib_data_ingest.common.concept_schema import (
     is_identifier,
     concept_set,
     _set_cls_attrs,
-    concept_property_set
+    concept_property_set,
 )
 
 
@@ -13,15 +13,14 @@ def test_identifiers():
     Test identifier concept properties
     """
     # Is not an identifier a property
-    s = ['PARTICIPANT', 'IS_PROBAND']
+    s = ["PARTICIPANT", "IS_PROBAND"]
     s = DELIMITER.join(s)
     assert not is_identifier(s)
 
     # Valid concept and property
     for concept in concept_set:
-        assert is_identifier(f'{concept._CONCEPT_NAME}{DELIMITER}UNIQUE_KEY')
-        assert not is_identifier(
-            f'{concept._CONCEPT_NAME}{DELIMITER}ID')
+        assert is_identifier(f"{concept._CONCEPT_NAME}{DELIMITER}UNIQUE_KEY")
+        assert not is_identifier(f"{concept._CONCEPT_NAME}{DELIMITER}ID")
 
 
 def test_set_cls_attrs():
@@ -36,7 +35,7 @@ def test_set_cls_attrs():
         ID = None
 
         def hello():
-            print('hey')
+            print("hey")
 
         class B(Mixin):
             ID = None
@@ -54,12 +53,18 @@ def test_set_cls_attrs():
 
     # Check that every class attribute is assigned to its appropriate path str
     test_params = {
-        A.COMMON: 'A' + DELIMITER + 'COMMON',
-        A.ID: 'A' + DELIMITER + 'ID',
-        A.B.ID: 'A' + DELIMITER + 'B' + DELIMITER + 'ID',
-        A.B.COMMON: 'A' + DELIMITER + 'B' + DELIMITER + 'COMMON',
-        A.B.C.ID: 'A' + DELIMITER + 'B' + DELIMITER + 'C' + DELIMITER + 'ID',
-        A.B.C.NAME: 'A' + DELIMITER + 'B' + DELIMITER + 'C' + DELIMITER + 'NAME'  # noqa E501
+        A.COMMON: "A" + DELIMITER + "COMMON",
+        A.ID: "A" + DELIMITER + "ID",
+        A.B.ID: "A" + DELIMITER + "B" + DELIMITER + "ID",
+        A.B.COMMON: "A" + DELIMITER + "B" + DELIMITER + "COMMON",
+        A.B.C.ID: "A" + DELIMITER + "B" + DELIMITER + "C" + DELIMITER + "ID",
+        A.B.C.NAME: "A"
+        + DELIMITER
+        + "B"
+        + DELIMITER
+        + "C"
+        + DELIMITER
+        + "NAME",  # noqa E501
     }
     for cls_attr, property_str in test_params.items():
         assert cls_attr == property_str
@@ -67,7 +72,7 @@ def test_set_cls_attrs():
 
     # No property strings should exist for prefix A|D
     for property_str in properties:
-        assert not property_str.startswith('A' + DELIMITER + 'D')
+        assert not property_str.startswith("A" + DELIMITER + "D")
 
 
 def test_compile_schema():
@@ -93,6 +98,9 @@ def _validate_concept_string(concept_property_string):
         try:
             prev = getattr(prev, node)
         except AttributeError:
-            raise Exception('{} does not exist in standard concepts'
-                            .format(concept_property_string))
+            raise Exception(
+                "{} does not exist in standard concepts".format(
+                    concept_property_string
+                )
+            )
     return True

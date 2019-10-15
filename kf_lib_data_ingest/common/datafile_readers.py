@@ -30,7 +30,7 @@ def read_excel_file(filepath_or_buffer, **kwargs):
     # Pre-opening the workbook with xlrd lets us suppress noisy warnings
     # like "WARNING *** OLE2 inconsistency: SSCS size is 0 but SSAT size is
     # non-zero" by pushing them to /dev/null
-    with open(os.devnull, 'w') as devnull:
+    with open(os.devnull, "w") as devnull:
         if is_file_like(filepath_or_buffer):
             wb = xlrd.open_workbook(
                 file_contents=filepath_or_buffer.read(), logfile=devnull
@@ -40,9 +40,9 @@ def read_excel_file(filepath_or_buffer, **kwargs):
                 filename=filepath_or_buffer, logfile=devnull
             )
 
-    kwargs['engine'] = 'xlrd'
-    kwargs['dtype'] = str
-    kwargs['na_filter'] = False
+    kwargs["engine"] = "xlrd"
+    kwargs["dtype"] = str
+    kwargs["na_filter"] = False
     return pandas.read_excel(wb, **kwargs)
 
 
@@ -56,10 +56,10 @@ def read_table_file(filepath_or_buffer, **kwargs):
     :return: The structured contents of the file
     :rtype: pandas.Dataframe
     """
-    kwargs['sep'] = kwargs.pop('delimiter', None) or kwargs.get('sep')
-    kwargs['engine'] = 'python'
-    kwargs['dtype'] = str
-    kwargs['na_filter'] = False
+    kwargs["sep"] = kwargs.pop("delimiter", None) or kwargs.get("sep")
+    kwargs["engine"] = "python"
+    kwargs["dtype"] = str
+    kwargs["na_filter"] = False
     return pandas.read_csv(__ascii_wrap(filepath_or_buffer), **kwargs)
 
 
@@ -74,5 +74,5 @@ def read_json_file(filepath_or_buffer, **kwargs):
     :return: The structured contents of the file
     :rtype: pandas.Dataframe
     """
-    kwargs['convert_dates'] = False
+    kwargs["convert_dates"] = False
     return pandas.read_json(__ascii_wrap(filepath_or_buffer), **kwargs)

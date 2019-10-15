@@ -8,7 +8,7 @@ from kf_lib_data_ingest.common.concept_schema import (
     DELIMITER,
     concept_attr_from,
     concept_from,
-    is_identifier
+    is_identifier,
 )
 from kf_lib_data_ingest.common.misc import iterate_pairwise, obj_attrs_to_dict
 
@@ -119,7 +119,7 @@ class ConceptGraph(object):
         """
         self.graph = nx.DiGraph()
         self.id_index = {}
-        self. attribute_index = {}
+        self.attribute_index = {}
 
         self.logger = logger or logging.getLogger(type(self).__name__)
 
@@ -145,8 +145,9 @@ class ConceptGraph(object):
             self.id_index.setdefault(node.concept, {})[node.key] = node
         # Add node to attributes index, if not identifier. Initialize if empty.
         else:
-            self.attribute_index.setdefault(node.concept_attribute_pair,
-                                            set()).add(node)
+            self.attribute_index.setdefault(
+                node.concept_attribute_pair, set()
+            ).add(node)
 
         return node
 
@@ -161,7 +162,7 @@ class ConceptGraph(object):
 
         # Get ConceptNode from networkx node's attribute dict
         if nx_node:
-            return nx_node.get('object')
+            return nx_node.get("object")
         else:
             return None
 
@@ -192,8 +193,9 @@ class ConceptGraph(object):
         for node in id_nodes:
             self._add_edge(node, attribute_node)
 
-    def find_attribute_value(self, start_node, concept_attribute_str,
-                             relation_graph):
+    def find_attribute_value(
+        self, start_node, concept_attribute_str, relation_graph
+    ):
         """
         Search the concept graph for the value of the concept attribute,
         starting at a particular node.
@@ -210,21 +212,26 @@ class ConceptGraph(object):
         """
         # The start node does not exist in the graph
         if not self.graph.has_node(start_node.key):
-            raise ValueError(f'ConceptNode {start_node.key} not found! '
-                             'Cannot continue find operation.')
+            raise ValueError(
+                f"ConceptNode {start_node.key} not found! "
+                "Cannot continue find operation."
+            )
 
         # Does graph contain any nodes with concept attribute concept_attr_str?
         if is_identifier(concept_attribute_str):
-            exists = (self.id_index.get(concept_from(concept_attribute_str))
-                      is not None)
+            exists = (
+                self.id_index.get(concept_from(concept_attribute_str))
+                is not None
+            )
         else:
             exists = concept_attribute_str in self.attribute_index
 
         if not exists:
             self.logger.info(
-                f'Could not find a value for {concept_attribute_str} since '
-                f'there are 0 {concept_attribute_str} nodes in the concept '
-                'graph!')
+                f"Could not find a value for {concept_attribute_str} since "
+                f"there are 0 {concept_attribute_str} nodes in the concept "
+                "graph!"
+            )
 
             return None
 
@@ -258,17 +265,19 @@ class ConceptGraph(object):
                 # Add neighbor to list if it has not been searched yet and
                 # the neighbor is valid for traversal
                 concept_str = concept_from(concept_attribute_str)
-                neighbor_valid = self._is_neighbor_valid(concept_str,
-                                                         neighbor,
-                                                         relation_graph)
+                neighbor_valid = self._is_neighbor_valid(
+                    concept_str, neighbor, relation_graph
+                )
                 if (neighbor.key not in visited) and neighbor_valid:
                     queue.append(neighbor)
                     visited.add(neighbor.key)
 
         # Searched the entire graph and we did not find the value for
         # concept_attr_str
-        self.logger.info(f'Could not find a value for {concept_attribute_str}'
-                         ' in the concept graph.')
+        self.logger.info(
+            f"Could not find a value for {concept_attribute_str}"
+            " in the concept graph."
+        )
         return None
 
     def _is_neighbor_valid(self, node_concept, neighbor, relation_graph):
@@ -403,7 +412,7 @@ class ConceptGraph(object):
             return edge1_exists
         else:
             edge2_exists = self.graph.has_edge(node2.key, node1.key)
-            return (edge1_exists and edge2_exists)
+            return edge1_exists and edge2_exists
 
     def _add_or_get_node(self, node):
         """
@@ -453,8 +462,15 @@ class ConceptNode(object):
     value) from a source data table.
     """
 
-    def __init__(self, concept_attribute, value, extract_config_url='',
-                 source_file_url='', row='', col=''):
+    def __init__(
+        self,
+        concept_attribute,
+        value,
+        extract_config_url="",
+        source_file_url="",
+        row="",
+        col="",
+    ):
         """
         A ConceptNode represents a mapped cell from a source data
         table. Construction requires the standard concept and attribute
@@ -536,13 +552,14 @@ class ConceptNode(object):
         :param node_dict: dict with where keys must be attributes of
         ConceptNode
         """
-        required = {'concept_attribute_pair', 'value'}
+        required = {"concept_attribute_pair", "value"}
         for req in required:
             if req not in node_dict:
-                raise KeyError(f'ConceptNode.from_dict requires: {required}')
+                raise KeyError(f"ConceptNode.from_dict requires: {required}")
 
-        n = ConceptNode(node_dict.get('concept_attribute_pair'),
-                        node_dict.get('value'))
+        n = ConceptNode(
+            node_dict.get("concept_attribute_pair"), node_dict.get("value")
+        )
         for key, value in node_dict.items():
             if key in required:
                 continue
@@ -550,8 +567,9 @@ class ConceptNode(object):
             if hasattr(n, key):
                 setattr(n, key, value)
             else:
-                raise AttributeError(f'{key} is not an attribute of '
-                                     'ConceptNode.')
+                raise AttributeError(
+                    f"{key} is not an attribute of " "ConceptNode."
+                )
         return n
 
     def _set_is_identifier(self):
@@ -576,17 +594,25 @@ class ConceptNode(object):
         Use the extract config file URL, source data file URL,
         source data table row index, and the source data table column index.
         """
-        if (self.extract_config_url and
-                self.source_file_url and self.row and self.col):
-            return DELIMITER.join([self.extract_config_url,
-                                   self.source_file_url,
-                                   self.row,
-                                   self.col])
+        if (
+            self.extract_config_url
+            and self.source_file_url
+            and self.row
+            and self.col
+        ):
+            return DELIMITER.join(
+                [
+                    self.extract_config_url,
+                    self.source_file_url,
+                    self.row,
+                    self.col,
+                ]
+            )
         else:
             return None
 
 
-def export_to_gml(concept_graph, filepath='./concept_graph.gml'):
+def export_to_gml(concept_graph, filepath="./concept_graph.gml"):
     """
     Serialize the concept graph and write to a GML file.
 
@@ -624,7 +650,7 @@ def export_to_gml(concept_graph, filepath='./concept_graph.gml'):
     nx.write_gml(concept_graph.graph, filepath, stringizer=serialize)
 
 
-def import_from_gml(filepath='./concept_graph.gml'):
+def import_from_gml(filepath="./concept_graph.gml"):
     """
     Read in GML file and create a networkx.DiGraph that represents a
     ConceptGraph

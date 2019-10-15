@@ -8,7 +8,6 @@ from kf_lib_data_ingest.common.concept_schema import UNIQUE_ID_ATTR
 
 
 class StandardModel(object):
-
     def __init__(self, logger=None):
         self.logger = logger or logging.getLogger(type(self).__name__)
         self.concept_graph = None
@@ -33,8 +32,9 @@ class StandardModel(object):
 
         # Use whole concept set if target concepts are not supplied
         if not target_concepts_to_transform:
-            target_concepts_to_transform = (target_api_config
-                                            .target_concepts.keys())
+            target_concepts_to_transform = (
+                target_api_config.target_concepts.keys()
+            )
 
         # The schemas of the target concepts
         schemas = target_api_config.target_concepts
@@ -48,17 +48,19 @@ class StandardModel(object):
                 fp = target_api_config.config_filepath
                 self.logger.warning(
                     f'Supplied entity "{target_concept}" does not '
-                    'exist in target concept schemas. Check defined concepts '
-                    f'in {fp}')
+                    "exist in target concept schemas. Check defined concepts "
+                    f"in {fp}"
+                )
                 continue
 
             # Build target concept instances
             schema = schemas[target_concept]
-            concept_instances = self._build_concept_instances(target_concept,
-                                                              schema,
-                                                              relation_graph)
-            transformed_data.setdefault(target_concept,
-                                        []).extend(concept_instances)
+            concept_instances = self._build_concept_instances(
+                target_concept, schema, relation_graph
+            )
+            transformed_data.setdefault(target_concept, []).extend(
+                concept_instances
+            )
 
         return transformed_data
 
@@ -76,21 +78,23 @@ class StandardModel(object):
         concept_instances = []
 
         # Get the standard concept mapped to this target concept
-        standard_concept_str = schema['standard_concept']._CONCEPT_NAME
+        standard_concept_str = schema["standard_concept"]._CONCEPT_NAME
 
         # Get the ID nodes for this standard concept from the concept graph
         id_node_keys = self.concept_graph.id_index.get(standard_concept_str)
         if not id_node_keys:
             self.logger.warning(
-                f'The concept graph does not contain any '
+                f"The concept graph does not contain any "
                 f'"{standard_concept_str}" ID nodes in the graph! '
-                f'Nothing to transform for "{standard_concept_str}"')
+                f'Nothing to transform for "{standard_concept_str}"'
+            )
             return concept_instances
 
         # Build a target concept instance for each id
         for id_node_key in id_node_keys:
-            output = self._build_concept_instance(id_node_key, schema,
-                                                  relation_graph)
+            output = self._build_concept_instance(
+                id_node_key, schema, relation_graph
+            )
             concept_instances.append(output)
 
         return concept_instances
@@ -117,30 +121,30 @@ class StandardModel(object):
         id_node = self.concept_graph.get_node(id_node_key)
 
         # Fill in the mapped id value
-        output['id'] = id_node.value
+        output["id"] = id_node.value
 
         # Find values for properties
-        for key, concept_attr in output.get('properties').items():
-            value = self.concept_graph.find_attribute_value(id_node,
-                                                            concept_attr,
-                                                            relation_graph)
-            output['properties'][key] = value
+        for key, concept_attr in output.get("properties").items():
+            value = self.concept_graph.find_attribute_value(
+                id_node, concept_attr, relation_graph
+            )
+            output["properties"][key] = value
 
         # Find values for links
         links = []
-        for link_dict in output.get('links', []):
-            unique_key = getattr(link_dict['standard_concept'], UNIQUE_ID_ATTR)
-            value = self.concept_graph.find_attribute_value(id_node,
-                                                            unique_key,
-                                                            relation_graph)
+        for link_dict in output.get("links", []):
+            unique_key = getattr(link_dict["standard_concept"], UNIQUE_ID_ATTR)
+            value = self.concept_graph.find_attribute_value(
+                id_node, unique_key, relation_graph
+            )
             links.append(
                 {
-                    link_dict['target_attribute']: value,
-                    'target_concept': link_dict['target_concept']
+                    link_dict["target_attribute"]: value,
+                    "target_concept": link_dict["target_concept"],
                 }
             )
         if links:
-            output['links'] = links
+            output["links"] = links
 
         return output
 
@@ -177,17 +181,18 @@ class StandardModel(object):
             for c, col in enumerate(df.columns):
                 # ConceptNode's kwargs
                 props = {
-                    'extract_config_url': extract_config_url,
-                    'source_file_url': source_file_url,
-                    'row': r,
-                    'col': c
+                    "extract_config_url": extract_config_url,
+                    "source_file_url": source_file_url,
+                    "row": r,
+                    "col": c,
                 }
                 # Do not add null nodes to the graph
                 if pd.isnull(row[col]):
                     continue
                 # Add node to graph
-                node = self.concept_graph.add_or_get_node(col, row[col],
-                                                          **props)
+                node = self.concept_graph.add_or_get_node(
+                    col, row[col], **props
+                )
                 # Sort nodes into ID nodes and attribute nodes
                 if node.is_identifier:
                     id_nodes.append(node)
@@ -199,6 +204,4 @@ class StandardModel(object):
 
             # Connect attribute nodes
             for prop_node in attribute_nodes:
-                self.concept_graph.connect_attribute_node(
-                    prop_node, id_nodes
-                )
+                self.concept_graph.connect_attribute_node(prop_node, id_nodes)
