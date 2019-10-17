@@ -1,9 +1,9 @@
--r requirements.txt
 codacy-coverage==1.3.11
-moto==1.3.7
-py2neo==4.2.0
+moto==1.3.13
 pytest-cache==1.0
-pytest-cov==2.6.1
-requests-mock==1.5.2
+pytest-cov==2.8.1
+requests-mock==1.7.0
+py2neo==4.3.0
 pycodestyle
 black
+-r requirements.txt
