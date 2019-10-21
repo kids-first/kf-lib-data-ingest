@@ -357,7 +357,11 @@ class DataIngestPipeline(object):
                     {
                         k: v
                         for k, v in discovery_sources.items()
-                        if UNIQUE_ID_ATTR not in k
+                        if (
+                            # only use UNIQUE KEYs if they're from Extract
+                            (UNIQUE_ID_ATTR not in k)
+                            or (k in extract_disc["sources"])
+                        )
                     },
                 )
                 passed_all = passed_all and passed
