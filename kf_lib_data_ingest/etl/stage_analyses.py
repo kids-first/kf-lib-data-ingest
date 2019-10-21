@@ -152,12 +152,11 @@ def _compare(name_one, list_one, name_two, list_two):
         indicator=indicator,
     )
     comparison_df = comparison_df.astype(object).fillna("")
-    diff_num = comparison_df[comparison_df[indicator] != "both"].shape[0]
-
-    comparison_df[indicator].replace(
-        {"left_only": NO, "right_only": NO, "both": YES}, inplace=True
-    )
-
+    comparison_df = comparison_df[comparison_df[indicator] != "both"][
+        [name_one, name_two]
+    ]
+    diff_num = comparison_df.shape[0]
+    comparison_df.columns = "In " + comparison_df.columns
     return comparison_df, diff_num
 
 
