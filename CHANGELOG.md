@@ -1,11 +1,31 @@
+# Kids First Lib Data Ingest Release 0.8.0
+
+## Features
+
+### Summary
+
+Feature Emojis: ✨ x1 ⬆️ x1 🎨 x1 🐛 x2 🔇 x1 🔊 x1 🔧 x1
+Feature Categories: [bug](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/bug) x2 [feature](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/feature) x1 [other](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/other) x5
+
+### New features and changes
+
+- (#395) 🐛 Keep extracted UKs in comparison - @fiendish
+- (#393) 🔇 Only show comparison mismatches - @fiendish
+- (#391) ⬆️ Upgrade deps - @fiendish
+- (#390) 🔊 Add bad value and type to type assert output - @fiendish
+- (#389) 🎨 Format with black - @fiendish
+- (#388) 🔧 Add visible to family_relationship in kf target api - @znatty22
+- (#385) 🐛 Update entity relationship external_id on mismatch - @fiendish
+- (#384) ✨ Add gf source file to concept schema - @znatty22
+
 # Kids First Lib Data Ingest Release 0.7.0
 
 ## Features
 
 ### Summary
 
-Feature Emojis: ♻️ x2 ♻️⚡️ x1 ♻️💥 x1 ✨ x2 🐛 x5 💡 x1 💬 x3 📝 x1 
-Feature Categories: [bug](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/bug) x5 [documentation](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/documentation) x1 [feature](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/feature) x2 [other](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/other) x6 [refactor](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/refactor) x2 
+Feature Emojis: ♻️ x2 ♻️⚡️ x1 ♻️💥 x1 ✨ x2 🐛 x5 💡 x1 💬 x3 📝 x1
+Feature Categories: [bug](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/bug) x5 [documentation](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/documentation) x1 [feature](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/feature) x2 [other](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/other) x6 [refactor](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/refactor) x2
 
 ### New features and changes
 
@@ -32,8 +52,8 @@ Feature Categories: [bug](http://api.github.com/repos/kids-first/kf-lib-data-ing
 
 ### Summary
 
-Feature Emojis: ✨ x4 🐛 x1 👷 x2 
-Feature Categories: [bug](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/bug) x1 [devops](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/devops) x2 [feature](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/feature) x4 
+Feature Emojis: ✨ x4 🐛 x1 👷 x2
+Feature Categories: [bug](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/bug) x1 [devops](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/devops) x2 [feature](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/feature) x4
 
 ### New features and changes
 
@@ -51,8 +71,8 @@ Feature Categories: [bug](http://api.github.com/repos/kids-first/kf-lib-data-ing
 
 ### Summary
 
-Feature Emojis: ♻️ x3 ✨ x6 🐛 x6 🐛🔧 x1 🚸 x1 
-Feature Categories: [bug](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/bug) x6 [feature](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/feature) x6 [other](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/other) x2 [refactor](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/refactor) x3 
+Feature Emojis: ♻️ x3 ✨ x6 🐛 x6 🐛🔧 x1 🚸 x1
+Feature Categories: [bug](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/bug) x6 [feature](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/feature) x6 [other](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/other) x2 [refactor](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/refactor) x3
 
 ### New features and changes
 
