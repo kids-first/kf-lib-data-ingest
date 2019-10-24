@@ -323,10 +323,7 @@ def _create_unique_key_composition():
     }
     identifiers[CONCEPT.PHENOTYPE._CONCEPT_NAME] = {
         "required": [CONCEPT.PARTICIPANT.UNIQUE_KEY, CONCEPT.PHENOTYPE.NAME],
-        "optional": [
-            CONCEPT.PHENOTYPE.OBSERVED,
-            CONCEPT.PHENOTYPE.EVENT_AGE_DAYS,
-        ],
+        "optional": [CONCEPT.PHENOTYPE.EVENT_AGE_DAYS],
     }
     identifiers[CONCEPT.OUTCOME._CONCEPT_NAME] = {
         "required": [

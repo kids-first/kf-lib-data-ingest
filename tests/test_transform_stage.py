@@ -357,7 +357,7 @@ def test_nulls_in_unique_keys(guided_transform_stage):
     # Test compound unique key with missing optional components
     print(df[CONCEPT.PHENOTYPE.UNIQUE_KEY].values.tolist())
     assert df[CONCEPT.PHENOTYPE.UNIQUE_KEY].values.tolist() == [
-        "p1-extra ear-Not Reported-Not Reported",
-        "p2-enlarged ear-Not Reported-Not Reported",
-        "p3-extra lip-Not Reported-Not Reported",
+        "p1-extra ear-Not Reported",
+        "p2-enlarged ear-Not Reported",
+        "p3-extra lip-Not Reported",
     ]
