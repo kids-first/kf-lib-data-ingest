@@ -32,7 +32,7 @@ Here's a example source data file:
     :url: https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/master/docs/data/family_and_phenotype.tsv
 
 You can `download/copy this file
-<https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/update-tutorial/docs/data/family_and_phenotype.tsv>`_
+<https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/master/docs/data/family_and_phenotype.tsv>`_
 if you want to view it directly or test local data file loading instead of
 remote as you go through this tutorial.
 
