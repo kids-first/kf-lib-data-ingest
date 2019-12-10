@@ -76,3 +76,38 @@ def read_json_file(filepath_or_buffer, **kwargs):
     """
     kwargs["convert_dates"] = False
     return pandas.read_json(__ascii_wrap(filepath_or_buffer), **kwargs)
+
+
+def read_file(filepath_or_buffer, original_name=None, **kwargs):
+    """
+    Return contents of a data file as a pandas DataFrame. Wraps more specific
+    readers.
+
+    :param filepath_or_buffer: a data file
+    :type filepath_or_buffer: string (path) or file-like object
+    :param **kwargs: See docs for `pandas IO tools`
+    :return: The structured contents of the file
+    :rtype: pandas.Dataframe
+    """
+    if original_name is None:
+        if isinstance(filepath_or_buffer, str):
+            original_name = filepath_or_buffer
+        else:
+            original_name = filepath_or_buffer.name
+
+    if original_name.endswith((".xlsx", ".xls")):
+        read_func = read_excel_file
+    elif original_name.endswith((".tsv", ".csv")):
+        read_func = read_table_file
+    elif original_name.endswith(".json"):
+        read_func = read_json_file
+    else:
+        raise Exception(
+            f"Could not determine appropriate reader for '{original_name}'."
+            " You may need to define a custom read function."
+        )
+
+    try:
+        return read_func(filepath_or_buffer, **kwargs)
+    except Exception as e:
+        raise Exception(f"In {read_func.__name__} : {str(e)}") from e
