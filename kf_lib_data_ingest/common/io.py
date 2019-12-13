@@ -1,12 +1,14 @@
 """
-Contains file readers (file -> dataframe) for file types that benefit from
-extra help.
+Contains file readers for file types that benefit from extra help.
 """
 import io
+import json
 import os
 
+import jsonpickle
 import pandas
 import xlrd
+import yaml
 from pandas.api.types import is_file_like
 
 
@@ -17,7 +19,7 @@ def __ascii_wrap(potentially_binary_buffer):
         return potentially_binary_buffer
 
 
-def read_excel_file(filepath_or_buffer, **kwargs):
+def read_excel_df(filepath_or_buffer, **kwargs):
     """
     Return contents of an excel spreadsheet as a pandas DataFrame.
 
@@ -46,7 +48,7 @@ def read_excel_file(filepath_or_buffer, **kwargs):
     return pandas.read_excel(wb, **kwargs)
 
 
-def read_table_file(filepath_or_buffer, **kwargs):
+def read_delimited_text_df(filepath_or_buffer, **kwargs):
     """
     Return contents of a delimited table file (like csv) as a pandas DataFrame.
 
@@ -63,7 +65,7 @@ def read_table_file(filepath_or_buffer, **kwargs):
     return pandas.read_csv(__ascii_wrap(filepath_or_buffer), **kwargs)
 
 
-def read_json_file(filepath_or_buffer, **kwargs):
+def read_json_df(filepath_or_buffer, **kwargs):
     """
     Return contents of a json file (dict of lists or list of dicts) as a pandas
     DataFrame.
@@ -78,13 +80,16 @@ def read_json_file(filepath_or_buffer, **kwargs):
     return pandas.read_json(__ascii_wrap(filepath_or_buffer), **kwargs)
 
 
-def read_file(filepath_or_buffer, original_name=None, **kwargs):
+def read_df(filepath_or_buffer, original_name=None, **kwargs):
     """
     Return contents of a data file as a pandas DataFrame. Wraps more specific
     readers.
 
     :param filepath_or_buffer: a data file
     :type filepath_or_buffer: string (path) or file-like object
+    :param original_name: filename from which we can infer file type if the
+        primary argument doesn't provide it
+    :type original_name: string
     :param **kwargs: See docs for `pandas IO tools`
     :return: The structured contents of the file
     :rtype: pandas.Dataframe
@@ -96,11 +101,11 @@ def read_file(filepath_or_buffer, original_name=None, **kwargs):
             original_name = filepath_or_buffer.name
 
     if original_name.endswith((".xlsx", ".xls")):
-        read_func = read_excel_file
-    elif original_name.endswith((".tsv", ".csv")):
-        read_func = read_table_file
+        read_func = read_excel_df
+    elif original_name.endswith((".tsv", ".csv", ".txt")):
+        read_func = read_delimited_text_df
     elif original_name.endswith(".json"):
-        read_func = read_json_file
+        read_func = read_json_df
     else:
         raise Exception(
             f"Could not determine appropriate reader for '{original_name}'."
@@ -111,3 +116,53 @@ def read_file(filepath_or_buffer, original_name=None, **kwargs):
         return read_func(filepath_or_buffer, **kwargs)
     except Exception as e:
         raise Exception(f"In {read_func.__name__} : {str(e)}") from e
+
+
+def read_yaml(filepath):
+    with open(filepath, "r") as yaml_file:
+        return yaml.load(yaml_file, Loader=yaml.FullLoader)
+
+
+def read_json(filepath, default=None, use_jsonpickle=True):
+    """
+    Read JSON file into Python dict. If default is not None and the file
+    does not exist, then return default.
+
+    :param filepath: path to JSON file
+    :type filepath: str
+    :param default: default return value if file not found, defaults to None
+    :type default: any, optional
+    :param use_jsonpickle: pickle JSON-incompatible types, defaults to True
+    :type use_jsonpickle: bool, optional
+    :return: your data
+    """
+    if (default is not None) and (not os.path.isfile(filepath)):
+        return default
+
+    with open(filepath, "r") as json_file:
+        if use_jsonpickle:
+            json_str = json_file.read()
+            return jsonpickle.decode(json_str, keys=True)
+        else:
+            return json.load(json_file)
+
+
+def write_json(data, filepath, use_jsonpickle=True, **kwargs):
+    r"""
+    Write Python data to JSON file.
+
+    :param data: your data
+    :param filepath: where to write your JSON file
+    :type filepath: str
+    :param use_jsonpickle: pickle JSON-incompatible types, defaults to True
+    :type use_jsonpickle: bool, optional
+    :param \**kwargs: keyword arguments to pass to json.dump
+    """
+    if "indent" not in kwargs:
+        kwargs["indent"] = 4
+    if "sort_keys" not in kwargs:
+        kwargs["sort_keys"] = True
+    with open(filepath, "w") as json_file:
+        if use_jsonpickle:
+            data = json.loads(jsonpickle.encode(data, keys=True))
+        json.dump(data, json_file, **kwargs)

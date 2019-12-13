@@ -7,7 +7,7 @@ import requests_mock
 from kf_lib_data_ingest.config import DEFAULT_KEY
 from kf_lib_data_ingest.common import constants
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
-from kf_lib_data_ingest.common.misc import read_json
+from kf_lib_data_ingest.common.io import read_json
 from kf_lib_data_ingest.network.utils import get_open_api_v2_schema
 from conftest import TEST_DATA_DIR, KIDSFIRST_DATASERVICE_PROD_URL
 

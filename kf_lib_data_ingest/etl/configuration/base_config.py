@@ -1,8 +1,10 @@
 import os
-import jsonschema
 from abc import ABC, abstractmethod
 
-from kf_lib_data_ingest.common.misc import import_module_from_file, read_yaml
+import jsonschema
+
+from kf_lib_data_ingest.common.io import read_yaml
+from kf_lib_data_ingest.common.misc import import_module_from_file
 
 
 class ConfigValidationError(Exception):

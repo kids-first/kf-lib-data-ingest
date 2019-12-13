@@ -8,21 +8,13 @@ from pprint import pformat
 import pandas
 
 from kf_lib_data_ingest.common.concept_schema import concept_set
-from kf_lib_data_ingest.common.datafile_readers import (
-    read_file,
-    read_table_file,
-)
 from kf_lib_data_ingest.common.file_retriever import (
     PROTOCOL_SEP,
     FileRetriever,
     split_protocol,
 )
-from kf_lib_data_ingest.common.misc import (
-    clean_up_df,
-    clean_walk,
-    read_json,
-    write_json,
-)
+from kf_lib_data_ingest.common.io import read_df, read_json, write_json
+from kf_lib_data_ingest.common.misc import clean_up_df, clean_walk
 from kf_lib_data_ingest.common.pandas_utils import split_df_rows_on_splits
 from kf_lib_data_ingest.common.stage import IngestStage
 from kf_lib_data_ingest.common.type_safety import (
@@ -140,7 +132,7 @@ class ExtractStage(IngestStage):
         for filepath, info in metadata.items():
             output[info["extract_config_url"]] = (
                 info["source_data_url"],
-                read_table_file(filepath, delimiter="\t", index_col=0),
+                read_df(filepath, delimiter="\t", index_col=0),
             )
 
         self.logger.info(
@@ -217,7 +209,7 @@ class ExtractStage(IngestStage):
                 self.logger.info("Using custom read function.")
                 df = read_func(f.name, **read_args)
             else:
-                df = read_file(f.name, f.original_name, **read_args)
+                df = read_df(f.name, f.original_name, **read_args)
             if not isinstance(df, pandas.DataFrame):
                 err = "Read function must return a pandas.DataFrame"
         except Exception as e:

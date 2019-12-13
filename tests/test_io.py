@@ -4,7 +4,7 @@ import pandas
 import pytest
 
 from conftest import TEST_DATA_DIR
-from kf_lib_data_ingest.common.datafile_readers import *
+from kf_lib_data_ingest.common.io import *
 
 excel_path = os.path.join(
     TEST_DATA_DIR, "test_study", "data", "unsimple_xlsx_1.xlsx"
@@ -38,13 +38,13 @@ def _file_reader_test(file_path, read_func, expected_contents):
 
 
 def test_read_excel():
-    _file_reader_test(excel_path, read_excel_file, excel_first_page)
+    _file_reader_test(excel_path, read_excel_df, excel_first_page)
 
 
 def test_read_tsv():
-    _file_reader_test(tsv_path, read_table_file, tsv_page)
+    _file_reader_test(tsv_path, read_delimited_text_df, tsv_page)
 
 
 def test_read_file():
-    _file_reader_test(excel_path, read_file, excel_first_page)
-    _file_reader_test(tsv_path, read_file, tsv_page)
+    _file_reader_test(excel_path, read_df, excel_first_page)
+    _file_reader_test(tsv_path, read_df, tsv_page)

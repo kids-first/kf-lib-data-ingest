@@ -1,17 +1,18 @@
-import os
 import logging
+import os
 import shutil
-import pytest
 from unittest import mock
 
-from kf_lib_data_ingest.common.misc import read_json
+import pytest
+
+from kf_lib_data_ingest.common.io import read_json
+from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
 from kf_lib_data_ingest.etl.configuration.target_api_config import (
     TargetAPIConfig,
 )
 from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
 from kf_lib_data_ingest.etl.transform.auto import AutoTransformStage
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
-from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
 
 TEST_ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 TEST_DATA_DIR = os.path.join(TEST_ROOT_DIR, "data")
