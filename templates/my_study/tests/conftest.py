@@ -11,7 +11,7 @@ implementing data validation tests.
 import os
 import logging
 
-from kf_lib_data_ingest.common.misc import read_json
+from kf_lib_data_ingest.common.io import read_json
 
 ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
 OUTPUT_DIR = os.path.join(ROOT_DIR, 'output')

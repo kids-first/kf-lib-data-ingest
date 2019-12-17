@@ -18,9 +18,9 @@ do:
 .. code-block:: Python
 
     from kf_lib_data_ingest.common.file_retriever import FileRetriever
-    from kf_lib_data_ingest.common.datafile_readers import read_table_file
+    from kf_lib_data_ingest.common.io import read_df
 
-    file_df = read_table_file(
+    file_df = read_df(
         FileRetriever().get("<URL for your TSV file>")
     )
 

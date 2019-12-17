@@ -3,7 +3,7 @@ import os
 import time
 from abc import ABC, abstractmethod
 from functools import wraps
-from kf_lib_data_ingest.common.misc import write_json, read_json
+from kf_lib_data_ingest.common.io import write_json, read_json
 
 
 class IngestStage(ABC):

@@ -8,22 +8,13 @@ from pprint import pformat
 import pandas
 
 from kf_lib_data_ingest.common.concept_schema import concept_set
-from kf_lib_data_ingest.common.datafile_readers import (
-    read_excel_file,
-    read_json_file,
-    read_table_file,
-)
 from kf_lib_data_ingest.common.file_retriever import (
     PROTOCOL_SEP,
     FileRetriever,
     split_protocol,
 )
-from kf_lib_data_ingest.common.misc import (
-    clean_up_df,
-    clean_walk,
-    read_json,
-    write_json,
-)
+from kf_lib_data_ingest.common.io import read_df, read_json, write_json
+from kf_lib_data_ingest.common.misc import clean_up_df, clean_walk
 from kf_lib_data_ingest.common.pandas_utils import split_df_rows_on_splits
 from kf_lib_data_ingest.common.stage import IngestStage
 from kf_lib_data_ingest.common.type_safety import (
@@ -141,7 +132,7 @@ class ExtractStage(IngestStage):
         for filepath, info in metadata.items():
             output[info["extract_config_url"]] = (
                 info["source_data_url"],
-                read_table_file(filepath, delimiter="\t", index_col=0),
+                read_df(filepath, delimiter="\t", index_col=0),
             )
 
         self.logger.info(
@@ -213,31 +204,26 @@ class ExtractStage(IngestStage):
         f = self.FR.get(file_path)
 
         err = None
-        if read_func:
-            self.logger.info("Using custom read function.")
-        else:
-            if f.original_name.endswith((".xlsx", ".xls")):
-                read_func = read_excel_file
-            elif f.original_name.endswith((".tsv", ".csv")):
-                read_func = read_table_file
-            elif f.original_name.endswith(".json"):
-                read_func = read_json_file
-
-        if read_func:
-            try:
+        try:
+            if read_func:
+                self.logger.info("Using custom read function.")
                 df = read_func(f.name, **read_args)
-                if not isinstance(df, pandas.DataFrame):
-                    err = "Custom read function must return a pandas.DataFrame"
-            except Exception as e:
-                err = f"In read_func {read_func.__name__} : {str(e)}"
-        else:
+            else:
+                df = read_df(f.name, f.original_name, **read_args)
+            if not isinstance(df, pandas.DataFrame):
+                err = "Read function must return a pandas.DataFrame"
+        except Exception as e:
             err = (
-                f"Could not determine appropriate reader for '{file_path}'."
-                "\nYou may need to define a custom read function."
+                f"Error in {read_func.__name__} : {str(e)}"
+                if read_func
+                else str(e)
             )
 
         if err:
-            raise ConfigValidationError(err)
+            raise ConfigValidationError(
+                f"Reading file '{f.original_name}' from '{file_path}'."
+                f" {err} ('{f.name}')"
+            )
 
         df = clean_up_df(df)
 

@@ -12,11 +12,8 @@ from requests.adapters import HTTPAdapter
 from requests.exceptions import ConnectionError
 from requests.packages.urllib3.util.retry import Retry
 
-from kf_lib_data_ingest.common.misc import (
-    read_json,
-    upper_camel_case,
-    write_json,
-)
+from kf_lib_data_ingest.common.io import read_json, write_json
+from kf_lib_data_ingest.common.misc import upper_camel_case
 
 logger = logging.getLogger(__name__)
 
