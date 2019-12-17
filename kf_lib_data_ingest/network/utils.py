@@ -75,7 +75,7 @@ def http_get_file(url, dest_obj, **kwargs):
         logger.info(success_msg)
 
     else:
-        logger.error(f"Could not fetch {url}. Caused by " f"{response.text}")
+        logger.error(f"Could not fetch {url}. Caused by: '{response.text}'")
 
     return response
 

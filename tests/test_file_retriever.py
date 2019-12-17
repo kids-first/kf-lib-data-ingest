@@ -391,7 +391,6 @@ def _assert_file(storage_dir, file_path):
     Assert that a file exists at file_path
     """
     assert os.path.commonpath([storage_dir, file_path]) == storage_dir
-
     assert os.path.isfile(file_path)
 
 
@@ -414,3 +413,20 @@ def test_static_auth_configs():
     exec(test_code, test_module.__dict__)
     test_module.test_static_auth_configs()
     fr.static_auth_configs = None
+
+
+def test_data_available_after_file_cleanup():
+    # `read_file(FileRetriever().get("foo"))` should always work even though
+    # the local copy disappears when the FR leaves scope.
+    url = "file://" + TEST_FILE_PATH
+    fr = FileRetriever()
+    fr_dir = fr.storage_dir
+    fo = fr.get(url)
+    assert os.path.exists(fr_dir)
+    assert os.path.exists(fo.name)
+    data = fo.read()
+    del fr
+    assert not os.path.exists(fr_dir)
+    assert not os.path.exists(fo.name)
+    fo.seek(0)
+    assert fo.read() == data

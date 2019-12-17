@@ -54,7 +54,7 @@ def get_service_token(provider_domain, audience, client_id, client_secret):
     if response.status_code != 200:
         logger.error(
             f"Could not fetch access token from {oauth_token_url}! "
-            f"Caused by {response.text}, status_code: {response.status_code}"
+            f"Caused by: '{response.text}'. Code: {response.status_code}"
         )
 
         return token
