@@ -189,9 +189,9 @@ access one or more other files to make sense of your source data.</p>
 secondary files as you want. For instance, for a secondary TSV file, you can
 do:</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.file_retriever</span> <span class="kn">import</span> <span class="n">FileRetriever</span>
-<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.datafile_readers</span> <span class="kn">import</span> <span class="n">read_table_file</span>
+<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.io</span> <span class="kn">import</span> <span class="n">read_df</span>
 
-<span class="n">file_df</span> <span class="o">=</span> <span class="n">read_table_file</span><span class="p">(</span>
+<span class="n">file_df</span> <span class="o">=</span> <span class="n">read_df</span><span class="p">(</span>
     <span class="n">FileRetriever</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;&lt;URL for your TSV file&gt;&quot;</span><span class="p">)</span>
 <span class="p">)</span>
 </pre></div>
