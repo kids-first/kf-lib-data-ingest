@@ -313,7 +313,7 @@ DataFrames (corresponding to <cite>data/clinical.tsv</cite> and
     <span class="n">merged</span> <span class="o">=</span> <span class="n">outer_merge</span><span class="p">(</span><span class="n">clinical_df</span><span class="p">,</span>
                          <span class="n">family_and_phenotype_df</span><span class="p">,</span>
                          <span class="n">on</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PARTICIPANT</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span>
-                         <span class="n">with_merge_detail_dfs</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+                         <span class="n">with_merge_detail_dfs</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="p">{</span>
         <span class="n">DEFAULT_KEY</span><span class="p">:</span> <span class="n">merged</span>
@@ -334,7 +334,7 @@ DataFrames (corresponding to <cite>data/clinical.tsv</cite> and
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">merged</span> <span class="o">=</span> <span class="n">outer_merge</span><span class="p">(</span><span class="n">clinical_df</span><span class="p">,</span>
                      <span class="n">family_and_phenotype_df</span><span class="p">,</span>
                      <span class="n">on</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PARTICIPANT</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span>
-                     <span class="n">with_merge_detail_dfs</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+                     <span class="n">with_merge_detail_dfs</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>There are a few important things to note in this step:</p>
@@ -418,7 +418,7 @@ to build instances of the target concept.</p>
     <span class="n">merged</span> <span class="o">=</span> <span class="n">outer_merge</span><span class="p">(</span><span class="n">clinical_df</span><span class="p">,</span>
                          <span class="n">family_and_phenotype_df</span><span class="p">,</span>
                          <span class="n">on</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PARTICIPANT</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span>
-                         <span class="n">with_merge_detail_dfs</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+                         <span class="n">with_merge_detail_dfs</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="n">family_relationship_df</span> <span class="o">=</span> <span class="n">dfs</span><span class="p">[</span><span class="s1">&#39;pedigree_to_fam_rels.py&#39;</span><span class="p">]</span>
 
