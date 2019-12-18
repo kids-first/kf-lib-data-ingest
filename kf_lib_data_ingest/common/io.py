@@ -97,6 +97,8 @@ def read_df(filepath_or_buffer, original_name=None, **kwargs):
     if original_name is None:
         if isinstance(filepath_or_buffer, str):
             original_name = filepath_or_buffer
+        elif hasattr(filepath_or_buffer, "original_name"):
+            original_name = filepath_or_buffer.original_name
         else:
             original_name = filepath_or_buffer.name
 
