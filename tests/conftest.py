@@ -1,17 +1,18 @@
-import os
 import logging
+import os
 import shutil
-import pytest
 from unittest import mock
 
-from kf_lib_data_ingest.common.misc import read_json
+import pytest
+
+from kf_lib_data_ingest.common.io import read_json
+from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
 from kf_lib_data_ingest.etl.configuration.target_api_config import (
     TargetAPIConfig,
 )
 from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
 from kf_lib_data_ingest.etl.transform.auto import AutoTransformStage
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
-from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
 
 TEST_ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 TEST_DATA_DIR = os.path.join(TEST_ROOT_DIR, "data")
@@ -38,7 +39,7 @@ TEST_AUTH0_AUD = "https://test-api.kids-first.io/files"
 TEST_CLIENT_ID = "jvpfU40lDRRaRSMEZ0C9FKm379H176W6"
 TEST_CLIENT_SECRET = (
     "B0v9vADfY9A7KQFxYxkoMHySuL6l6v7_eQb7s-3tv3MSSY4Pwtkmrv_vJ6VDbbpB"
-)  # noqa E501
+)
 
 # Mock get_open_api_v2_schema to always return the schema
 mock_dataservice_schema = read_json(

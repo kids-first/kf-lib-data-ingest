@@ -220,7 +220,7 @@ target_concepts = {
             "shipment_date": CONCEPT.BIOSPECIMEN.SHIPMENT_DATE,
             "analyte_type": CONCEPT.BIOSPECIMEN.ANALYTE,
             "concentration_mg_per_ml": CONCEPT.BIOSPECIMEN.CONCENTRATION_MG_PER_ML,
-            "volume_ml": CONCEPT.BIOSPECIMEN.VOLUME_ML,
+            "volume_ul": CONCEPT.BIOSPECIMEN.VOLUME_UL,
             "visible": CONCEPT.BIOSPECIMEN.VISIBLE,
         },
         "endpoint": "/biospecimens",

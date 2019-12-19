@@ -19,11 +19,8 @@ from kf_lib_data_ingest.common.concept_schema import (
     unique_key_composition as DEFAULT_KEY_COMP,
 )
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
-from kf_lib_data_ingest.common.misc import (
-    convert_to_downcasted_str,
-    read_json,
-    write_json,
-)
+from kf_lib_data_ingest.common.misc import convert_to_downcasted_str
+from kf_lib_data_ingest.common.io import read_json, write_json
 from kf_lib_data_ingest.network.utils import get_open_api_v2_schema
 from kf_lib_data_ingest.common.stage import IngestStage
 from kf_lib_data_ingest.common.type_safety import (

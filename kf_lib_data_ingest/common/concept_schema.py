@@ -107,7 +107,7 @@ class CONCEPT:
         SHIPMENT_DATE = None
         ANALYTE = None
         CONCENTRATION_MG_PER_ML = None
-        VOLUME_ML = None
+        VOLUME_UL = None
 
     class GENOMIC_FILE(PropertyMixin, FileMixin):
         HARMONIZED = None
