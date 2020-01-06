@@ -1,21 +1,7 @@
-.. _Tutorial-Extract-Stage:
+.. _Extract-Example:
 
-=============
-Extract Stage
-=============
-
-The extract stage does 3 main things:
-
-1. Select or extract the desired subset of data from the source data files
-2. Clean the selected data (remove trailing whitespaces, etc)
-3. Map the cleaned data's attributes and values to Kids First entity attributes
-   and acceptable values.
-
-The extract configuration files instruct the extract stage how to accomplish
-the above.
-
-Writing Extract Configuration Files
-===================================
+Example Extract Configuration
+=============================
 
 Every data file provided by the investigator will require at least one extract
 configuration file. The reasons why will hopefully become clear after reading
@@ -24,8 +10,8 @@ this section.
 We will step through how to write an extract configuration file for a source
 data file.
 
-Here's a example source data file:
-----------------------------------
+Here's an example source data file:
+-----------------------------------
 
 .. csv-table:: family_and_phenotype.tsv
     :delim: tab
@@ -222,13 +208,14 @@ row, etc), then it would get loaded correctly by default without needing any
 parameters here, but with complex arrangements we have to configure the reader.
 
 If the right reader cannot be inferred, you'll need to define a
-``read_func`` function that takes a file path and kwargs (also given in
-``source_data_read_params``) and returns a pandas DataFrame:
+``source_data_read_func`` function that takes a file path and kwargs (also
+given in ``source_data_read_params``) and returns a pandas DataFrame:
 
 .. code-block:: python
 
     # a special custom file reader which must return a pandas DataFrame
-    read_func = my_custom_reader_function
+    def source_data_read_func(filepath, **kwargs):
+        return my_df
 
 Extract operations
 ------------------
@@ -248,7 +235,7 @@ attributes and value formats. The most useful functions are already written for
 you. You just have to invoke them appropriately.
 
 For more information about extract operation functions, read
-:ref:`Extract-Mapping`.
+:ref:`Map-Operations`.
 
 A value map operation with functional replacements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -376,8 +363,7 @@ standard concept column for biospecimen ID."
 
     We use the special ``Split()`` object for lists of values that we want to
     split apart into multiple rows. Just returning a list will not split the
-    contained items apart. Read :ref:`Splitting-Cells` in
-    :ref:`Extract-Mapping`.
+    contained items apart. Read :ref:`Splitting-Cells`.
 
 The resulting intermediate output will look like:
 
