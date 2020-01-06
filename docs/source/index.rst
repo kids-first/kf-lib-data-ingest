@@ -195,7 +195,7 @@ At this point, the data is in a form that is almost ready to be submitted to
 the target service. The Load Stage will build the target payloads and either
 POST or PATCH them to the target service.
 
-Head on over to the :ref:`tutorial` to get started with data ingestion!
+Head to :ref:`how_to` to get started with data ingestion!
 
 .. toctree::
    :caption: Table of Contents
@@ -205,6 +205,5 @@ Head on over to the :ref:`tutorial` to get started with data ingestion!
    quickstart
    design/overview
    tutorial/index.rst
-   challenge_scenarios/extracting/index.rst
    developer
    reference/index.rst

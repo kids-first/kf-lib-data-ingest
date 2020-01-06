@@ -12,9 +12,3 @@ Under Construction
 But coming soon ...
 
 Source code documentation
-
-.. toctree::
-   :caption: Contents
-   :maxdepth: 2
-
-   common.rst
