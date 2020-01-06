@@ -14,8 +14,8 @@ The extract stage does 3 main things:
 The extract configuration files instruct the extract stage how to accomplish
 the above.
 
-Write Extract Configuration Files
-=================================
+Writing Extract Configuration Files
+===================================
 
 Every data file provided by the investigator will require at least one extract
 configuration file. The reasons why will hopefully become clear after reading
@@ -70,11 +70,11 @@ The following extract configuration file accomplishes all of those needs
     )
     import re
 
-    source_data_url = 'https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/update-tutorial/docs/data/family_and_phenotype.tsv'
+    source_data_url = "https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/update-tutorial/docs/data/family_and_phenotype.tsv"
 
     source_data_read_params = {
         "header": 1,
-        "usecols": :lambda x: x != "[ignore]"
+        "usecols": lambda x: x != "[ignore]"
     }
 
 
@@ -117,7 +117,7 @@ The following extract configuration file accomplishes all of those needs
         ),
         value_map(
             in_col="specimens",
-            m=lambda x: Split(re.split('[,;]', x)),
+            m=lambda x: Split(re.split("[,;]", x)),
             out_col=CONCEPT.BIOSPECIMEN.ID
         ),
         [
@@ -177,7 +177,7 @@ Fetching the data
 
 .. code-block:: python
 
-    source_data_url = 'https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/update-tutorial/docs/data/family_and_phenotype.tsv'
+    source_data_url = "https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/update-tutorial/docs/data/family_and_phenotype.tsv"
 
 The first thing that the extractor does for every config file is fetch the
 related source data. This specifies where the file lives so that the code can
@@ -194,7 +194,7 @@ of from a remote server, you would use:
 
 .. code-block:: python
 
-    source_data_url = 'file://path/to/family_and_phenotype.tsv'
+    source_data_url = "file://path/to/family_and_phenotype.tsv"
 
 Reading the file
 ----------------
@@ -202,8 +202,8 @@ Reading the file
 .. code-block:: python
 
     source_data_read_params = {
-        header: 1,
-        usecols: :lambda x: x != "[ignore]"
+        "header": 1,
+        "usecols": lambda x: x != "[ignore]"
     }
 
 Extract tries to automatically pick the right pandas file reader for the given
@@ -214,7 +214,7 @@ Python pandas IO parameters described in
 http://pandas.pydata.org/pandas-docs/stable/user_guide/io.html
 
 The example data file contains tab-separated values (hence the filename ending
-with '.tsv') with a non-standard layout where we need to ignore the first row.
+with ".tsv") with a non-standard layout where we need to ignore the first row.
 For demonstration purposes we're also ignoring the first column.
 
 If the data had had the simplest layout (the column headers being on the first
@@ -364,7 +364,7 @@ A value map that splits cells apart
 
     value_map(
         in_col="specimens",
-        m=lambda x: Split(re.split('[,;]', x)),
+        m=lambda x: Split(re.split("[,;]", x)),
         out_col=CONCEPT.BIOSPECIMEN.ID
     )
 
