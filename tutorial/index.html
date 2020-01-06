@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Tutorial &mdash; Kids First Data Ingest Libraries  documentation</title>
+  <title>How To &mdash; Kids First Data Ingest Libraries  documentation</title>
   
 
   
@@ -94,21 +94,21 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Overview</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Design Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">How To</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="app.html">Kids First Ingest App</a></li>
 <li class="toctree-l2"><a class="reference internal" href="files.html">Study Data Files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ingest_package.html">Ingest Package Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="package_setup.html">New Ingest Package Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extract.html">Extract Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extract/index.html">Extract Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extract/challenge_scenarios/index.html">Challenges when Extracting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="package_testing.html">Test Your Ingest Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="package_testing.html">Testing Your Ingest Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="debugging.html">Debugging and Developing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="transform.html">Transform Stage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="load.html">Load Stage</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../challenge_scenarios/extracting/index.html">Challenges when Extracting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developer.html">Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
 </ul>
@@ -156,7 +156,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>Tutorial</li>
+      <li>How To</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -175,8 +175,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="tutorial">
-<span id="id1"></span><h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="how-to">
+<span id="id1"></span><h1>How To<a class="headerlink" href="#how-to" title="Permalink to this headline">¶</a></h1>
 <p>The quickstart example uses a simple dataset and is primarily intended to show
 a user how to run the ingest pipeline and view basic outputs. This tutorial
 uses a more complex study dataset and steps through each ingest stage in much
@@ -209,8 +209,19 @@ more depth.</p>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="ingest_package.html">Ingest Package Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="package_setup.html">New Ingest Package Setup</a></li>
-<li class="toctree-l1"><a class="reference internal" href="extract.html">Extract Stage</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="extract.html#write-extract-configuration-files">Write Extract Configuration Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extract/index.html">Extract Stage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="extract/index.html#example-extract-configuration">Example Extract Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extract/index.html#preprocessing-before-the-mapping-operations-list">Preprocessing Before the Mapping Operations List</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extract/index.html#predefined-mapping-operations">Predefined Mapping Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extract/index.html#important-strategic-details">Important Strategic Details</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="extract/challenge_scenarios/index.html">Challenges when Extracting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="extract/challenge_scenarios/embedded_values.html">Values Embedded in Other Values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extract/challenge_scenarios/multiple_file_columns.html">Multiple Columns of The Same Kind of Thing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extract/challenge_scenarios/multiple_groups.html">Multiple Meltable Groups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extract/challenge_scenarios/shared_operations.html">Sharing Operations Across Multiple Extracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extract/challenge_scenarios/multifile_fusion.html">Data That Only Makes Sense In Relation To Another File</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="study_creator.html">Source Data stored by the Kids First Data Tracker</a><ul>
@@ -221,7 +232,7 @@ more depth.</p>
 <li class="toctree-l2"><a class="reference internal" href="study_creator.html#try-it">Try It</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="package_testing.html">Test Your Ingest Package</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="package_testing.html">Testing Your Ingest Package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="package_testing.html#testing-your-package">Testing Your Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="package_testing.html#the-test-cli-command">The <code class="docutils literal notranslate"><span class="pre">test</span></code> CLI Command</a></li>
 <li class="toctree-l2"><a class="reference internal" href="package_testing.html#data-validation-tests">Data Validation Tests</a></li>

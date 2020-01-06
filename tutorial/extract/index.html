@@ -17,27 +17,27 @@
   
 
   
-  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
   
     
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
         <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
     
 
   
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     
-    <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Source Data stored by the Kids First Data Tracker" href="study_creator.html" />
-    <link rel="prev" title="New Ingest Package Setup" href="package_setup.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Challenges when Extracting" href="challenge_scenarios/index.html" />
+    <link rel="prev" title="New Ingest Package Setup" href="../package_setup.html" />
     <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
  
 </head>
@@ -53,12 +53,12 @@
           
 
           
-            <a href="../index.html">
+            <a href="../../index.html">
           
 
           
             
-            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+            <img src="../../_static/logo.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -73,7 +73,7 @@
 
           
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -92,17 +92,17 @@
             
               <p class="caption"><span class="caption-text">Table of Contents</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Overview</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorial</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="app.html">Kids First Ingest App</a></li>
-<li class="toctree-l2"><a class="reference internal" href="files.html">Study Data Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ingest_package.html">Ingest Package Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="package_setup.html">New Ingest Package Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design/overview.html">Design Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">How To</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../app.html">Kids First Ingest App</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../files.html">Study Data Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ingest_package.html">Ingest Package Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../package_setup.html">New Ingest Package Setup</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Extract Stage</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#write-extract-configuration-files">Write Extract Configuration Files</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#here-s-a-example-source-data-file">Here’s a example source data file:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example-extract-configuration">Example Extract Configuration</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#here-s-an-example-source-data-file">Here’s an example source data file:</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#in-order-to-ingest-this-data-into-the-kids-first-ecosystem-we-need-to">In order to ingest this data into the Kids First ecosystem, we need to:</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#the-following-extract-configuration-file-accomplishes-all-of-those-needs">The following extract configuration file accomplishes all of those needs</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#imports">Imports!</a></li>
@@ -112,18 +112,39 @@
 <li class="toctree-l4"><a class="reference internal" href="#the-final-extraction-product">The final Extraction product</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#preprocessing-before-the-mapping-operations-list">Preprocessing Before the Mapping Operations List</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#predefined-mapping-operations">Predefined Mapping Operations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#keep-map">Keep Map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#constant-map">Constant Map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#value-map">Value Map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#row-map">Row Map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#column-map">Column Map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#melt-map">Melt Map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#df-map">DF Map</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="package_testing.html">Test Your Ingest Package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="debugging.html">Debugging and Developing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="transform.html">Transform Stage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="load.html">Load Stage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#important-strategic-details">Important Strategic Details</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#avoid-hard-coded-strings">Avoid Hard-coded Strings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#repeated-information">Repeated Information</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#you-don-t-need-to-extract-the-whole-document-all-at-once">You Don’t Need To Extract The Whole Document All At Once</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#parallel-column-stacking">Parallel Column Stacking</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#length-rectification">Length Rectification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#splitting-cells">Splitting Cells</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#nested-operations-sublists">Nested Operations Sublists</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../challenge_scenarios/extracting/index.html">Challenges when Extracting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../developer.html">Developers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="challenge_scenarios/index.html">Challenges when Extracting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../package_testing.html">Testing Your Ingest Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../debugging.html">Debugging and Developing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../transform.html">Transform Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../load.html">Load Stage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer.html">Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/index.html">Reference</a></li>
 </ul>
 
             
@@ -138,7 +159,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">Kids First Data Ingest Libraries</a>
+          <a href="../../index.html">Kids First Data Ingest Libraries</a>
         
       </nav>
 
@@ -167,9 +188,9 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../index.html">Docs</a> &raquo;</li>
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="index.html">Tutorial</a> &raquo;</li>
+          <li><a href="../index.html">How To</a> &raquo;</li>
         
       <li>Extract Stage</li>
     
@@ -177,7 +198,7 @@
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/tutorial/extract.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/tutorial/extract/index.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -201,17 +222,17 @@ and acceptable values.</li>
 </ol>
 <p>The extract configuration files instruct the extract stage how to accomplish
 the above.</p>
-<div class="section" id="write-extract-configuration-files">
-<h2>Write Extract Configuration Files<a class="headerlink" href="#write-extract-configuration-files" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="example-extract-configuration">
+<span id="extract-example"></span><h2>Example Extract Configuration<a class="headerlink" href="#example-extract-configuration" title="Permalink to this headline">¶</a></h2>
 <p>Every data file provided by the investigator will require at least one extract
 configuration file. The reasons why will hopefully become clear after reading
 this section.</p>
 <p>We will step through how to write an extract configuration file for a source
 data file.</p>
-<div class="section" id="here-s-a-example-source-data-file">
-<h3>Here’s a example source data file:<a class="headerlink" href="#here-s-a-example-source-data-file" title="Permalink to this headline">¶</a></h3>
-<table border="1" class="docutils" id="id2">
-<caption><span class="caption-text">family_and_phenotype.tsv</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+<div class="section" id="here-s-an-example-source-data-file">
+<h3>Here’s an example source data file:<a class="headerlink" href="#here-s-an-example-source-data-file" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils" id="id3">
+<caption><span class="caption-text">family_and_phenotype.tsv</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col width="9%" />
 <col width="9%" />
@@ -395,11 +416,11 @@ events</li>
 <span class="p">)</span>
 <span class="kn">import</span> <span class="nn">re</span>
 
-<span class="n">source_data_url</span> <span class="o">=</span> <span class="s1">&#39;https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/update-tutorial/docs/data/family_and_phenotype.tsv&#39;</span>
+<span class="n">source_data_url</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/update-tutorial/docs/data/family_and_phenotype.tsv&quot;</span>
 
 <span class="n">source_data_read_params</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-    <span class="s2">&quot;usecols&quot;</span><span class="p">:</span> <span class="p">:</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">!=</span> <span class="s2">&quot;[ignore]&quot;</span>
+    <span class="s2">&quot;usecols&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">!=</span> <span class="s2">&quot;[ignore]&quot;</span>
 <span class="p">}</span>
 
 
@@ -442,7 +463,7 @@ events</li>
     <span class="p">),</span>
     <span class="n">value_map</span><span class="p">(</span>
         <span class="n">in_col</span><span class="o">=</span><span class="s2">&quot;specimens&quot;</span><span class="p">,</span>
-        <span class="n">m</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">Split</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;[,;]&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)),</span>
+        <span class="n">m</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">Split</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;[,;]&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)),</span>
         <span class="n">out_col</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">BIOSPECIMEN</span><span class="o">.</span><span class="n">ID</span>
     <span class="p">),</span>
     <span class="p">[</span>
@@ -496,7 +517,7 @@ import predefined constants and functions.</p>
 </div>
 <div class="section" id="fetching-the-data">
 <span id="id1"></span><h3>Fetching the data<a class="headerlink" href="#fetching-the-data" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">source_data_url</span> <span class="o">=</span> <span class="s1">&#39;https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/update-tutorial/docs/data/family_and_phenotype.tsv&#39;</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">source_data_url</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/update-tutorial/docs/data/family_and_phenotype.tsv&quot;</span>
 </pre></div>
 </div>
 <p>The first thing that the extractor does for every config file is fetch the
@@ -505,18 +526,18 @@ fetch it.</p>
 <p>Supported protocol prefixes are:
 <code class="docutils literal notranslate"><span class="pre">file://</span></code>, <code class="docutils literal notranslate"><span class="pre">s3://</span></code>, <code class="docutils literal notranslate"><span class="pre">http://</span></code>, <code class="docutils literal notranslate"><span class="pre">https://</span></code></p>
 <p>For files stored by the Kids First Study Creator, see the
-<a class="reference internal" href="study_creator.html#tutorial-study-creator"><span class="std std-ref">Source Data stored by the Kids First Data Tracker</span></a> tutorial.</p>
+<a class="reference internal" href="../study_creator.html#tutorial-study-creator"><span class="std std-ref">Source Data stored by the Kids First Data Tracker</span></a> tutorial.</p>
 <p>If you downloaded the test data file and want to load your local copy instead
 of from a remote server, you would use:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">source_data_url</span> <span class="o">=</span> <span class="s1">&#39;file://path/to/family_and_phenotype.tsv&#39;</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">source_data_url</span> <span class="o">=</span> <span class="s2">&quot;file://path/to/family_and_phenotype.tsv&quot;</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="reading-the-file">
 <h3>Reading the file<a class="headerlink" href="#reading-the-file" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">source_data_read_params</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">header</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-    <span class="n">usecols</span><span class="p">:</span> <span class="p">:</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">!=</span> <span class="s2">&quot;[ignore]&quot;</span>
+    <span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;usecols&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">!=</span> <span class="s2">&quot;[ignore]&quot;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -527,16 +548,17 @@ dict called <code class="docutils literal notranslate"><span class="pre">source_
 Python pandas IO parameters described in
 <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/user_guide/io.html">http://pandas.pydata.org/pandas-docs/stable/user_guide/io.html</a></p>
 <p>The example data file contains tab-separated values (hence the filename ending
-with ‘.tsv’) with a non-standard layout where we need to ignore the first row.
+with “.tsv”) with a non-standard layout where we need to ignore the first row.
 For demonstration purposes we’re also ignoring the first column.</p>
 <p>If the data had had the simplest layout (the column headers being on the first
 row, etc), then it would get loaded correctly by default without needing any
 parameters here, but with complex arrangements we have to configure the reader.</p>
 <p>If the right reader cannot be inferred, you’ll need to define a
-<code class="docutils literal notranslate"><span class="pre">read_func</span></code> function that takes a file path and kwargs (also given in
-<code class="docutils literal notranslate"><span class="pre">source_data_read_params</span></code>) and returns a pandas DataFrame:</p>
+<code class="docutils literal notranslate"><span class="pre">source_data_read_func</span></code> function that takes a file path and kwargs (also
+given in <code class="docutils literal notranslate"><span class="pre">source_data_read_params</span></code>) and returns a pandas DataFrame:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># a special custom file reader which must return a pandas DataFrame</span>
-<span class="n">read_func</span> <span class="o">=</span> <span class="n">my_custom_reader_function</span>
+<span class="k">def</span> <span class="nf">source_data_read_func</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">my_df</span>
 </pre></div>
 </div>
 </div>
@@ -554,7 +576,7 @@ select subsets of source data and then clean and map that data to the desired
 attributes and value formats. The most useful functions are already written for
 you. You just have to invoke them appropriately.</p>
 <p>For more information about extract operation functions, read
-<a class="reference internal" href="../design/extract_mapping.html#extract-mapping"><span class="std std-ref">Extract Mapping</span></a>.</p>
+<a class="reference internal" href="#map-operations"><span class="std std-ref">Predefined Mapping Operations</span></a>.</p>
 </div>
 <div class="section" id="a-value-map-operation-with-functional-replacements">
 <h4>A value map operation with functional replacements<a class="headerlink" href="#a-value-map-operation-with-functional-replacements" title="Permalink to this headline">¶</a></h4>
@@ -737,7 +759,7 @@ then output the result to a standard concept column for participant gender.”</
 <h4>A value map that splits cells apart<a class="headerlink" href="#a-value-map-that-splits-cells-apart" title="Permalink to this headline">¶</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">value_map</span><span class="p">(</span>
     <span class="n">in_col</span><span class="o">=</span><span class="s2">&quot;specimens&quot;</span><span class="p">,</span>
-    <span class="n">m</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">Split</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;[,;]&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)),</span>
+    <span class="n">m</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">Split</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;[,;]&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)),</span>
     <span class="n">out_col</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">BIOSPECIMEN</span><span class="o">.</span><span class="n">ID</span>
 <span class="p">)</span>
 </pre></div>
@@ -749,8 +771,7 @@ standard concept column for biospecimen ID.”</p>
 <p class="first admonition-title">Note</p>
 <p class="last">We use the special <code class="docutils literal notranslate"><span class="pre">Split()</span></code> object for lists of values that we want to
 split apart into multiple rows. Just returning a list will not split the
-contained items apart. Read <a class="reference internal" href="../design/extract_mapping.html#splitting-cells"><span class="std std-ref">Splitting Cells</span></a> in
-<a class="reference internal" href="../design/extract_mapping.html#extract-mapping"><span class="std std-ref">Extract Mapping</span></a>.</p>
+contained items apart. Read <a class="reference internal" href="#splitting-cells"><span class="std std-ref">Splitting Cells</span></a>.</p>
 </div>
 <p>The resulting intermediate output will look like:</p>
 <table border="1" class="docutils">
@@ -1669,6 +1690,632 @@ magic, the final extracted result given the data and our configuration is:</p>
 </table>
 </div>
 </div>
+<div class="section" id="preprocessing-before-the-mapping-operations-list">
+<span id="extract-preprocessing"></span><h2>Preprocessing Before the Mapping Operations List<a class="headerlink" href="#preprocessing-before-the-mapping-operations-list" title="Permalink to this headline">¶</a></h2>
+<p>Source data can’t always be mapped right away, or perhaps your preferred
+mapping operations require an initial pre-processing step, like e.g.
+transposing the table to turn rows into columns.</p>
+<p>Initial manipulations can be done in a <code class="docutils literal notranslate"><span class="pre">do_after_read</span></code> function that you may
+optionally define in your extract configuration file like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># This function will be called before performing the mapping operations list.</span>
+<span class="k">def</span> <span class="nf">do_after_read</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+    <span class="c1"># do something with df</span>
+    <span class="k">return</span> <span class="n">new_df</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="predefined-mapping-operations">
+<span id="map-operations"></span><h2>Predefined Mapping Operations<a class="headerlink" href="#predefined-mapping-operations" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Mapping operations share common input parameters <code class="docutils literal notranslate"><span class="pre">m</span></code>, <code class="docutils literal notranslate"><span class="pre">in_col</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">out_col</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">in_col</span></code>: The name or numerical index of the column in the input data file.</p>
+<p><code class="docutils literal notranslate"><span class="pre">out_col</span></code>: The name of the standard concept to use for the output column in
+the DataFrame containing extracted data.</p>
+<p class="last"><code class="docutils literal notranslate"><span class="pre">m</span></code>: The magic (or the “map”). Depending on the mapping operation, this
+will be a dict, function, or constant value.</p>
+</div>
+<div class="sidebar">
+<p class="first sidebar-title">When to use keep_map</p>
+<p class="last">You have a column of file names that you want to preserve exactly.</p>
+</div>
+<div class="section" id="keep-map">
+<h3>Keep Map<a class="headerlink" href="#keep-map" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">keep_map</span><span class="p">(</span><span class="n">in_col</span><span class="p">,</span> <span class="n">out_col</span><span class="p">):</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">keep_map</span></code> operation copies all of the values from <code class="docutils literal notranslate"><span class="pre">in_col</span></code> to
+<code class="docutils literal notranslate"><span class="pre">out_col</span></code> without modifying the values.</p>
+<p><code class="docutils literal notranslate"><span class="pre">keep_map</span></code> is a special case of <code class="docutils literal notranslate"><span class="pre">value_map</span></code> with <code class="docutils literal notranslate"><span class="pre">m=lambda</span> <span class="pre">x:</span> <span class="pre">x</span></code>.</p>
+<div class="sidebar">
+<p class="first sidebar-title">When to use constant_map</p>
+<p class="last">You know that all of your genomic files came from Whole Genome Sequencing.</p>
+</div>
+</div>
+<div class="section" id="constant-map">
+<h3>Constant Map<a class="headerlink" href="#constant-map" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">constant_map</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">out_col</span><span class="p">):</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">constant_map</span></code> operation writes <cite>N</cite> iterations of constant value <code class="docutils literal notranslate"><span class="pre">m</span></code>
+to <code class="docutils literal notranslate"><span class="pre">out_col</span></code>, where <cite>N</cite> is the number of rows in the source data table.</p>
+<p><code class="docutils literal notranslate"><span class="pre">constant_map</span></code> is a special case of <code class="docutils literal notranslate"><span class="pre">value_map</span></code> with <code class="docutils literal notranslate"><span class="pre">m=lambda</span> <span class="pre">x:</span> <span class="pre">&lt;some</span>
+<span class="pre">constant&gt;</span></code>.</p>
+<div class="sidebar">
+<p class="first sidebar-title">When to use value_map</p>
+<p class="last">Your data uses 1/2/3/4 instead of Male/Female/Other/Unknown.</p>
+</div>
+</div>
+<div class="section" id="value-map">
+<h3>Value Map<a class="headerlink" href="#value-map" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">value_map</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">in_col</span><span class="p">,</span> <span class="n">out_col</span><span class="p">):</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">value_map</span></code> operation takes values from <code class="docutils literal notranslate"><span class="pre">in_col</span></code>,
+performs some transformation <code class="docutils literal notranslate"><span class="pre">m</span></code> on them, and then writes the
+result to <code class="docutils literal notranslate"><span class="pre">out_col</span></code> in your result dataframe.</p>
+<p><code class="docutils literal notranslate"><span class="pre">m</span></code> can be a function, dict, or regex pattern string:</p>
+<ul class="simple">
+<li>If it’s a function, the returned column values will be the result of applying
+that function to each value in <code class="docutils literal notranslate"><span class="pre">in_col</span></code>.</li>
+<li>If it’s a dict, each key is a regex pattern string, and each value is either
+a direct replacement or a function applied to values in <code class="docutils literal notranslate"><span class="pre">in_col</span></code> matching
+the pattern.</li>
+<li>If it’s a regex pattern string, the result is the same as if it had been
+<code class="docutils literal notranslate"><span class="pre">{m:</span> <span class="pre">lambda</span> <span class="pre">x:</span> <span class="pre">x}</span></code>.</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ul class="last simple">
+<li>Regex patterns without <code class="docutils literal notranslate"><span class="pre">^</span></code> and <code class="docutils literal notranslate"><span class="pre">$</span></code> anchors will have them automatically
+added.</li>
+<li><code class="docutils literal notranslate"><span class="pre">m</span></code> dict regex pattern matchess are checked in order, and values
+from <code class="docutils literal notranslate"><span class="pre">in_col</span></code> are each only matched once, so <code class="docutils literal notranslate"><span class="pre">{&quot;a&quot;:</span> <span class="pre">&quot;b&quot;,</span> <span class="pre">&quot;b&quot;:</span> <span class="pre">&quot;c&quot;}</span></code>
+will never convert “a” into “c”.</li>
+<li>If a regex pattern includes capture groups, the receiving function will
+receive only the captures instead of the whole cell value.</li>
+</ul>
+</div>
+<div class="sidebar">
+<p class="first sidebar-title">When to use row_map</p>
+<p class="last">Your data has one column for folder path and one for filename but you need
+a column that combines both into a full file path.</p>
+</div>
+</div>
+<div class="section" id="row-map">
+<h3>Row Map<a class="headerlink" href="#row-map" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">row_map</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">out_col</span><span class="p">):</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">row_map</span></code> operation lets you build a single output column using data from
+across entire rows of source data when your output column needs to combine data
+from multiple cells in the row. <code class="docutils literal notranslate"><span class="pre">m</span></code> is a function that takes an entire row as
+input and returns a single value using values from that row.</p>
+<div class="sidebar">
+<p class="first sidebar-title">When to use column_map</p>
+<p class="last">You have an input column where some cells just say “ditto”, meaning that
+you need to propagate values from the cells above.</p>
+</div>
+</div>
+<div class="section" id="column-map">
+<h3>Column Map<a class="headerlink" href="#column-map" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">column_map</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">in_col</span><span class="p">,</span> <span class="n">out_col</span><span class="p">):</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">column_map</span></code> operation lets you pass an entire column of data into a
+custom function <code class="docutils literal notranslate"><span class="pre">m</span></code> which returns a new column (of the same length) as the
+result.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Needing to use <code class="docutils literal notranslate"><span class="pre">column_map</span></code> is a sign that the original data is
+poorly constructed.</p>
+</div>
+<div class="sidebar">
+<p class="first sidebar-title">When to use melt_map</p>
+<p class="last">Column headers are phenotype names, and cell values are +/- for
+each name for each person, and you need to get one column with names and
+one column with Yes/No values.</p>
+</div>
+</div>
+<div class="section" id="melt-map">
+<h3>Melt Map<a class="headerlink" href="#melt-map" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">melt_map</span><span class="p">(</span><span class="n">var_name</span><span class="p">,</span> <span class="n">map_for_vars</span><span class="p">,</span> <span class="n">value_name</span><span class="p">,</span> <span class="n">map_for_values</span><span class="p">):</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">melt_map</span></code> operation combines the pandas melt function and the
+<code class="docutils literal notranslate"><span class="pre">value_map</span></code> operation. It both reshapes data and maps values.</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">var_name</span></code> is the melt’s resulting var column name.</li>
+<li><code class="docutils literal notranslate"><span class="pre">map_for_vars</span></code> is a dict with keys equal to column names or numeric indices
+from the source data and values equal to replacement var names.</li>
+<li><code class="docutils literal notranslate"><span class="pre">value_name</span></code> is the melt’s resulting value column name.</li>
+<li><code class="docutils literal notranslate"><span class="pre">map_for_values</span></code> is the same as <code class="docutils literal notranslate"><span class="pre">value_map</span></code>’s <code class="docutils literal notranslate"><span class="pre">m</span></code>.</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Any use of <code class="docutils literal notranslate"><span class="pre">melt_map</span></code> can be replaced by multiple uses of <code class="docutils literal notranslate"><span class="pre">value_map</span></code>
+with appropriate column stacking.</p>
+</div>
+<div class="sidebar">
+<p class="first sidebar-title">When to use df_map</p>
+<p class="last">When you have no other option.</p>
+</div>
+</div>
+<div class="section" id="df-map">
+<h3>DF Map<a class="headerlink" href="#df-map" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">df_map</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">df_map</span></code> operation is for when you just can’t figure out how to do what
+you want to do with the other predefined operations. Take a whole DataFrame,
+perform some function <code class="docutils literal notranslate"><span class="pre">m</span></code> on it, and return a new DataFrame of the same size.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Needing to use <code class="docutils literal notranslate"><span class="pre">df_map</span></code> is a sign that the original data is poorly
+constructed.</p>
+</div>
+</div>
+</div>
+<div class="section" id="important-strategic-details">
+<span id="strategic-mapping-details"></span><h2>Important Strategic Details<a class="headerlink" href="#important-strategic-details" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="avoid-hard-coded-strings">
+<h3>Avoid Hard-coded Strings<a class="headerlink" href="#avoid-hard-coded-strings" title="Permalink to this headline">¶</a></h3>
+<p>Avoid using hard-coded strings for output column headers and values. As much as
+possible, favor variables in <code class="docutils literal notranslate"><span class="pre">common.constants</span></code> for cell values and variables
+in <code class="docutils literal notranslate"><span class="pre">common.concept_schema.CONCEPT</span></code> for <code class="docutils literal notranslate"><span class="pre">out_col</span></code> assignment. That way
+everyone has the chance to use the same shared set of values.</p>
+</div>
+<div class="section" id="repeated-information">
+<h3>Repeated Information<a class="headerlink" href="#repeated-information" title="Permalink to this headline">¶</a></h3>
+<p>Multiple identical declarations don’t add new information and therefore don’t
+matter. They also don’t hurt anything. This table means exactly the same thing
+as if it had only one row:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Participant ID</th>
+<th class="head">Specimen ID</th>
+<th class="head">Participant Age</th>
+<th class="head">Participant Sex</th>
+<th class="head">Participant Race</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>P1</td>
+<td>S1</td>
+<td>7</td>
+<td>m</td>
+<td>unknown</td>
+</tr>
+<tr class="row-odd"><td>P1</td>
+<td>S1</td>
+<td>7</td>
+<td>m</td>
+<td>unknown</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="you-don-t-need-to-extract-the-whole-document-all-at-once">
+<span id="normalized-denormalized"></span><h3>You Don’t Need To Extract The Whole Document All At Once<a class="headerlink" href="#you-don-t-need-to-extract-the-whole-document-all-at-once" title="Permalink to this headline">¶</a></h3>
+<p>If creating multiple extraction configurations for a single source data file to
+generate multiple smaller tables during Extract that can be manipulated in a
+Transform function is easier for you than making one complex table for the
+whole data file, then do it. If not, that’s fine too.</p>
+</div>
+<div class="section" id="parallel-column-stacking">
+<span id="column-stacking"></span><h3>Parallel Column Stacking<a class="headerlink" href="#parallel-column-stacking" title="Permalink to this headline">¶</a></h3>
+<p>If the same <code class="docutils literal notranslate"><span class="pre">out_col</span></code> is used multiple times, the column output from
+successive operations will be vertically concatenated.</p>
+<img alt="../../_images/columns.svg" src="../../_images/columns.svg" /></div>
+<div class="section" id="length-rectification">
+<h3>Length Rectification<a class="headerlink" href="#length-rectification" title="Permalink to this headline">¶</a></h3>
+<p>The length disparity between output columns produced by <a class="reference internal" href="#parallel-column-stacking">Parallel Column
+Stacking</a> is then rectified by least-common-multiple repetition of output
+columns which gives a final result that preserves row colinearity from the
+original source data. Note in the next image that A is inline with A, B is
+inline with B, etc.</p>
+<img alt="../../_images/length_rectification.svg" src="../../_images/length_rectification.svg" /><div class="admonition caution">
+<p class="first admonition-title">Caution</p>
+<p class="last">The lengths of all output columns <strong>must</strong> be multiples of the original
+source data length. If they aren’t, the library will raise an error.</p>
+</div>
+</div>
+<div class="section" id="splitting-cells">
+<span id="id2"></span><h3>Splitting Cells<a class="headerlink" href="#splitting-cells" title="Permalink to this headline">¶</a></h3>
+<p>Sometimes you will have source documents that lump multiple distinct values
+into the same table cell. For instance, study participants might have multiple
+specimens reported together as follows:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Participant</th>
+<th class="head">Specimens</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>P1</td>
+<td>SP1a/SP1b</td>
+</tr>
+<tr class="row-odd"><td>P2</td>
+<td>SP2</td>
+</tr>
+<tr class="row-even"><td>P3</td>
+<td>SP3a/SP3b/SP3c</td>
+</tr>
+</tbody>
+</table>
+<p>Because of the practical implications of the <a class="reference internal" href="../../design/value_principles.html#value-principles"><span class="std std-ref">Value Principles</span></a>,
+you will want to have independent associations (P1, SP1a), (P1, SP1b), etc, so
+you need to separate the “/”-delimited specimen values into separate entries.
+Replacing each of the Specimens cells with the appropriate <code class="docutils literal notranslate"><span class="pre">Split</span></code> object
+will tell the Extract Stage to do the right thing.</p>
+<div class="section" id="the-split-object">
+<h4>The Split Object<a class="headerlink" href="#the-split-object" title="Permalink to this headline">¶</a></h4>
+<p>The <code class="docutils literal notranslate"><span class="pre">Split</span></code> object (<code class="docutils literal notranslate"><span class="pre">common.pandas_utils.Split</span></code>) is instantiated with a
+list of values and optionally a group ID. After all of the extract mapping
+operations are finished, any Split objects found in your output will trigger a
+“split” of the row into multiple rows with identical non-Split cells and each
+with a different value from among the Split members.</p>
+<p>For instance, from:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Split([1, 2, 3])</td>
+<td>Split([4, 5, 6])</td>
+<td>7</td>
+</tr>
+</tbody>
+</table>
+<p>to:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1</td>
+<td>4</td>
+<td>7</td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td>5</td>
+<td>7</td>
+</tr>
+<tr class="row-even"><td>1</td>
+<td>6</td>
+<td>7</td>
+</tr>
+<tr class="row-odd"><td>2</td>
+<td>4</td>
+<td>7</td>
+</tr>
+<tr class="row-even"><td>2</td>
+<td>5</td>
+<td>7</td>
+</tr>
+<tr class="row-odd"><td>2</td>
+<td>6</td>
+<td>7</td>
+</tr>
+<tr class="row-even"><td>3</td>
+<td>4</td>
+<td>7</td>
+</tr>
+<tr class="row-odd"><td>3</td>
+<td>5</td>
+<td>7</td>
+</tr>
+<tr class="row-even"><td>3</td>
+<td>6</td>
+<td>7</td>
+</tr>
+</tbody>
+</table>
+<p>Without groups, multiple Splits on the same row will multiply to produce the
+cartesian product of the values in those Splits. However, if Splits are
+assigned a group value, then Splits on the same row in the same group will be
+linked to each other so that they do not form a cartesian product with each
+other.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Split([8, 9], group=1)</td>
+<td>Split([10, 11, 12], group=1)</td>
+<td>13</td>
+</tr>
+</tbody>
+</table>
+<p>to:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>8</td>
+<td>10</td>
+<td>13</td>
+</tr>
+<tr class="row-odd"><td>9</td>
+<td>11</td>
+<td>13</td>
+</tr>
+<tr class="row-even"><td>None</td>
+<td>12</td>
+<td>13</td>
+</tr>
+</tbody>
+</table>
+<p>And if you combine both of these forms together, you go from:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Split([1, 2], group=1)</td>
+<td>Split([3, 4, 5], group=1)</td>
+<td>Split([6, 7])</td>
+</tr>
+</tbody>
+</table>
+<p>to:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1</td>
+<td>3</td>
+<td>6</td>
+</tr>
+<tr class="row-odd"><td>2</td>
+<td>4</td>
+<td>6</td>
+</tr>
+<tr class="row-even"><td>None</td>
+<td>5</td>
+<td>6</td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td>3</td>
+<td>7</td>
+</tr>
+<tr class="row-even"><td>2</td>
+<td>4</td>
+<td>7</td>
+</tr>
+<tr class="row-odd"><td>None</td>
+<td>5</td>
+<td>7</td>
+</tr>
+</tbody>
+</table>
+<p>Going back to the participants and specimens example, you might use a <code class="docutils literal notranslate"><span class="pre">Split</span></code>
+object as part of a <code class="docutils literal notranslate"><span class="pre">value_map</span></code> operation like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">value_map</span><span class="p">(</span>
+    <span class="n">in_col</span><span class="o">=</span><span class="s2">&quot;Specimens&quot;</span><span class="p">,</span>
+    <span class="n">out_col</span><span class="o">=</span><span class="s2">&quot;&lt;example_output_col&gt;&quot;</span><span class="p">,</span>
+    <span class="n">m</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">Split</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">))</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Interpretation of <code class="docutils literal notranslate"><span class="pre">Split</span></code> objects happens after all the mapping
+operations are complete, so the newly created rows will not be affected by
+the length-multiple restriction cautioned in <a class="reference internal" href="#parallel-column-stacking">Parallel Column Stacking</a>.</p>
+</div>
+</div>
+</div>
+<div class="section" id="nested-operations-sublists">
+<span id="nested-operation-sublists"></span><h3>Nested Operations Sublists<a class="headerlink" href="#nested-operations-sublists" title="Permalink to this headline">¶</a></h3>
+<p>You can nest groups of operations inside of sublists to do length rectification
+on just the group before joining it with the rest of the operations output.</p>
+<p>It looks like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">operations</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span>
+        <span class="c1"># operations group 1</span>
+    <span class="p">],</span>
+    <span class="p">[</span>
+        <span class="c1"># operations group 2</span>
+    <span class="p">],</span>
+    <span class="c1"># etc</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>The reason for doing this is that <a class="reference internal" href="#parallel-column-stacking">Parallel Column Stacking</a> can lead to row
+mismatch problems in scenarios where several columns form logical groups with
+each other and the mapping operations don’t all produce the same length output.</p>
+<p>Consider the situation of extracting KFDRC phenotypes from:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="14%" />
+<col width="14%" />
+<col width="14%" />
+<col width="14%" />
+<col width="14%" />
+<col width="14%" />
+<col width="14%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Participant</th>
+<th class="head">Age</th>
+<th class="head">Mass</th>
+<th class="head">Cleft Ear</th>
+<th class="head">Mass/Cleft Age</th>
+<th class="head">Tennis Fingers</th>
+<th class="head">Tennis Age</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>P1</td>
+<td>70</td>
+<td>yes</td>
+<td>yes</td>
+<td>60</td>
+<td>no</td>
+<td>65</td>
+</tr>
+<tr class="row-odd"><td>P2</td>
+<td>80</td>
+<td>no</td>
+<td>yes</td>
+<td>80</td>
+<td>no</td>
+<td>45</td>
+</tr>
+</tbody>
+</table>
+<p>Note that there are two different groups of phenotype measurements recorded at
+different ages.</p>
+<p>A naïve and incorrect approach would be to do this:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">operations</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">melt_map</span><span class="p">(</span>
+        <span class="n">var_name</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">NAME</span><span class="p">,</span>
+        <span class="n">map_for_vars</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;Mass&quot;</span><span class="p">:</span> <span class="s2">&quot;Mass&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Cleft Ear&quot;</span><span class="p">:</span> <span class="s2">&quot;Cleft Ear&quot;</span>
+        <span class="p">},</span>
+        <span class="n">value_name</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">OBSERVED</span><span class="p">,</span>
+        <span class="n">map_for_values</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;yes&quot;</span><span class="p">:</span> <span class="n">constants</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">OBSERVED</span><span class="o">.</span><span class="n">POSITIVE</span><span class="p">,</span>
+            <span class="s2">&quot;no&quot;</span><span class="p">:</span> <span class="n">constants</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">OBSERVED</span><span class="o">.</span><span class="n">NEGATIVE</span>
+        <span class="p">}</span>
+    <span class="p">),</span>
+    <span class="n">keep_map</span><span class="p">(</span>
+        <span class="n">in_col</span><span class="o">=</span><span class="s2">&quot;Mass/Cleft Age&quot;</span><span class="p">,</span>
+        <span class="n">out_col</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">EVENT_AGE_DAYS</span>
+    <span class="p">),</span>
+    <span class="n">melt_map</span><span class="p">(</span>
+        <span class="n">var_name</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">NAME</span><span class="p">,</span>
+        <span class="n">map_for_vars</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;Tennis Fingers&quot;</span><span class="p">:</span> <span class="s2">&quot;Tennis Fingers&quot;</span>
+        <span class="p">},</span>
+        <span class="n">value_name</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">OBSERVED</span><span class="p">,</span>
+        <span class="n">map_for_values</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;yes&quot;</span><span class="p">:</span> <span class="n">constants</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">OBSERVED</span><span class="o">.</span><span class="n">POSITIVE</span><span class="p">,</span>
+            <span class="s2">&quot;no&quot;</span><span class="p">:</span> <span class="n">constants</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">OBSERVED</span><span class="o">.</span><span class="n">NEGATIVE</span>
+        <span class="p">}</span>
+    <span class="p">),</span>
+    <span class="n">keep_map</span><span class="p">(</span>
+        <span class="n">in_col</span><span class="o">=</span><span class="s2">&quot;Tennis Age&quot;</span><span class="p">,</span>
+        <span class="n">out_col</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">EVENT_AGE_DAYS</span>
+    <span class="p">)</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>But this will cause the following <strong>bad</strong> result because the operations stack
+output columns with different length outputs:</p>
+<img alt="../../_images/bad_melt.svg" src="../../_images/bad_melt.svg" /><p>Then the <a class="reference internal" href="#length-rectification">Length Rectification</a> will produce this mess:</p>
+<img alt="../../_images/wrong.svg" src="../../_images/wrong.svg" /><p>If you need to group values together and also stack columns that belong to the
+groups, all of the columns in each group must be the same length, otherwise
+groups will invade each others’ space. When melting multiple columns, this is
+naturally not going to be the case.</p>
+<p>Putting each of the groups in its own nested sublist solves this problem by
+rectifying lengths for each of the groups independently first.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">operations</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span>   <span class="c1"># mass/cleft group</span>
+        <span class="n">melt_map</span><span class="p">(</span>
+            <span class="n">var_name</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">NAME</span><span class="p">,</span>
+            <span class="n">map_for_vars</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;Mass&quot;</span><span class="p">:</span> <span class="s2">&quot;Mass&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Cleft Ear&quot;</span><span class="p">:</span> <span class="s2">&quot;Cleft Ear&quot;</span>
+            <span class="p">},</span>
+            <span class="n">value_name</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">OBSERVED</span><span class="p">,</span>
+            <span class="n">map_for_values</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;yes&quot;</span><span class="p">:</span> <span class="n">constants</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">OBSERVED</span><span class="o">.</span><span class="n">POSITIVE</span><span class="p">,</span>
+                <span class="s2">&quot;no&quot;</span><span class="p">:</span> <span class="n">constants</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">OBSERVED</span><span class="o">.</span><span class="n">NEGATIVE</span>
+            <span class="p">}</span>
+        <span class="p">),</span>
+        <span class="n">keep_map</span><span class="p">(</span>
+            <span class="n">in_col</span><span class="o">=</span><span class="s2">&quot;Mass/Cleft Age&quot;</span><span class="p">,</span>
+            <span class="n">out_col</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">EVENT_AGE_DAYS</span>
+        <span class="p">),</span>
+    <span class="p">],</span>
+    <span class="p">[</span>   <span class="c1"># tennis fingers group</span>
+        <span class="n">melt_map</span><span class="p">(</span>
+            <span class="n">var_name</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">NAME</span><span class="p">,</span>
+            <span class="n">map_for_vars</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;Tennis Fingers&quot;</span><span class="p">:</span> <span class="s2">&quot;Tennis Fingers&quot;</span>
+            <span class="p">},</span>
+            <span class="n">value_name</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">OBSERVED</span><span class="p">,</span>
+            <span class="n">map_for_values</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;yes&quot;</span><span class="p">:</span> <span class="n">constants</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">OBSERVED</span><span class="o">.</span><span class="n">POSITIVE</span><span class="p">,</span>
+                <span class="s2">&quot;no&quot;</span><span class="p">:</span> <span class="n">constants</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">OBSERVED</span><span class="o">.</span><span class="n">NEGATIVE</span>
+            <span class="p">}</span>
+        <span class="p">),</span>
+        <span class="n">keep_map</span><span class="p">(</span>
+            <span class="n">in_col</span><span class="o">=</span><span class="s2">&quot;Tennis Age&quot;</span><span class="p">,</span>
+            <span class="n">out_col</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">EVENT_AGE_DAYS</span>
+        <span class="p">)</span>
+    <span class="p">]</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>So now you get this instead:</p>
+<img alt="../../_images/good_melt.svg" src="../../_images/good_melt.svg" /></div>
+</div>
 </div>
 
 
@@ -1679,10 +2326,10 @@ magic, the final extracted result given the data and our configuration is:</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="study_creator.html" class="btn btn-neutral float-right" title="Source Data stored by the Kids First Data Tracker" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="challenge_scenarios/index.html" class="btn btn-neutral float-right" title="Challenges when Extracting" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="package_setup.html" class="btn btn-neutral float-left" title="New Ingest Package Setup" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../package_setup.html" class="btn btn-neutral float-left" title="New Ingest Package Setup" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

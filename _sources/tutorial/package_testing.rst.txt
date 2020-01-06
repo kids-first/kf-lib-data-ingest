@@ -1,6 +1,6 @@
-========================
-Test Your Ingest Package
-========================
+===========================
+Testing Your Ingest Package
+===========================
 
 Before we go any further in the tutorial, let's take a look at the recommended
 way to test your ingest package.

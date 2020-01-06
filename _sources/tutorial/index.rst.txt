@@ -1,8 +1,8 @@
-.. _tutorial:
+.. _how_to:
 
-========
-Tutorial
-========
+======
+How To
+======
 
 The quickstart example uses a simple dataset and is primarily intended to show
 a user how to run the ingest pipeline and view basic outputs. This tutorial
@@ -30,7 +30,8 @@ In this tutorial we will cover:
    files.rst
    ingest_package.rst
    package_setup.rst
-   extract.rst
+   extract/index.rst
+   extract/challenge_scenarios/index.rst
    study_creator.rst
    package_testing.rst
    debugging.rst

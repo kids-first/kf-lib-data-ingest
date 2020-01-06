@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Test Your Ingest Package &mdash; Kids First Data Ingest Libraries  documentation</title>
+  <title>Testing Your Ingest Package &mdash; Kids First Data Ingest Libraries  documentation</title>
   
 
   
@@ -94,15 +94,16 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Overview</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorial</a><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Design Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">How To</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="app.html">Kids First Ingest App</a></li>
 <li class="toctree-l2"><a class="reference internal" href="files.html">Study Data Files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ingest_package.html">Ingest Package Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="package_setup.html">New Ingest Package Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extract.html">Extract Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extract/index.html">Extract Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extract/challenge_scenarios/index.html">Challenges when Extracting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Test Your Ingest Package</a><ul>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Testing Your Ingest Package</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#testing-your-package">Testing Your Package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#the-test-cli-command">The <code class="docutils literal notranslate"><span class="pre">test</span></code> CLI Command</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#data-validation-tests">Data Validation Tests</a><ul>
@@ -121,7 +122,6 @@
 <li class="toctree-l2"><a class="reference internal" href="load.html">Load Stage</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../challenge_scenarios/extracting/index.html">Challenges when Extracting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developer.html">Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
 </ul>
@@ -169,9 +169,9 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="index.html">Tutorial</a> &raquo;</li>
+          <li><a href="index.html">How To</a> &raquo;</li>
         
-      <li>Test Your Ingest Package</li>
+      <li>Testing Your Ingest Package</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -190,8 +190,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="test-your-ingest-package">
-<h1>Test Your Ingest Package<a class="headerlink" href="#test-your-ingest-package" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="testing-your-ingest-package">
+<h1>Testing Your Ingest Package<a class="headerlink" href="#testing-your-ingest-package" title="Permalink to this headline">¶</a></h1>
 <p>Before we go any further in the tutorial, let’s take a look at the recommended
 way to test your ingest package.</p>
 <p>At this point, your ingest package should have the source data file and extract

@@ -1,8 +1,8 @@
 .. _Design-Overview:
 
-========
-Overview
-========
+===============
+Design Overview
+===============
 
 The ultimate goal for ingest is to take raw investigator data and compose from
 it a series of simple and unambiguous factual statements of the form:
