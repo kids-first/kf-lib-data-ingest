@@ -112,7 +112,8 @@
 <li class="toctree-l4"><a class="reference internal" href="#the-final-extraction-product">The final Extraction product</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#preprocessing-before-the-mapping-operations-list">Preprocessing Before the Mapping Operations List</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#preprocessing-before-the-operations-list">Preprocessing Before the Operations List</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#files-that-need-custom-readers">Files That Need Custom Readers</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#predefined-mapping-operations">Predefined Mapping Operations</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#keep-map">Keep Map</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#constant-map">Constant Map</a></li>
@@ -553,14 +554,6 @@ For demonstration purposes we’re also ignoring the first column.</p>
 <p>If the data had had the simplest layout (the column headers being on the first
 row, etc), then it would get loaded correctly by default without needing any
 parameters here, but with complex arrangements we have to configure the reader.</p>
-<p>If the right reader cannot be inferred, you’ll need to define a
-<code class="docutils literal notranslate"><span class="pre">source_data_read_func</span></code> function that takes a file path and kwargs (also
-given in <code class="docutils literal notranslate"><span class="pre">source_data_read_params</span></code>) and returns a pandas DataFrame:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># a special custom file reader which must return a pandas DataFrame</span>
-<span class="k">def</span> <span class="nf">source_data_read_func</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">my_df</span>
-</pre></div>
-</div>
 </div>
 <div class="section" id="extract-operations">
 <h3>Extract operations<a class="headerlink" href="#extract-operations" title="Permalink to this headline">¶</a></h3>
@@ -1690,8 +1683,8 @@ magic, the final extracted result given the data and our configuration is:</p>
 </table>
 </div>
 </div>
-<div class="section" id="preprocessing-before-the-mapping-operations-list">
-<span id="extract-preprocessing"></span><h2>Preprocessing Before the Mapping Operations List<a class="headerlink" href="#preprocessing-before-the-mapping-operations-list" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="preprocessing-before-the-operations-list">
+<span id="extract-preprocessing"></span><h2>Preprocessing Before the Operations List<a class="headerlink" href="#preprocessing-before-the-operations-list" title="Permalink to this headline">¶</a></h2>
 <p>Source data can’t always be mapped right away, or perhaps your preferred
 mapping operations require an initial pre-processing step, like e.g.
 transposing the table to turn rows into columns.</p>
@@ -1701,6 +1694,21 @@ optionally define in your extract configuration file like this:</p>
 <span class="k">def</span> <span class="nf">do_after_read</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
     <span class="c1"># do something with df</span>
     <span class="k">return</span> <span class="n">new_df</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="files-that-need-custom-readers">
+<span id="extract-custom-reader"></span><h2>Files That Need Custom Readers<a class="headerlink" href="#files-that-need-custom-readers" title="Permalink to this headline">¶</a></h2>
+<p>Source data can’t always be read automatically by the default tabular read
+functions. We provide readers for CSV/TSV/Excel sheets, but maybe the data you
+need is embedded in a PDF or PowerPoint file.</p>
+<p>If the right reader cannot be automatically inferred, you can define a custom
+function called <code class="docutils literal notranslate"><span class="pre">source_data_read_func</span></code> that takes a local file path and
+keyword arguments (also given in <code class="docutils literal notranslate"><span class="pre">source_data_read_params</span></code>) and returns a
+pandas DataFrame:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># a special custom file reader which must return a pandas DataFrame</span>
+<span class="k">def</span> <span class="nf">source_data_read_func</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">my_df</span>
 </pre></div>
 </div>
 </div>
