@@ -207,16 +207,6 @@ If the data had had the simplest layout (the column headers being on the first
 row, etc), then it would get loaded correctly by default without needing any
 parameters here, but with complex arrangements we have to configure the reader.
 
-If the right reader cannot be inferred, you'll need to define a
-``source_data_read_func`` function that takes a file path and kwargs (also
-given in ``source_data_read_params``) and returns a pandas DataFrame:
-
-.. code-block:: python
-
-    # a special custom file reader which must return a pandas DataFrame
-    def source_data_read_func(filepath, **kwargs):
-        return my_df
-
 Extract operations
 ------------------
 

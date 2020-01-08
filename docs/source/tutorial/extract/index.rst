@@ -18,6 +18,8 @@ the above.
 
 .. include:: map_preprocessing.inc
 
+.. include:: map_custom_reader.inc
+
 .. include:: map_operations.inc
 
 .. include:: map_operation_strategic_details.inc

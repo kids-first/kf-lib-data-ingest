@@ -1,7 +1,7 @@
 .. _Extract-Preprocessing:
 
-Preprocessing Before the Mapping Operations List
-================================================
+Preprocessing Before the Operations List
+========================================
 
 Source data can't always be mapped right away, or perhaps your preferred
 mapping operations require an initial pre-processing step, like e.g.
