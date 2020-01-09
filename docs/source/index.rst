@@ -128,10 +128,6 @@ These are the main steps performed by transform stage:
     user-defined transform function. This function specifies how the individual
     tables from the Extract Stage should be merged into a single table.
 
-    If in auto-transform mode, Transform Stage will convert the ExtractStage
-    tables into a graph. Note that auto-transform mode is not completely
-    implemented yet.
-
 2. **Create unique identifiers for concepts**
 
     For most concepts, the contributor of the data provides their own IDs to

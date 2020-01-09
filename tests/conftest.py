@@ -11,7 +11,6 @@ from kf_lib_data_ingest.etl.configuration.target_api_config import (
     TargetAPIConfig,
 )
 from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
-from kf_lib_data_ingest.etl.transform.auto import AutoTransformStage
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
 
 TEST_ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -150,31 +149,6 @@ def guided_transform_stage(caplog):
         os.path.join(
             TEST_DATA_DIR, "simple_study", "transform_module_simple.py"
         ),
-        KIDS_FIRST_CONFIG,
-        target_api_url=DEFAULT_TARGET_URL,
-        ingest_output_dir=TEST_INGEST_OUTPUT_DIR,
-    )
-    patcher.stop()
-
-    delete_dir(TEST_INGEST_OUTPUT_DIR)
-
-
-@pytest.fixture(scope="function")
-def auto_transform_stage(caplog):
-    """
-    Re-usable fixture for tests. Use this one for all tests that need
-    the auto transform stage and you don't want to worry about setting it up.
-    """
-    # Set pytest to capture log events at level INFO or higher
-    caplog.set_level(logging.DEBUG)
-
-    patcher = mock.patch(
-        "kf_lib_data_ingest.network.utils.get_open_api_v2_schema",
-        return_value=mock_dataservice_schema,
-    )
-
-    patcher.start()
-    yield AutoTransformStage(
         KIDS_FIRST_CONFIG,
         target_api_url=DEFAULT_TARGET_URL,
         ingest_output_dir=TEST_INGEST_OUTPUT_DIR,

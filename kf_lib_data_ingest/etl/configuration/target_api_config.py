@@ -3,15 +3,13 @@ A class which first validates and then stores transformation configuration
 parameters from a target API configuration module.
 
 An instance of this class is used by the transform stage to populate instances
-of target model concepts (i.e. participants, diagnoses, etc) with data from
-the standard model before those instances are loaded into the target service
-(i.e. Kids First Dataservice).
+of target model concepts (i.e. participants, diagnoses, etc) with data before
+those instances are loaded into the target service.
 
 This module must have the following required attributes:
 
     - target_service_entity_id
     - target_concepts
-    - relationships
 
 All but the first of these required attributes must be dicts.
 
@@ -37,7 +35,7 @@ All but the first of these required attributes must be dicts.
 
         {
             'standard_concept':
-                type: etl.transform.standard_model.concept_schema.CONCEPT
+                type: etl.common.concept_schema.CONCEPT
                 example: CONCEPT.PARTICIPANT
                 description: the standard concept that this target concept
                 maps to.
@@ -47,7 +45,7 @@ All but the first of these required attributes must be dicts.
 
                     key: a string containing the target concept property
                     value: a standard concept attribute from
-                    etl.transform.standard_model.concept_schema OR a tuple
+                    etl.common.concept_schema OR a tuple
                     of the form
                     (standard concept attribute, a type from ALLOWABLE_TYPES)
 
@@ -67,7 +65,7 @@ All but the first of these required attributes must be dicts.
                         - target_attribute: a string containing the target
                         concept property
                         - standard concept: a standard concept from
-                        etl.transform.standard_model.concept_schema
+                        etl.common.concept_schema
                         - target_concept: name of the linked target concept
 
                     dict example:
@@ -93,10 +91,9 @@ All but the first of these required attributes must be dicts.
         'properties'.
 
         The value in a key, value pair in a links dict, during the load
-        stage, will be looked up in the standard model, and then translated
-        into a target model ID. A value in a key, value pair in the
-        'properties' dict will be looked up in the standard model
-        and then kept as is during the load stage.
+        stage, will be translated into a target model ID. A value in a
+        key, value pair in the 'properties' dict will be kept as is during the
+        load stage.
 
         For example, before ID translation in load stage, the 'links' list
         could be:
@@ -112,12 +109,6 @@ All but the first of these required attributes must be dicts.
                 'participant_id': 'PT_00001111'
             }
 
-    - relationships
-      A dict of sets which must represent a directed acyclic graph in the
-      form of an adjacency list. The relationships graph codifies the
-      parent-child relationships between target concepts. A key in the
-      relationships dict should be a string containing a parent target
-      concept, and the values should be a set of child target concepts.
 """
 from pprint import pformat
 
@@ -137,22 +128,18 @@ from kf_lib_data_ingest.common.type_safety import (
 class TargetAPIConfig(PyModuleConfig):
     def __init__(self, filepath):
         """
-        Import python module, validate it, and populate instance attributes
+        Import python module, validate it, and populate instance attributes.
         """
         super().__init__(filepath)
         self.target_concepts = self.contents.target_concepts
-        self.relationship_graph = self._build_relationship_graph(
-            self.contents.relationships
-        )
 
     def _validate(self):
         """
-        Validate that the target API config Python module has all the
-        required content with the right types
+        Validate that the target API config Python module has all the required
+        content with the right types.
         """
         self._validate_required_attrs()
         self._validate_target_concepts()
-        self._validate_relationships()
 
         if hasattr(self.contents, "validate"):
             getattr(self.contents, "validate")()
@@ -160,9 +147,9 @@ class TargetAPIConfig(PyModuleConfig):
     def _validate_required_attrs(self):
         """
         Check that all module level required attributes are present and are
-        of the correct form
+        of the correct form.
         """
-        required_dict_attrs = ["target_concepts", "relationships"]
+        required_dict_attrs = ["target_concepts"]
         required = required_dict_attrs + ["target_service_entity_id"]
         for attr in required:
             if not hasattr(self.contents, attr):
@@ -182,8 +169,7 @@ class TargetAPIConfig(PyModuleConfig):
 
     def _validate_target_concepts(self):
         """
-        Validate target concept dicts in target_concepts
-
+        Validate target concept dicts in target_concepts.
         Check the format and content of each dict.
         """
         # Check that all required keys are present
@@ -222,7 +208,7 @@ class TargetAPIConfig(PyModuleConfig):
         standard_concept.
 
         The mapped value must be an existing standard concept
-        in etl.transform.standard_model.concept_schema
+        in etl.common.concept_schema.
         """
         mapped_concepts = [
             target_concept_dict.get("standard_concept")
@@ -239,9 +225,9 @@ class TargetAPIConfig(PyModuleConfig):
         """
         Validate target concept attribute mappings
 
-        All target concept attributes must be strings
+        All target concept attributes must be strings.
         All mapped values must be valid standard concept attributes in
-        etl.transform.standard_model.concept_schema
+        etl.common.concept_schema.
         """
         target_concepts = self.contents.target_concepts
 
@@ -255,10 +241,10 @@ class TargetAPIConfig(PyModuleConfig):
 
     def _validate_properties(self, target_concept, target_concept_dict):
         """
-        Validate properties dict for each target concept config dict
+        Validate properties dict for each target concept config dict.
 
-        Keys must be strs
-        Values must be existing standard concept strings
+        Keys must be strs.
+        Values must be existing standard concept strings.
         """
         props_dict = target_concept_dict["properties"]
 
@@ -334,8 +320,7 @@ class TargetAPIConfig(PyModuleConfig):
                     f"\nThe linked standard concept: {sc_name} does "
                     "not exist in the standard concept set!"
                 )
-            # Linked target concepts must be one of the target concept
-            # keys
+            # Linked target concepts must be one of the target concept keys
             tc = link_dict["target_concept"]
             if tc not in valid_target_concepts:
                 raise ValueError(
@@ -357,80 +342,3 @@ class TargetAPIConfig(PyModuleConfig):
         ]
 
         assert_all_safe_type(endpoints, str)
-
-    def _validate_relationships(self):
-        """
-        Validate relationships dict
-
-        Keys should be existing standard concepts
-        Values should be sets containing existing standard concepts
-        The relationships dict is an adjacency list which represents a directed
-        acyclic graph. There should be no cycles in the graph.
-        """
-        relationships = self.contents.relationships
-
-        # All values in relationships should be sets
-        assert_all_safe_type(relationships.values(), set)
-
-        # All keys and values in sets should be existing standard concepts
-        for parent_concept, child_concepts in relationships.items():
-            if parent_concept not in concept_set:
-                raise ValueError(
-                    "Keys in relationships dict must be one of the standard "
-                    f"concepts. {parent_concept} is not a standard concept."
-                )
-
-            for child_concept in child_concepts:
-                if child_concept not in concept_set:
-                    raise ValueError(
-                        "Set values in relationships dict must be one of the "
-                        f"standard concepts. {child_concept} is not a standard"
-                        " concept."
-                    )
-
-        # Check for cycles
-        # It's weird that find_cycle raises an exception if no cycle is found,
-        # oh well
-        rg = self._build_relationship_graph(relationships)
-        edges = None
-        try:
-            edges = nx.find_cycle(rg, orientation="original")
-        # No cycles found - pass validation
-        except nx.exception.NetworkXNoCycle:
-            pass
-        # A cycle was found
-        else:
-            raise ValueError(
-                "Invalid `relationships` graph! `relationships` MUST be a "
-                f"directed acyclic graph. The cycle: {edges} was detected in "
-                "the graph."
-            )
-
-    def _build_relationship_graph(self, relationships):
-        """
-        Build a networkX directed graph (DiGraph) from the relationships dict
-        which is in the form of an adjacency list.
-
-        This graph codifies the parent-child relationships among target model
-        concepts. It is later used in the transform stage as a set of
-        restrictions when searching the concept graph for the value of a
-        target concept attribute.
-        """
-        graph = nx.DiGraph()
-
-        for node, neighbors in relationships.items():
-            # Node key is concept name from concept instance
-            node = node._CONCEPT_NAME
-            # Add node if not in graph
-            if not graph.has_node(node):
-                graph.add_node(node)
-            # Add directed edge from node to neighbor
-            for n in neighbors:
-                # Node key is concept name from concept instance
-                n = n._CONCEPT_NAME
-                # Add neighbor node if not in graph
-                if not graph.has_node(n):
-                    graph.add_node(n)
-                graph.add_edge(node, n)
-
-        return graph

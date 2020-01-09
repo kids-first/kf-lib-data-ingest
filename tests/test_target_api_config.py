@@ -33,8 +33,7 @@ def kids_first_config():
 
 
 @pytest.mark.parametrize(
-    "test_attr",
-    [("target_concepts"), ("relationships"), ("target_service_entity_id")],
+    "test_attr", [("target_concepts"), ("target_service_entity_id")]
 )
 def test_missing_req_attrs(kids_first_config, test_attr):
     """
@@ -52,7 +51,6 @@ def test_missing_req_attrs(kids_first_config, test_attr):
     "test_attr,test_value",
     [
         ("target_concepts", "_asdfasdfasdfasdf_"),
-        ("relationships", "_asdfasdfasdfasdf_"),
         ("target_service_entity_id", {}),
     ],
 )
@@ -282,56 +280,3 @@ def test_custom_validation(kids_first_config):
     with pytest.raises(AssertionError) as e:
         kids_first_config.contents.validate()
     assert "incorrect or null mapping" in str(e.value)
-
-
-def test_relationships_types_and_values(kids_first_config):
-    """
-    Test for wrong types and values in relationships graph
-    """
-    relationships = kids_first_config.contents.relationships
-
-    # Test non-set value
-    parent_concept = random.choice(list(relationships.keys()))
-    _saved = relationships[parent_concept]
-
-    relationships[parent_concept] = "bar"
-    with pytest.raises(TypeError) as e:
-        kids_first_config._validate_relationships()
-    assert ("requires all items in relationships.values()") in str(e.value)
-    # Reset
-    relationships[parent_concept] = _saved
-
-    # Test non-standard_concept key
-    relationships["_asdfasdfasdfasdf_"] = {"bar"}
-    with pytest.raises(ValueError) as e:
-        kids_first_config._validate_relationships()
-    assert (
-        "Keys in relationships dict must be one of the standard concepts"
-    ) in str(e.value)
-    # Remove invalid key
-    relationships.pop("_asdfasdfasdfasdf_")
-
-    # Test non-standard_concept set member
-    relationships[parent_concept] = {"baz"}
-    with pytest.raises(ValueError) as e:
-        kids_first_config._validate_relationships()
-    assert (
-        "Set values in relationships dict must be one of the standard "
-        "concepts."
-    ) in str(e.value)
-
-
-def test_relationships_dag(kids_first_config):
-    """
-    Test that relationships graph must be a directed acyclic graph
-    """
-    # Family -> Participant already exists
-    relationships = kids_first_config.contents.relationships
-    assert relationships[CONCEPT.FAMILY] == {CONCEPT.PARTICIPANT}
-
-    # Now add a cycle Participant -> Biospecimen -> Family
-    relationships[CONCEPT.BIOSPECIMEN] = {CONCEPT.FAMILY}
-
-    with pytest.raises(ValueError) as e:
-        kids_first_config._validate_relationships()
-    assert "MUST be a directed acyclic graph" in str(e.value)
