@@ -435,9 +435,7 @@ class TransformStage(IngestStage):
 
             # If no unique key columns are present raise an error.
             # This means that the dataframe does not have anything to uniquely
-            # identify concepts in the data. In the case of auto transform
-            # this means no ConceptNodes can be created and inserted into the
-            # ConceptGraph.
+            # identify concepts in the data.
             is_any_unique_keys = any(is_identifier(col) for col in df.columns)
             if not is_any_unique_keys:
                 raise ValueError(

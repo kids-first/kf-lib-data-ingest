@@ -31,12 +31,6 @@ The ingest package contains three components:
     transformation with a predictable set of user-programmed operations. This
     is described in the :ref:`Tutorial-Transform-Stage` section.
 
-    If this file does not exist, then automatic graph-based transformation will
-    be used by the transform stage. More on this later in the tutorial.
-
-    **NOTE: automatic graph-based transformation is NYI, so this is not
-    actually optional.**
-
 Your ingest package directory for a study would look something like this::
 
     my_study/

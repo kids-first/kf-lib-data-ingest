@@ -18,7 +18,6 @@ from kf_lib_data_ingest.etl.configuration.ingest_package_config import (
 from kf_lib_data_ingest.etl.configuration.log import setup_logger
 from kf_lib_data_ingest.etl.extract.extract import ExtractStage
 from kf_lib_data_ingest.etl.load.load import LoadStage
-from kf_lib_data_ingest.etl.transform.auto import AutoTransformStage
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
 from kf_lib_data_ingest.etl.transform.transform import TransformStage
 
@@ -49,7 +48,6 @@ class DataIngestPipeline(object):
         ingest_package_config_path,
         target_api_config_path,
         auth_configs=None,
-        auto_transform=False,
         use_async=False,
         target_url=DEFAULT_TARGET_URL,
         log_level_name=None,
@@ -67,9 +65,6 @@ class DataIngestPipeline(object):
         :type ingest_package_config_path: str
         :param target_api_config_path: Path to the target api config file
         :type target_api_config_path: str
-        :param auto_transform: Whether to use automatic graph-based
-        transformation, defaults to False (user guided transformation)
-        :type auto_transform: bool, optional
         :param use_async: Whether to load asynchronously, defaults to False
         :type use_async: bool, optional
         :param target_url: The target API URL, defaults to DEFAULT_TARGET_URL
@@ -87,7 +82,6 @@ class DataIngestPipeline(object):
 
         assert_safe_type(ingest_package_config_path, str)
         assert_safe_type(target_api_config_path, str)
-        assert_safe_type(auto_transform, bool)
         assert_safe_type(use_async, bool)
         assert_safe_type(target_url, str)
         assert_safe_type(log_level_name, None, str)
@@ -109,7 +103,6 @@ class DataIngestPipeline(object):
 
         self.target_api_config_path = target_api_config_path
         self.auth_configs = auth_configs
-        self.auto_transform = auto_transform
         self.use_async = use_async
         self.target_url = target_url
         self.dry_run = dry_run
@@ -190,10 +183,7 @@ class DataIngestPipeline(object):
 
         transform_fp = None
         # Create file path to transform function Python module
-        if (
-            self.data_ingest_config.transform_function_path
-            and not self.auto_transform
-        ):
+        if self.data_ingest_config.transform_function_path:
             transform_fp = os.path.join(
                 self.ingest_config_dir,
                 os.path.relpath(
@@ -202,17 +192,11 @@ class DataIngestPipeline(object):
             )
 
         if not transform_fp:
-            # ** Temporary - until auto transform is further developed **
             raise FileNotFoundError(
                 "Transform module file has not been created yet! "
                 "You must define a transform function in order for ingest "
                 "to continue."
             )
-            #
-            # yield AutoTransformStage(
-            #     self.target_api_config_path, self.target_url,
-            #     self.ingest_output_dir
-            # )
         else:
             yield GuidedTransformStage(
                 transform_fp,

@@ -105,16 +105,6 @@ def common_args_options(func):
         ),
     )(func)
 
-    # ** Temporary - until auto transform is further developed **
-    # func = click.option(
-    #     '--auto_transform',
-    #     default=False,
-    #     is_flag=True,
-    #     help=(
-    #         'A flag specifying whether to use auto transformation or '
-    #         'user guided transformation'
-    #     )
-    # )(func)
     return func
 
 

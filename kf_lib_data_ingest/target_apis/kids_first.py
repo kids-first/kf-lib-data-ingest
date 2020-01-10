@@ -1,5 +1,5 @@
 """
-Configuration module specifying how a target model maps to the standard model
+Configuration module specifying how a target model maps to the standard model.
 
 This module is translated into an
 etl.configuration.target_api_config.TargetAPIConfig object which is used by the
@@ -391,34 +391,6 @@ target_concepts = {
         },
         "endpoint": "/sequencing-experiment-genomic-files",
     },
-}
-
-relationships = {
-    CONCEPT.INVESTIGATOR: {CONCEPT.STUDY},
-    CONCEPT.STUDY: {CONCEPT.PARTICIPANT},
-    CONCEPT.FAMILY: {CONCEPT.PARTICIPANT},
-    CONCEPT.PARTICIPANT: {
-        CONCEPT.BIOSPECIMEN,
-        CONCEPT.DIAGNOSIS,
-        CONCEPT.PHENOTYPE,
-        CONCEPT.OUTCOME,
-    },
-    CONCEPT.DIAGNOSIS: {CONCEPT.BIOSPECIMEN_DIAGNOSIS},
-    CONCEPT.BIOSPECIMEN: {
-        CONCEPT.BIOSPECIMEN_GENOMIC_FILE,
-        CONCEPT.BIOSPECIMEN_DIAGNOSIS,
-    },
-    CONCEPT.GENOMIC_FILE: {
-        CONCEPT.BIOSPECIMEN_GENOMIC_FILE,
-        CONCEPT.READ_GROUP_GENOMIC_FILE,
-        CONCEPT.SEQUENCING_GENOMIC_FILE,
-    },
-    CONCEPT.READ_GROUP: {CONCEPT.READ_GROUP_GENOMIC_FILE},
-    CONCEPT.SEQUENCING: {
-        CONCEPT.GENOMIC_FILE,
-        CONCEPT.SEQUENCING_GENOMIC_FILE,
-    },
-    CONCEPT.SEQUENCING.CENTER: {CONCEPT.BIOSPECIMEN, CONCEPT.SEQUENCING},
 }
 
 
