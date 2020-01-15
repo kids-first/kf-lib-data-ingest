@@ -164,9 +164,7 @@ def df():
     )
 
 
-def test_standard_to_target(
-    caplog, df_dict, target_api_config, message_packer
-):
+def test_standard_to_target(caplog, df_dict, target_api_config, message_packer):
     """
     Test MessagePacker._standard_to_target transformation
     """
@@ -253,8 +251,7 @@ def test_handle_nulls_no_schema(
     schema["definitions"].pop("participant")
     message_packer._handle_nulls(target_instances, schema)
     assert (
-        "Skip handle nulls for participant. No schema was found."
-        in caplog.text
+        "Skip handle nulls for participant. No schema was found." in caplog.text
     )
 
 
@@ -311,8 +308,7 @@ def test_unique_keys(message_packer, df):
             col2 = CONCEPT.BIOSPECIMEN.ID
             ukey_col = CONCEPT.BIOSPECIMEN.UNIQUE_KEY
             assert df.apply(
-                lambda row: check_compound_uk(row, ukey_col, col1, col2),
-                axis=1,
+                lambda row: check_compound_uk(row, ukey_col, col1, col2), axis=1
             ).all()
         else:
             assert df[id_col].equals(df[ukey_col])
@@ -366,8 +362,7 @@ def test_compound_unique_keys(message_packer):
             col2 = CONCEPT.GENOMIC_FILE.UNIQUE_KEY
             ukey_col = CONCEPT.READ_GROUP_GENOMIC_FILE.UNIQUE_KEY
             assert df.apply(
-                lambda row: check_compound_uk(row, ukey_col, col1, col2),
-                axis=1,
+                lambda row: check_compound_uk(row, ukey_col, col1, col2), axis=1
             ).all()
         else:
             assert df[id_col].equals(df[ukey_col])

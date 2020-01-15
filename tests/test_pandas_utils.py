@@ -1,10 +1,8 @@
 """
 Tests for kf_lib_data_ingest/common/pandas_utils.py
 """
-import logging
-
-import pandas
 import numpy
+import pandas
 import pytest
 
 from kf_lib_data_ingest.common import pandas_utils
@@ -152,9 +150,7 @@ def test_outer_merge(info_caplog, dfs):
     assert left_only.equals(df1.tail(1))
     assert numpy.array_equal(right_only.values, df2.tail(1).values)
 
-    df = pandas_utils.outer_merge(
-        df1, df2, on="A", with_merge_detail_dfs=False
-    )
+    df = pandas_utils.outer_merge(df1, df2, on="A", with_merge_detail_dfs=False)
     assert "Outer merge Left with Right" in info_caplog.text
     assert isinstance(df, pandas.DataFrame)
     assert expected.equals(df)

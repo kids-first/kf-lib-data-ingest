@@ -14,7 +14,7 @@ See: docs/design/extract_config_format.py for function details
 """
 from pandas import DataFrame
 
-from kf_lib_data_ingest.common.pandas_utils import (
+from kf_lib_data_ingest.common.pandas_utils import (  # noqa: F401
     Split,
     get_col,
     safe_pandas_replace,

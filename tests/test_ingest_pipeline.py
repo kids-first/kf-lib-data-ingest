@@ -4,15 +4,14 @@ import shutil
 import pytest
 from click.testing import CliRunner
 
-from kf_lib_data_ingest.config import VERSION
+from conftest import COMMAND_LINE_ERROR_CODE, TEST_DATA_DIR, delete_dir
 from kf_lib_data_ingest.app import cli
-from conftest import TEST_DATA_DIR, COMMAND_LINE_ERROR_CODE
+from kf_lib_data_ingest.config import VERSION
 from kf_lib_data_ingest.etl.ingest_pipeline import (
     CODE_TO_STAGE_MAP,
     DEFAULT_STAGES_TO_RUN_STR,
     VALID_STAGES_TO_RUN_STRS,
 )
-from conftest import delete_dir
 
 TEST_STUDY_CONFIG = os.path.join(
     TEST_DATA_DIR, "test_study", "ingest_package_config.py"
@@ -164,9 +163,7 @@ def test_ingest_no_transform_module(tmpdir):
         os.remove(tm)
 
     # Remove transform module from ingest config
-    ingest_config_path = os.path.join(
-        new_study_dir, "ingest_package_config.py"
-    )
+    ingest_config_path = os.path.join(new_study_dir, "ingest_package_config.py")
     with open(ingest_config_path) as txtfile:
         lines = [
             line

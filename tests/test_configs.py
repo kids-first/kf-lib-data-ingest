@@ -71,12 +71,12 @@ def test_ingest_package_config(tmpdir):
     with open(bipcf_path, "w") as bipcf:
         bipcf.write("HI, LOL!")
     with pytest.raises(ConfigValidationError):
-        ipc = IngestPackageConfig(bipcf_path)  # not valid python (syntax)
+        IngestPackageConfig(bipcf_path)  # not valid python (syntax)
 
     with open(bipcf_path, "w") as bipcf:
         bipcf.write("foo = 'HI, LOL!'")
     with pytest.raises(ConfigValidationError):
-        ipc = IngestPackageConfig(bipcf_path)  # missing required members
+        IngestPackageConfig(bipcf_path)  # missing required members
 
     confdir = os.path.join(tmpdir, "extract_configs")
     os.mkdir(confdir)
@@ -90,7 +90,7 @@ def test_ingest_package_config(tmpdir):
                 ]
             )
         )
-    ipc = IngestPackageConfig(bipcf_path)
+    IngestPackageConfig(bipcf_path)
 
 
 def test_extract_config():

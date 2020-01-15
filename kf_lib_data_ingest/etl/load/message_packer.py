@@ -81,8 +81,7 @@ class MessagePacker:
             self._handle_nulls(target_instances, target_api_schema)
         else:
             self.logger.warning(
-                "Skipping null processing because no target "
-                "schema was found"
+                "Skipping null processing because no target " "schema was found"
             )
 
         return target_instances

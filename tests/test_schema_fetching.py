@@ -80,7 +80,6 @@ def test_get_kf_schema(caplog, tmpdir, target_api_config, **kwargs):
     # Test cached schema file created in default loc
     mock.get(schema_url, json=mock_dataservice_schema)
     output = get_open_api_v2_schema(
-        KIDSFIRST_DATASERVICE_PROD_URL,
-        target_api_config.target_concepts.keys(),
+        KIDSFIRST_DATASERVICE_PROD_URL, target_api_config.target_concepts.keys()
     )
     assert os.path.isfile(os.path.realpath("./cached_schema.json"))

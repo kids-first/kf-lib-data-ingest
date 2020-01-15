@@ -1,16 +1,15 @@
 import os
-import logging
 
 import pytest
 
-from mocks import OAuth2Mocker
 from conftest import (
-    TEST_AUTH0_DOMAIN,
     TEST_AUTH0_AUD,
+    TEST_AUTH0_DOMAIN,
     TEST_CLIENT_ID,
     TEST_CLIENT_SECRET,
     TEST_DATA_DIR,
 )
+from mocks import OAuth2Mocker
 
 TEST_FILE_PATH = os.path.join(TEST_DATA_DIR, "data.csv")
 

@@ -41,7 +41,7 @@ class TransformStage(IngestStage):
 
     def _write_output(self, output):
         """
-        Write output of transform stage to tab separated value files.
+        Write output of transform stage.
 
         :param output: output created by TransformStage._run
         :type output: a dict of pandas.DataFrames

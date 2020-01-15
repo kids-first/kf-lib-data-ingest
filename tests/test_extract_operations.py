@@ -4,10 +4,10 @@ Tests for kf_lib_data_ingest/extract/operations.py
 
 import pandas
 import pytest
-from kf_lib_data_ingest.etl.extract import operations
-from kf_lib_data_ingest.common.type_safety import function
-from test_type_safety import type_exemplars
 
+from kf_lib_data_ingest.common.type_safety import function
+from kf_lib_data_ingest.etl.extract import operations
+from test_type_safety import type_exemplars
 
 df = pandas.DataFrame({"COL_A": ["1", "2", "3"]})
 other_df = pandas.DataFrame({"COL_B": ["4", "5", "6"]})
@@ -37,9 +37,7 @@ def _in_out_variants(map_wrap, val, in_col=None, out_col=None):
         map_wrap(val)
 
 
-def _test_map_allowed_types(
-    map_wrap, allowed_types, in_col=None, out_col=None
-):
+def _test_map_allowed_types(map_wrap, allowed_types, in_col=None, out_col=None):
     """
     For a given map_wrap function, tests that all unallowed argument types
     raise a TypeError and all allowed argument types do not.

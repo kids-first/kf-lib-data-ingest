@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from conftest import make_ingest_pipeline, delete_dir_contents
+from conftest import delete_dir_contents, make_ingest_pipeline
 from kf_lib_data_ingest.factory.generate import new_ingest_pkg
 
 

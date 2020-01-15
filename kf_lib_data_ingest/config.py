@@ -1,5 +1,5 @@
-import os
 import logging
+import os
 
 ROOT_DIR = os.path.dirname(__file__)
 TEMPLATES_DIR = os.path.join(os.path.dirname(ROOT_DIR), "templates")

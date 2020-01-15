@@ -1,7 +1,17 @@
-from kf_lib_data_ingest.etl.stage_analyses import *
-from kf_lib_data_ingest.common.concept_schema import *
+from random import choice, randint
 from string import ascii_lowercase
-from random import randint, choice
+
+from kf_lib_data_ingest.common.concept_schema import (
+    concept_from,
+    concept_set,
+    str_to_CONCEPT,
+)
+from kf_lib_data_ingest.etl.stage_analyses import (
+    NO,
+    NO_EXPECTED_COUNTS,
+    YES,
+    check_counts,
+)
 
 
 def randomString():
@@ -49,9 +59,7 @@ def test_invalid_str_key():
 
     # all matching but with concept classes
     # should pass
-    expected_counts = {
-        str_to_CONCEPT[k]: v for k, v in expected_counts.items()
-    }
+    expected_counts = {str_to_CONCEPT[k]: v for k, v in expected_counts.items()}
     passed, messages = check_counts(fake_sources, expected_counts)
     assert passed
     assert expected_counts.keys() != fake_sources.keys()

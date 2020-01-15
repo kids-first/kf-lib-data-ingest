@@ -1,8 +1,8 @@
 import requests_mock
 
 from conftest import (
-    TEST_AUTH0_DOMAIN,
     TEST_AUTH0_AUD,
+    TEST_AUTH0_DOMAIN,
     TEST_CLIENT_ID,
     TEST_CLIENT_SECRET,
 )

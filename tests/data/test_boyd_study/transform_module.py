@@ -8,9 +8,7 @@ def transform_function(mapped_df_dict):
     d = {os.path.basename(k): v for k, v in mapped_df_dict.items()}
 
     # Family, participant, biospecimen, diagnosis, phenotype, outcome
-    clinical = d[
-        "Boyd_Minimal_Data_Elements_Cuellar_9-2-2018_EDITED_v2_map.py"
-    ]
+    clinical = d["Boyd_Minimal_Data_Elements_Cuellar_9-2-2018_EDITED_v2_map.py"]
     # S3 info + read groups + sequencing library
     s3_files = d["s3_files_kf-seq-data-hudsonalpha_haib17SB5136_map.py"]
     # Specimen manifest with sequencing library

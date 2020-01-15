@@ -2,10 +2,9 @@ import os
 
 import pytest
 
+from conftest import TEST_INGEST_OUTPUT_DIR
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
 from kf_lib_data_ingest.common.stage import IngestStage
-
-from conftest import TEST_INGEST_OUTPUT_DIR
 
 
 @pytest.fixture(scope="function")

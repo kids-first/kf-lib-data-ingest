@@ -37,9 +37,7 @@ def check_counts(discovery_sources, expected_counts):
         messages.append(NO_EXPECTED_COUNTS)
         passed = True  # Pass if we have no expectations
     else:
-        checks = pandas.DataFrame(
-            columns=["Key", "Expected", "Found", "Equal"]
-        )
+        checks = pandas.DataFrame(columns=["Key", "Expected", "Found", "Equal"])
         for key, expected in expected_counts.items():
 
             # Accept both concepts and attributes, but automatically
@@ -79,9 +77,7 @@ def check_counts(discovery_sources, expected_counts):
 
         messages.append(
             "EXPECTED COUNT CHECKS:\n"
-            + tabulate(
-                checks, headers="keys", showindex=False, tablefmt="psql"
-            )
+            + tabulate(checks, headers="keys", showindex=False, tablefmt="psql")
         )
 
     return passed, messages
