@@ -276,99 +276,6 @@ concept_set = {
 }
 
 
-def _create_unique_key_composition():
-    """
-    Build a dict which stores the attributes used to build a unique key
-    for a particular concept. This key uniquely identifies concept instances of
-    the same type.
-
-    A key in the dict is a standard concept and a value in
-    the dict is a set of concept attributes.
-
-    - The ID attribute is usually populated with a unique identifier
-    provided from the source data and so the default unique key for a concept
-    is composed of just the ID attribute.
-
-    - However, some concepts don't typically have a unique ID assigned in
-    the source data. These concepts can be uniquely identified by a
-    combination of one or more other concept attributes. Thus, the unique key
-    would be composed of a set of attribute values joined together by some
-    delimiter.
-
-    - For example a phenotype doesn't typically have a unique identifier
-    assigned to it in the source data. But a phenotype can be uniquely
-    identified by a combination of the participant's id, phenotype name,
-    observed status, and the age of the participant when the observation was
-    recorded. The values for these attributes would form the unique key for a
-    phenotype instance.
-    """
-    # Default unique keys
-    identifiers = {}
-    for concept in concept_set:
-        identifiers[concept._CONCEPT_NAME] = {"required": [concept.ID]}
-
-    # Compound unique keys
-    identifiers[CONCEPT.BIOSPECIMEN._CONCEPT_NAME] = {
-        "required": [CONCEPT.BIOSPECIMEN_GROUP.ID, CONCEPT.BIOSPECIMEN.ID]
-    }
-    identifiers[CONCEPT.INVESTIGATOR._CONCEPT_NAME] = {
-        "required": [
-            CONCEPT.INVESTIGATOR.NAME,
-            CONCEPT.INVESTIGATOR.INSTITUTION,
-        ]
-    }
-    identifiers[CONCEPT.DIAGNOSIS._CONCEPT_NAME] = {
-        "required": [CONCEPT.PARTICIPANT.UNIQUE_KEY, CONCEPT.DIAGNOSIS.NAME],
-        "optional": [CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS],
-    }
-    identifiers[CONCEPT.PHENOTYPE._CONCEPT_NAME] = {
-        "required": [CONCEPT.PARTICIPANT.UNIQUE_KEY, CONCEPT.PHENOTYPE.NAME],
-        "optional": [
-            CONCEPT.PHENOTYPE.OBSERVED,
-            CONCEPT.PHENOTYPE.EVENT_AGE_DAYS,
-        ],
-    }
-    identifiers[CONCEPT.OUTCOME._CONCEPT_NAME] = {
-        "required": [
-            CONCEPT.PARTICIPANT.UNIQUE_KEY,
-            CONCEPT.OUTCOME.VITAL_STATUS,
-        ],
-        "optional": [CONCEPT.OUTCOME.EVENT_AGE_DAYS],
-    }
-    identifiers[CONCEPT.BIOSPECIMEN_GENOMIC_FILE._CONCEPT_NAME] = {
-        "required": [
-            CONCEPT.BIOSPECIMEN.UNIQUE_KEY,
-            CONCEPT.GENOMIC_FILE.UNIQUE_KEY,
-        ]
-    }
-    identifiers[CONCEPT.BIOSPECIMEN_DIAGNOSIS._CONCEPT_NAME] = {
-        "required": [
-            CONCEPT.BIOSPECIMEN.UNIQUE_KEY,
-            CONCEPT.DIAGNOSIS.UNIQUE_KEY,
-        ]
-    }
-    identifiers[CONCEPT.READ_GROUP_GENOMIC_FILE._CONCEPT_NAME] = {
-        "required": [
-            CONCEPT.READ_GROUP.UNIQUE_KEY,
-            CONCEPT.GENOMIC_FILE.UNIQUE_KEY,
-        ]
-    }
-    identifiers[CONCEPT.SEQUENCING_GENOMIC_FILE._CONCEPT_NAME] = {
-        "required": [
-            CONCEPT.SEQUENCING.UNIQUE_KEY,
-            CONCEPT.GENOMIC_FILE.UNIQUE_KEY,
-        ]
-    }
-    identifiers[CONCEPT.FAMILY_RELATIONSHIP._CONCEPT_NAME] = {
-        "required": [
-            CONCEPT.FAMILY_RELATIONSHIP.PERSON1.UNIQUE_KEY,
-            CONCEPT.FAMILY_RELATIONSHIP.RELATION_FROM_1_TO_2,
-            CONCEPT.FAMILY_RELATIONSHIP.PERSON2.UNIQUE_KEY,
-        ]
-    }
-    return identifiers
-
-
 def is_identifier(concept_property_string):
     """
     Given a delimited concept property string, check whether it is a
@@ -400,6 +307,3 @@ def concept_attr_from(concept_attribute_str):
     Extract the concept attribute from the concept attribute string
     """
     return concept_property_split[concept_attribute_str][1]
-
-
-unique_key_composition = _create_unique_key_composition()
