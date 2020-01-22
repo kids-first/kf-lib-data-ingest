@@ -19,7 +19,6 @@ from kf_lib_data_ingest.common.concept_schema import (
 )
 from kf_lib_data_ingest.common.misc import convert_to_downcasted_str
 from kf_lib_data_ingest.config import DEFAULT_KEY, DEFAULT_TARGET_URL
-
 from kf_lib_data_ingest.network.utils import get_open_api_v2_schema
 from kf_lib_data_ingest.target_apis.kids_first import (
     unique_key_composition as DEFAULT_KEY_COMP,
@@ -48,7 +47,7 @@ class MessagePacker:
         """
         Main entry method for building messages.
 
-        For each DataFrame in df_dict: convert the DataFrame containing all of
+        For each DataFrame in df_dict, convert the DataFrame containing all of
         the mapped source data into a dict of lists of dicts representing lists
         of target concept instances with nulls replaced by acceptable values
         based on the type of property as defined in the target API config.
@@ -81,7 +80,7 @@ class MessagePacker:
             self._handle_nulls(target_instances, target_api_schema)
         else:
             self.logger.warning(
-                "Skipping null processing because no target " "schema was found"
+                "Skipping null processing because no target schema was found"
             )
 
         return target_instances
@@ -372,7 +371,7 @@ class MessagePacker:
                 )
                 continue
             # Convert nulls
-            conversions = dict()
+            conversions = {}
             for i, instance in enumerate(list_of_instances):
                 for attr, value in instance["properties"].items():
                     if value is not None:

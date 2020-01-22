@@ -10,12 +10,12 @@ import click
 from kf_lib_data_ingest.app import settings
 from kf_lib_data_ingest.config import DEFAULT_LOG_LEVEL, DEFAULT_TARGET_URL
 from kf_lib_data_ingest.etl.ingest_pipeline import (
-    DataIngestPipeline,
     DEFAULT_STAGES_TO_RUN_STR,
     VALID_STAGES_TO_RUN_STRS,
+    DataIngestPipeline,
 )
 
-CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
+CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 DEFAULT_LOG_LEVEL_NAME = logging._levelToName.get(DEFAULT_LOG_LEVEL)
 
 
@@ -162,6 +162,7 @@ def ingest(
 
     kwargs.pop("app_settings_filepath", None)
     kwargs["auth_configs"] = app_settings.AUTH_CONFIGS
+    kwargs["db_url_env_key"] = app_settings.SECRETS.WAREHOUSE_DB_URL
 
     # Run ingest
     pipeline = DataIngestPipeline(

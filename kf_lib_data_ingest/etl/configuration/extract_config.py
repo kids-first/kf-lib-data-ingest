@@ -1,9 +1,9 @@
-from kf_lib_data_ingest.etl.configuration.base_config import PyModuleConfig
 from kf_lib_data_ingest.common.type_safety import (
-    assert_safe_type,
     assert_all_safe_type,
+    assert_safe_type,
     function,
 )
+from kf_lib_data_ingest.etl.configuration.base_config import PyModuleConfig
 
 
 class ExtractConfig(PyModuleConfig):

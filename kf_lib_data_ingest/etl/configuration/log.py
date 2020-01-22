@@ -13,7 +13,7 @@ from kf_lib_data_ingest.config import (
 VERBOTEN_STRINGS = {
     v: os.environ[v]
     for k, v in SECRETS.__dict__.items()
-    if not k.startswith("_") and v in os.environ
+    if not k.startswith("_") and v in os.environ and os.environ[v]
 }
 
 

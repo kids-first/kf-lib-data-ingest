@@ -9,8 +9,6 @@ from collections import defaultdict
 
 import pandas
 
-from kf_lib_data_ingest.config import DEFAULT_KEY
-
 from kf_lib_data_ingest.common.concept_schema import (
     CONCEPT,
     UNIQUE_ID_ATTR,
@@ -19,9 +17,10 @@ from kf_lib_data_ingest.common.concept_schema import (
 )
 from kf_lib_data_ingest.common.misc import clean_up_df
 from kf_lib_data_ingest.common.type_safety import (
-    assert_safe_type,
     assert_all_safe_type,
+    assert_safe_type,
 )
+from kf_lib_data_ingest.config import DEFAULT_KEY
 from kf_lib_data_ingest.etl.configuration.transform_module import (
     TransformModule,
 )
