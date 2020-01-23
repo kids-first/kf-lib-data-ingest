@@ -235,13 +235,16 @@ class DataIngestPipeline(object):
         try:
             # Initialize database
             if self.warehouse_db_url:
-                init_study_db(
-                    self.warehouse_db_url, self.data_ingest_config.study
+                study_id = self.data_ingest_config.study
+                init_study_db(self.warehouse_db_url, study_id)
+                self.logger.info(
+                    f"Initialized study db: {study_id} in warehouse."
                 )
 
             # Iterate over all stages in the ingest pipeline
             output = None
             for stage in self._iterate_stages():
+                stage_name = type(stage).__name__
                 # No more stages left in list of user specified stages
                 if not self.stages_to_run:
                     break
@@ -264,7 +267,7 @@ class DataIngestPipeline(object):
                 else:
                     self.logger.info(
                         "Loading previously cached output and concept counts "
-                        f"from {type(stage).__name__}"
+                        f"from {stage_name}"
                     )
                     output = stage.read_output()
                     stage.read_concept_counts()
@@ -278,11 +281,13 @@ class DataIngestPipeline(object):
                         persist_df_to_study_db(
                             self.warehouse_db_url,
                             self.data_ingest_config.study,
-                            type(stage).__name__,
+                            stage_name,
                             df,
                             df_name,
                         )
-
+                        self.logger.info(
+                            f"Loaded {stage_name}:{df_name} in warehouse."
+                        )
             self._log_count_results(all_passed, all_messages)
 
             # Run user defined data validation tests
