@@ -3,6 +3,7 @@ Entry point for the Kids First Data Ingest Client
 """
 import inspect
 import logging
+import os
 import sys
 
 import click
@@ -127,6 +128,12 @@ def cli():
     help="A flag specifying whether to only pretend to send data to "
     "the target service. Overrides the resume_from setting.",
 )
+@click.option(
+    "--no_warehouse",
+    default=False,
+    is_flag=True,
+    help="A flag to skip sending data to the warehouse db.",
+)
 @common_args_options
 def ingest(
     ingest_package_config_path,
@@ -137,6 +144,7 @@ def ingest(
     use_async,
     dry_run,
     resume_from,
+    no_warehouse,
 ):
     """
     Run the Kids First data ingest pipeline.
@@ -159,6 +167,9 @@ def ingest(
     # Default settings
     else:
         app_settings = settings.load()
+
+    if kwargs.pop("no_warehouse", None):
+        os.environ[app_settings.SECRETS.WAREHOUSE_DB_URL] = ""
 
     kwargs.pop("app_settings_filepath", None)
     kwargs["auth_configs"] = app_settings.AUTH_CONFIGS
