@@ -6,9 +6,9 @@ from kf_lib_data_ingest.common.type_safety import (
     assert_safe_type,
 )
 from kf_lib_data_ingest.config import (
-    INGEST_PACKAGE_CONFIG_DEFAULT_FILENAME,
     DEFAULT_LOG_LEVEL,
     DEFAULT_LOG_OVERWRITE_OPT,
+    INGEST_PACKAGE_CONFIG_DEFAULT_FILENAME,
 )
 from kf_lib_data_ingest.etl.configuration.base_config import PyModuleConfig
 

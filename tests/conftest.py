@@ -5,6 +5,7 @@ from unittest import mock
 
 import pytest
 
+from kf_lib_data_ingest.app.settings.base import SECRETS
 from kf_lib_data_ingest.common.io import read_json
 from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
 from kf_lib_data_ingest.etl.configuration.target_api_config import (
@@ -13,6 +14,9 @@ from kf_lib_data_ingest.etl.configuration.target_api_config import (
 from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
 from kf_lib_data_ingest.etl.load.message_packer import MessagePacker
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
+
+os.environ[SECRETS.WAREHOUSE_DB_URL] = ""
+
 
 TEST_ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 TEST_DATA_DIR = os.path.join(TEST_ROOT_DIR, "data")

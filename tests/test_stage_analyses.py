@@ -21,7 +21,7 @@ def randomString():
 
 def randomThing():
     key = randomString()
-    values = set(randomString() for i in range(randint(5, 10)))
+    values = {randomString() for i in range(randint(5, 10))}
     return key, values
 
 

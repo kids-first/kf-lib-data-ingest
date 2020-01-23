@@ -3,11 +3,11 @@ TransformModule encapsulates a user supplied python file that defines the
 transformation function to use during the transform stage of ingestion.
 """
 
-from kf_lib_data_ingest.etl.configuration.base_config import (
-    PyModuleConfig,
-    ConfigValidationError,
-)
 from kf_lib_data_ingest.common.type_safety import assert_safe_type, function
+from kf_lib_data_ingest.etl.configuration.base_config import (
+    ConfigValidationError,
+    PyModuleConfig,
+)
 
 
 class TransformModule(PyModuleConfig):

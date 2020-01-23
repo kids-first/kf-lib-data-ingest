@@ -295,7 +295,7 @@ def test_unique_keys(message_packer, df):
     assert 7 == len(df.columns)
 
     # Num of distinct concepts shouldn't change
-    concepts = set([concept_from(col) for col in df.columns])
+    concepts = {concept_from(col) for col in df.columns}
     assert 3 == len(concepts)
 
     # Check values
@@ -348,7 +348,7 @@ def test_compound_unique_keys(message_packer):
     # 3 original + 3 unique key columns + 1 for the compound concept
     assert 7 == len(df.columns)
     # 4 distinct concepts should exist now (1 new one is a compound concept)
-    concepts = set([concept_from(col) for col in df.columns])
+    concepts = {concept_from(col) for col in df.columns}
     assert 4 == len(concepts)
 
     # Check values

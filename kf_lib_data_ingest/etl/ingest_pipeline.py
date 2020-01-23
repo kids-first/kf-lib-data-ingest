@@ -11,6 +11,10 @@ import kf_lib_data_ingest.etl.stage_analyses as stage_analyses
 from kf_lib_data_ingest.common.concept_schema import UNIQUE_ID_ATTR
 from kf_lib_data_ingest.common.misc import timestamp
 from kf_lib_data_ingest.common.type_safety import assert_safe_type
+from kf_lib_data_ingest.common.warehousing import (
+    init_study_db,
+    persist_df_to_study_db,
+)
 from kf_lib_data_ingest.config import DEFAULT_TARGET_URL, VERSION
 from kf_lib_data_ingest.etl.configuration.ingest_package_config import (
     IngestPackageConfig,
@@ -56,6 +60,7 @@ class DataIngestPipeline(object):
         dry_run=False,
         stages_to_run_str=DEFAULT_STAGES_TO_RUN_STR,
         resume_from=None,
+        db_url_env_key=None,
     ):
         """
         Setup data ingest pipeline. Create the config object and setup logging
@@ -90,6 +95,7 @@ class DataIngestPipeline(object):
         assert_safe_type(dry_run, bool)
         assert_safe_type(stages_to_run_str, str)
         assert_safe_type(resume_from, None, str)
+        assert_safe_type(db_url_env_key, None, str)
         stages_to_run_str = stages_to_run_str.lower()
         self._validate_stages_to_run_str(stages_to_run_str)
 
@@ -108,6 +114,7 @@ class DataIngestPipeline(object):
         self.dry_run = dry_run
         self.resume_from = resume_from
         self.stages_to_run = {CODE_TO_STAGE_MAP[c] for c in stages_to_run_str}
+        self.warehouse_db_url = os.environ.get(db_url_env_key or "")
 
         # Get log params from ingest_package_config
         log_dir = log_dir or self.data_ingest_config.log_dir
@@ -226,9 +233,18 @@ class DataIngestPipeline(object):
         # Top level exception handler
         # Catch exception, log it to file and console, and exit
         try:
+            # Initialize database
+            if self.warehouse_db_url:
+                study_id = self.data_ingest_config.study
+                init_study_db(self.warehouse_db_url, study_id)
+                self.logger.info(
+                    f"Initialized study db: {study_id} in warehouse."
+                )
+
             # Iterate over all stages in the ingest pipeline
             output = None
             for stage in self._iterate_stages():
+                stage_name = type(stage).__name__
                 # No more stages left in list of user specified stages
                 if not self.stages_to_run:
                     break
@@ -239,10 +255,7 @@ class DataIngestPipeline(object):
                 if stage.stage_type in self.stages_to_run:
                     self.stages_to_run.remove(stage.stage_type)
 
-                    if isinstance(stage, ExtractStage):
-                        output = stage.run()  # First stage gets no input
-                    else:
-                        output = stage.run(output)
+                    output = stage.run(output)
 
                     # Standard stage output validation
                     if stage.concept_discovery_dict:
@@ -254,11 +267,27 @@ class DataIngestPipeline(object):
                 else:
                     self.logger.info(
                         "Loading previously cached output and concept counts "
-                        f"from {type(stage).__name__}"
+                        f"from {stage_name}"
                     )
                     output = stage.read_output()
                     stage.read_concept_counts()
 
+                if self.warehouse_db_url and isinstance(
+                    stage, (TransformStage, ExtractStage)
+                ):
+                    for df_name, df in output.items():
+                        if isinstance(stage, ExtractStage):
+                            df = df[1]
+                        persist_df_to_study_db(
+                            self.warehouse_db_url,
+                            self.data_ingest_config.study,
+                            stage_name,
+                            df,
+                            df_name,
+                        )
+                        self.logger.info(
+                            f"Loaded {stage_name}:{df_name} in warehouse."
+                        )
             self._log_count_results(all_passed, all_messages)
 
             # Run user defined data validation tests

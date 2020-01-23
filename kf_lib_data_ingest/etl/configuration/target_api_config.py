@@ -112,16 +112,15 @@ All but the first of these required attributes must be dicts.
 """
 from pprint import pformat
 
-
-from kf_lib_data_ingest.etl.configuration.base_config import PyModuleConfig
 from kf_lib_data_ingest.common.concept_schema import (
     concept_property_set,
     concept_set,
 )
 from kf_lib_data_ingest.common.type_safety import (
-    assert_safe_type,
     assert_all_safe_type,
+    assert_safe_type,
 )
+from kf_lib_data_ingest.etl.configuration.base_config import PyModuleConfig
 
 
 class TargetAPIConfig(PyModuleConfig):
@@ -297,7 +296,7 @@ class TargetAPIConfig(PyModuleConfig):
                 "standard_concept",
                 "target_concept",
             }
-            if not all([k in link_dict for k in required_link_keys]):
+            if not all(k in link_dict for k in required_link_keys):
                 raise KeyError(
                     f"Badly formatted link dict:\n"
                     f"{target_concept_dict}\nMissing required keys:\n"

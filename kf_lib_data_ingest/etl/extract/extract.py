@@ -136,7 +136,7 @@ class ExtractStage(IngestStage):
         )
         return output
 
-    def _validate_run_parameters(self):
+    def _validate_run_parameters(self, _ignore=None):
         # Extract stage does not expect any args
         pass
 
@@ -333,7 +333,7 @@ class ExtractStage(IngestStage):
         df_out.index = index
         return df_out
 
-    def _run(self):
+    def _run(self, _ignore=None):
         """
         :returns: A dictionary where a key is the URL to the extract_config
             that produced the dataframe and a value is a tuple containing:

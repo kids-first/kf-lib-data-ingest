@@ -3,6 +3,7 @@ Entry point for the Kids First Data Ingest Client
 """
 import inspect
 import logging
+import os
 import sys
 
 import click
@@ -10,12 +11,12 @@ import click
 from kf_lib_data_ingest.app import settings
 from kf_lib_data_ingest.config import DEFAULT_LOG_LEVEL, DEFAULT_TARGET_URL
 from kf_lib_data_ingest.etl.ingest_pipeline import (
-    DataIngestPipeline,
     DEFAULT_STAGES_TO_RUN_STR,
     VALID_STAGES_TO_RUN_STRS,
+    DataIngestPipeline,
 )
 
-CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
+CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 DEFAULT_LOG_LEVEL_NAME = logging._levelToName.get(DEFAULT_LOG_LEVEL)
 
 
@@ -127,6 +128,12 @@ def cli():
     help="A flag specifying whether to only pretend to send data to "
     "the target service. Overrides the resume_from setting.",
 )
+@click.option(
+    "--no_warehouse",
+    default=False,
+    is_flag=True,
+    help="A flag to skip sending data to the warehouse db.",
+)
 @common_args_options
 def ingest(
     ingest_package_config_path,
@@ -137,6 +144,7 @@ def ingest(
     use_async,
     dry_run,
     resume_from,
+    no_warehouse,
 ):
     """
     Run the Kids First data ingest pipeline.
@@ -160,8 +168,12 @@ def ingest(
     else:
         app_settings = settings.load()
 
+    if kwargs.pop("no_warehouse", None):
+        os.environ[app_settings.SECRETS.WAREHOUSE_DB_URL] = ""
+
     kwargs.pop("app_settings_filepath", None)
     kwargs["auth_configs"] = app_settings.AUTH_CONFIGS
+    kwargs["db_url_env_key"] = app_settings.SECRETS.WAREHOUSE_DB_URL
 
     # Run ingest
     pipeline = DataIngestPipeline(
