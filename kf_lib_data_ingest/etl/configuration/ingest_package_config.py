@@ -10,10 +10,7 @@ from kf_lib_data_ingest.config import (
     DEFAULT_LOG_LEVEL,
     DEFAULT_LOG_OVERWRITE_OPT,
 )
-from kf_lib_data_ingest.etl.configuration.base_config import (
-    ConfigValidationError,
-    PyModuleConfig,
-)
+from kf_lib_data_ingest.etl.configuration.base_config import PyModuleConfig
 
 
 class IngestPackageConfig(PyModuleConfig):

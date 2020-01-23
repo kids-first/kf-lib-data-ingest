@@ -1,4 +1,5 @@
 import base64
+import gc
 import importlib
 import logging
 import os
@@ -8,7 +9,6 @@ import boto3
 import pytest
 import requests_mock
 from moto import mock_s3
-from requests.auth import HTTPBasicAuth
 
 from conftest import (
     TEST_AUTH0_AUD,
@@ -316,7 +316,7 @@ def test_validate_auth_configs(auth_config, expected_exc):
 
     fr = FileRetriever(cleanup_at_exit=True)
     if expected_exc:
-        with pytest.raises(expected_exc) as e:
+        with pytest.raises(expected_exc):
             fr._validate_auth_config(auth_config)
     else:
         fr._validate_auth_config(auth_config)
@@ -382,6 +382,7 @@ def _test_get_file(
         filepath = local_copy.name
         del fr
         del local_copy
+        gc.collect()
         assert os.path.isfile(filepath) == should_file_exist
 
 

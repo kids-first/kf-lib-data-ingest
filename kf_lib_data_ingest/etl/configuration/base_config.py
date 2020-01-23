@@ -31,7 +31,7 @@ class AbstractConfig(ABC):
                 return self.contents[attr]
             except Exception:
                 return getattr(self.contents, attr)
-        except Exception as e:
+        except Exception:
             return None
 
     @abstractmethod

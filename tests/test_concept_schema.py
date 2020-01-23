@@ -1,10 +1,10 @@
 from kf_lib_data_ingest.common.concept_schema import (
-    DELIMITER,
     CONCEPT,
-    is_identifier,
-    concept_set,
+    DELIMITER,
     _set_cls_attrs,
     concept_property_set,
+    concept_set,
+    is_identifier,
 )
 
 

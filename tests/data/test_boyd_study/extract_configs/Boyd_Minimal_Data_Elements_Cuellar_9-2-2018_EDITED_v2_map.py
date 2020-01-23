@@ -1,7 +1,11 @@
 import pandas
 
 from kf_lib_data_ingest.common import constants, file_retriever
-from kf_lib_data_ingest.etl.extract.operations import *
+from kf_lib_data_ingest.etl.extract.operations import (
+    keep_map,
+    value_map,
+    constant_map,
+)
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
 
 source_data_url = (

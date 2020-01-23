@@ -1,15 +1,14 @@
 import os
 import re
 import shutil
-import logging
 
 import pytest
 import requests_mock
 from click.testing import CliRunner
 
+from conftest import TEST_DATA_DIR, make_ingest_pipeline
 from kf_lib_data_ingest.app import cli, settings
 from kf_lib_data_ingest.config import ROOT_DIR
-from conftest import TEST_DATA_DIR, make_ingest_pipeline
 
 TEST_STUDY_DIR = os.path.join(TEST_DATA_DIR, "simple_study")
 SETTINGS_DIR = os.path.join(ROOT_DIR, "app", "settings")
@@ -115,10 +114,7 @@ def test_non_prod_app_modes(
         # CLI opt
         if app_mode:
             params.extend(
-                [
-                    "--app_settings",
-                    os.path.join(SETTINGS_DIR, app_mode + ".py"),
-                ]
+                ["--app_settings", os.path.join(SETTINGS_DIR, app_mode + ".py")]
             )
         # Use default, no cli opt
         else:
@@ -129,7 +125,7 @@ def test_non_prod_app_modes(
 
         # Run ingest
         runner = CliRunner(env={settings.APP_MODE_ENV_VAR: app_mode})
-        result = runner.invoke(cli.ingest, params)
+        runner.invoke(cli.ingest, params)
 
         # Ensure the right settings were loaded
         assert host in info_caplog.text
@@ -152,7 +148,7 @@ def test_prod_app_mode(info_caplog, cleanup):
     Test run ingest for production (should fail bc we didn't set env vars)
     """
     # Make temp extract config for tests
-    extract_config_filepath = extract_config("production")
+    extract_config("production")
 
     # Run and test ingest
     app_mode = "production"

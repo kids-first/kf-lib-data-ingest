@@ -277,9 +277,7 @@ def safe_pandas_replace(data, mappings, regex=False):
     return output
 
 
-def merge_wo_duplicates(
-    left, right, left_name=None, right_name=None, **kwargs
-):
+def merge_wo_duplicates(left, right, left_name=None, right_name=None, **kwargs):
     """
     Merge two dataframes and return a dataframe with no duplicate columns.
 

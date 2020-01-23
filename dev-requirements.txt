@@ -3,6 +3,6 @@ moto==1.3.13
 pytest-cache==1.0
 pytest-cov==2.8.1
 requests-mock==1.7.0
-pycodestyle
+flake8
 black
 -r requirements.txt

@@ -1,10 +1,15 @@
 """
 Production settings for Kids First Ingest App
 """
-
-from kf_lib_data_ingest.app.settings.base import *
-
 import os
+
+from kf_lib_data_ingest.app.settings.base import (
+    AUTH_CONFIGS,
+    SECRETS,
+    TARGET_API_CONFIG,
+)
+
+TARGET_API_CONFIG = TARGET_API_CONFIG
 
 AUTH_CONFIGS.update(
     {

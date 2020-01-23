@@ -198,12 +198,7 @@ class DataIngestPipeline(object):
                 "to continue."
             )
         else:
-            yield GuidedTransformStage(
-                transform_fp,
-                self.target_api_config_path,
-                self.target_url,
-                self.ingest_output_dir,
-            )
+            yield GuidedTransformStage(transform_fp, self.ingest_output_dir)
 
         # Load stage ##########################################################
 
@@ -212,7 +207,7 @@ class DataIngestPipeline(object):
             self.target_url,
             self.data_ingest_config.target_service_entities,
             self.data_ingest_config.study,
-            uid_cache_dir=self.ingest_output_dir,
+            cache_dir=self.ingest_output_dir,
             use_async=self.use_async,
             dry_run=self.dry_run,
             resume_from=self.resume_from,

@@ -11,6 +11,7 @@ from kf_lib_data_ingest.etl.configuration.target_api_config import (
     TargetAPIConfig,
 )
 from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
+from kf_lib_data_ingest.etl.load.message_packer import MessagePacker
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
 
 TEST_ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -131,6 +132,15 @@ def target_api_config():
 
 
 @pytest.fixture(scope="function")
+def message_packer(target_api_config):
+    """
+    Re-usable fixture for tests. Use this one for all tests that need
+    the message_packer and you don't want to worry about setting it up.
+    """
+    return MessagePacker(target_api_config, DEFAULT_TARGET_URL)
+
+
+@pytest.fixture(scope="function")
 def guided_transform_stage(caplog):
     """
     Re-usable fixture for tests. Use this one for all tests that need
@@ -149,8 +159,6 @@ def guided_transform_stage(caplog):
         os.path.join(
             TEST_DATA_DIR, "simple_study", "transform_module_simple.py"
         ),
-        KIDS_FIRST_CONFIG,
-        target_api_url=DEFAULT_TARGET_URL,
         ingest_output_dir=TEST_INGEST_OUTPUT_DIR,
     )
     patcher.stop()

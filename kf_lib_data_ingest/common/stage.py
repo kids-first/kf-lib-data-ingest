@@ -3,7 +3,8 @@ import os
 import time
 from abc import ABC, abstractmethod
 from functools import wraps
-from kf_lib_data_ingest.common.io import write_json, read_json
+
+from kf_lib_data_ingest.common.io import read_json, write_json
 
 
 class IngestStage(ABC):
@@ -13,6 +14,7 @@ class IngestStage(ABC):
             self.stage_cache_dir = os.path.join(
                 self.ingest_output_dir, type(self).__name__
             )
+            os.makedirs(self.stage_cache_dir, exist_ok=True)
         else:
             self.stage_cache_dir = None
 
@@ -56,7 +58,6 @@ class IngestStage(ABC):
         """
         if self.stage_cache_dir:
             self.logger.info(f"Writing {type(self).__name__} output")
-            os.makedirs(self.stage_cache_dir, exist_ok=True)
             self._write_output(output)
             self.logger.info(f"Done writing {type(self).__name__} output")
 

@@ -112,7 +112,6 @@ All but the first of these required attributes must be dicts.
 """
 from pprint import pformat
 
-import networkx as nx
 
 from kf_lib_data_ingest.etl.configuration.base_config import PyModuleConfig
 from kf_lib_data_ingest.common.concept_schema import (

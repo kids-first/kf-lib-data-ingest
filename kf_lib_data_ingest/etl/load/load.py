@@ -1,7 +1,10 @@
 """
-Module for loading the transform output into the dataservice.
+Module for loading the transform output into the dataservice. It converts the
+merged source data into complete message payloads according to a given API
+specification, and then sends those messages to the target server.
 """
 import concurrent.futures
+import json
 import logging
 import os
 from collections import defaultdict
@@ -9,7 +12,7 @@ from pprint import pformat
 from threading import Lock, current_thread, main_thread
 from urllib.parse import urlparse
 
-import requests
+from pandas import DataFrame
 from requests import RequestException
 from sqlite3worker import Sqlite3Worker, sqlite3worker
 
@@ -21,10 +24,14 @@ from kf_lib_data_ingest.common.type_safety import (
     assert_all_safe_type,
     assert_safe_type,
 )
-from kf_lib_data_ingest.config import DEFAULT_ID_CACHE_FILENAME
+from kf_lib_data_ingest.config import DEFAULT_ID_CACHE_FILENAME, DEFAULT_KEY
+from kf_lib_data_ingest.etl.configuration.base_config import (
+    ConfigValidationError,
+)
 from kf_lib_data_ingest.etl.configuration.target_api_config import (
     TargetAPIConfig,
 )
+from kf_lib_data_ingest.etl.load.message_packer import MessagePacker
 from kf_lib_data_ingest.network.utils import RetrySession
 
 sqlite3worker.LOGGER.setLevel(logging.WARNING)
@@ -38,7 +45,7 @@ class LoadStage(IngestStage):
         target_url,
         entities_to_load,
         study_id,
-        uid_cache_dir=None,
+        cache_dir=None,
         use_async=False,
         dry_run=False,
         resume_from=None,
@@ -52,8 +59,8 @@ class LoadStage(IngestStage):
         :type entities_to_load: list
         :param study_id: target ID of the study being loaded
         :type study_id: str
-        :param uid_cache_dir: where to find the ID cache, defaults to None
-        :type uid_cache_dir: str, optional
+        :param cache_dir: where to find the ID cache, defaults to None
+        :type cache_dir: str, optional
         :param use_async: use asynchronous networking, defaults to False
         :type use_async: bool, optional
         :param dry_run: don't actually transmit, defaults to False
@@ -63,7 +70,7 @@ class LoadStage(IngestStage):
             Value may be a full ID or an initial substring (e.g. 'BS', 'BS_')
         :type resume_from: str, optional
         """
-        super().__init__()
+        super().__init__(cache_dir)
         self.target_api_config = TargetAPIConfig(target_api_config_path)
         self.concept_targets = {
             v["standard_concept"].UNIQUE_KEY: k
@@ -78,12 +85,11 @@ class LoadStage(IngestStage):
         self.dry_run = dry_run
         self.resume_from = resume_from
         self.study_id = study_id
-        self.totals = {}
-        self.counts = {}
+        self.use_async = use_async
 
         target = urlparse(target_url).netloc or urlparse(target_url).path
         self.uid_cache_filepath = os.path.join(
-            uid_cache_dir or os.getcwd(),
+            cache_dir or os.getcwd(),
             #  Every target gets its own cache because they don't share UIDs
             "_".join(multisplit(target, [":", "/"]))
             #  Every study gets its own cache to compartmentalize internal IDs
@@ -99,9 +105,6 @@ class LoadStage(IngestStage):
         # Two-stage (RAM + disk) cache
         self.uid_cache = defaultdict(dict)
         self.uid_cache_db = Sqlite3Worker(self.uid_cache_filepath)
-
-        self.entity_cache = dict()
-        self.use_async = use_async
 
     def _validate_entities(self, entities_to_load):
         """
@@ -288,7 +291,10 @@ class LoadStage(IngestStage):
             self.logger.debug(f"Already exists:\n{pformat(result)}")
             if extid != result["external_id"]:
                 self.logger.debug(f"Patching with new external_id: {extid}")
-                self._PATCH(endpoint, result["kf_id"], {"external_id": extid})
+                resp = self._PATCH(
+                    endpoint, result["kf_id"], {"external_id": extid}
+                )
+                result = resp.json()["results"]
             return result
         else:
             self.logger.debug(f"Response error:\n{pformat(resp.__dict__)}")
@@ -417,54 +423,54 @@ class LoadStage(IngestStage):
 
         # log action
         with count_lock:
+            url = "/".join([v.strip("/") for v in [self.target_url, endpoint]])
+            msg = {"url": url, "body": body}
+            self.sent_messages.append(msg)
             self.counts[entity_type] += 1
             self.logger.info(
                 done_msg + f" (#{self.counts[entity_type]} "
                 f"of {self.totals[entity_type]})"
             )
 
-    def _validate_run_parameters(self, target_entities):
+    def _validate_run_parameters(self, df_dict):
         """
-        Validate the parameters being passed into the _run method. This
-        method gets executed before the body of _run is executed.
+        Validate the parameters being passed into the _run method. This method
+        gets executed before the body of _run is executed.
 
-        `target_entities` should be a dict of lists, keyed by target concepts
-        defined in the target_api_config. Each list element must be a dict.
+        `df_dict` should be a dict of DataFrames, keyed by target concepts
+        defined in the target_api_config.
         """
         try:
-            assert_safe_type(target_entities, dict)
-            assert_all_safe_type(target_entities.keys(), str)
-            assert_all_safe_type(target_entities.values(), list)
-            for instance_list in target_entities.values():
-                assert_all_safe_type(instance_list, dict)
-
+            assert_safe_type(df_dict, dict)
+            assert_all_safe_type(df_dict.keys(), str)
+            assert_all_safe_type(df_dict.values(), DataFrame)
         except TypeError as e:
             raise InvalidIngestStageParameters from e
 
-        invalid_ents = [
-            ent
-            for ent in target_entities
-            if ent not in self.target_api_config.target_concepts
-        ]
-        if invalid_ents:
-            valid_ents = list(self.target_api_config.target_concepts.keys())
-            raise InvalidIngestStageParameters(
-                f"One or more keys in the _run input dict is invalid: "
-                f"{pformat(invalid_ents)}. A key is valid if is one of the "
-                f"target concepts: {pformat(valid_ents)} "
-                f"specified in {self.target_api_config.config_filepath}"
-            )
+        valid_keys = set(self.target_api_config.target_concepts.keys())
+        valid_keys.add(DEFAULT_KEY)
+        for key, df in df_dict.items():
+            if key not in valid_keys:
+                raise ConfigValidationError(
+                    f'Invalid dict key "{key}" found in transform function '
+                    f"output! A Key must be one of:\n {pformat(valid_keys)} "
+                    f"\nCheck your transform module."
+                )
 
     def _postrun_concept_discovery(self, run_output):
         pass  # TODO
 
-    def _run(self, target_entities):
+    def _run(self, transform_output):
         """
         Load Stage internal entry point. Called by IngestStage.run
 
-        :param target_entities: Output data structure from the Transform stage
-        :type target_entities: dict
+        :param transform_output: Output data structure from the Transform stage
+        :type transform_output: dict
         """
+        self.totals = {}
+        self.counts = {}
+        self.entity_cache = dict()
+
         if self.dry_run:
             self.logger.info(
                 "DRY RUN mode is ON. No entities will be loaded into the "
@@ -478,56 +484,70 @@ class LoadStage(IngestStage):
             )
             self.dry_run = True
 
+        target_entities = MessagePacker(
+            self.target_api_config, self.target_url
+        ).pack_messages(transform_output)
+
+        pack_cache = os.path.join(self.stage_cache_dir, "PackedMessages.json")
+        with open(pack_cache, "w") as pc:
+            json.dump(target_entities, pc, indent=2)
+
         # Loop through all target concepts
-        for entity_type in self.target_api_config.target_concepts.keys():
-            # Skip entities that are not in user specified list or
-            # not in the input data
-            if (entity_type not in self.entities_to_load) or (
-                entity_type not in target_entities
-            ):
-                self.logger.info(f"Skipping load of {entity_type}")
-                continue
+        self.sent_messages = []
+        try:
+            for entity_type in self.target_api_config.target_concepts.keys():
+                # Skip entities that are not in user specified list or
+                # not in the input data
+                if (entity_type not in self.entities_to_load) or (
+                    entity_type not in target_entities
+                ):
+                    self.logger.info(f"Skipping load of {entity_type}")
+                    continue
 
-            entities = target_entities[entity_type]
+                entities = target_entities[entity_type]
 
-            self.logger.info(f"Begin loading {entity_type}")
+                self.logger.info(f"Begin loading {entity_type}")
 
-            self.prev_entity = None
-            self.totals[entity_type] = len(entities)
-            self.counts[entity_type] = 0
+                self.prev_entity = None
+                self.totals[entity_type] = len(entities)
+                self.counts[entity_type] = 0
 
-            if self.use_async:
-                ex = concurrent.futures.ThreadPoolExecutor()
-                futures = []
+                if self.use_async:
+                    ex = concurrent.futures.ThreadPoolExecutor()
+                    futures = []
 
-            for entity in entities:
-                entity_id = entity["id"]
-                endpoint = entity["endpoint"]
-                body = entity["properties"]
-                links = entity["links"]
+                for entity in entities:
+                    entity_id = entity["id"]
+                    endpoint = entity["endpoint"]
+                    body = entity["properties"]
+                    links = entity["links"]
 
-                if self.use_async and not self.resume_from:
-                    futures.append(
-                        ex.submit(
-                            self._load_entity,
-                            entity_type,
-                            endpoint,
-                            entity_id,
-                            body,
-                            links,
+                    if self.use_async and not self.resume_from:
+                        futures.append(
+                            ex.submit(
+                                self._load_entity,
+                                entity_type,
+                                endpoint,
+                                entity_id,
+                                body,
+                                links,
+                            )
                         )
-                    )
-                else:
-                    self._load_entity(
-                        entity_type, endpoint, entity_id, body, links
-                    )
+                    else:
+                        self._load_entity(
+                            entity_type, endpoint, entity_id, body, links
+                        )
 
-            if self.use_async:
-                for f in concurrent.futures.as_completed(futures):
-                    f.result()
-                ex.shutdown()
+                if self.use_async:
+                    for f in concurrent.futures.as_completed(futures):
+                        f.result()
+                    ex.shutdown()
 
-            self.logger.info(f"End loading {entity_type}")
+                self.logger.info(f"End loading {entity_type}")
+        finally:
+            json_out = os.path.join(self.stage_cache_dir, "SentMessages.json")
+            with open(json_out, "w") as jo:
+                json.dump(self.sent_messages, jo, indent=2)
 
         if self.resume_from:
             self.logger.warning(

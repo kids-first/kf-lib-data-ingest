@@ -1,10 +1,13 @@
 import os
 
 import pandas
-import pytest
 
 from conftest import TEST_DATA_DIR
-from kf_lib_data_ingest.common.io import *
+from kf_lib_data_ingest.common.io import (
+    read_delimited_text_df,
+    read_df,
+    read_excel_df,
+)
 
 excel_path = os.path.join(
     TEST_DATA_DIR, "test_study", "data", "unsimple_xlsx_1.xlsx"

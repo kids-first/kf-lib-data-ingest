@@ -197,9 +197,7 @@ def get_open_api_v2_schema(
 
     # Create default cached_schema filepath
     if not cached_schema_filepath:
-        cached_schema_filepath = os.path.join(
-            os.getcwd(), "cached_schema.json"
-        )
+        cached_schema_filepath = os.path.join(os.getcwd(), "cached_schema.json")
 
     # Try to get schemas and version from the target service
     try:

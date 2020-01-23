@@ -1,5 +1,5 @@
 from kf_lib_data_ingest.common import constants
-from kf_lib_data_ingest.etl.extract.operations import *
+from kf_lib_data_ingest.etl.extract.operations import value_map, constant_map
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
 
 source_data_url = "file://../data/unsimple_xlsx_1.xlsx"

@@ -2,11 +2,15 @@ import os
 
 import pytest
 from click.testing import CliRunner
+from pandas import DataFrame
 
 from conftest import KIDS_FIRST_CONFIG, TEST_INGEST_CONFIG
 from kf_lib_data_ingest.app import cli
-from kf_lib_data_ingest.common.misc import str_to_obj
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
+from kf_lib_data_ingest.common.misc import str_to_obj
+from kf_lib_data_ingest.etl.configuration.base_config import (
+    ConfigValidationError,
+)
 from kf_lib_data_ingest.etl.load.load import LoadStage
 
 
@@ -17,7 +21,7 @@ def load_stage(tmpdir):
         "http://URL_A",
         [],
         "FAKE_STUDY_A",
-        uid_cache_dir=tmpdir,
+        cache_dir=tmpdir,
         dry_run=True,
     )
 
@@ -45,7 +49,7 @@ def test_uid_cache(tmpdir):
         "http://URL_A",
         [],
         "FAKE_STUDY_A",
-        uid_cache_dir=tmpdir,
+        cache_dir=tmpdir,
         dry_run=True,
     )
 
@@ -54,7 +58,7 @@ def test_uid_cache(tmpdir):
         "http://URL_A",
         [],
         "FAKE_STUDY_A",
-        uid_cache_dir=tmpdir,
+        cache_dir=tmpdir,
         dry_run=True,
     )
 
@@ -74,7 +78,7 @@ def test_uid_cache(tmpdir):
         "http://URL_B1",
         [],
         "FAKE_STUDY_B",
-        uid_cache_dir=tmpdir,
+        cache_dir=tmpdir,
         dry_run=True,
     )
 
@@ -83,7 +87,7 @@ def test_uid_cache(tmpdir):
         "URL_B2",
         [],
         "FAKE_STUDY_B",
-        uid_cache_dir=tmpdir,
+        cache_dir=tmpdir,
         dry_run=True,
     )
 
@@ -154,3 +158,32 @@ def test_ingest_load_async_error():
         os.environ["MAX_RETRIES_ON_CONN_ERROR"] = prev_environ
     else:
         del os.environ["MAX_RETRIES_ON_CONN_ERROR"]
+
+
+@pytest.mark.parametrize(
+    "ret_val, error",
+    [
+        (None, InvalidIngestStageParameters),
+        ("foo", InvalidIngestStageParameters),
+        ({"foo": DataFrame()}, ConfigValidationError),
+        (
+            {
+                "foo": DataFrame(),
+                "participant": DataFrame(),
+                "default": DataFrame(),
+            },
+            ConfigValidationError,
+        ),
+        ({"default": DataFrame()}, None),
+        ({"participant": DataFrame()}, None),
+    ],
+)
+def test_bad_ret_vals_transform_funct(ret_val, error, load_stage):
+    """
+    Test input validation
+    """
+    if error:
+        with pytest.raises(error):
+            load_stage._validate_run_parameters(ret_val)
+    else:
+        load_stage._validate_run_parameters(ret_val)

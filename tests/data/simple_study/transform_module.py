@@ -9,12 +9,6 @@ implementing transform_function.
 """
 import os
 
-# Use these merge funcs, not pandas.merge
-from kf_lib_data_ingest.common.pandas_utils import (
-    outer_merge,
-    merge_wo_duplicates,
-)
-from kf_lib_data_ingest.common.concept_schema import CONCEPT
 from kf_lib_data_ingest.config import DEFAULT_KEY
 
 

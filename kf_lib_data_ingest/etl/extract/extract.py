@@ -1,5 +1,4 @@
 import os
-import sys
 from collections import defaultdict
 from functools import reduce
 from math import gcd
@@ -17,11 +16,7 @@ from kf_lib_data_ingest.common.io import read_df, read_json, write_json
 from kf_lib_data_ingest.common.misc import clean_up_df, clean_walk
 from kf_lib_data_ingest.common.pandas_utils import split_df_rows_on_splits
 from kf_lib_data_ingest.common.stage import IngestStage
-from kf_lib_data_ingest.common.type_safety import (
-    assert_all_safe_type,
-    assert_safe_type,
-    is_function,
-)
+from kf_lib_data_ingest.common.type_safety import assert_safe_type, is_function
 from kf_lib_data_ingest.etl.configuration.base_config import (
     ConfigValidationError,
 )
@@ -288,9 +283,7 @@ class ExtractStage(IngestStage):
         for col_name, col_series in out_cols.items():
             self.logger.debug("- %s: %d", col_name, col_series.size)
 
-        self.logger.info(
-            "Equalizing column lengths to the LCM: %d", length_lcm
-        )
+        self.logger.info("Equalizing column lengths to the LCM: %d", length_lcm)
 
         # Given a set of different length columns, we need to make a resulting
         # dataframe whose length is the least common multiple of their lengths
