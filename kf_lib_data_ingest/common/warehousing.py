@@ -18,7 +18,9 @@ def init_study_db(db_maintenance_url, study_id):
     """
     # create the study database if needed
     eng = sqlalchemy.create_engine(
-        db_maintenance_url, isolation_level="AUTOCOMMIT"
+        db_maintenance_url,
+        isolation_level="AUTOCOMMIT",
+        connect_args={"connect_timeout": 5},
     )
     try:
         eng.execute(f'CREATE DATABASE "{study_id}"')
@@ -28,7 +30,10 @@ def init_study_db(db_maintenance_url, study_id):
     eng.dispose()
 
     # link to the study database
-    eng = sqlalchemy.create_engine(db_study_url(db_maintenance_url, study_id))
+    eng = sqlalchemy.create_engine(
+        db_study_url(db_maintenance_url, study_id),
+        connect_args={"connect_timeout": 5},
+    )
 
     # reset study database
     m = sqlalchemy.MetaData()
@@ -55,7 +60,10 @@ def persist_df_to_study_db(
     :type table_name: str
     """
     # link to the study database
-    eng = sqlalchemy.create_engine(db_study_url(db_maintenance_url, study_id))
+    eng = sqlalchemy.create_engine(
+        db_study_url(db_maintenance_url, study_id),
+        connect_args={"connect_timeout": 5},
+    )
 
     # create stage schema if needed
     if not eng.dialect.has_schema(eng, stage_name):
