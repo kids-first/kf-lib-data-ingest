@@ -30,6 +30,59 @@ def common_args_options(func):
         type=click.Path(exists=True, file_okay=True, dir_okay=True),
     )(func)
 
+    # Disable warehousing
+    func = click.option(
+        "--no_warehouse",
+        default=False,
+        is_flag=True,
+        help="A flag to skip sending data to the warehouse db.",
+    )(func)
+
+    # Resume loading from
+    func = click.option(
+        "--resume_from",
+        default=None,
+        help=(
+            "Dry run until a given target ID, and then load starting " "there."
+        ),
+    )(func)
+
+    # Multithreaded loading
+    func = click.option(
+        "--use_async",
+        default=False,
+        is_flag=True,
+        help=(
+            "A flag specifying whether to use sync or async loading "
+            "into the target service"
+        ),
+    )(func)
+
+    # Stages
+    func = click.option(
+        "--stages",
+        "stages_to_run_str",
+        default=DEFAULT_STAGES_TO_RUN_STR,
+        show_default=True,
+        type=click.Choice(VALID_STAGES_TO_RUN_STRS),
+        help=(
+            "A string representing the subset of ingest stages that will be "
+            "executed by the pipeline. Each char in the string represents a "
+            "stage in the pipeline. Chars must follow the order of stage "
+            "execution set by the pipeline and contain no gaps in the "
+            "stage sequence."
+        ),
+    )(func)
+
+    # Target URL
+    func = click.option(
+        "-t",
+        "--target_url",
+        default=DEFAULT_TARGET_URL,
+        show_default=True,
+        help="Target service URL where data will be loaded into",
+    )(func)
+
     # App settings
     func = click.option(
         "--app_settings",
@@ -61,51 +114,6 @@ def common_args_options(func):
         help=log_help_txt,
     )(func)
 
-    # Target URL
-    func = click.option(
-        "-t",
-        "--target_url",
-        default=DEFAULT_TARGET_URL,
-        show_default=True,
-        help="Target service URL where data will be loaded into",
-    )(func)
-
-    # Stages
-    func = click.option(
-        "--stages",
-        "stages_to_run_str",
-        default=DEFAULT_STAGES_TO_RUN_STR,
-        show_default=True,
-        type=click.Choice(VALID_STAGES_TO_RUN_STRS),
-        help=(
-            "A string representing the subset of ingest stages that will be "
-            "executed by the pipeline. Each char in the string represents a "
-            "stage in the pipeline. Chars must follow the order of stage "
-            "execution set by the pipeline and contain no gaps in the "
-            "stage sequence."
-        ),
-    )(func)
-
-    # Resume loading from
-    func = click.option(
-        "--resume_from",
-        default=None,
-        help=(
-            "Dry run until a given target ID, and then load starting " "there."
-        ),
-    )(func)
-
-    # Multithreaded loading
-    func = click.option(
-        "--use_async",
-        default=False,
-        is_flag=True,
-        help=(
-            "A flag specifying whether to use sync or async loading "
-            "into the target service"
-        ),
-    )(func)
-
     return func
 
 
@@ -121,6 +129,7 @@ def cli():
 
 
 @click.command()
+@common_args_options
 @click.option(
     "--dry_run",
     default=False,
@@ -128,13 +137,6 @@ def cli():
     help="A flag specifying whether to only pretend to send data to "
     "the target service. Overrides the resume_from setting.",
 )
-@click.option(
-    "--no_warehouse",
-    default=False,
-    is_flag=True,
-    help="A flag to skip sending data to the warehouse db.",
-)
-@common_args_options
 def ingest(
     ingest_package_config_path,
     app_settings_filepath,
@@ -210,6 +212,7 @@ def test(
     stages_to_run_str,
     use_async,
     resume_from,
+    no_warehouse,
 ):
     """
     Run the Kids First data ingest pipeline in dry_run mode (--dry_run=True)
