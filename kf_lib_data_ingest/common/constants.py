@@ -406,6 +406,11 @@ class ETHNICITY:
     HISPANIC = "Hispanic or Latino"
 
 
+class SPECIES:
+    HUMAN = "Homo Sapiens"
+    DOG = "Canis lupus familiaris"
+
+
 class PHENOTYPE:
     class OBSERVED:
         YES = "Positive"

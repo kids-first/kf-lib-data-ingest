@@ -66,6 +66,7 @@ class CONCEPT:
         CONSENT_TYPE = None
         # affected by diagnoses/phenotypes specifically mentioned by the study
         IS_AFFECTED_UNDER_STUDY = None
+        SPECIES = None
 
     class OUTCOME(PropertyMixin):
         VITAL_STATUS = None
