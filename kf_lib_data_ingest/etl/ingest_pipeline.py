@@ -275,18 +275,19 @@ class DataIngestPipeline(object):
                 if self.warehouse_db_url and isinstance(
                     stage, (TransformStage, ExtractStage)
                 ):
+                    schema = f"{os.path.basename(self.ingest_config_dir)}/{stage_name}"
                     for df_name, df in output.items():
                         if isinstance(stage, ExtractStage):
                             df = df[1]
                         persist_df_to_study_db(
                             self.warehouse_db_url,
                             self.data_ingest_config.study,
-                            stage_name,
+                            schema,
                             df,
                             df_name,
                         )
                         self.logger.info(
-                            f"Loaded {stage_name}:{df_name} in warehouse."
+                            f"Loaded {schema}:{df_name} in warehouse."
                         )
             self._log_count_results(all_passed, all_messages)
 
