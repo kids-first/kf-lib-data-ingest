@@ -1,6 +1,18 @@
 .. image:: _static/images/logo.png
    :alt: Kids First Data Ingest Library
 
+.. toctree::
+   :caption: Table of Contents
+   :maxdepth: 2
+
+   self
+   install
+   quickstart
+   design/overview
+   tutorial/index.rst
+   developer
+   reference/index.rst
+
 ********
 Overview
 ********
@@ -192,14 +204,3 @@ the target service. The Load Stage will build the target payloads and either
 POST or PATCH them to the target service.
 
 Head to :ref:`how_to` to get started with data ingestion!
-
-.. toctree::
-   :caption: Table of Contents
-   :maxdepth: 2
-
-   install
-   quickstart
-   design/overview
-   tutorial/index.rst
-   developer
-   reference/index.rst

@@ -6,16 +6,14 @@ Before we go any further in the tutorial, let's take a look at the recommended
 way to test your ingest package.
 
 At this point, your ingest package should have the source data file and extract
-config that came with the package template along with the
-``family_and_phenotype.tsv`` data file and extract configuration file that you
-added in the previous step of this tutorial.
+config that came with the package template along with the extract configuration
+from :ref:`Extract-Example`.
 
 Your package probably looks like this::
 
     my_study/
     ├── data
-    │   ├── clinical.tsv
-    │   └── family_and_phenotype.tsv
+    │   └── clinical.tsv
     ├── extract_configs
     │   ├── extract_config.py
     │   └── family_and_phenotype.py

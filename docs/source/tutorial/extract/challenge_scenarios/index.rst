@@ -1,9 +1,8 @@
-==========================
-Challenges when Extracting
-==========================
+=================================
+Common Challenges when Extracting
+=================================
 
 .. toctree::
-    :caption: Challenges when Extracting
     :maxdepth: 2
 
     embedded_values
