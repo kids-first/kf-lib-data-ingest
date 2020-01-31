@@ -110,6 +110,12 @@ def test_merge_wo_duplicates(info_caplog, dfs):
     )
     assert merged.equals(df1)
 
+    # merge on multiple columns
+    merged = pandas_utils.merge_wo_duplicates(
+        df1, df1, on=["A", "B"], how="outer"
+    )
+    assert merged.equals(df1)
+
 
 def test_merge_wo_duplicates_collisions(info_caplog):
     """

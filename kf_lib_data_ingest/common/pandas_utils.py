@@ -302,23 +302,22 @@ def merge_wo_duplicates(left, right, left_name=None, right_name=None, **kwargs):
     right_name = right_name or "Right"
 
     # Check if merge col(s) are present in DataFrame
-    def check_merge_col(merge_col, df_name, df, err_msgs):
-        if merge_col not in df.columns:
-            err_msgs.append(
-                f"'{merge_col}' not found in {df_name}: {df.columns}"
-            )
+    def check_merge_col(merge_on, df_name, df, err_msgs):
+        if isinstance(merge_on, str):
+            merge_on = [merge_on]
+        for col in merge_on:
+            if col not in df.columns:
+                err_msgs.append(f"'{col}' not found in {df_name}: {df.columns}")
         return err_msgs
 
     err = []
     if "on" in kwargs:
-        merge_col = kwargs["on"]
-        err = check_merge_col(merge_col, left_name, left, err)
-        err = check_merge_col(merge_col, right_name, right, err)
+        on = kwargs["on"]
+        err = check_merge_col(on, left_name, left, err)
+        err = check_merge_col(on, right_name, right, err)
     elif ("left_on" in kwargs) and ("right_on" in kwargs):
-        merge_col = kwargs["left_on"]
-        err = check_merge_col(merge_col, left_name, left, err)
-        merge_col = kwargs["right_on"]
-        err = check_merge_col(merge_col, right_name, right, err)
+        err = check_merge_col(kwargs["left_on"], left_name, left, err)
+        err = check_merge_col(kwargs["right_on"], right_name, right, err)
     else:
         err = [
             (
