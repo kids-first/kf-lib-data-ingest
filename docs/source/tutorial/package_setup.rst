@@ -7,7 +7,7 @@ New Ingest Package Setup
 Create a new ingest package named ``my_study`` by using the ingest library
 CLI::
 
-$ kidsfirst new my_study
+$ kidsfirst new --dest_dir=my_study
 
 This will generate a minimal study directory for you that looks like this::
 
