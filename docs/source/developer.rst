@@ -1,8 +1,9 @@
+**********
 Developers
-==========
+**********
 
 Setup Development Environment
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+=============================
 
 1. Git clone the repository::
 
@@ -23,14 +24,14 @@ Setup Development Environment
 
 
 Run Unit Tests
-^^^^^^^^^^^^^^
+==============
 
 Use pytest to run tests::
 
     python -m pytest tests
 
 Build Documentation
-^^^^^^^^^^^^^^^^^^^
+===================
 
 We currently use Sphinx for generating the API/reference documentation.
 

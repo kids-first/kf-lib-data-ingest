@@ -1,8 +1,8 @@
 .. _how_to:
 
-======
+######
 How To
-======
+######
 
 The quickstart example uses a simple dataset and is primarily intended to show
 a user how to run the ingest pipeline and view basic outputs. This tutorial

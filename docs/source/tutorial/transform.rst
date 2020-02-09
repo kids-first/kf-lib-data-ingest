@@ -4,23 +4,18 @@
 Transform Stage
 ===============
 
-The transform stage does 4 major things:
+The transform stage does one major thing:
 
-1. Merge extract stage tables together
-2. Create unique identifiers for every concept instance
-3. Convert from standard form to target form
-4. Apply common transformations
-
-From an ingest developer perspective, step 1 is the only one that you need to
-worry about.
+1. Merge extracted tables together so that the data needed for generating
+   complete target entities from the extracted data is properly connected.
 
 Guided Transform Module
 =======================
 
 This is a Python module in your ingest package which must include a method
-called ``transform_function``. This method will contain code that merges the
-extract stage's output Pandas DataFrames into a single DataFrame and then
-returns the merged DataFrame.
+called ``transform_function``. This method will merge the extract stage's
+output Pandas DataFrames into one or more composite DataFrame(s) and then
+returns the result.
 
 If you used ``kidsfirst new`` to create your ingest package, you should already
 have a `transform_module.py` file with the correct method signature, sample
@@ -36,184 +31,109 @@ The ``transform_function`` method has only one argument, the ``mapped_df_dict``
 which is a dict of extract config file paths and the corresponding Pandas
 DataFrames produced by the extract configs.
 
-As you can see, right now the transform module is very simple. It doesn't
-really merge anything. It simply returns one of the extract stage DataFrames.
+In the :ref:`Extract-Example` section of this guide, we explored an extract
+configuration for a file called `family_and_phenotype.tsv`. Note that the
+function shown above has a commented-out section of code that would, if we
+chose to name that new configuration `family_and_phenotype.py`, merge the two
+extracted outputs together by joining them on their respective participant ID
+columns.
 
-Transform Function
-==================
+Modify your transform_function so that it merges your extracted DataFrames
+appropriately according to the function docstring shown above.
 
-Let's modify the transform function so that it merges our two extracted
-DataFrames (corresponding to `data/clinical.tsv` and
-`data/family_and_phenotype.tsv`).
+There are a few important things to note in the commented-out example code:
 
-We'll explain the pieces, but this is the end result:
-
-.. code-block:: python
-
-    """
-    Auto-generated transform module
-
-    Replace the contents of transform_function with your own code
-
-    See documentation at
-    https://kids-first.github.io/kf-lib-data-ingest/ for information on
-    implementing transform_function.
-    """
-    import os
-
-    # Use these merge funcs, not pandas.merge
-    from kf_lib_data_ingest.common.pandas_utils import (
-        outer_merge,
-        merge_wo_duplicates
-    )
-    from kf_lib_data_ingest.common.concept_schema import CONCEPT
-    from kf_lib_data_ingest.config import DEFAULT_KEY
-
-    def transform_function(mapped_df_dict):
-        dfs = {
-            os.path.basename(fp): df
-            for fp, df in
-            mapped_df_dict.items()
-        }
-        clinical_df = dfs['extract_config.py']
-        family_and_phenotype_df = dfs['family_and_phenotype.py']
-
-        merged = outer_merge(clinical_df,
-                             family_and_phenotype_df,
-                             on=CONCEPT.PARTICIPANT.ID,
-                             with_merge_detail_dfs=False)
-
-        return {
-            DEFAULT_KEY: merged
-        }
-
-First we just reshape the input data so that it's easier to work with:
-
-.. code-block:: python
-
-    dfs = {
-        os.path.basename(fp): df
-        for fp, df in
-        mapped_df_dict.items()
-    }
-    clinical_df = dfs['extract_config.py']
-    family_and_phenotype_df = dfs['family_and_phenotype.py']
-
-Next, we merge the two DataFrames together on the participant ID column.
-
-.. code-block:: python
-
-    merged = outer_merge(clinical_df,
-                         family_and_phenotype_df,
-                         on=CONCEPT.PARTICIPANT.ID,
-                         with_merge_detail_dfs=False)
-
-There are a few important things to note in this step:
-
-1. We outer merged the DataFrames
-2. We used CONCEPT.PARTICIPANT.ID, not the string "PARTICIPANT|ID"
+1. We outer merge DataFrames so that we don't lose data
+2. We use CONCEPT.PARTICIPANT.ID, not the string "PARTICIPANT|ID"
    itself
-3. We did **not** use the ``Pandas.merge`` method to merge the DataFrames
+3. We do **not** use the ``Pandas.merge`` method to merge the DataFrames
 
 Outer Merge
 ^^^^^^^^^^^
 
 You will likely NEVER want to inner merge/join your DataFrames since this will
-result in a DataFrame with records that only matched in both DataFrames. This
-may cause you to lose records.
+result in a DataFrame with records that only match in both DataFrames. This may
+cause you to lose records.
 
 Use concept schema to reference columns
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The value of ``CONCEPT.PARTICIPANT.ID`` equates to, "PARTICIPANT|ID",
-a string representing the participant concept's identifier.
+The value of ``CONCEPT.PARTICIPANT.ID`` equates to "PARTICIPANT|ID", a string
+representing the participant concept's identifier.
 
 You should always use the ``CONCEPT`` class from concept schema and not strings
 to reference join columns. This way, if the value of the concept attribute
-changes (to say, "PARTICIPANT.IDENTIFIER"), your code won't silently break.
+changes (to say, "PARTICIPANT.IDENTIFIER"), your code won't break silently.
 
 Avoid Pandas.merge - use ingest library's pandas_utils.py
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You `can` use the Pandas.merge method if you want, but the ingest library
+You `may` use the Pandas.merge method if you want, but the ingest library
 provides merge functions that add useful functionality on top of Pandas.merge.
 
-For example, ``outer_merge`` has a keyword argument called
-`with_merge_detail_dfs`, that will output 3 additional DataFrames useful for
-debugging:
+``outer_merge`` automatically fills some of the data holes that will naturally
+result from doing multiple sequential merges on partially-overlapping data.
 
-- a DataFrame of rows that matched in both the left and right
-  DataFrames (equivalent to the DataFrame returned by an inner merge)
-- a DataFrame of rows that were ONLY in the left DataFrame
-- a DataFrame of rows that were ONLY in the right DataFrame
+It also has a keyword argument called `with_merge_detail_dfs` that will output
+3 additional DataFrames useful for debugging:
+
+1. a DataFrame of rows that matched in both the left and right
+   DataFrames (equivalent to the DataFrame returned by an inner merge)
+2. a DataFrame of rows that were ONLY in the left DataFrame
+3. a DataFrame of rows that were ONLY in the right DataFrame
 
 If you need to do a non-outer merge, you should use the ``merge_wo_duplicates``
-method. This method automatically fills some of the holes that will naturally
-result from doing multiple sequential merges on partially-overlapping data.
+method, which is what provides ``outer_merge``'s automatic hole-filling
+behavior.
 
 See ``kf_lib_data_ingest.common.pandas_utils`` for details.
 
 Optional - Return more than 1 DataFrame
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Sometimes it doesn't make sense to merge all of your data into a single
-DataFrame. In this case you might merge a subset of your input DataFrames into
-1 DataFrame which you only want to use to build instances of a particular
-target concept. And then you merge the rest of your input DataFrames into
-another DataFrame which you want to use for building instances of all the
-other target concepts.
+Sometimes it isn't possible to cleanly merge all of your extracted data into
+one monolithic DataFrame. In this case, you might merge subsets of your data
+into less-than-everything DataFrames which you only use to build instances of
+particular target concepts.
 
-You can do this by setting a key in the transform function output dict to
-a particular target concept and its value to the DataFrame containing the data
-to build instances of the target concept.
+You can do this by setting a key in the transform function's output dict
+specifically named after a particular target concept, with its value set to the
+DataFrame containing the data to build instances of that target concept.
 
 For example:
 
 .. code-block:: python
 
-    """
-    Auto-generated transform module
-
-    Replace the contents of transform_function with your own code
-
-    See documentation at
-    https://kids-first.github.io/kf-lib-data-ingest/ for information on
-    implementing transform_function.
-    """
-    import os
-
+    from kf_lib_data_ingest.common.concept_schema import CONCEPT
     # Use these merge funcs, not pandas.merge
     from kf_lib_data_ingest.common.pandas_utils import (
-        outer_merge,
-        merge_wo_duplicates
+        merge_wo_duplicates,
+        outer_merge
     )
-    from kf_lib_data_ingest.common.concept_schema import CONCEPT
     from kf_lib_data_ingest.config import DEFAULT_KEY
 
-    def transform_function(mapped_df_dict):
-        dfs = {
-            os.path.basename(fp): df
-            for fp, df in
-            mapped_df_dict.items()
-        }
-        clinical_df = dfs['extract_config.py']
-        family_and_phenotype_df = dfs['family_and_phenotype.py']
-        merged = outer_merge(clinical_df,
-                             family_and_phenotype_df,
-                             on=CONCEPT.PARTICIPANT.ID,
-                             with_merge_detail_dfs=False)
 
-        family_relationship_df = dfs['pedigree_to_fam_rels.py']
+    def transform_function(mapped_df_dict):
+        clinical_df = mapped_df_dict['extract_config.py']
+        family_and_phenotype_df = mapped_df_dict['family_and_phenotype.py']
+        merged = outer_merge(
+            clinical_df,
+            family_and_phenotype_df,
+            on=CONCEPT.PARTICIPANT.ID,
+            with_merge_detail_dfs=False
+        )
+
+        family_relationship_df = mapped_df_dict['pedigree_to_fam_rels.py']
 
         return {
-            'family_relationship': family_relationship_df
+            'family_relationship': family_relationship_df,
             DEFAULT_KEY: merged
         }
 
-The transform stage will use the ``family_relationship_df`` DataFrame to
-build instances of ``family_relationship``. It will use ``merged`` DataFrame
-to build instances of all the other target concepts (e.g. participant,
-biospecimen, genomic_file)
+This transform stage output signals to use the ``family_relationship_df``
+DataFrame to build instances of ``family_relationship`` and the ``merged``
+DataFrame to build instances of all the other target concepts (e.g.
+participant, biospecimen, genomic_file)
 
 Test Your Package
 =================

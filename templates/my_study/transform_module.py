@@ -8,10 +8,11 @@ https://kids-first.github.io/kf-lib-data-ingest/ for information on
 implementing transform_function.
 """
 
+from kf_lib_data_ingest.common.concept_schema import CONCEPT
 # Use these merge funcs, not pandas.merge
 from kf_lib_data_ingest.common.pandas_utils import (
-    outer_merge,
-    merge_wo_duplicates
+    merge_wo_duplicates,
+    outer_merge
 )
 from kf_lib_data_ingest.config import DEFAULT_KEY
 
@@ -48,9 +49,13 @@ def transform_function(mapped_df_dict):
     }
 
     """
+    df = mapped_df_dict["extract_config.py"]
 
-    df = list(mapped_df_dict.values())[0]
+    # df = outer_merge(
+    #     mapped_df_dict['extract_config.py'],
+    #     mapped_df_dict['family_and_phenotype.py'],
+    #     on=CONCEPT.PARTICIPANT.ID,
+    #     with_merge_detail_dfs=False
+    # )
 
-    return {
-        DEFAULT_KEY: df
-    }
+    return {DEFAULT_KEY: df}

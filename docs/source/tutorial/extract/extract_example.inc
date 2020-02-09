@@ -139,6 +139,15 @@ The following extract configuration file accomplishes all of those needs
         ]
     ]
 
+It goes in the extract_configs directory like this::
+
+    my_study/
+    ├── data
+    │   └── clinical.tsv
+    └── extract_configs
+        ├── extract_config.py
+        └── family_and_phenotype.py
+
 Now let's break down how it works...
 
 Imports!

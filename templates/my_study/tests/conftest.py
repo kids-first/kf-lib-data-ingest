@@ -8,13 +8,13 @@ https://kids-first.github.io/kf-lib-data-ingest/ for information on
 implementing data validation tests.
 """
 
-import os
 import logging
+import os
 
 from kf_lib_data_ingest.common.io import read_json
 
 ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
-OUTPUT_DIR = os.path.join(ROOT_DIR, 'output')
+OUTPUT_DIR = os.path.join(ROOT_DIR, "output")
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ def concept_discovery_dict(stage_type):
 
     :returns the concept discovery dict for a particular stage
     """
-    fp = os.path.join(OUTPUT_DIR, f'{stage_type}_concept_discovery.json')
+    fp = os.path.join(OUTPUT_DIR, f"{stage_type}_concept_discovery.json")
     assert os.path.isfile(fp)
     data = read_json(fp)
 
