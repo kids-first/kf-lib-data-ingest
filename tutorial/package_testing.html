@@ -92,6 +92,7 @@
             
               <p class="caption"><span class="caption-text">Table of Contents</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Design Overview</a></li>
@@ -101,7 +102,7 @@
 <li class="toctree-l2"><a class="reference internal" href="ingest_package.html">Ingest Package Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="package_setup.html">New Ingest Package Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extract/index.html">Extract Stage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extract/challenge_scenarios/index.html">Challenges when Extracting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extract/challenge_scenarios/index.html">Common Challenges when Extracting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Testing Your Ingest Package</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#testing-your-package">Testing Your Package</a></li>
@@ -195,14 +196,12 @@
 <p>Before we go any further in the tutorial, let’s take a look at the recommended
 way to test your ingest package.</p>
 <p>At this point, your ingest package should have the source data file and extract
-config that came with the package template along with the
-<code class="docutils literal notranslate"><span class="pre">family_and_phenotype.tsv</span></code> data file and extract configuration file that you
-added in the previous step of this tutorial.</p>
+config that came with the package template along with the extract configuration
+from <a class="reference internal" href="extract/index.html#extract-example"><span class="std std-ref">Example Extract Configuration</span></a>.</p>
 <p>Your package probably looks like this:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>my_study/
 ├── data
-│   ├── clinical.tsv
-│   └── family_and_phenotype.tsv
+│   └── clinical.tsv
 ├── extract_configs
 │   ├── extract_config.py
 │   └── family_and_phenotype.py

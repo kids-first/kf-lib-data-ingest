@@ -1,5 +1,6 @@
+************
 Installation
-============
+************
 
 Install the current release of ``kf-lib-data-ingest`` with ``pip``::
 

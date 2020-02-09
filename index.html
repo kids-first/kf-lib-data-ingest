@@ -90,7 +90,8 @@
             
             
               <p class="caption"><span class="caption-text">Table of Contents</span></p>
-<ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design/overview.html">Design Overview</a></li>
@@ -162,6 +163,42 @@
            <div itemprop="articleBody">
             
   <img alt="Kids First Data Ingest Library" src="_images/logo.png" />
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design/overview.html">Design Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="design/value_principles.html">Value Principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="design/extract_mapping.html">Extract Mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="design/transform.html">Transform Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="design/load.html">Load stage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/index.html">How To</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/app.html">Kids First Ingest App</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/files.html">Study Data Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/ingest_package.html">Ingest Package Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/package_setup.html">New Ingest Package Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/extract/index.html">Extract Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/extract/challenge_scenarios/index.html">Common Challenges when Extracting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/package_testing.html">Testing Your Ingest Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/debugging.html">Debugging and Developing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/transform.html">Transform Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/load.html">Load Stage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="developer.html#setup-development-environment">Setup Development Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developer.html#run-unit-tests">Run Unit Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developer.html#build-documentation">Build Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a></li>
+</ul>
+</div>
 <div class="section" id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
 <p>The Kids First Data Ingest Library is both an ETL (extract, transform, load)
@@ -378,41 +415,6 @@ standard values (Not Reported, Unknown, etc).</p>
 the target service. The Load Stage will build the target payloads and either
 POST or PATCH them to the target service.</p>
 <p>Head to <a class="reference internal" href="tutorial/index.html#how-to"><span class="std std-ref">How To</span></a> to get started with data ingestion!</p>
-<div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Table of Contents</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="design/overview.html">Design Overview</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="design/value_principles.html">Value Principles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="design/extract_mapping.html">Extract Mapping</a></li>
-<li class="toctree-l2"><a class="reference internal" href="design/transform.html">Transform Stage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="design/load.html">Load stage</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/index.html">How To</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/app.html">Kids First Ingest App</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/files.html">Study Data Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/ingest_package.html">Ingest Package Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/package_setup.html">New Ingest Package Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/extract/index.html">Extract Stage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/extract/challenge_scenarios/index.html">Challenges when Extracting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/package_testing.html">Testing Your Ingest Package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/debugging.html">Debugging and Developing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/transform.html">Transform Stage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/load.html">Load Stage</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="developer.html">Developers</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="developer.html#setup-development-environment">Setup Development Environment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developer.html#run-unit-tests">Run Unit Tests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developer.html#build-documentation">Build Documentation</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a></li>
-</ul>
-</div>
 </div>
 </div>
 </div>

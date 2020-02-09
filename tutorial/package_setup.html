@@ -92,6 +92,7 @@
             
               <p class="caption"><span class="caption-text">Table of Contents</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Design Overview</a></li>
@@ -101,7 +102,7 @@
 <li class="toctree-l2"><a class="reference internal" href="ingest_package.html">Ingest Package Configuration</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">New Ingest Package Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extract/index.html">Extract Stage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extract/challenge_scenarios/index.html">Challenges when Extracting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extract/challenge_scenarios/index.html">Common Challenges when Extracting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="package_testing.html">Testing Your Ingest Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="debugging.html">Debugging and Developing</a></li>
@@ -181,7 +182,7 @@
 <span id="tutorial-package-setup"></span><h1>New Ingest Package Setup<a class="headerlink" href="#new-ingest-package-setup" title="Permalink to this headline">¶</a></h1>
 <p>Create a new ingest package named <code class="docutils literal notranslate"><span class="pre">my_study</span></code> by using the ingest library
 CLI:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ kidsfirst new my_study
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ kidsfirst new --dest_dir=my_study
 </pre></div>
 </div>
 <p>This will generate a minimal study directory for you that looks like this:</p>
