@@ -1,6 +1,10 @@
 .. image:: _static/images/logo.png
    :alt: Kids First Data Ingest Library
 
+----
+
+Library Code Repository: https://github.com/kids-first/kf-lib-data-ingest
+
 .. toctree::
    :caption: Table of Contents
    :maxdepth: 2
@@ -8,7 +12,7 @@
    self
    install
    quickstart
-   design/overview
+   design/overview.rst
    tutorial/index.rst
    developer
    reference/index.rst

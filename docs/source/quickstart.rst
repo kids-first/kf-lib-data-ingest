@@ -9,7 +9,7 @@ Under Construction
    :height: 150 px
    :alt: Under Construction
 
-But coming soon ...
+But coming ...
 
 Quickstart example will focus on the basics:
 

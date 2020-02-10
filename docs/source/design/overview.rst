@@ -30,13 +30,14 @@ For instance, the above statements might have been written like this:
 
     P1, S1, 7, m, unknown
 
-The Extract stage exists to fix any source data that either does *not* encode
-the three fundamental statements by row colinearity or accidentally encodes a
-relationship that does not actually exist among the things being described.
+The Extract stage exists partly to fix any source data that either does *not*
+encode the three fundamental statements by row colinearity or accidentally
+encodes a relationship that does not actually exist among the things being
+described.
 
 .. toctree::
    :caption: Contents
-   :maxdepth: 2
+   :maxdepth: 1
 
    value_principles
    extract_mapping
