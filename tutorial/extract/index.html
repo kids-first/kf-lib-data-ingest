@@ -33,6 +33,7 @@
   
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -1788,9 +1789,9 @@ the pattern.</li>
 <ul class="last simple">
 <li>Regex patterns without <code class="docutils literal notranslate"><span class="pre">^</span></code> and <code class="docutils literal notranslate"><span class="pre">$</span></code> anchors will have them automatically
 added.</li>
-<li><code class="docutils literal notranslate"><span class="pre">m</span></code> dict regex pattern matchess are checked in order, and values
-from <code class="docutils literal notranslate"><span class="pre">in_col</span></code> are each only matched once, so <code class="docutils literal notranslate"><span class="pre">{&quot;a&quot;:</span> <span class="pre">&quot;b&quot;,</span> <span class="pre">&quot;b&quot;:</span> <span class="pre">&quot;c&quot;}</span></code>
-will never convert “a” into “c”.</li>
+<li><code class="docutils literal notranslate"><span class="pre">m</span></code> dict regex pattern matches are checked in order, and values from
+<code class="docutils literal notranslate"><span class="pre">in_col</span></code> are each only matched once, so <code class="docutils literal notranslate"><span class="pre">{&quot;a&quot;:</span> <span class="pre">&quot;b&quot;,</span> <span class="pre">&quot;b&quot;:</span> <span class="pre">&quot;c&quot;}</span></code> will
+never convert “a” into “c”.</li>
 <li>If a regex pattern includes capture groups, the receiving function will
 receive only the captures instead of the whole cell value.</li>
 </ul>

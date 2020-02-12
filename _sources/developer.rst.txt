@@ -2,14 +2,14 @@
 Developers
 **********
 
-Setup Development Environment
-=============================
+Set Up Development Environment
+==============================
 
 1. Git clone the repository::
 
     $ git clone git@github.com:kids-first/kf-lib-data-ingest.git
 
-2. Setup and activate virtual env::
+2. Create and activate virtual environment::
 
     $ python3 -m venv venv
     $ source venv/bin/activate
@@ -28,14 +28,13 @@ Run Unit Tests
 
 Use pytest to run tests::
 
-    python -m pytest tests
+    pytest tests
 
 Build Documentation
 ===================
 
-We currently use Sphinx for generating the API/reference documentation.
-
-If you would like to develop documentation follow these steps:
+We use Sphinx to generate the reference documentation. If you would like to
+develop documentation, follow these steps:
 
 1. Install the Python packages needed to build the documentation::
 

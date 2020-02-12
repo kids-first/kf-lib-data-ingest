@@ -33,6 +33,7 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/style.css" type="text/css" />
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -98,7 +99,7 @@
 <li class="toctree-l1"><a class="reference internal" href="design/overview.html">Design Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/index.html">How To</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Developers</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#setup-development-environment">Setup Development Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#set-up-development-environment">Set Up Development Environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#run-unit-tests">Run Unit Tests</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#build-documentation">Build Documentation</a></li>
 </ul>
@@ -170,15 +171,15 @@
             
   <div class="section" id="developers">
 <h1>Developers<a class="headerlink" href="#developers" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="setup-development-environment">
-<h2>Setup Development Environment<a class="headerlink" href="#setup-development-environment" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="set-up-development-environment">
+<h2>Set Up Development Environment<a class="headerlink" href="#set-up-development-environment" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic">
 <li><p class="first">Git clone the repository:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone git@github.com:kids-first/kf-lib-data-ingest.git
 </pre></div>
 </div>
 </li>
-<li><p class="first">Setup and activate virtual env:</p>
+<li><p class="first">Create and activate virtual environment:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m venv venv
 $ source venv/bin/activate
 </pre></div>
@@ -199,14 +200,14 @@ $ source venv/bin/activate
 <div class="section" id="run-unit-tests">
 <h2>Run Unit Tests<a class="headerlink" href="#run-unit-tests" title="Permalink to this headline">¶</a></h2>
 <p>Use pytest to run tests:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pytest</span> <span class="n">tests</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pytest</span> <span class="n">tests</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="build-documentation">
 <h2>Build Documentation<a class="headerlink" href="#build-documentation" title="Permalink to this headline">¶</a></h2>
-<p>We currently use Sphinx for generating the API/reference documentation.</p>
-<p>If you would like to develop documentation follow these steps:</p>
+<p>We use Sphinx to generate the reference documentation. If you would like to
+develop documentation, follow these steps:</p>
 <ol class="arabic">
 <li><p class="first">Install the Python packages needed to build the documentation:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install -r doc-requirements.txt
