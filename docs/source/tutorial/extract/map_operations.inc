@@ -79,9 +79,9 @@ result to ``out_col`` in your result dataframe.
 
   * Regex patterns without ``^`` and ``$`` anchors will have them automatically
     added.
-  * ``m`` dict regex pattern matchess are checked in order, and values
-    from ``in_col`` are each only matched once, so ``{"a": "b", "b": "c"}``
-    will never convert "a" into "c".
+  * ``m`` dict regex pattern matches are checked in order, and values from 
+    ``in_col`` are each only matched once, so ``{"a": "b", "b": "c"}`` will 
+    never convert "a" into "c".
   * If a regex pattern includes capture groups, the receiving function will
     receive only the captures instead of the whole cell value.
 
