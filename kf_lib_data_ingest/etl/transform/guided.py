@@ -9,12 +9,7 @@ from collections import defaultdict
 
 import pandas
 
-from kf_lib_data_ingest.common.concept_schema import (
-    CONCEPT,
-    UNIQUE_ID_ATTR,
-    concept_property_split,
-    str_to_CONCEPT,
-)
+from kf_lib_data_ingest.common.concept_schema import CONCEPT, concept_attr_from
 from kf_lib_data_ingest.common.misc import clean_up_df
 from kf_lib_data_ingest.common.type_safety import (
     assert_all_safe_type,
@@ -144,37 +139,23 @@ class GuidedTransformStage(TransformStage):
         See the docstring for IngestStage._postrun_concept_discovery
         """
         sources = defaultdict(dict)
-        links = defaultdict(lambda: defaultdict(set))
-        values = defaultdict(lambda: defaultdict(set))
-
+        # Skip columns which might be set differently in ExtractStage vs
+        # TransformStage
+        skip_cols = ["VISIBLE"]
         for df_name, df in run_output.items():
+            cols = [
+                col
+                for col in df.columns
+                if concept_attr_from(col) not in skip_cols
+            ]
             self.logger.info(
                 f"Doing concept discovery for {df_name} DataFrame in "
                 "transform function output"
             )
-            for key in df.columns:
+            for key in cols:
                 sk = sources[key]
                 for val in df[key]:
                     # sources entry
                     sk[val] = True
 
-            for _, row in df.iterrows():
-                for keyA in df.columns:
-                    vA = row[keyA]
-                    for keyB in df.columns:
-                        if keyB != keyA:
-                            vB = row[keyB]
-                            if vA and vB:
-                                # links entry
-                                links[keyA + "::" + keyB][vA].add(vB)
-
-                                # values entry
-                                CA, attrA = concept_property_split[keyA]
-                                CB, attrB = concept_property_split[keyB]
-                                if attrA == UNIQUE_ID_ATTR:
-                                    CA = str_to_CONCEPT[CA]
-                                    CB = str_to_CONCEPT[CB]
-                                    if CA == CB:
-                                        values[keyB][vB].add(vA)
-
-        return {"sources": sources, "links": links, "values": values}
+        return {"sources": sources}

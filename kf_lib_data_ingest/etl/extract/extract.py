@@ -6,7 +6,10 @@ from pprint import pformat
 
 import pandas
 
-from kf_lib_data_ingest.common.concept_schema import concept_set
+from kf_lib_data_ingest.common.concept_schema import (
+    concept_set,
+    concept_attr_from,
+)
 from kf_lib_data_ingest.common.file_retriever import (
     PROTOCOL_SEP,
     FileRetriever,
@@ -405,10 +408,15 @@ class ExtractStage(IngestStage):
         See the docstring for IngestStage._postrun_concept_discovery
         """
         sources = defaultdict(lambda: defaultdict(set))
-        links = defaultdict(lambda: defaultdict(set))
-
+        # Skip columns which might be set differently in ExtractStage vs
+        # TransformStage
+        skip_cols = ["VISIBLE"]
         for config_path, (data_file, df) in run_output.items():
-            cols = df.columns
+            cols = [
+                col
+                for col in df.columns
+                if concept_attr_from(col) not in skip_cols
+            ]
             self.logger.debug(f"Recording {config_path} sources")
             for key in cols:
                 sk = sources[key]
@@ -416,14 +424,4 @@ class ExtractStage(IngestStage):
                     # sources entry
                     sk[val].add(data_file)
 
-            self.logger.debug(f"Recording {config_path} links")
-            for _, row in df.iterrows():
-                for keyA, vA in row.items():
-                    lk_prefix = keyA + "::"
-                    if vA:
-                        for keyB, vB in row.items():
-                            if vB and (keyB != keyA):
-                                # links entry
-                                links[lk_prefix + keyB][vA].add(vB)
-
-        return {"sources": sources, "links": links, "values": None}
+        return {"sources": sources}
