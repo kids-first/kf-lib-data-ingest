@@ -1,3 +1,37 @@
+# Kids First Lib Data Ingest Release 0.9.0
+
+## Features
+
+- Warehouse ingest stage outputs
+- Speed up accounting by only counting values for columns (sources) and not
+pairs of columns (links)
+
+### Summary
+
+Feature Emojis: Create x1 Update x1 ♻️ x2 ⚡️🚧 x1 ✅ x1 ✨ x2 🐛 x3 🐶 x1 📝 x3 🔥 x1 🚧 x1
+Feature Categories: [bug](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/bug) x3 [documentation](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/documentation) x3 [feature](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/feature) x2 [other](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/other) x7 [refactor](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/refactor) x2
+
+### New features and changes
+
+- (#425) 📝 Documentation for warehousing - @fiendish
+- (#424) Create clean.sh - @fiendish
+- (#423) ✨ Add enrollment age concept - @chris-s-friedman
+- (#422) 🐛 Unbreak outer_merge with multiple join cols - @fiendish
+- (#420) 📝 Make template transform_module validate - @fiendish
+- (#419) 🐶 Add Species - @liberaliscomputing
+- (#418) ⚡️🚧 Only do accounting on concept instances  - @znatty22
+- (#417) 🐛 Fix some missing/broken bits of warehousing - @fiendish
+- (#416) ✨ Add methods for sending data to a db - @fiendish
+- (#415) ♻️ Refactor message packing out of transform - @fiendish
+- (#411) 🔥 Burn down the graph code because we'll never use it as is. - @fiendish
+- (#410) 📝 Make doc for custom reads more prominent - @fiendish
+- (#407) Update documentation - @fiendish
+- (#406) 🚧 Fix read_df Errors - @liberaliscomputing
+- (#404) ✅ Keep FileRetriever().get() safe - @fiendish
+- (#403) ♻️ Move reader selector out of ExtractStage - @fiendish
+- (#400) 🐛 It was always supposed to be UL not ML - @fiendish
+
+
 # Kids First Lib Data Ingest Release 0.8.0
 
 ## Features
