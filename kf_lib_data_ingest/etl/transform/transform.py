@@ -112,8 +112,6 @@ class TransformStage(IngestStage):
 
     def _postrun_concept_discovery(self, run_output):
         """
-        See the docstring for IngestStage._postrun_concept_discovery.
+        See the docstring for IngestStage._postrun_concept_discovery
         """
-        # TODO: Implement after transform (or an intermediate stage) is fixed
-        # to produce output using CONCEPT keys, instead of target service keys.
-        pass  # TODO
+        pass

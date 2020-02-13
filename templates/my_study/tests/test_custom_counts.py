@@ -13,24 +13,15 @@ from kf_lib_data_ingest.common.concept_schema import CONCEPT
 extract_stage_data = concept_discovery_dict("ExtractStage")
 
 
-def test_count_family_groups():
+def test_family_count():
     """
-    Test that we have 1 duo and 1 trio families
+    Test that we have at least 2 families
     """
-    selector = CONCEPT.FAMILY.ID + "::" + CONCEPT.PARTICIPANT.ID
-    selected_data = extract_stage_data["links"].get(selector)
+    selector = CONCEPT.FAMILY.ID
+    selected_data = extract_stage_data['sources'].get(selector)
     assert selected_data
 
-    expected_duos = 1
-    expected_trios = 1
-    actual_duos = 0
-    actual_trios = 0
+    expected_families = 2
+    actual_families = len(selected_data.keys())
 
-    for family_id, participant_ids in selected_data.items():
-        if len(participant_ids) == 2:
-            actual_duos += 1
-        elif len(participant_ids) == 3:
-            actual_trios += 1
-
-    assert expected_duos == actual_duos
-    assert expected_trios == expected_trios
+    assert expected_families >= actual_families
