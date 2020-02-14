@@ -70,7 +70,7 @@ def test_extracts():
         df_out = es.run()
         recycled_output = es.read_output()
         for config in extract_configs:
-            extracted = df_out[os.path.basename(config)][1]
+            extracted = df_out[os.path.basename(config)]
             expected = es._source_file_to_df(
                 "file://"
                 + os.path.join(
@@ -86,7 +86,7 @@ def test_extracts():
 
             # test serialize/deserialize equivalence
             A, B = rectify_cols_and_datatypes(
-                extracted, recycled_output[os.path.basename(config)][1]
+                extracted, recycled_output[os.path.basename(config)]
             )
             pandas.testing.assert_frame_equal(A, B)
 

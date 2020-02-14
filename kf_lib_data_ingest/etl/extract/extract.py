@@ -6,10 +6,7 @@ from pprint import pformat
 
 import pandas
 
-from kf_lib_data_ingest.common.concept_schema import (
-    concept_set,
-    concept_attr_from,
-)
+from kf_lib_data_ingest.common.concept_schema import concept_set
 from kf_lib_data_ingest.common.file_retriever import (
     PROTOCOL_SEP,
     FileRetriever,
@@ -90,10 +87,7 @@ class ExtractStage(IngestStage):
         The metadata.json file looks like this:
 
         {
-            <path to output file>: {
-                'extract_config_url': <URL to the files's extract config>
-                'source_data_url': <URL to the original data file>
-            },
+            <path to output file>: <URL to the files's extract config>,
             ...
         }
 
@@ -102,13 +96,10 @@ class ExtractStage(IngestStage):
         """
         meta_fp = os.path.join(self.stage_cache_dir, "metadata.json")
         metadata = {}
-        for extract_config_url, (source_url, df) in output.items():
+        for extract_config_url, df in output.items():
             filename = os.path.basename(extract_config_url).split(".")[0]
             filepath = os.path.join(self.stage_cache_dir, filename + ".tsv")
-            metadata[filepath] = {
-                "extract_config_url": extract_config_url,
-                "source_data_url": source_url,
-            }
+            metadata[extract_config_url] = filepath
             df.to_csv(filepath, sep="\t", index=True)
 
         write_json(metadata, meta_fp)
@@ -127,10 +118,9 @@ class ExtractStage(IngestStage):
         meta_fp = os.path.join(self.stage_cache_dir, "metadata.json")
         metadata = read_json(meta_fp)
 
-        for filepath, info in metadata.items():
-            output[info["extract_config_url"]] = (
-                info["source_data_url"],
-                read_df(filepath, delimiter="\t", index_col=0),
+        for extract_config_url, filepath in metadata.items():
+            output[extract_config_url] = read_df(
+                filepath, delimiter="\t", index_col=0
             )
 
         self.logger.info(
@@ -398,30 +388,7 @@ class ExtractStage(IngestStage):
             # standardize values again after operations
             df_out = clean_up_df(df_out)
 
-            output[extract_config.config_file_relpath] = (data_path, df_out)
+            output[extract_config.config_file_relpath] = df_out
 
         # return dictionary of all dataframes keyed by extract config paths
         return output
-
-    def _postrun_concept_discovery(self, run_output):
-        """
-        See the docstring for IngestStage._postrun_concept_discovery
-        """
-        sources = defaultdict(lambda: defaultdict(set))
-        # Skip columns which might be set differently in ExtractStage vs
-        # TransformStage
-        skip_cols = ["VISIBLE"]
-        for config_path, (data_file, df) in run_output.items():
-            cols = [
-                col
-                for col in df.columns
-                if concept_attr_from(col) not in skip_cols
-            ]
-            self.logger.debug(f"Recording {config_path} sources")
-            for key in cols:
-                sk = sources[key]
-                for val in df[key]:
-                    # sources entry
-                    sk[val].add(data_file)
-
-        return {"sources": sources}

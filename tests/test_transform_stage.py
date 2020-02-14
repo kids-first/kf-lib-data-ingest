@@ -48,14 +48,14 @@ def test_invalid_run_parameters(guided_transform_stage, **kwargs):
 
     # Bad values
     with pytest.raises(InvalidIngestStageParameters):
-        guided_transform_stage.run({"foor": ("bar", None) for i in range(5)})
+        guided_transform_stage.run({"foor": None for i in range(5)})
 
 
 def test_read_write(guided_transform_stage, df):
     """
     Test TransformStage.read_output/write_output
     """
-    extract_output = {"extract_config_url": ("source_url", df)}
+    extract_output = {"extract_config_url": df}
 
     # Transform outputs json
     output = guided_transform_stage.run(extract_output)

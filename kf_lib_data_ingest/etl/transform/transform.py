@@ -33,7 +33,7 @@ class TransformStage(IngestStage):
             if filename.endswith(".tsv")
         }
         self.logger.info(
-            f"Reading {type(self).__name__} output:\n"
+            f"Reading {self.stage_type.__name__} output:\n"
             f"{pformat(list(output.keys()))}"
         )
 
@@ -59,7 +59,7 @@ class TransformStage(IngestStage):
             df.to_csv(fp, sep="\t", index=False)
 
         self.logger.info(
-            f"Writing {type(self).__name__} output:\n" f"{pformat(paths)}"
+            f"Writing {self.stage_type.__name__} output:\n" f"{pformat(paths)}"
         )
 
     def _validate_run_parameters(self, data_dict):
@@ -85,7 +85,7 @@ class TransformStage(IngestStage):
             assert_all_safe_type(data_dict.keys(), str)
 
             # Check that values are tuples of (string, DataFrames)
-            for extract_config_url, df in data_dict.values():
+            for extract_config_url, df in data_dict.items():
                 assert_safe_type(extract_config_url, str)
                 assert_safe_type(df, pandas.DataFrame)
 
@@ -107,11 +107,5 @@ class TransformStage(IngestStage):
         ExtractStage.run. See TransformStage._validate_run_parameters for
         a more detailed description.
         :type data_dict: dict
-        """
-        pass
-
-    def _postrun_concept_discovery(self, run_output):
-        """
-        See the docstring for IngestStage._postrun_concept_discovery
         """
         pass

@@ -2,8 +2,10 @@ import logging
 import os
 import time
 from abc import ABC, abstractmethod
+from collections import defaultdict
 from functools import wraps
 
+from kf_lib_data_ingest.common.concept_schema import concept_attr_from
 from kf_lib_data_ingest.common.io import read_json, write_json
 
 
@@ -64,40 +66,6 @@ class IngestStage(ABC):
     @abstractmethod
     def _run(self, *args, **kwargs):
         pass
-
-    @abstractmethod
-    def _postrun_concept_discovery(self, run_output):
-        """
-        Builds a dict which stores:
-            - All unique standard concept attributes (e.g. each PARTICIPANT.ID)
-            found in the stage output mapped to lists of the places they appear
-            - All unique pairs of standard concept attributes found in the
-            stage output (e.g. which BIOSPECIMEN.IDs are connected to which
-            PARTICIPANT.IDs etc)
-
-        dict template
-        {
-            'sources': {
-                a_key: {  # e.g. PARTICIPANT.ID
-                    a1: [f1, f2],  # e.g. PARTICIPANT.ID==a1 in files f1 & f2
-                    ...
-                },
-                ...
-            },
-            'links': {
-                a_key_b_key: { #  e.g. PARTICIPANT.ID and BIOSPECIMEN.ID
-                    a1: [b1, b2], # Participant a1 linked to specimens b1 & b2
-                    ...
-                }
-            }
-        }
-
-        :param run_output: the output returned by the _run() method
-        :return: A dict where 1) concept values map to a list of the sources
-        containing them and 2) concept values map to lists of linked concept
-        values
-        """
-        return {"sources": None, "links": None, "values": None}
 
     @abstractmethod
     def _validate_run_parameters(self, *args, **kwargs):
@@ -214,3 +182,40 @@ class IngestStage(ABC):
             }
             self.write_concept_counts()
         return output
+
+    def _postrun_concept_discovery(self, df_dict):
+        """
+        Builds a dict which stores all unique standard concept attributes (e.g.
+        each PARTICIPANT.ID) found in the stage output mapped to lists of the
+        places they appear
+
+        dict template
+        {
+            'sources': {
+                a_key: {  # e.g. PARTICIPANT.ID
+                    a1: [f1, f2],  # e.g. PARTICIPANT.ID==a1 in files f1 & f2
+                    ...
+                },
+                ...
+            }
+        }
+
+        :param df_dict: a dict of DataFrames returned by the _run() method
+        :return: a dict where concept values map to a list of the sources
+        containing them
+        """
+        sources = defaultdict(lambda: defaultdict(set))
+        # Skip columns which might be set artificially
+        skip = ["VISIBLE"]
+        for df_name, df in df_dict.items():
+            cols = [c for c in df.columns if concept_attr_from(c) not in skip]
+            self.logger.info(
+                f"Doing concept discovery for DataFrame {df_name} in "
+                f"{type(self).__name__} output"
+            )
+            for key in cols:
+                sk = sources[key]
+                for val in df[key]:
+                    sk[val].add(df_name)
+
+        return {"sources": sources}

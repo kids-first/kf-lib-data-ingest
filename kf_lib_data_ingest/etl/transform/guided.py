@@ -5,11 +5,10 @@ source data tables should be merged into a single table containing all of the
 mapped source data
 """
 import os
-from collections import defaultdict
 
 import pandas
 
-from kf_lib_data_ingest.common.concept_schema import CONCEPT, concept_attr_from
+from kf_lib_data_ingest.common.concept_schema import CONCEPT
 from kf_lib_data_ingest.common.misc import clean_up_df
 from kf_lib_data_ingest.common.type_safety import (
     assert_all_safe_type,
@@ -45,14 +44,9 @@ class GuidedTransformStage(TransformStage):
             "Applying user supplied transform function " f"{filepath} ..."
         )
 
-        # Reformat the data_dict into expected form for transform_funct
-        # Turn data_dict[<extract config file>] = (source data url, dataframe)
-        # into df_dict[<extract config file>] = dataframe
-        df_dict = {k: v[1] for k, v in data_dict.items()}
-
         # Apply user supplied transform function
         transform_funct = self.transform_module.transform_function
-        merged_df_dict = transform_funct(df_dict)
+        merged_df_dict = transform_funct(data_dict)
 
         # Validation of transform function output
         assert_safe_type(merged_df_dict, dict)
@@ -133,29 +127,3 @@ class GuidedTransformStage(TransformStage):
             output[key] = clean_up_df(df)
 
         return output
-
-    def _postrun_concept_discovery(self, run_output):
-        """
-        See the docstring for IngestStage._postrun_concept_discovery
-        """
-        sources = defaultdict(dict)
-        # Skip columns which might be set differently in ExtractStage vs
-        # TransformStage
-        skip_cols = ["VISIBLE"]
-        for df_name, df in run_output.items():
-            cols = [
-                col
-                for col in df.columns
-                if concept_attr_from(col) not in skip_cols
-            ]
-            self.logger.info(
-                f"Doing concept discovery for {df_name} DataFrame in "
-                "transform function output"
-            )
-            for key in cols:
-                sk = sources[key]
-                for val in df[key]:
-                    # sources entry
-                    sk[val] = True
-
-        return {"sources": sources}
