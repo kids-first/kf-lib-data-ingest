@@ -56,7 +56,7 @@ The following extract configuration file accomplishes all of those needs
     )
     import re
 
-    source_data_url = "https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/update-tutorial/docs/data/family_and_phenotype.tsv"
+    source_data_url = "https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/master/docs/data/family_and_phenotype.tsv"
 
     source_data_read_params = {
         "header": 1,
