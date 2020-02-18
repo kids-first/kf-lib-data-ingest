@@ -7,5 +7,11 @@ f1	PID003	SP003A	dna	flu	Male
 f1	PID003	SP003B	rna	cold	Male
 f2	PID004	SP004A	dna	flu	Male
 f2	PID004	SP004B	rna	cold	Male
-f2	PID005	SP005A	dna	flu	Male
-f2	PID005	SP005B	rna	flu	Male
+f2	PID005	SP005A	dna	flu	Female
+f2	PID005	SP005B	rna	flu	Female
+f3	PID006	SP006	rna	flu	Male
+f3	PID007	SP007	rna	flu	Male
+f3	PID008	SP008A	dna	flu	Female
+f3	PID008	SP008B	rna	flu	Female
+f3	PID009	SP009A	dna	flu	Male
+f3	PID009	SP009B	rna	flu	Male
