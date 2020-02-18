@@ -1,3 +1,5 @@
+.. _Tutorial-Package-Testing:
+
 ===========================
 Testing Your Ingest Package
 ===========================
