@@ -3,14 +3,16 @@ from urllib.parse import urlparse
 import sqlalchemy
 from sqlalchemy.schema import DropSchema
 
-SCHEMA_PREFIX = "Ingest:"
+
+def make_prefix(ingest_package_name):
+    return f"Ingest:{ingest_package_name}/"
 
 
 def db_study_url(db_maintenance_url, study_id):
     return urlparse(db_maintenance_url)._replace(path=f"/{study_id}").geturl()
 
 
-def init_study_db(db_maintenance_url, study_id):
+def init_study_db(db_maintenance_url, study_id, ingest_package_name):
     """
     Create and/or reset a warehouse database for the given study.
 
@@ -38,16 +40,21 @@ def init_study_db(db_maintenance_url, study_id):
         connect_args={"connect_timeout": 5},
     )
 
-    # reset study database
+    # drop prior package schemas
     for s in sqlalchemy.inspect(eng).get_schema_names():
-        if s.lower().startswith(SCHEMA_PREFIX.lower()):
+        if s.startswith(make_prefix(ingest_package_name)):
             DropSchema(s, quote=True, cascade=True).execute(bind=eng)
 
     eng.dispose()
 
 
 def persist_df_to_study_db(
-    db_maintenance_url, study_id, stage_name, df, table_name
+    db_maintenance_url,
+    study_id,
+    stage_name,
+    df,
+    table_name,
+    ingest_package_name,
 ):
     """Store the contents of a result dataframe in the warehouse database.
 
@@ -68,7 +75,7 @@ def persist_df_to_study_db(
         connect_args={"connect_timeout": 5},
     )
 
-    schema_name = f"{SCHEMA_PREFIX}{stage_name}"
+    schema_name = f"{make_prefix(ingest_package_name)}{stage_name}"
 
     # create stage schema if needed
     if not eng.dialect.has_schema(eng, schema_name):
@@ -86,3 +93,5 @@ def persist_df_to_study_db(
     )
 
     eng.dispose()
+
+    return schema_name
