@@ -172,7 +172,7 @@ Fetching the data
 
 .. code-block:: python
 
-    source_data_url = "https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/update-tutorial/docs/data/family_and_phenotype.tsv"
+    source_data_url = "https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/master/docs/data/family_and_phenotype.tsv"
 
 The first thing that the extractor does for every config file is fetch the
 related source data. This specifies where the file lives so that the code can
