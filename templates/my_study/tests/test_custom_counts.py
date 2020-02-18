@@ -24,4 +24,4 @@ def test_family_count():
     expected_families = 2
     actual_families = len(selected_data.keys())
 
-    assert expected_families >= actual_families
+    assert actual_families >= expected_families
