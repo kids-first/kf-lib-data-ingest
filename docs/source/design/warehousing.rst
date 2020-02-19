@@ -67,7 +67,8 @@ one of that stage's returned DataFrames.
 
 .. image:: /_static/images/warehouse_inside_db.png
 
-.. note::
+Lifecycle
+=========
 
-    Details for the warehouse used for ingesting Kids First studies can be
-    found at https://github.com/d3b-center/clinical-data-flow/tree/master/warehouse
+Whenever you ingest a package, that package's prior existing schemas will be
+replaced.
