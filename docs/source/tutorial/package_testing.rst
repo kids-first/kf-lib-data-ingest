@@ -26,7 +26,7 @@ Your package probably looks like this::
     └── transform_module.py
 
 Testing Your Package
-========================
+====================
 
 Let's see what happens if you run:
 
@@ -41,23 +41,46 @@ Near the end of the log, you should see something like this:
     2019-05-01 13:08:40,563 - DataIngestPipeline - INFO - ❌ Count Analysis Failed!
     See /path/to/my_study/logs/counts_for_ingest.log for details
 
-Inside of that ``counts_for_ingest.log`` file, you should some things that look
+Inside of that ``counts_for_ingest.log`` file, you should something that look
 like::
 
-    EXPECTED COUNT CHECKS
-    +----------------+------------+---------+---------+
-    | key            |   expected |   found | equal   |
-    |----------------+------------+---------+---------|
-    | FAMILY|ID      |          2 |       2 | ✅      |
-    | PARTICIPANT|ID |          5 |       9 | ❌      |
-    | BIOSPECIMEN|ID |         10 |      16 | ❌      |
-    +----------------+------------+---------+---------+
+    ❌ Column names not equal between ExtractStage and TransformStage
 
-It looks like some tests failed. Let's break down what is going on, and then we
-can make the necessary changes so that our tests pass.
+    +--------------------------+---------------------+
+    | In ExtractStage          | In TransformStage   |
+    |--------------------------+---------------------|
+    | PARTICIPANT|MOTHER_ID    |                     |
+    | PARTICIPANT|FATHER_ID    |                     |
+    | PHENOTYPE|EVENT_AGE_DAYS |                     |
+    | PHENOTYPE|NAME           |                     |
+    | PHENOTYPE|OBSERVED       |                     |
+    +--------------------------+---------------------+
 
-The ``test`` CLI Command
-========================
+It looks like the tests are failing because the columns in the extract stage
+output DataFrames are different than the TransformStage's output DataFrames.
+
+This usually means you've extracted unncessary columns that are not used in the
+transform module merge function OR your transform module merge function is
+missing one or more extracted DataFrames that you do want to include.
+
+In this case, the validation is failing due to the latter reason.
+Try uncommenting the commented lines in ``my_study/transform_module.py``
+
+Now test your package again:
+
+.. code-block:: text
+
+    $ kidsfirst test my_study
+
+Now your log should show that ingest is passing validation::
+
+    2019-04-16 10:14:58,519 - kf_lib_data_ingest.app.cli - INFO - ✅  Ingest pipeline passed validation!
+
+In the :ref:`Tutorial-Transform-Stage`, you'll learn more about the what the
+lines of code you just uncommented are doing.
+
+The ``test`` CLI Commands
+=========================
 
 Under the hood, the ``test`` command is really just an alias for:
 
@@ -95,8 +118,10 @@ Count Analysis
 The types of things that are counted are:
 
 - Concepts (families, participants, biospecimens, etc)
-- Concept attributes (participant.gender, biospecimen.analyte, etc)
-- Relationships between concepts or attributes (biospecimens with 1
+
+**Not Yet Implemented:**
+
+- Relationships between concepts (biospecimens with 1
   participant, participants with at least 1 biospecimen, etc)
 
 It is important to know that some of these things (such as relationships)
@@ -109,12 +134,12 @@ Concept Discovery
 After an ingest stage is run, the post-run analysis iterates over the stage's
 output and builds a ``concept_discovery`` dict, which stores the following:
 
-- A mapping from every concept attribute found to a list of all of the
-  source data files that the concept attribute was found in
-- A mapping between every pair of concept attribute values found
+- A mapping from every concept's ID attribute (``CONCEPT.<TYPE>.ID``)
+  found to a list of all of the source data files that the concept ID
+  was found in
 
-The concept discovery data is used to compute the counts of concepts,
-attributes, and relationships.
+The concept discovery data is used to compute the counts of concepts
+and relationships.
 
 Every stage's concept discovery data structure is written to a file named
 ``<stage name>_concept_discovery.json`` in the stage's output directory. You
@@ -124,44 +149,70 @@ will see how this can be used to write custom data validation tests in the
 Set Expected Counts
 ===================
 
-Now let's go back and take a look at the count results we saw in the log. It
-looks like our tests are failing because in almost every case the count
+Let's see what would happen if we added another participant to our
+``clinical.tsv`` file and re-ran the ``test`` command.
+
+.. note::
+
+    Here, we are trying simulate how receiving more data can alter the results
+    of the count analysis. In a more realistic scenario you would probably
+    receive an additional data file with more participants' data.
+    You would need to write an extract config for it to be included in the
+    ingestion.
+
+For brevity and demonstration purposes, append the following line to
+your ``clinical.tsv`` file:
+
+.. code-block:: text
+
+    f1	PID010	SP010	dna	flu	Female
+
+Now re-run:
+
+.. code-block:: text
+
+    $ kidsfirst test my_study
+
+
+You will probably see something like this:
+
+.. code-block:: text
+
+    2019-05-01 13:08:40,563 - DataIngestPipeline - INFO - ❌ Count Analysis Failed!
+    See /path/to/my_study/logs/counts_for_ingest.log for details
+
+Our tests are failing because in almost every case the count
 analysis is finding more concepts in the source data than were expected.
 
-This is probably because we've added a new source data file
-``family_and_phenotype.tsv``. We can test this theory by removing the extract
-config for ``family_and_phenotype.tsv`` and seeing if the tests pass.
-
-Try moving the ``extract_configs/family_and_phenotype.py`` file out of the
-extract configs folder and re-running the test command. The log should show
-that ingest passed validation::
-
-    2019-04-16 10:14:58,519 - kf_lib_data_ingest.app.cli - INFO - ✅  Ingest pipeline passed validation!
-
-Ok, now put the extract config back into its directory and let's update the
-expected counts for our ingest package.
+This is because we've added new data (a new participant and specimen)
+to one of our source data files ``clinical.tsv``.
 
 The expected counts for an ingest package are set in the
-``ingest_package_config.py`` file. Update the counts to the following:
+``ingest_package_config.py`` file. Let's update the counts to account for
+the new data:
 
 .. code-block:: py
 
     expected_counts = {
         CONCEPT.FAMILY: 2,
-        CONCEPT.PARTICIPANT: 9,
-        CONCEPT.BIOSPECIMEN: 16
+        CONCEPT.PARTICIPANT: 10,
+        CONCEPT.BIOSPECIMEN: 17
     }
 
-Now re-run the test command. You should see your tests passing in the
-``counts_for_ingest.log`` file::
+Now re-run the test command. The log should show that ingest passed
+validation::
 
-    EXPECTED COUNT CHECKS
+    2019-04-16 10:14:58,519 - kf_lib_data_ingest.app.cli - INFO - ✅  Ingest pipeline passed validation!
+
+You should also ssee your tests passing in the ``counts_for_ingest.log`` file::
+
+    EXPECTED COUNT CHECKS:
     +----------------+------------+---------+---------+
-    | key            |   expected |   found | equal   |
+    | Key            |   Expected |   Found | Equal   |
     |----------------+------------+---------+---------|
-    | FAMILY|ID      |          2 |       2 | ✅      |
-    | PARTICIPANT|ID |          9 |       9 | ✅      |
-    | BIOSPECIMEN|ID |         16 |      16 | ✅      |
+    | FAMILY|ID      |          3 |       3 | ✅      |
+    | PARTICIPANT|ID |         10 |      10 | ✅      |
+    | BIOSPECIMEN|ID |         17 |      17 | ✅      |
     +----------------+------------+---------+---------+
 
 .. _user-defined-tests:
@@ -180,7 +231,7 @@ to execute the user defined tests, so all tests should conform to the
 ``pytest`` standard.
 
 You can see an example of a user defined test in your ingest package. This test
-validates that there are exactly 2 duo-type families and 1 trio-type family.
+validates that there are at least 2 families in the data.
 
 conftest.py
 ^^^^^^^^^^^
@@ -191,7 +242,7 @@ concept discovery data.
 
 As you can see, rather than reading in the extract stage output and
 re-implementing the counting logic, we can simply use the concept discovery
-data from the extract stage to count the duos and trios fairly easily.
+data from the extract stage to count the families fairly easily.
 
 Best Practices
 ==============

@@ -50,20 +50,23 @@ Be careful with this token and make sure to keep it secret.
 Update Your Extract Config to get the file from the Data Tracker
 ================================================================
 
-The ``clinical.tsv`` file has already been uploaded to the
-``SD_ME0WME0W`` study via the Data Tracker service here:
+The ``clinical.tsv`` and ``family_and_phenotype.tsv`` source data files have
+already been uploaded to the ``SD_ME0WME0W`` study via the Data Tracker
+service.
 
-https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_SCW1DPBC/version/FV_4DP2P2Y2
+For example, the Data Tracker URL for the ``family_and_phenotypes.tsv``
+file is:
 
-Use this URL for the ``source_data_url`` parameter in the default extract
-config, ``extract_config.py``, that was part of the template ingest package.
-Note that you will not be able to manually download from that URL without the
-correct authorization headers.
+https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_HH5PMCJX/version/FV_5H7MEHG2
+
+Replace the value of ``source_data_url`` parameter in ``extract_config.py``,
+with the Data Tracker URL above. Note that you will not be able to manually
+download from that URL without the correct authorization headers.
 
 .. code-block:: python
 
-    # clinical.tsv
-    source_data_url = 'https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_SCW1DPBC/version/FV_4DP2P2Y2'
+    # family_and_phenotype.tsv
+    source_data_url = 'https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_HH5PMCJX/version/FV_5H7MEHG2'
 
 Try It
 ======
@@ -71,7 +74,8 @@ Try It
 If you try running ingest and the file was fetched successfully, you should see
 something like this in your log::
 
-    2019-04-24 11:19:31,719 - FileRetriever - INFO - Selected `token` authentication to fetch https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_SCW1DPBC/version/FV_4DP2P2Y2
-    2019-04-24 11:19:32,269 - kf_lib_data_ingest.network.utils - INFO - Successfully fetched https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_SCW1DPBC/version/FV_4DP2P2Y2 with original file name "family_and_phenotype.tsv"
+    2019-04-24 11:19:31,719 - FileRetriever - INFO - Selected `token` authentication to fetch https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_HH5PMCJX/version/FV_5H7MEHG2
+    2019-04-24 11:19:32,269 - kf_lib_data_ingest.network.utils - INFO - Successfully fetched https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_HH5PMCJX/version/FV_5H7MEHG2 with original file name "family_and_phenotype.tsv"
 
-You will also see
+**Don't worry if your ingest package fails validation. You will learn how to
+fix this in a later section.**
