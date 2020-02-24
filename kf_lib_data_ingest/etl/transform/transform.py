@@ -21,9 +21,10 @@ class TransformStage(IngestStage):
         """
         Read previously written transform stage output
 
-        :returns: dict (keyed by target concepts) of pandas.DataFrames
+        :return: dict (keyed by target concepts) of pandas.DataFrames
         representing target concept instances (i.e. participant, biospecimen,
         etc)
+        :rtype: dict
         """
         output = {
             os.path.splitext(filename)[0]: read_df(

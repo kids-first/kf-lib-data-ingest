@@ -37,7 +37,8 @@ class GuidedTransformStage(TransformStage):
 
         :param df_dict: a dict of mapped dataframes from the ExtractStage
         :type df_dict: dict
-        :returns: a dict of dataframes
+        :return: a dict of dataframes
+        :rtype: dict
         """
         filepath = self.transform_module.config_filepath
         self.logger.info(

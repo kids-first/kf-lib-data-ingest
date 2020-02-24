@@ -47,7 +47,7 @@ def load(app_settings_filepath=None):
     :param app_settings_filepath: path to app settings Python module
     :type app_mode: str
 
-    :returns imported settings module
+    :return: imported settings module
     """
     # App mode of operation
     app_mode = os.environ.get(APP_MODE_ENV_VAR) or "development"

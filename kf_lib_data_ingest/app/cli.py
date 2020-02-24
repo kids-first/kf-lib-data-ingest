@@ -150,14 +150,10 @@ def ingest(
 ):
     """
     Run the Kids First data ingest pipeline.
-
-    \b
-    Arguments:
-        \b
-        ingest_package_config_path - the path to the data ingest config file
-        or a path to a directory which contains a file called
-        'ingest_package_config.py'
+    :param ingest_package_config_path: the path to the data ingest config file or
+    a path to a directory which contains a file called `ingest_package_config.py`
     """
+
     # Make kwargs from options
     frame = inspect.currentframe()
     args, _, _, values = inspect.getargvalues(frame)
@@ -217,14 +213,10 @@ def test(
     """
     Run the Kids First data ingest pipeline in dry_run mode (--dry_run=True)
     Used for testing ingest packages.
-
-    \b
-    Arguments:
-        \b
-        ingest_package_config_path - the path to the data ingest config file
-        or a path to a directory which contains a file called
-        'ingest_package_config_path.py'
+    :param ingest_package_config_path: the path to the data ingest config file or
+    a path to a directory which contains a file called `ingest_package_config_path.py`
     """
+
     # Make kwargs from options
     frame = inspect.currentframe()
     args, _, _, values = inspect.getargvalues(frame)

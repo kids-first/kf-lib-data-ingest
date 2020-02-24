@@ -111,7 +111,7 @@ class ExtractStage(IngestStage):
         Read in the output files created by _write_output and reconstruct the
         original output of ExtractStage._run.
 
-        :returns the original output of ExtractStage._run.
+        :return: the original output of ExtractStage._run.
         """
         output = {}
 
@@ -186,7 +186,7 @@ class ExtractStage(IngestStage):
         :param read_func: A function used for custom reading
         :kwargs read_args: Options passed to the reading functions
 
-        :returns: A pandas dataframe containing the requested data
+        :return: A pandas dataframe containing the requested data
         """
         self.logger.debug("Retrieving source file %s", file_path)
         f = self.FR.get(file_path)
@@ -228,7 +228,8 @@ class ExtractStage(IngestStage):
 
         :param df_in: A pandas dataframe containing all of the file data
         :param operations: List of operations to perform
-        :returns: A pandas dataframe containing extracted mapped data
+        :return: A pandas dataframe containing extracted mapped data
+        :rtype: DataFrame
         """
         out_cols = defaultdict(pandas.Series)
         original_length = df_in.index.size
@@ -328,9 +329,10 @@ class ExtractStage(IngestStage):
 
     def _run(self, _ignore=None):
         """
-        :returns: A dictionary where a key is the URL to the extract_config
+        :return: A dictionary where a key is the URL to the extract_config
             that produced the dataframe and a value is a tuple containing:
             (<URL to source data file>, <extracted DataFrame>)
+        :rtype: dict
         """
         output = {}
         for extract_config in self.extract_configs:

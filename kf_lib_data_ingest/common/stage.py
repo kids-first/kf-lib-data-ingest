@@ -41,7 +41,7 @@ class IngestStage(ABC):
         raise FileNotFoundError. Otherwise call the private _read_output method
         which is expected to be implemented by subclasses.
 
-        :returns: the output produced by _read_output (defined by sublcasses)
+        :return: the output produced by _read_output (defined by sublcasses)
         """
         if not (self.stage_cache_dir and os.path.isdir(self.stage_cache_dir)):
             raise FileNotFoundError(
@@ -203,6 +203,7 @@ class IngestStage(ABC):
         :param df_dict: a dict of DataFrames returned by the _run() method
         :return: a dict where concept values map to a list of the sources
         containing them
+        :rtype: dict
         """
         sources = defaultdict(lambda: defaultdict(set))
         # Skip columns which might be set artificially

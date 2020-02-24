@@ -394,7 +394,8 @@ class DataIngestPipeline(object):
         pytest is used to run these tests and so all tests should conform to
         the pytest standard.
 
-        :returns boolean indiciating whether all tests passed or failed
+        :return: Boolean indiciating whether all tests passed or failed
+        :rtype: bool
         """
         user_defined_test_dir = os.path.join(self.ingest_config_dir, "tests")
         # No user defined tests exist

@@ -163,6 +163,7 @@ def recover_containers_from_df_strings(df):
 
     :param df: a pandas DataFrame
     :return: Dataframe with object-like strings converted to native objects
+    :rtype: DataFrame
     """
     return df.applymap(str_to_obj)
 
@@ -183,6 +184,7 @@ def clean_up_df(df):
     :param df: a pandas DataFrame
     :return: Dataframe with numbers converted to strings and NaNs/blanks
         converted to None
+    :rtype: DataFrame
     """
 
     return df.applymap(

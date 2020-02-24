@@ -178,8 +178,9 @@ class MessagePacker:
         :param df_dict: the output of the user transform function after
         unique keys have been inserted
         :type df_dict: a dict of pandas.DataFrames
-        :returns target_instances: dict (keyed by target concept) of lists
+        :return: target_instances: dict (keyed by target concept) of lists
         of dicts (target concept instances)
+        :rtype: dict
         """
         self.logger.info(
             "Begin transformation from standard concepts "
@@ -351,7 +352,7 @@ class MessagePacker:
         :param target_instances: a dict of lists containing dicts representing
         target concepts
         :param target_schema: the target service concept schemas
-        :returns target_instances: Updated version of the input
+        :return: target_instances: Updated version of the input
         """
         version = target_schema.get("version")
         schemas = target_schema.get("definitions")
@@ -495,7 +496,7 @@ class MessagePacker:
         :param unique_key_composition: a dict where a key is a standard concept
         string and a value is a list of required columns needed to compose
         a unique key for the concept
-        :returns df_dict: a modified version of the input, with UNIQUE_KEY
+        :return: df_dict: a modified version of the input, with UNIQUE_KEY
         columns added to each DataFrame
         """
         self.logger.info("Begin unique key creation for standard concepts ...")
@@ -566,8 +567,9 @@ class MessagePacker:
         :param df: the Pandas DataFrame that will be modified
         :param unique_key_composition: the rules for composing a concept's
         unique key.
-        :returns df: modified version of input DataFrame with new UNIQUE_KEY
+        :return: modified version of input DataFrame with new UNIQUE_KEY
         columns inserted for each concept present in the input DataFrame.
+        :rtype: DataFrame
         """
         # Iterate over all concepts and try to insert a unique key column
         # for each concept

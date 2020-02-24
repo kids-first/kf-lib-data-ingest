@@ -28,7 +28,8 @@ def http_get_file(url, dest_obj, **kwargs):
     :type dest_obj: a file-like object
     :param kwargs: keyword args forwarded to requests.get
     :type kwargs: dict
-    :returns response: requests.Response object
+    :return: response, a requests.Response object
+    :rtype: requests.Response
     """
 
     kwargs["stream"] = True
@@ -188,7 +189,8 @@ def get_open_api_v2_schema(
     :param cached_schema_filepath: file path to a JSON file containing a
     saved version of the target service's schema.
     :param logger: logger to use when reporting errors
-    :returns output: a dict with the schema definition and version
+    :return: output, a dict with the schema definition and version
+    :rtype: dict
     """
     output = None
     err = None

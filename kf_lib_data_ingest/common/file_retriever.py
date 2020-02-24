@@ -69,7 +69,7 @@ def _s3_save(protocol, source_loc, dest_obj, auth_config=None, logger=None):
     If profile not provided, default to all available profiles
     :type auth_config: dict
 
-    :returns: None, the data goes to dest_obj
+    :return: None, the data goes to dest_obj
     """
     logger = logger or logging.getLogger(__name__)
 
@@ -128,7 +128,7 @@ def _web_save(protocol, source_loc, dest_obj, auth_config=None, logger=None):
     authentication scheme (i.e basic, oauth2, token, etc)
     :type auth_config: dict
 
-    :returns: None, the data goes to dest_obj
+    :return: None, the data goes to dest_obj
     """
     logger = logger or logging.getLogger(__name__)
     url = protocol + PROTOCOL_SEP + source_loc
@@ -188,7 +188,7 @@ def _file_save(protocol, source_loc, dest_obj, auth_config=None, logger=None):
     :param auth_config: do not use
     :type auth_config: None
 
-    :returns: None, the data goes to dest_obj
+    :return: None, the data goes to dest_obj
     """
     logger = logger or logging.getLogger(__name__)
     with open(source_loc, "rb") as orig:
@@ -207,7 +207,8 @@ def _select_auth_scheme(url, auth_configs):
     schemes and necessary auth parameters
     :type auth_configs: dict
 
-    :returns cfg: configuration dict of the selected auth scheme
+    :return: cfg, a configuration dict of the selected auth scheme
+    :rtype: dict
     """
     if auth_configs:
         for key, cfg in auth_configs.items():
@@ -296,7 +297,7 @@ class FileRetriever(object):
         :type auth_config: dict
 
         :raises LookupError: url is not of one of the handled protocols
-        :returns: a file-like object containing the remote file contents
+        :return: a file-like object containing the remote file contents
         """
         self.logger.info("Fetching %s", url)
         protocol, path = split_protocol(url)
