@@ -11,10 +11,10 @@ Extract and Transform results as well as the KFID lookup cache for the study.
 This makes it easier for others to assist in replicating, validating, and
 modifying the results of an ingest.
 
-The Warehouse Server
-====================
+Warehouse Server Requirements
+=============================
 
-You will need:
+The technical requirements for warehousing are:
 
 1. A database server that supports namespace schemas (ask your group
    administrator if one has already been set up)
@@ -27,6 +27,11 @@ You will need:
    ``CREATE TABLE``, ``DROP TABLE``, and ``INSERT``
 
 3. The power of friendship
+
+.. note::
+
+    Connection details for the warehouse used for ingesting Kids First studies
+    can be found at https://github.com/d3b-center/clinical-data-flow/tree/master/warehouse
 
 Local Environment Configuration
 ===============================
