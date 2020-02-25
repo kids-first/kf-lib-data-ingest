@@ -105,6 +105,7 @@ class DataIngestPipeline(object):
         self.ingest_config_dir = os.path.dirname(
             self.data_ingest_config.config_filepath
         )
+        self.ingest_name = os.path.basename(self.ingest_config_dir)
         self.ingest_output_dir = os.path.join(self.ingest_config_dir, "output")
 
         self.target_api_config_path = target_api_config_path
@@ -236,9 +237,9 @@ class DataIngestPipeline(object):
             # Initialize database
             if self.warehouse_db_url:
                 study_id = self.data_ingest_config.study
-                init_study_db(self.warehouse_db_url, study_id)
+                init_study_db(self.warehouse_db_url, study_id, self.ingest_name)
                 self.logger.info(
-                    f"Initialized study db: {study_id} in warehouse."
+                    f"Initialized db in warehouse for {study_id} {self.ingest_name}."
                 )
 
             # Iterate over all stages in the ingest pipeline
@@ -275,17 +276,17 @@ class DataIngestPipeline(object):
                 if self.warehouse_db_url and isinstance(
                     stage, (TransformStage, ExtractStage)
                 ):
-                    schema = f"{os.path.basename(self.ingest_config_dir)}/{stage_name}"
                     for df_name, df in output.items():
-                        persist_df_to_study_db(
+                        schema = persist_df_to_study_db(
                             self.warehouse_db_url,
                             self.data_ingest_config.study,
-                            schema,
+                            stage_name,
                             df,
                             df_name,
+                            self.ingest_name,
                         )
                         self.logger.info(
-                            f"Loaded {schema}:{df_name} in warehouse."
+                            f"Loaded {schema}.{df_name} in {study_id} warehouse."
                         )
             self._log_count_results(all_passed, all_messages)
 
