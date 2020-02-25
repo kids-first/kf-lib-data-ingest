@@ -5,7 +5,7 @@ from sqlalchemy.schema import DropSchema
 
 
 def make_prefix(ingest_package_name):
-    return f"Ingest:{ingest_package_name}/"
+    return f"Ingest:{ingest_package_name}:"
 
 
 def db_study_url(db_maintenance_url, study_id):
