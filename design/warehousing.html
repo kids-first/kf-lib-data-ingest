@@ -101,10 +101,11 @@
 <li class="toctree-l2"><a class="reference internal" href="extract_mapping.html">Extract Mapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="transform.html">Transform Stage</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Remote Warehousing</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#the-warehouse-server">The Warehouse Server</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#warehouse-server-requirements">Warehouse Server Requirements</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#local-environment-configuration">Local Environment Configuration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cli-temporary-disabling">CLI Temporary Disabling</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#storage-layout">Storage Layout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lifecycle">Lifecycle</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="load.html">Load Stage</a></li>
@@ -187,9 +188,9 @@ a remote warehousing database to centrally store your package’s intermediate
 Extract and Transform results as well as the KFID lookup cache for the study.
 This makes it easier for others to assist in replicating, validating, and
 modifying the results of an ingest.</p>
-<div class="section" id="the-warehouse-server">
-<h2>The Warehouse Server<a class="headerlink" href="#the-warehouse-server" title="Permalink to this headline">¶</a></h2>
-<p>You will need:</p>
+<div class="section" id="warehouse-server-requirements">
+<h2>Warehouse Server Requirements<a class="headerlink" href="#warehouse-server-requirements" title="Permalink to this headline">¶</a></h2>
+<p>The technical requirements for warehousing are:</p>
 <ol class="arabic simple">
 <li>A database server that supports namespace schemas (ask your group
 administrator if one has already been set up)<ul>
@@ -202,6 +203,11 @@ invoke <code class="docutils literal notranslate"><span class="pre">CREATE</span
 <code class="docutils literal notranslate"><span class="pre">CREATE</span> <span class="pre">TABLE</span></code>, <code class="docutils literal notranslate"><span class="pre">DROP</span> <span class="pre">TABLE</span></code>, and <code class="docutils literal notranslate"><span class="pre">INSERT</span></code></li>
 <li>The power of friendship</li>
 </ol>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Connection details for the warehouse used for ingesting Kids First studies
+can be found at <a class="reference external" href="https://github.com/d3b-center/clinical-data-flow/tree/master/warehouse">https://github.com/d3b-center/clinical-data-flow/tree/master/warehouse</a></p>
+</div>
 </div>
 <div class="section" id="local-environment-configuration">
 <h2>Local Environment Configuration<a class="headerlink" href="#local-environment-configuration" title="Permalink to this headline">¶</a></h2>
@@ -235,11 +241,11 @@ after the study KFID.</p>
 prefixed by “Ingest:” and the name of the package. Each schema table will be
 one of that stage’s returned DataFrames.</p>
 <img alt="../_images/warehouse_inside_db.png" src="../_images/warehouse_inside_db.png" />
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Details for the warehouse used for ingesting Kids First studies can be
-found at <a class="reference external" href="https://github.com/d3b-center/clinical-data-flow/tree/master/warehouse">https://github.com/d3b-center/clinical-data-flow/tree/master/warehouse</a></p>
 </div>
+<div class="section" id="lifecycle">
+<h2>Lifecycle<a class="headerlink" href="#lifecycle" title="Permalink to this headline">¶</a></h2>
+<p>Whenever you ingest a package, that package’s prior existing schemas will be
+replaced.</p>
 </div>
 </div>
 
