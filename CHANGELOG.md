@@ -1,3 +1,31 @@
+# Kids First Lib Data Ingest Release 0.10.0
+
+## ⚠️ Important - README!
+
+This release has a very important change (a part of #433) which fixes the issue where
+Metabase would fail to delete databases containing schema names with slashes. This
+would leave zombie database entries in Metabase that had no way to be deleted.
+
+Please STOP USING previous releases as they will cause creation of the zombie databases!
+
+## Features
+
+### Summary
+
+Feature Emojis: ♻️ x1 ✏️ x2 ✏️Add x1 ✏️Refactored x1 🐛 x2 💬 x1
+Feature Categories: [bug](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/bug) x2 [other](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/other) x5 [refactor](http://api.github.com/repos/kids-first/kf-lib-data-ingest/labels/refactor) x1
+
+### New features and changes
+
+- (#440) ✏️ Fix typo in ingest success log message - @chris-s-friedman
+- (#438) 💬 Make all constants into strings for sanity - @fiendish
+- (#436) ✏️Refactored docstrings to all be in RST format - @gsantia
+- (#435) ✏️Add quickstart - @gsantia
+- (#434) 🐛 Update outdated tutorial sections and re-order them - @znatty22
+- (#433) 🐛 Don't wipe whole db for each package - @fiendish
+- (#429) ✏️ Fix bad link in doc - @fiendish
+- (#427) ♻️ Deduplicate discovery - @fiendish
+
 # Kids First Lib Data Ingest Release 0.9.0
 
 ## Features
