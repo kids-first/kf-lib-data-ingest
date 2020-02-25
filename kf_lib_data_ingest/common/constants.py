@@ -1,6 +1,9 @@
 """
-When you want to use free text for values, don't.
-Use preset constants instead.
+When you want to use free text for values, don't. Use preset constants instead.
+
+All constants should be strings. The Extract stage converts all data to
+strings, and we want to maintain the ability to compare with constants during
+Transform.
 """
 
 
@@ -13,8 +16,8 @@ class COMMON:
     NO_MATCH = "No Match"
     OTHER = "Other"
     UNKNOWN = "Reported Unknown"
-    TRUE = True
-    FALSE = False
+    TRUE = "True"
+    FALSE = "False"
 
 
 class FILE:
