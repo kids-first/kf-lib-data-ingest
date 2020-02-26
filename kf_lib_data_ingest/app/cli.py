@@ -191,7 +191,7 @@ def ingest(
 
     logger = logging.getLogger(__name__)
     if perfection:
-        logger.info("✅ Ingest pipline passed validation!")
+        logger.info("✅ Ingest pipeline passed validation!")
     else:
         logger.error(
             "❌ Ingest pipeline failed validation! "
