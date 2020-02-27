@@ -95,7 +95,22 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#generate-a-new-ingest-package">Generate a new ingest package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#modify-a-template-extract-config">Modify a template extract config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#debugging">Debugging</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#run-single-stage">Run single stage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#view-ingest-log">View ingest log</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#view-single-stage-output">View single stage output</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#modify-the-transform-module">Modify the Transform module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-the-ingest-pipeline">Run the ingest pipeline</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-warehouse-server">The Warehouse Server</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="design/overview.html">Design Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/index.html">How To</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developer.html">Developers</a></li>
@@ -165,26 +180,436 @@
            <div itemprop="articleBody">
             
   <div class="section" id="quickstart">
-<h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
-<p>Under Construction</p>
-<a class="reference internal image-reference" href="_images/construction.svg"><img alt="Under Construction" height="150px" src="_images/construction.svg" width="150px" /></a>
-<p>But coming …</p>
-<p>Quickstart example will focus on the basics:</p>
-<ul class="simple">
-<li>Generate a new ingest package</li>
-<li>Modify a template extract config</li>
-<li>Run ingest pipeline</li>
-<li><dl class="first docutils">
-<dt>Debugging</dt>
-<dd><ul class="first last">
-<li>Run single stage</li>
-<li>View ingest log</li>
-<li>View single stage output</li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
+<span id="id1"></span><h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
+<p>If you want to get up and running quickly with creating an ingest package
+and running it, then the quick start guide is the best place to start. It’s ok
+if you do not understand what each of the steps are doing. The tutorial
+section goes through the exact same demonstration as the quickstart, but
+it includes detailed explanations for each step.</p>
+<div class="section" id="generate-a-new-ingest-package">
+<h2>Generate a new ingest package<a class="headerlink" href="#generate-a-new-ingest-package" title="Permalink to this headline">¶</a></h2>
+<p>Each study that needs to be ingested will have a single directory that contains
+all of the configuration needed by the ingest pipeline to extract, transform,
+and load the study into a target data store or service. This is known as the
+ingest package.</p>
+<p>The first thing to do after installing the ingest library CLI
+is to create a new ingest package named <code class="docutils literal notranslate"><span class="pre">my_study</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ kidsfirst new --dest_dir=my_study
+</pre></div>
+</div>
+<p>We can run it and test to make sure everything works by using the following
+command</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ kidsfirst test my_study
+</pre></div>
+</div>
+<p>The logs on your screen should indicate a successful test run like this:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>======================================== 1 passed in 0.12s ============================================================
+2020-02-18 17:40:36,039 - DataIngestPipeline - Thread: MainThread - INFO - ✅ User defined data validation tests passed
+2020-02-18 17:40:36,039 - DataIngestPipeline - Thread: MainThread - INFO - END data ingestion
+2020-02-18 17:40:36,039 - kf_lib_data_ingest.app.cli - Thread: MainThread - INFO - ✅ Ingest pipline passed validation!
+</pre></div>
+</div>
+<p>So far your ingest package is pretty basic. It has 1 source data file and
+the Python modules needed to extract, clean, and transform the data for the
+target service. If you inspect it, it will look like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>my_study/
+├── ingest_package_config.py
+├── transform_module.py
+├── data/
+│   └── clinical.tsv
+├── extract_configs/
+│   └── extract_config.py
+└── tests/
+    ├── conftest.py
+    └── test_custom_counts.py
+</pre></div>
+</div>
+</div>
+<div class="section" id="modify-a-template-extract-config">
+<h2>Modify a template extract config<a class="headerlink" href="#modify-a-template-extract-config" title="Permalink to this headline">¶</a></h2>
+<p>An extract config file does 3 things to the source data:</p>
+<ol class="arabic simple">
+<li>Select or extract the desired subset of data from the source data</li>
+<li>Clean the selected data (remove trailing whitespaces, etc)</li>
+<li>Map the cleaned data’s attributes and values to Kids First entity attributes
+and acceptable values.</li>
+</ol>
+<p>We’re going to create an additional extract config to extract data from the
+following source data file (different
+from the file you already have):</p>
+<table border="1" class="docutils" id="id2">
+<caption><span class="caption-text">family_and_phenotype.tsv</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="9%" />
+<col width="9%" />
+<col width="9%" />
+<col width="9%" />
+<col width="9%" />
+<col width="9%" />
+<col width="9%" />
+<col width="9%" />
+<col width="9%" />
+<col width="9%" />
+<col width="9%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>[ignore]</td>
+<td>[ignore]</td>
+<td>[ignore]</td>
+<td>[ignore]</td>
+<td>[ignore]</td>
+<td>[ignore]</td>
+<td>[ignore]</td>
+<td>[ignore]</td>
+<td>[ignore]</td>
+<td>[ignore]</td>
+<td>[ignore]</td>
+</tr>
+<tr class="row-even"><td>[ignore]</td>
+<td>participant</td>
+<td>mother</td>
+<td>father</td>
+<td>gender</td>
+<td>specimens</td>
+<td>age (hrs)</td>
+<td>CLEFT_EGO</td>
+<td>CLEFT_ID</td>
+<td>age (hrs)</td>
+<td>EXTRA_EARDRUM</td>
+</tr>
+<tr class="row-odd"><td>[ignore]</td>
+<td>PID001</td>
+<td>2</td>
+<td>3</td>
+<td>F</td>
+<td>SP001A,SP001B</td>
+<td>4</td>
+<td>TRUE</td>
+<td>FALSE</td>
+<td>4</td>
+<td>FALSE</td>
+</tr>
+<tr class="row-even"><td>[ignore]</td>
+<td>PID002</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>SP002A; SP002B</td>
+<td>435</td>
+<td>TRUE</td>
+<td>FALSE</td>
+<td>435</td>
+<td>FALSE</td>
+</tr>
+<tr class="row-odd"><td>[ignore]</td>
+<td>PID003</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>SP003A;SP003B</td>
+<td>34</td>
+<td>TRUE</td>
+<td>FALSE</td>
+<td>34</td>
+<td>FALSE</td>
+</tr>
+<tr class="row-even"><td>[ignore]</td>
+<td>PID004</td>
+<td>5</td>
+<td>6</td>
+<td>M</td>
+<td>SP004A; SP004B</td>
+<td>4</td>
+<td>TRUE</td>
+<td>TRUE</td>
+<td>4</td>
+<td>FALSE</td>
+</tr>
+<tr class="row-odd"><td>[ignore]</td>
+<td>PID005</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>SP005A, SP005B</td>
+<td>345</td>
+<td>TRUE</td>
+<td>TRUE</td>
+<td>34</td>
+<td>FALSE</td>
+</tr>
+<tr class="row-even"><td>[ignore]</td>
+<td>PID006</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>SP006</td>
+<td>34</td>
+<td>TRUE</td>
+<td>TRUE</td>
+<td>43545</td>
+<td>FALSE</td>
+</tr>
+<tr class="row-odd"><td>[ignore]</td>
+<td>PID007</td>
+<td>8</td>
+<td>9</td>
+<td>M</td>
+<td>SP007</td>
+<td>34</td>
+<td>TRUE</td>
+<td>FALSE</td>
+<td>5</td>
+<td>TRUE</td>
+</tr>
+<tr class="row-even"><td>[ignore]</td>
+<td>PID008</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>SP008A,SP008B</td>
+<td>43545</td>
+<td>TRUE</td>
+<td>TRUE</td>
+<td>52</td>
+<td>TRUE</td>
+</tr>
+<tr class="row-odd"><td>[ignore]</td>
+<td>PID009</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>SP009A,SP009B</td>
+<td>5</td>
+<td>FALSE</td>
+<td>TRUE</td>
+<td>25</td>
+<td>TRUE</td>
+</tr>
+</tbody>
+</table>
+<p>The extract config file we’re going to use is below. Much more detail on this
+later.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common</span> <span class="kn">import</span> <span class="n">constants</span>
+<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.etl.extract.operations</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.concept_schema</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CONCEPT</span>
+<span class="p">)</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="n">source_data_url</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/master/docs/data/family_and_phenotype.tsv&quot;</span>
+
+<span class="n">source_data_read_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;usecols&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">!=</span> <span class="s2">&quot;[ignore]&quot;</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">observed_yes_no</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="s2">&quot;yes&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">}:</span>
+        <span class="k">return</span> <span class="n">constants</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">OBSERVED</span><span class="o">.</span><span class="n">YES</span>
+    <span class="k">elif</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;false&quot;</span><span class="p">,</span> <span class="s2">&quot;no&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">}:</span>
+        <span class="k">return</span> <span class="n">constants</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">OBSERVED</span><span class="o">.</span><span class="n">NO</span>
+    <span class="k">elif</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">}:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="n">operations</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">value_map</span><span class="p">(</span>
+        <span class="n">in_col</span><span class="o">=</span><span class="s2">&quot;participant&quot;</span><span class="p">,</span>
+        <span class="n">m</span><span class="o">=</span><span class="p">{</span>
+            <span class="sa">r</span><span class="s2">&quot;PID(\d+)&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">),</span>  <span class="c1"># strip PID and 0-padding</span>
+        <span class="p">},</span>
+        <span class="n">out_col</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PARTICIPANT</span><span class="o">.</span><span class="n">ID</span>
+    <span class="p">),</span>
+    <span class="n">keep_map</span><span class="p">(</span>
+        <span class="n">in_col</span><span class="o">=</span><span class="s2">&quot;mother&quot;</span><span class="p">,</span>
+        <span class="n">out_col</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PARTICIPANT</span><span class="o">.</span><span class="n">MOTHER_ID</span>
+    <span class="p">),</span>
+    <span class="n">keep_map</span><span class="p">(</span>
+        <span class="n">in_col</span><span class="o">=</span><span class="s2">&quot;father&quot;</span><span class="p">,</span>
+        <span class="n">out_col</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PARTICIPANT</span><span class="o">.</span><span class="n">FATHER_ID</span>
+    <span class="p">),</span>
+    <span class="n">value_map</span><span class="p">(</span>
+        <span class="n">in_col</span><span class="o">=</span><span class="s2">&quot;gender&quot;</span><span class="p">,</span>
+        <span class="c1"># Don&#39;t worry about mother/father gender here.</span>
+        <span class="c1"># We can create them in a later phase.</span>
+        <span class="n">m</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;F&quot;</span><span class="p">:</span> <span class="n">constants</span><span class="o">.</span><span class="n">GENDER</span><span class="o">.</span><span class="n">FEMALE</span><span class="p">,</span>
+            <span class="s2">&quot;M&quot;</span><span class="p">:</span> <span class="n">constants</span><span class="o">.</span><span class="n">GENDER</span><span class="o">.</span><span class="n">MALE</span>
+        <span class="p">},</span>
+        <span class="n">out_col</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PARTICIPANT</span><span class="o">.</span><span class="n">GENDER</span>
+    <span class="p">),</span>
+    <span class="n">value_map</span><span class="p">(</span>
+        <span class="n">in_col</span><span class="o">=</span><span class="s2">&quot;specimens&quot;</span><span class="p">,</span>
+        <span class="n">m</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">Split</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;[,;]&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)),</span>
+        <span class="n">out_col</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">BIOSPECIMEN</span><span class="o">.</span><span class="n">ID</span>
+    <span class="p">),</span>
+    <span class="p">[</span>
+        <span class="n">value_map</span><span class="p">(</span>
+            <span class="n">in_col</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>  <span class="c1"># age (hrs) (first)</span>
+            <span class="n">m</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="mi">24</span><span class="p">,</span>
+            <span class="n">out_col</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">EVENT_AGE_DAYS</span>
+        <span class="p">),</span>
+        <span class="n">melt_map</span><span class="p">(</span>
+            <span class="n">var_name</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">NAME</span><span class="p">,</span>
+            <span class="n">map_for_vars</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;CLEFT_EGO&quot;</span><span class="p">:</span> <span class="s2">&quot;Cleft ego&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;CLEFT_ID&quot;</span><span class="p">:</span> <span class="s2">&quot;Cleft id&quot;</span>
+            <span class="p">},</span>
+            <span class="n">value_name</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">OBSERVED</span><span class="p">,</span>
+            <span class="n">map_for_values</span><span class="o">=</span><span class="n">observed_yes_no</span>
+        <span class="p">)</span>
+    <span class="p">],</span>
+    <span class="p">[</span>
+        <span class="n">value_map</span><span class="p">(</span>
+            <span class="n">in_col</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>  <span class="c1"># age (hrs) (second)</span>
+            <span class="n">m</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="mi">24</span><span class="p">,</span>
+            <span class="n">out_col</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">EVENT_AGE_DAYS</span>
+        <span class="p">),</span>
+        <span class="n">melt_map</span><span class="p">(</span>
+            <span class="n">var_name</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">NAME</span><span class="p">,</span>
+            <span class="n">map_for_vars</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;EXTRA_EARDRUM&quot;</span><span class="p">:</span> <span class="s2">&quot;Extra eardrum&quot;</span>
+            <span class="p">},</span>
+            <span class="n">value_name</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">OBSERVED</span><span class="p">,</span>
+            <span class="n">map_for_values</span><span class="o">=</span><span class="n">observed_yes_no</span>
+        <span class="p">)</span>
+    <span class="p">]</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>It goes in the <code class="docutils literal notranslate"><span class="pre">extract_configs</span></code> directory like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>my_study/
+├── data/
+│   └── clinical.tsv
+└── extract_configs/
+    ├── extract_config.py
+    └── family_and_phenotype.py
+</pre></div>
+</div>
+</div>
+<div class="section" id="debugging">
+<h2>Debugging<a class="headerlink" href="#debugging" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="run-single-stage">
+<h3>Run single stage<a class="headerlink" href="#run-single-stage" title="Permalink to this headline">¶</a></h3>
+<p>The entire ingest pipeline consists of the familiar ETL steps (extract,
+transform, and load). The package allows any logical subset of these three
+stages to be executed instead (output from the previous stages must exist in
+order for extract or transform to be run). This can be done using the
+<code class="docutils literal notranslate"><span class="pre">--stages</span></code> argument with a subset of the char sequence <code class="docutils literal notranslate"><span class="pre">etl</span></code>.</p>
+</div>
+<div class="section" id="view-ingest-log">
+<h3>View ingest log<a class="headerlink" href="#view-ingest-log" title="Permalink to this headline">¶</a></h3>
+<p>The pipeline logs messages to the console and also stores them in a log file,
+which is by default located at <code class="docutils literal notranslate"><span class="pre">&lt;ingest</span> <span class="pre">package</span> <span class="pre">dir&gt;/logs/ingest.log</span></code>.</p>
+</div>
+<div class="section" id="view-single-stage-output">
+<h3>View single stage output<a class="headerlink" href="#view-single-stage-output" title="Permalink to this headline">¶</a></h3>
+<p>Every ingest stage has the option to write its output to a directory that
+follows this path pattern: <code class="docutils literal notranslate"><span class="pre">&lt;ingest</span> <span class="pre">package</span> <span class="pre">dir&gt;/output/&lt;name</span> <span class="pre">of</span> <span class="pre">stage&gt;</span></code>.</p>
+</div>
+</div>
+<div class="section" id="modify-the-transform-module">
+<h2>Modify the Transform module<a class="headerlink" href="#modify-the-transform-module" title="Permalink to this headline">¶</a></h2>
+<p>Next in the standard ETL sequence is the transform step. This will merge our
+extracted tables together such that the data needed for generating complete
+target entities from our extracted data is properly connected.</p>
+<p>For this demo, this is controlled by the file <code class="docutils literal notranslate"><span class="pre">transform_module.py</span></code>. Check it
+out:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Auto-generated transform module</span>
+
+<span class="sd">Replace the contents of transform_function with your own code</span>
+
+<span class="sd">See documentation at</span>
+<span class="sd">https://kids-first.github.io/kf-lib-data-ingest/ for information on</span>
+<span class="sd">implementing transform_function.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.concept_schema</span> <span class="kn">import</span> <span class="n">CONCEPT</span>
+<span class="c1"># Use these merge funcs, not pandas.merge</span>
+<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.pandas_utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">merge_wo_duplicates</span><span class="p">,</span>
+    <span class="n">outer_merge</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.config</span> <span class="kn">import</span> <span class="n">DEFAULT_KEY</span>
+
+
+<span class="k">def</span> <span class="nf">transform_function</span><span class="p">(</span><span class="n">mapped_df_dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Merge DataFrames in mapped_df_dict into 1 DataFrame if possible.</span>
+
+<span class="sd">    Return a dict that looks like this:</span>
+
+<span class="sd">    {</span>
+<span class="sd">        DEFAULT_KEY: all_merged_data_df</span>
+<span class="sd">    }</span>
+
+<span class="sd">    If not possible to merge all DataFrames into a single DataFrame then</span>
+<span class="sd">    you can return a dict that looks something like this:</span>
+
+<span class="sd">    {</span>
+<span class="sd">        &#39;&lt;name of target concept&gt;&#39;: df_for_&lt;target_concept&gt;,</span>
+<span class="sd">        DEFAULT_KEY: all_merged_data_df</span>
+<span class="sd">    }</span>
+
+<span class="sd">    Target concept instances will be built from the default DataFrame unless</span>
+<span class="sd">    another DataFrame is explicitly provided via a key, value pair in the</span>
+<span class="sd">    output dict. They key must match the name of an existing target concept.</span>
+<span class="sd">    The value will be the DataFrame to use when building instances of the</span>
+<span class="sd">    target concept.</span>
+
+<span class="sd">    A typical example would be:</span>
+
+<span class="sd">    {</span>
+<span class="sd">        &#39;family_relationship&#39;: family_relationship_df,</span>
+<span class="sd">        &#39;default&#39;: all_merged_data_df</span>
+<span class="sd">    }</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">mapped_df_dict</span><span class="p">[</span><span class="s2">&quot;extract_config.py&quot;</span><span class="p">]</span>
+
+    <span class="c1"># df = outer_merge(</span>
+    <span class="c1">#     mapped_df_dict[&#39;extract_config.py&#39;],</span>
+    <span class="c1">#     mapped_df_dict[&#39;family_and_phenotype.py&#39;],</span>
+    <span class="c1">#     on=CONCEPT.BIOSPECIMEN.ID,</span>
+    <span class="c1">#     with_merge_detail_dfs=False</span>
+    <span class="c1"># )</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="n">DEFAULT_KEY</span><span class="p">:</span> <span class="n">df</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>The interesting part that we need is the block at the bottom that’s commented
+out. Uncomment this block and then run <code class="docutils literal notranslate"><span class="pre">kidsfirst</span> <span class="pre">test</span></code> to perform
+extraction and tranformation.</p>
+</div>
+<div class="section" id="run-the-ingest-pipeline">
+<h2>Run the ingest pipeline<a class="headerlink" href="#run-the-ingest-pipeline" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="the-warehouse-server">
+<h3>The Warehouse Server<a class="headerlink" href="#the-warehouse-server" title="Permalink to this headline">¶</a></h3>
+<p>Data that we ingest is meant to be shared, not stored locally on your machine!
+It’s easy to configure the ingest system to connect to a remote warehousing
+database which will centrally store the relevant data.</p>
+<p>We’re ready to test the ingest package again, and, since we’re just seeing how
+this package works on dummy data, we don’t want
+to actually upload anything to a warehouse. This won’t happen if we use the
+<code class="docutils literal notranslate"><span class="pre">--no_warehouse</span></code> option command, like so:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ kidsfirst test --no_warehouse my_study
+</pre></div>
+</div>
+<p>If the ingest package passes validation with the test command and you’re happy
+with the output, you’re ready to ingest the data into your target service using
+the ingest command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ kidsfirst ingest my_study
+</pre></div>
+</div>
+<p>The library defaults to ingesting data into the Kids First Data Service at
+the base url: <code class="docutils literal notranslate"><span class="pre">http://localhost:5000</span></code>. You can change the base URL for this
+service using the <code class="docutils literal notranslate"><span class="pre">--target_url</span></code> CLI option.</p>
+</div>
+</div>
 </div>
 
 
