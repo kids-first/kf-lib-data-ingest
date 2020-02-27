@@ -37,7 +37,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Debugging and Developing" href="debugging.html" />
+    <link rel="next" title="Transform Stage" href="transform.html" />
     <link rel="prev" title="Source Data stored by the Kids First Data Tracker" href="study_creator.html" />
     <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
  
@@ -98,10 +98,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Design Overview</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">How To</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="app.html">Kids First Ingest App</a></li>
-<li class="toctree-l2"><a class="reference internal" href="files.html">Study Data Files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ingest_package.html">Ingest Package Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="package_setup.html">New Ingest Package Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="debugging.html">Debugging and Developing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extract/index.html">Extract Stage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extract/challenge_scenarios/index.html">Common Challenges when Extracting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
@@ -119,9 +118,9 @@
 <li class="toctree-l3"><a class="reference internal" href="#best-practices">Best Practices</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="debugging.html">Debugging and Developing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="transform.html">Transform Stage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="load.html">Load Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app.html">Kids First Ingest App</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../developer.html">Developers</a></li>
@@ -193,7 +192,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="testing-your-ingest-package">
-<h1>Testing Your Ingest Package<a class="headerlink" href="#testing-your-ingest-package" title="Permalink to this headline">¶</a></h1>
+<span id="tutorial-package-testing"></span><h1>Testing Your Ingest Package<a class="headerlink" href="#testing-your-ingest-package" title="Permalink to this headline">¶</a></h1>
 <p>Before we go any further in the tutorial, let’s take a look at the recommended
 way to test your ingest package.</p>
 <p>At this point, your ingest package should have the source data file and extract
@@ -224,20 +223,38 @@ from <a class="reference internal" href="extract/index.html#extract-example"><sp
 See /path/to/my_study/logs/counts_for_ingest.log for details
 </pre></div>
 </div>
-<p>Inside of that <code class="docutils literal notranslate"><span class="pre">counts_for_ingest.log</span></code> file, you should some things that look
-like:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>EXPECTED COUNT CHECKS
-+----------------+------------+---------+---------+
-| key            |   expected |   found | equal   |
-|----------------+------------+---------+---------|
-| FAMILY|ID      |          2 |       2 | ✅      |
-| PARTICIPANT|ID |          5 |       9 | ❌      |
-| BIOSPECIMEN|ID |         10 |      16 | ❌      |
-+----------------+------------+---------+---------+
+<p>Inside of that <code class="docutils literal notranslate"><span class="pre">counts_for_ingest.log</span></code> file, you should see something that
+looks like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>❌ Column names not equal between ExtractStage and TransformStage
+
++--------------------------+---------------------+
+| In ExtractStage          | In TransformStage   |
+|--------------------------+---------------------|
+| PARTICIPANT|MOTHER_ID    |                     |
+| PARTICIPANT|FATHER_ID    |                     |
+| PHENOTYPE|EVENT_AGE_DAYS |                     |
+| PHENOTYPE|NAME           |                     |
+| PHENOTYPE|OBSERVED       |                     |
++--------------------------+---------------------+
 </pre></div>
 </div>
-<p>It looks like some tests failed. Let’s break down what is going on, and then we
-can make the necessary changes so that our tests pass.</p>
+<p>It looks like the tests are failing because the columns in the ExtractStage’s
+output DataFrames are different than the TransformStage’s output DataFrames.</p>
+<p>This usually means you’ve extracted unncessary columns that are not used in the
+transform module merge function OR your transform module merge function is
+missing one or more extracted DataFrames that you do want to include.</p>
+<p>In this case, the validation is failing due to the latter reason.
+Try uncommenting the commented lines in <code class="docutils literal notranslate"><span class="pre">my_study/transform_module.py</span></code></p>
+<p>Now test your package again:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ kidsfirst test my_study
+</pre></div>
+</div>
+<p>Now your log should show that ingest is passing validation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>2019-04-16 10:14:58,519 - kf_lib_data_ingest.app.cli - INFO - ✅  Ingest pipeline passed validation!
+</pre></div>
+</div>
+<p>In the <a class="reference internal" href="transform.html#tutorial-transform-stage"><span class="std std-ref">Transform Stage</span></a>, you’ll learn more about the what the
+lines of code you just uncommented are doing.</p>
 </div>
 <div class="section" id="the-test-cli-command">
 <h2>The <code class="docutils literal notranslate"><span class="pre">test</span></code> CLI Command<a class="headerlink" href="#the-test-cli-command" title="Permalink to this headline">¶</a></h2>
@@ -269,8 +286,10 @@ counts.</p>
 <p>The types of things that are counted are:</p>
 <ul class="simple">
 <li>Concepts (families, participants, biospecimens, etc)</li>
-<li>Concept attributes (participant.gender, biospecimen.analyte, etc)</li>
-<li>Relationships between concepts or attributes (biospecimens with 1
+</ul>
+<p><strong>Not Yet Implemented:</strong></p>
+<ul class="simple">
+<li>Relationships between concepts (biospecimens with 1
 participant, participants with at least 1 biospecimen, etc)</li>
 </ul>
 <p>It is important to know that some of these things (such as relationships)
@@ -281,12 +300,12 @@ that is where all of the data is merged together.</p>
 <p>After an ingest stage is run, the post-run analysis iterates over the stage’s
 output and builds a <code class="docutils literal notranslate"><span class="pre">concept_discovery</span></code> dict, which stores the following:</p>
 <ul class="simple">
-<li>A mapping from every concept attribute found to a list of all of the
-source data files that the concept attribute was found in</li>
-<li>A mapping between every pair of concept attribute values found</li>
+<li>A mapping from every concept’s ID attribute (<code class="docutils literal notranslate"><span class="pre">CONCEPT.&lt;TYPE&gt;.ID</span></code>)
+found to a list of all of the source data files that the concept ID
+was found in</li>
 </ul>
-<p>The concept discovery data is used to compute the counts of concepts,
-attributes, and relationships.</p>
+<p>The concept discovery data is used to compute the counts of concepts
+and relationships.</p>
 <p>Every stage’s concept discovery data structure is written to a file named
 <code class="docutils literal notranslate"><span class="pre">&lt;stage</span> <span class="pre">name&gt;_concept_discovery.json</span></code> in the stage’s output directory. You
 will see how this can be used to write custom data validation tests in the
@@ -297,38 +316,57 @@ will see how this can be used to write custom data validation tests in the
 </div>
 <div class="section" id="set-expected-counts">
 <h2>Set Expected Counts<a class="headerlink" href="#set-expected-counts" title="Permalink to this headline">¶</a></h2>
-<p>Now let’s go back and take a look at the count results we saw in the log. It
-looks like our tests are failing because in almost every case the count
-analysis is finding more concepts in the source data than were expected.</p>
-<p>This is probably because we’ve added a new source data file
-<code class="docutils literal notranslate"><span class="pre">family_and_phenotype.tsv</span></code>. We can test this theory by removing the extract
-config for <code class="docutils literal notranslate"><span class="pre">family_and_phenotype.tsv</span></code> and seeing if the tests pass.</p>
-<p>Try moving the <code class="docutils literal notranslate"><span class="pre">extract_configs/family_and_phenotype.py</span></code> file out of the
-extract configs folder and re-running the test command. The log should show
-that ingest passed validation:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>2019-04-16 10:14:58,519 - kf_lib_data_ingest.app.cli - INFO - ✅  Ingest pipeline passed validation!
+<p>Let’s see what would happen if we added another participant to our
+<code class="docutils literal notranslate"><span class="pre">clinical.tsv</span></code> file and re-ran the <code class="docutils literal notranslate"><span class="pre">test</span></code> command.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Here, we are trying simulate how receiving more data can alter the results
+of the count analysis. In a more realistic scenario you would probably
+receive an additional data file with more participants’ data.
+You would need to write an extract config for it to be included in the
+ingestion.</p>
+</div>
+<p>For brevity and demonstration purposes, append the following line to
+your <code class="docutils literal notranslate"><span class="pre">clinical.tsv</span></code> file:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>f1  PID010  SP010   dna     flu     Female
 </pre></div>
 </div>
-<p>Ok, now put the extract config back into its directory and let’s update the
-expected counts for our ingest package.</p>
+<p>Now re-run:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ kidsfirst test my_study
+</pre></div>
+</div>
+<p>You will probably see something like this:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>2019-05-01 13:08:40,563 - DataIngestPipeline - INFO - ❌ Count Analysis Failed!
+See /path/to/my_study/logs/counts_for_ingest.log for details
+</pre></div>
+</div>
+<p>Our tests are failing because in almost every case the count
+analysis is finding more concepts in the source data than were expected.</p>
+<p>This is because we’ve added new data (a new participant and specimen)
+to one of our source data files <code class="docutils literal notranslate"><span class="pre">clinical.tsv</span></code>.</p>
 <p>The expected counts for an ingest package are set in the
-<code class="docutils literal notranslate"><span class="pre">ingest_package_config.py</span></code> file. Update the counts to the following:</p>
+<code class="docutils literal notranslate"><span class="pre">ingest_package_config.py</span></code> file. Let’s update the counts to account for
+the new data:</p>
 <div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="n">expected_counts</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">CONCEPT</span><span class="o">.</span><span class="n">FAMILY</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-    <span class="n">CONCEPT</span><span class="o">.</span><span class="n">PARTICIPANT</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
-    <span class="n">CONCEPT</span><span class="o">.</span><span class="n">BIOSPECIMEN</span><span class="p">:</span> <span class="mi">16</span>
+    <span class="n">CONCEPT</span><span class="o">.</span><span class="n">FAMILY</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="n">CONCEPT</span><span class="o">.</span><span class="n">PARTICIPANT</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">CONCEPT</span><span class="o">.</span><span class="n">BIOSPECIMEN</span><span class="p">:</span> <span class="mi">17</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Now re-run the test command. You should see your tests passing in the
-<code class="docutils literal notranslate"><span class="pre">counts_for_ingest.log</span></code> file:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>EXPECTED COUNT CHECKS
+<p>Now re-run the test command. The log should show that ingest passed
+validation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>2019-04-16 10:14:58,519 - kf_lib_data_ingest.app.cli - INFO - ✅  Ingest pipeline passed validation!
+</pre></div>
+</div>
+<p>You should also see your tests passing in the <code class="docutils literal notranslate"><span class="pre">counts_for_ingest.log</span></code> file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>EXPECTED COUNT CHECKS:
 +----------------+------------+---------+---------+
-| key            |   expected |   found | equal   |
+| Key            |   Expected |   Found | Equal   |
 |----------------+------------+---------+---------|
-| FAMILY|ID      |          2 |       2 | ✅      |
-| PARTICIPANT|ID |          9 |       9 | ✅      |
-| BIOSPECIMEN|ID |         16 |      16 | ✅      |
+| FAMILY|ID      |          3 |       3 | ✅      |
+| PARTICIPANT|ID |         10 |      10 | ✅      |
+| BIOSPECIMEN|ID |         17 |      17 | ✅      |
 +----------------+------------+---------+---------+
 </pre></div>
 </div>
@@ -342,7 +380,7 @@ package. The popular <a class="reference external" href="https://docs.pytest.org
 to execute the user defined tests, so all tests should conform to the
 <code class="docutils literal notranslate"><span class="pre">pytest</span></code> standard.</p>
 <p>You can see an example of a user defined test in your ingest package. This test
-validates that there are exactly 2 duo-type families and 1 trio-type family.</p>
+validates that there are 3 families in the data.</p>
 <div class="section" id="conftest-py">
 <h4>conftest.py<a class="headerlink" href="#conftest-py" title="Permalink to this headline">¶</a></h4>
 <p>Every ingest package created using the <code class="docutils literal notranslate"><span class="pre">kidsfirst</span> <span class="pre">new</span></code> command comes with
@@ -350,7 +388,7 @@ a pytest <code class="docutils literal notranslate"><span class="pre">conftest.p
 concept discovery data.</p>
 <p>As you can see, rather than reading in the extract stage output and
 re-implementing the counting logic, we can simply use the concept discovery
-data from the extract stage to count the duos and trios fairly easily.</p>
+data from the extract stage to count the families fairly easily.</p>
 </div>
 </div>
 </div>
@@ -370,7 +408,7 @@ surprises when you ingest into your target service.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="debugging.html" class="btn btn-neutral float-right" title="Debugging and Developing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="transform.html" class="btn btn-neutral float-right" title="Transform Stage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="study_creator.html" class="btn btn-neutral float-left" title="Source Data stored by the Kids First Data Tracker" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

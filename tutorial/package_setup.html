@@ -37,7 +37,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Extract Stage" href="extract/index.html" />
+    <link rel="next" title="Debugging and Developing" href="debugging.html" />
     <link rel="prev" title="Ingest Package Configuration" href="ingest_package.html" />
     <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
  
@@ -98,17 +98,16 @@
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Design Overview</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">How To</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="app.html">Kids First Ingest App</a></li>
-<li class="toctree-l2"><a class="reference internal" href="files.html">Study Data Files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ingest_package.html">Ingest Package Configuration</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">New Ingest Package Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="debugging.html">Debugging and Developing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extract/index.html">Extract Stage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extract/challenge_scenarios/index.html">Common Challenges when Extracting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="package_testing.html">Testing Your Ingest Package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="debugging.html">Debugging and Developing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="transform.html">Transform Stage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="load.html">Load Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app.html">Kids First Ingest App</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../developer.html">Developers</a></li>
@@ -199,6 +198,19 @@ CLI:</p>
     └── test_custom_counts.py
 </pre></div>
 </div>
+<p>Try running your ingest package like this to make sure it works:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ kidsfirst test my_study
+</pre></div>
+</div>
+<p>The logs on your screen should indicate a successful test run like this:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>======================================== 1 passed in 0.12s ============================================================
+2020-02-18 17:40:36,039 - DataIngestPipeline - Thread: MainThread - INFO - ✅ User defined data validation tests passed
+2020-02-18 17:40:36,039 - DataIngestPipeline - Thread: MainThread - INFO - END data ingestion
+2020-02-18 17:40:36,039 - kf_lib_data_ingest.app.cli - Thread: MainThread - INFO - ✅ Ingest pipline passed validation!
+</pre></div>
+</div>
+<p>You’ll learn more about the <code class="docutils literal notranslate"><span class="pre">test</span></code> and <code class="docutils literal notranslate"><span class="pre">ingest</span></code> commands later in
+<a class="reference internal" href="package_testing.html#tutorial-package-testing"><span class="std std-ref">Testing Your Ingest Package</span></a>.</p>
 <p>Now we are ready to start configuration for the <a class="reference internal" href="extract/index.html#tutorial-extract-stage"><span class="std std-ref">Extract Stage</span></a>.</p>
 </div>
 
@@ -210,7 +222,7 @@ CLI:</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="extract/index.html" class="btn btn-neutral float-right" title="Extract Stage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="debugging.html" class="btn btn-neutral float-right" title="Debugging and Developing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="ingest_package.html" class="btn btn-neutral float-left" title="Ingest Package Configuration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
