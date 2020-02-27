@@ -54,7 +54,7 @@ def transform_function(mapped_df_dict):
     # df = outer_merge(
     #     mapped_df_dict['extract_config.py'],
     #     mapped_df_dict['family_and_phenotype.py'],
-    #     on=CONCEPT.PARTICIPANT.ID,
+    #     on=CONCEPT.BIOSPECIMEN.ID,
     #     with_merge_detail_dfs=False
     # )
 

@@ -24,9 +24,9 @@ transform_function_path = "transform_module.py"
 
 # TODO - Replace these with your own valid values
 expected_counts = {
-    CONCEPT.FAMILY: 2,
-    CONCEPT.PARTICIPANT: 5,
-    CONCEPT.BIOSPECIMEN: 10,
+    CONCEPT.FAMILY: 3,
+    CONCEPT.PARTICIPANT: 9,
+    CONCEPT.BIOSPECIMEN: 16,
 }
 
 # TODO - Replace these values with your own valid values!
