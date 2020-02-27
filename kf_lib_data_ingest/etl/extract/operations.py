@@ -33,7 +33,7 @@ def df_map(m):
     you want (plus index).
 
     :param m: A function to apply to a DataFrame
-    :returns: A function that applies the specified m operation
+    :return: A function that applies the specified m operation
     """
     assert_safe_type(m, function)
 
@@ -74,7 +74,8 @@ def value_map(m, in_col, out_col):
 
     :param in_col: The name of the column in the input DataFrame (the file)
     :param out_col: The standard concept column in the extract output to
-    populate :returns: A function that applies the specified m operation
+    populate
+    :return: A function that applies the specified m operation
     """
     assert_safe_type(m, function, dict, str)
 
@@ -104,7 +105,7 @@ def row_map(m, out_col):
         file) and returns a single value using the cells in that row
     :param out_col: The standard concept column in the extract output to
         populate
-    :returns: A function that applies the specified m operation
+    :return: A function that applies the specified m operation
     """
     assert_safe_type(m, function)
 
@@ -128,7 +129,7 @@ def constant_map(m, out_col):
     :param m: A constant value
     :param out_col: The standard concept column in the extract output to
         populate
-    :returns: A function that applies the specified m operation
+    :return: A function that applies the specified m operation
     """
 
     def constant_map_func(df):
@@ -150,7 +151,7 @@ def column_map(m, in_col, out_col):
     :param in_col: Which column from the input DataFrame to use
     :param out_col: The standard concept column in the extract output to
         populate
-    :returns: A function that applies the specified m operation
+    :return: A function that applies the specified m operation
     """
     assert_safe_type(m, function)
 
@@ -169,7 +170,7 @@ def keep_map(in_col, out_col):
     :param in_col: Which column from the input DataFrame to use
     :param out_col: The standard concept column in the extract output to
         populate
-    :returns: A function that transfers values from in_col to out_col
+    :return: A function that transfers values from in_col to out_col
     """
     return column_map(lambda x: x, in_col, out_col)
 

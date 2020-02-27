@@ -154,7 +154,7 @@ def safe_type_check(val, *safe_types):
     :param val: some value
     :param *safe_types: type classes or truthy-returning functions
         e.g. int, str, callable
-    :returns: True/False depending on whether val is a safe type
+    :return: True/False depending on whether val is a safe type
     """
     types = []
     val_type = type(val)

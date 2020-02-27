@@ -13,101 +13,97 @@ This module must have the following required attributes:
 
 All but the first of these required attributes must be dicts.
 
-    - target_service_entity_id
-      A string containing the name of the unique identifier atttribute a
-      target entity. This would likely be a primary key in the target service
-      and the attribute used in CRUD operations for this entity.
+:param target_service_entity_id: A string containing the name of the unique identifier
+attribute a target entity has. This would likely be a primary key in the target service
+and the attribute used in CRUD operations for this entity.
+:param target_concepts: A dict of dicts. Each inner dict is a target concept dict, which
+contains mappings of target concept properties to standard concept attributes.
 
-    - target_concepts
-      A dict of dicts. Each inner dict is a target concept dict, which
-      contains mappings of target concept properties to standard concept
-      attributes.
+A target concept dict has the following schema:
 
-        A target concept dict has the following schema:
+    Required Keys:
+        - standard_concept
+        - properties
+        - endpoint
 
-            Required Keys:
-                - standard_concept
-                - properties
-                - endpoint
+    Optional Keys:
+        - links
 
-            Optional Keys:
-                - links
+{
+    'standard_concept':
+        type: etl.common.concept_schema.CONCEPT
+        example: CONCEPT.PARTICIPANT
+        description: the standard concept that this target concept
+        maps to.
 
+    'properties':
+        type: dict
+
+            key: a string containing the target concept property
+            value: a standard concept attribute from
+            etl.common.concept_schema OR a tuple
+            of the form
+            (standard concept attribute, a type from ALLOWABLE_TYPES)
+
+        example:
         {
-            'standard_concept':
-                type: etl.common.concept_schema.CONCEPT
-                example: CONCEPT.PARTICIPANT
-                description: the standard concept that this target concept
-                maps to.
-
-            'properties':
-                type: dict
-
-                    key: a string containing the target concept property
-                    value: a standard concept attribute from
-                    etl.common.concept_schema OR a tuple
-                    of the form
-                    (standard concept attribute, a type from ALLOWABLE_TYPES)
-
-                example:
-                {
-                    'external_id': CONCEPT.PARTICIPANT.ID,
-                    'race': CONCEPT.PARTICIPANT.RACE,
-                    'is_proband': (CONCEPT.PARTICIPANT.IS_PROBAND, bool)
-                }
-                description: the target concept property mappings to standard
-                concept attributes
-            },
-            links:
-                type: list of dicts
-
-                    dict content:
-                        - target_attribute: a string containing the target
-                        concept property
-                        - standard concept: a standard concept from
-                        etl.common.concept_schema
-                        - target_concept: name of the linked target concept
-
-                    dict example:
-                    {
-                        'target_attribute': 'family_id',
-                        'standard_concept': CONCEPT.FAMILY,
-                        'target_concept': 'family'
-                    }
-                description: identifiers which map to standard concept
-                UNIQUE_KEY attributes. These represent foreign keys in the
-                target model.
-            ,
-            'endpoint':
-                type: string
-                example: '/participants'
-                description: the CRUD endpoint for the concept in the target
-                service
+            'external_id': CONCEPT.PARTICIPANT.ID,
+            'race': CONCEPT.PARTICIPANT.RACE,
+            'is_proband': (CONCEPT.PARTICIPANT.IS_PROBAND, bool)
         }
+        description: the target concept property mappings to standard
+        concept attributes
+    },
+    links:
+        type: list of dicts
 
-        It may seem unecessary to separate the mappings into
-        'properties', and 'links', but this is important because the
-        mappings in 'links' are treated differently than those in
-        'properties'.
+            dict content:
+                - target_attribute: a string containing the target
+                concept property
+                - standard concept: a standard concept from
+                etl.common.concept_schema
+                - target_concept: name of the linked target concept
 
-        The value in a key, value pair in a links dict, during the load
-        stage, will be translated into a target model ID. A value in a
-        key, value pair in the 'properties' dict will be kept as is during the
-        load stage.
-
-        For example, before ID translation in load stage, the 'links' list
-        could be:
-
-            'links': [{
-                'target_concept': 'participant',
-                'participant_id': 'P1'
-            }]
-        And after ID translation occurs, the 'links' list will be translated
-        into:
-
-            'links': {
-                'participant_id': 'PT_00001111'
+            dict example:
+            {
+                'target_attribute': 'family_id',
+                'standard_concept': CONCEPT.FAMILY,
+                'target_concept': 'family'
             }
+        description: identifiers which map to standard concept
+        UNIQUE_KEY attributes. These represent foreign keys in the
+        target model.
+    ,
+    'endpoint':
+        type: string
+        example: '/participants'
+        description: the CRUD endpoint for the concept in the target
+        service
+}
+
+It may seem unecessary to separate the mappings into
+'properties', and 'links', but this is important because the
+mappings in 'links' are treated differently than those in
+'properties'.
+
+The value in a key, value pair in a links dict, during the load
+stage, will be translated into a target model ID. A value in a
+key, value pair in the 'properties' dict will be kept as is during the
+load stage.
+
+For example, before ID translation in load stage, the 'links' list
+could be:
+
+    'links': [{
+        'target_concept': 'participant',
+        'participant_id': 'P1'
+    }]
+And after ID translation occurs, the 'links' list will be translated
+into:
+
+    'links': {
+        'participant_id': 'PT_00001111'
+    }
 
 """
 from pprint import pformat

@@ -310,7 +310,7 @@ class LoadStage(IngestStage):
         :type schema: dict
         :param payload: target concept instance
         :type payload: dict
-        :returns: the modified payload with value transformations applied to it
+        :return: the modified payload with value transformations applied to it
         """
         for attribute, value in payload.items():
             payload[attribute] = value
@@ -437,9 +437,11 @@ class LoadStage(IngestStage):
         Validate the parameters being passed into the _run method. This method
         gets executed before the body of _run is executed.
 
-        `df_dict` should be a dict of DataFrames, keyed by target concepts
-        defined in the target_api_config.
+        :param df_dict: a dict of DataFrames, keyed by target concepts defined
+        in the target_api_config
+        :type df_dict: dict
         """
+
         try:
             assert_safe_type(df_dict, dict)
             assert_all_safe_type(df_dict.keys(), str)

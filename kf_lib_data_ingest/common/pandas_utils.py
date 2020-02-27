@@ -56,6 +56,7 @@ def split_df_rows_on_splits(df):
 
     :param df: a DataFrame
     :return: a new DataFrame
+    :rtype: DataFrame
     """
 
     def split_row(df_row_dict):
@@ -122,6 +123,7 @@ def split_df_rows_on_delims(df, delimiters, cols=None, cartesian=True):
     :param cartesian: generate the cartesian product of split values
     :type cartesian: bool
     :return: a new DataFrame
+    :rtype: DataFrame
     """
     assert_safe_type(cols, list, None)
     assert_safe_type(delimiters, list)
@@ -155,7 +157,7 @@ def get_col(df, key):
 
     :param df: A pandas.DataFrame
     :param key: A string or int
-    :returns: The indicated column from the dataframe, either by name or order.
+    :return: The indicated column from the dataframe, either by name or order.
     """
     try:
         if isinstance(key, int) and (key not in df.columns):
@@ -184,20 +186,18 @@ def safe_pandas_replace(data, mappings, regex=False):
     will receive any regex captures, or the whole match if there aren't any
     captures, and replace the matched cell with the function call result.
 
-    Args:
-        data: a DataFrame or Series
-        mappings (dict): with form {column:{original:replacement, ...}, ...},
-            or just {original:replacement, ...}, or some combination of the two
-            as in {column:{original1:replacement, ...}, original2:replacement}.
-            The combined case will apply non-column-specific replacements on
-            all columns after any column-specific replacements are applied.
-        regex (bool): Whether to treat mapping match patterns as regular
-            expressions.
-
-    Returns:
-        Same as pandas.Series.replace and pandas.DataFrame.replace, except less
-        wrong.
+    :param data: a DateFrame or Series
+    :param mappings: Dictionary with form {column: { original: replacement, ...}, ...},
+        or just {original: replacement, ...}, or some combination of the two as in
+        {column: {original1: replacement, ...}, original2: replacement}. The combined case
+        will apply non-column-specific replacements on all columns after any column-specific
+        replacements are applied.
+    :type mappings: Dictionary
+    :param: regex: Whether to treat mapping match patterns as regular expressions.
+    :type regex: Boolean
+    :return: Same as pandas.Series.replace and pandas.DataFrame.replace, except less wrong.
     """
+
     assert_safe_type(data, pandas.DataFrame, pandas.Series)
 
     if not isinstance(mappings, dict):
@@ -424,7 +424,7 @@ def outer_merge(
     the DataFrame's uniques using nunique()
     :param kwargs: keyword args expected by Pandas.merge
     :type kwargs: dict
-    :returns: 1 dataframe or tuple of 4 dataframes
+    :return: 1 dataframe or tuple of 4 dataframes
     """
     kwargs["how"] = "outer"
     kwargs["indicator"] = with_merge_detail_dfs

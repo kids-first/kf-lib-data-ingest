@@ -28,7 +28,7 @@ def get_service_token(provider_domain, audience, client_id, client_secret):
     issued by the provider
     :type client_secret: str
 
-    :returns token: the access token string
+    :return: the access token string
     """
     token = None
     if not (client_id and client_secret):
@@ -100,7 +100,8 @@ def get_file(
     kf_lib_data_ingest.network.utils.get
     :type kwargs: dict
 
-    :returns response: the requests.Response object
+    :return: the requests.Response object
+    :rtype: requests.Response
     """
     # Get access token to request resource
     token = get_service_token(
