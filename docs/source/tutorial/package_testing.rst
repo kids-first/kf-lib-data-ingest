@@ -41,7 +41,7 @@ Near the end of the log, you should see something like this:
     2019-05-01 13:08:40,563 - DataIngestPipeline - INFO - ❌ Count Analysis Failed!
     See /path/to/my_study/logs/counts_for_ingest.log for details
 
-Inside of that ``counts_for_ingest.log`` file, you should something that look
+Inside of that ``counts_for_ingest.log`` file, you should see something that looks
 like::
 
     ❌ Column names not equal between ExtractStage and TransformStage
@@ -56,7 +56,7 @@ like::
     | PHENOTYPE|OBSERVED       |                     |
     +--------------------------+---------------------+
 
-It looks like the tests are failing because the columns in the extract stage
+It looks like the tests are failing because the columns in the ExtractStage's
 output DataFrames are different than the TransformStage's output DataFrames.
 
 This usually means you've extracted unncessary columns that are not used in the
@@ -79,7 +79,7 @@ Now your log should show that ingest is passing validation::
 In the :ref:`Tutorial-Transform-Stage`, you'll learn more about the what the
 lines of code you just uncommented are doing.
 
-The ``test`` CLI Commands
+The ``test`` CLI Command
 =========================
 
 Under the hood, the ``test`` command is really just an alias for:
@@ -204,7 +204,7 @@ validation::
 
     2019-04-16 10:14:58,519 - kf_lib_data_ingest.app.cli - INFO - ✅  Ingest pipeline passed validation!
 
-You should also ssee your tests passing in the ``counts_for_ingest.log`` file::
+You should also see your tests passing in the ``counts_for_ingest.log`` file::
 
     EXPECTED COUNT CHECKS:
     +----------------+------------+---------+---------+
