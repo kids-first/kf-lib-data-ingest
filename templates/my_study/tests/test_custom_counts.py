@@ -21,7 +21,7 @@ def test_family_count():
     selected_data = extract_stage_data['sources'].get(selector)
     assert selected_data
 
-    expected_families = 2
+    expected_families = 3
     actual_families = len(selected_data.keys())
 
-    assert actual_families >= expected_families
+    assert actual_families == expected_families

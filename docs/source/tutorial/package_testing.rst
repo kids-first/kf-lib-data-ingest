@@ -41,8 +41,8 @@ Near the end of the log, you should see something like this:
     2019-05-01 13:08:40,563 - DataIngestPipeline - INFO - ❌ Count Analysis Failed!
     See /path/to/my_study/logs/counts_for_ingest.log for details
 
-Inside of that ``counts_for_ingest.log`` file, you should see something that looks
-like::
+Inside of that ``counts_for_ingest.log`` file, you should see something that
+looks like::
 
     ❌ Column names not equal between ExtractStage and TransformStage
 
@@ -194,7 +194,7 @@ the new data:
 .. code-block:: py
 
     expected_counts = {
-        CONCEPT.FAMILY: 2,
+        CONCEPT.FAMILY: 3,
         CONCEPT.PARTICIPANT: 10,
         CONCEPT.BIOSPECIMEN: 17
     }
@@ -231,7 +231,7 @@ to execute the user defined tests, so all tests should conform to the
 ``pytest`` standard.
 
 You can see an example of a user defined test in your ingest package. This test
-validates that there are at least 2 families in the data.
+validates that there are 3 families in the data.
 
 conftest.py
 ^^^^^^^^^^^
