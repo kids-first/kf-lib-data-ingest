@@ -39,6 +39,21 @@ The logs on your screen should indicate a successful test run like this:
     2020-02-18 17:40:36,039 - DataIngestPipeline - Thread: MainThread - INFO - END data ingestion
     2020-02-18 17:40:36,039 - kf_lib_data_ingest.app.cli - Thread: MainThread - INFO - ✅ Ingest pipline passed validation!
 
+So far your ingest package is pretty basic. It has 1 source data file and
+the Python modules needed to extract, clean, and transform the data for the
+target service. If you inspect it, it will look like this::
+
+    my_study/
+    ├── ingest_package_config.py
+    ├── transform_module.py
+    ├── data/
+    │   └── clinical.tsv
+    ├── extract_configs/
+    │   └── extract_config.py
+    └── tests/
+        ├── conftest.py
+        └── test_custom_counts.py
+
 Modify a template extract config
 ================================
 An extract config file does 3 things to the source data:
@@ -154,45 +169,11 @@ later.
 It goes in the ``extract_configs`` directory like this::
 
     my_study/
-    ├── data
+    ├── data/
     │   └── clinical.tsv
-    └── extract_configs
+    └── extract_configs/
         ├── extract_config.py
         └── family_and_phenotype.py
-
-Run the ingest pipeline
-=======================
-
-The Warehouse Server
---------------------
-
-Data that we ingest is meant to be shared, not stored locally on your machine!
-It's easy to configure the ingest system to connect to a remote warehousing
-database which will centrally store the relevant data.
-
-Local Environment Configuration
--------------------------------
-
-All that's needed is the appropriate database to be setup with the required
-access permissions (see :ref:`Warehousing` for all the details). We just need
-to set the local variable
-``KF_WAREHOUSE_DB_URL`` with a complete login URL::
-
-    export KF_WAREHOUSE_DB_URL=postgresql://<username>:<password>@<address>:<port>/postgres
-
-The final Extraction product
-----------------------------
-
-Now we're ready to perform extraction, which is done with the following
-command::
-
-    $ kidsfirst ingest <your package>
-
-We're just seeing how this package works on dummy data, so we don't want
-to actually upload anything to a warehouse. This won't happen if we use the
-``--no_warehouse`` option command, like so::
-
-    $ kidsfirst test my_study
 
 Debugging
 =========
@@ -204,7 +185,7 @@ The entire ingest pipeline consists of the familiar ETL steps (extract,
 transform, and load). The package allows any logical subset of these three
 stages to be executed instead (output from the previous stages must exist in
 order for extract or transform to be run). This can be done using the
-``--stages`` argument with the char sequence ``etl``.
+``--stages`` argument with a subset of the char sequence ``etl``.
 
 View ingest log
 ---------------
@@ -218,8 +199,8 @@ View single stage output
 Every ingest stage has the option to write its output to a directory that
 follows this path pattern: ``<ingest package dir>/output/<name of stage>``.
 
-Transform Stage
-===============
+Modify the Transform module
+===========================
 
 Next in the standard ETL sequence is the transform step. This will merge our
 extracted tables together such that the data needed for generating complete
@@ -295,3 +276,30 @@ out:
 The interesting part that we need is the block at the bottom that's commented
 out. Uncomment this block and then run ``kidsfirst test`` to perform
 extraction and tranformation.
+
+Run the ingest pipeline
+=======================
+
+The Warehouse Server
+--------------------
+
+Data that we ingest is meant to be shared, not stored locally on your machine!
+It's easy to configure the ingest system to connect to a remote warehousing
+database which will centrally store the relevant data.
+
+We're ready to test the ingest package again, and, since we're just seeing how
+this package works on dummy data, we don't want
+to actually upload anything to a warehouse. This won't happen if we use the
+``--no_warehouse`` option command, like so::
+
+    $ kidsfirst test --no_warehouse my_study
+
+If the ingest package passes validation with the test command and you're happy
+with the output, you're ready to ingest the data into your target service using
+the ingest command::
+
+    $ kidsfirst ingest my_study
+
+The library defaults to ingesting data into the Kids First Data Service at
+the base url: ``http://localhost:5000``. You can change the base URL for this
+service using the ``--target_url`` CLI option.
