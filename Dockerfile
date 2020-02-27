@@ -11,7 +11,9 @@ RUN apt-get update && apt-get install -y jq wget && \
 
 COPY . /app
 
-RUN pip install --upgrade pip && \
+RUN python3 -m venv venv && \
+    . venv/bin/activate && \
+    pip install --upgrade pip && \
     pip install --no-cache-dir -e .
 
 ENTRYPOINT ["/app/scripts/entrypoint.sh"]
