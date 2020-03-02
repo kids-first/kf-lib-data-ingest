@@ -16,6 +16,7 @@ Library Code Repository: https://github.com/kids-first/kf-lib-data-ingest
    tutorial/index.rst
    developer
    reference/index.rst
+   modules.rst
 
 ********
 Overview
