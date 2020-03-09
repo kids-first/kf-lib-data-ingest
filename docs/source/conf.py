@@ -189,4 +189,8 @@ epub_exclude_files = ['search.html']
 
 
 # -- Extension configuration -------------------------------------------------
+<<<<<<< HEAD
 autodoc_default_options = {'private-members': True}
+=======
+autodoc_default_options = {'private-members': True}
+>>>>>>> 0c6a7fa7dec1e818f8cf70d5602f18aadd252ef2
