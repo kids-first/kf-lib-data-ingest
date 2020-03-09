@@ -1,6 +1,7 @@
 """
 Contains file readers for file types that benefit from extra help.
 """
+
 import io
 import json
 import os
@@ -24,10 +25,10 @@ def read_excel_df(filepath_or_buffer, **kwargs):
     Return contents of an excel spreadsheet as a pandas DataFrame.
 
     :param filepath_or_buffer: an xls or xlsx spreadsheet file
-    :type filepath_or_buffer: string (path) or file-like object
-    :param **kwargs: See docs for pandas.read_excel
+    :type filepath_or_buffer: ``string`` (path) or file-like object
+    :param kwargs: See docs for ``pandas.read_excel``
     :return: The structured contents of the file
-    :rtype: pandas.Dataframe
+    :rtype: ``pandas.Dataframe``
     """
     # Pre-opening the workbook with xlrd lets us suppress noisy warnings
     # like "WARNING *** OLE2 inconsistency: SSCS size is 0 but SSAT size is
@@ -50,14 +51,16 @@ def read_excel_df(filepath_or_buffer, **kwargs):
 
 def read_delimited_text_df(filepath_or_buffer, **kwargs):
     """
-    Return contents of a delimited table file (like csv) as a pandas DataFrame.
+    Return contents of a delimited table file (like ``csv``) as \
+    a ``pandas`` ``DataFrame``.
 
     :param filepath_or_buffer: a delimited file
-    :type filepath_or_buffer: string (path) or file-like object
-    :param **kwargs: See docs for pandas.read_csv
+    :type filepath_or_buffer: ``string`` (path) or file-like object
+    :param kwargs: See docs for ``pandas.read_csv``
     :return: The structured contents of the file
-    :rtype: pandas.Dataframe
+    :rtype: ``pandas.Dataframe``
     """
+
     kwargs["sep"] = kwargs.pop("delimiter", None) or kwargs.get("sep")
     kwargs["engine"] = "python"
     kwargs["dtype"] = str
@@ -67,14 +70,14 @@ def read_delimited_text_df(filepath_or_buffer, **kwargs):
 
 def read_json_df(filepath_or_buffer, **kwargs):
     """
-    Return contents of a json file (dict of lists or list of dicts) as a pandas
-    DataFrame.
+    Return contents of a ``json`` file (``dict`` of ``lists`` or ``list`` of ``dicts``)
+    as a ``pandas`` ``DataFrame``.
 
-    :param filepath_or_buffer: a json file
-    :type filepath_or_buffer: string (path) or file-like object
-    :param **kwargs: See docs for pandas.read_json
+    :param filepath_or_buffer: a ``json`` file
+    :type filepath_or_buffer: ``string`` (path) or file-like object
+    :param kwargs: See docs for ``pandas.read_json``
     :return: The structured contents of the file
-    :rtype: pandas.Dataframe
+    :rtype: ``pandas.Dataframe``
     """
     kwargs["convert_dates"] = False
     return pandas.read_json(__ascii_wrap(filepath_or_buffer), **kwargs)
@@ -82,17 +85,17 @@ def read_json_df(filepath_or_buffer, **kwargs):
 
 def read_df(filepath_or_buffer, original_name=None, **kwargs):
     """
-    Return contents of a data file as a pandas DataFrame. Wraps more specific
+    Return contents of a data file as a ``pandas`` ``DataFrame``. Wraps more specific
     readers.
 
     :param filepath_or_buffer: a data file
-    :type filepath_or_buffer: string (path) or file-like object
-    :param original_name: filename from which we can infer file type if the
-        primary argument doesn't provide it
-    :type original_name: string
-    :param **kwargs: See docs for `pandas IO tools`
+    :type filepath_or_buffer: ``string`` (path) or file-like object
+    :param original_name: filename from which we can infer file type if the \
+    primary argument doesn't provide it
+    :type original_name: ``string``
+    :param kwargs: See docs for ``pandas`` IO tools
     :return: The structured contents of the file
-    :rtype: pandas.Dataframe
+    :rtype: ``pandas.Dataframe``
     """
     if original_name is None:
         if isinstance(filepath_or_buffer, str):
@@ -127,15 +130,15 @@ def read_yaml(filepath):
 
 def read_json(filepath, default=None, use_jsonpickle=True):
     """
-    Read JSON file into Python dict. If default is not None and the file
+    Read JSON file into Python ``dict``. If default is not ``None`` and the file
     does not exist, then return default.
 
-    :param filepath: path to JSON file
-    :type filepath: str
-    :param default: default return value if file not found, defaults to None
+    :param filepath: path to ``JSON`` file
+    :type filepath: ``str``
+    :param default: default return value if file not found, defaults to ``None``
     :type default: any, optional
-    :param use_jsonpickle: pickle JSON-incompatible types, defaults to True
-    :type use_jsonpickle: bool, optional
+    :param use_jsonpickle: ``pickle`` ``JSON``-incompatible types, defaults to ``True``
+    :type use_jsonpickle: ``bool``, optional
     :return: your data
     """
     if (default is not None) and (not os.path.isfile(filepath)):
@@ -151,14 +154,14 @@ def read_json(filepath, default=None, use_jsonpickle=True):
 
 def write_json(data, filepath, use_jsonpickle=True, **kwargs):
     r"""
-    Write Python data to JSON file.
+    Write Python data to ``JSON`` file.
 
     :param data: your data
-    :param filepath: where to write your JSON file
-    :type filepath: str
-    :param use_jsonpickle: pickle JSON-incompatible types, defaults to True
-    :type use_jsonpickle: bool, optional
-    :param \**kwargs: keyword arguments to pass to json.dump
+    :param filepath: where to write your ``JSON`` file
+    :type filepath: ``str``
+    :param use_jsonpickle: ``pickle`` ``JSON``-incompatible types, defaults to ``True``
+    :type use_jsonpickle: ``bool``, optional
+    :param kwargs: keyword arguments to pass to ``json.dump``
     """
     if "indent" not in kwargs:
         kwargs["indent"] = 4

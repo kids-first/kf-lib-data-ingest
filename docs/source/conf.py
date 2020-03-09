@@ -140,7 +140,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'KidsFirstDataIngestLibraries.tex', 'Kids First Data Ingest Libraries Documentation',
+    (master_doc, 'KidsFirstDataIngestLibraries.tex',
+     'Kids First Data Ingest Libraries Documentation',
      'Kids First DRC, Natasha Singh, Avi Kelman', 'manual'),
 ]
 
@@ -150,8 +151,9 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'kidsfirstdataingestlibraries', 'Kids First Data Ingest Libraries Documentation',
-     [author], 1)
+    (master_doc, 'kidsfirstdataingestlibraries',
+    'Kids First Data Ingest Libraries Documentation',
+    [author], 1)
 ]
 
 
@@ -161,9 +163,10 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'KidsFirstDataIngestLibraries', 'Kids First Data Ingest Libraries Documentation',
-     author, 'KidsFirstDataIngestLibraries', 'One line description of project.',
-     'Miscellaneous'),
+    (master_doc, 'KidsFirstDataIngestLibraries',
+    'Kids First Data Ingest Libraries Documentation',
+    author, 'KidsFirstDataIngestLibraries', 'One line description of project.',
+    'Miscellaneous'),
 ]
 
 

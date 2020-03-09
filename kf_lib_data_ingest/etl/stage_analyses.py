@@ -17,11 +17,12 @@ def check_counts(discovery_sources, expected_counts):
     Verify that we found as many unique values of each attribute as we expected
     to find.
 
-    :param discovery_sources: 'sources' subcomponent of the structure returned
-     from IngestStage._postrun_concept_discovery
-    :param expected_counts: dict mapping concept keys to their expected counts
+    :param discovery_sources: ``sources`` subcomponent of the structure
+        returned from ``IngestStage._postrun_concept_discovery``
+    :param expected_counts: ``dict`` mapping concept keys to their expected
+        counts
 
-    :return: all checks passed (bool), output message to emit/log (str)
+    :return: all checks passed (``bool``), output message to emit/log (``str``)
     """
     uniques = {
         key: len(unique_vals) for key, unique_vals in discovery_sources.items()

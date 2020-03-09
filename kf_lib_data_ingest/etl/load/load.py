@@ -1,5 +1,5 @@
 """
-Module for loading the transform output into the dataservice. It converts the
+Module for loading the transform output into the data service. It converts the
 merged source data into complete message payloads according to a given API
 specification, and then sends those messages to the target server.
 """
@@ -39,6 +39,27 @@ count_lock = Lock()
 
 
 class LoadStage(IngestStage):
+    """
+        :param target_api_config_path: path to the target service API config
+        :type target_api_config_path: ``str``
+        :param target_url: URL for the target service
+        :type target_url: ``str``
+        :param entities_to_load: set of which types of entities to load
+        :type entities_to_load: ``list``
+        :param study_id: target ID of the study being loaded
+        :type study_id: ``str``
+        :param cache_dir: where to find the ID cache, defaults to ``None``
+        :type cache_dir: ``str``, optional
+        :param use_async: use asynchronous networking, defaults to ``False``
+        :type use_async: ``bool``, optional
+        :param dry_run: don't actually transmit, defaults to ``False``
+        :type dry_run: ``bool``, optional
+        :param resume_from: Dry run until the designated target ID is seen, and
+            then switch to normal loading. Does not overrule the ``dry_run`` flag.
+            Value may be a full ID or an initial substring (e.g. ``BS``, ``BS_``)
+        :type resume_from: ``str``, optional
+        """
+
     def __init__(
         self,
         target_api_config_path,
@@ -52,21 +73,21 @@ class LoadStage(IngestStage):
     ):
         """
         :param target_api_config_path: path to the target service API config
-        :type target_api_config_path: str
+        :type target_api_config_path: ``str``
         :param target_url: URL for the target service
-        :type target_url: str
+        :type target_url: ``str``
         :param entities_to_load: set of which types of entities to load
-        :type entities_to_load: list
+        :type entities_to_load: ``list``
         :param study_id: target ID of the study being loaded
-        :type study_id: str
-        :param cache_dir: where to find the ID cache, defaults to None
-        :type cache_dir: str, optional
-        :param use_async: use asynchronous networking, defaults to False
-        :type use_async: bool, optional
-        :param dry_run: don't actually transmit, defaults to False
-        :type dry_run: bool, optional
+        :type study_id: ``str``
+        :param cache_dir: where to find the ID cache, defaults to ``None``
+        :type cache_dir: ``str``, optional
+        :param use_async: use asynchronous networking, defaults to ``False``
+        :type use_async: ``bool``, optional
+        :param dry_run: don't actually transmit, defaults to ``False``
+        :type dry_run: ``bool``, optional
         :param resume_from: Dry run until the designated target ID is seen, and
-            then switch to normal loading. Does not overrule the dry_run flag.
+            then switch to normal loading. Does not overrule the ``dry_run`` flag.
             Value may be a full ID or an initial substring (e.g. 'BS', 'BS_')
         :type resume_from: str, optional
         """
@@ -108,8 +129,8 @@ class LoadStage(IngestStage):
 
     def _validate_entities(self, entities_to_load):
         """
-        Validate that all entities in entities_to_load are one of the
-        target concepts specified in the target_api_config.target_concepts
+        Validate that all entities in ``entities_to_load`` are one of the
+        target concepts specified in the ``target_api_config.target_concepts``
         """
         assert_safe_type(entities_to_load, list)
         assert_all_safe_type(entities_to_load, str)
@@ -135,7 +156,7 @@ class LoadStage(IngestStage):
         store is populated.
 
         :param entity_type: the name of this type of entity
-        :type entity_type: str
+        :type entity_type: ``str``
         """
         if entity_type not in self.uid_cache:
             # Create table in DB first if necessary
@@ -154,9 +175,9 @@ class LoadStage(IngestStage):
         Retrieve the target service ID for a given source unique ID.
 
         :param entity_type: the name of this type of entity
-        :type entity_type: str
+        :type entity_type: ``str``
         :param entity_id: source unique ID for this entity
-        :type entity_id: str
+        :type entity_id: ``str``
         """
         self._prime_uid_cache(entity_type)
         return self.uid_cache[entity_type].get(entity_id)
@@ -167,11 +188,11 @@ class LoadStage(IngestStage):
         target service ID.
 
         :param entity_type: the name of this type of entity
-        :type entity_type: str
+        :type entity_type: ``str``
         :param entity_id: source unique ID for this entity
-        :type entity_id: str
+        :type entity_id: ``str``
         :param target_id: target service ID for this entity
-        :type target_id: str
+        :type target_id: ``str``
         """
         self._prime_uid_cache(entity_type)
         if self.uid_cache[entity_type].get(entity_id) != target_id:
@@ -194,13 +215,13 @@ class LoadStage(IngestStage):
         Send a PATCH request to the target service.
 
         :param endpoint: which target service endpoint to hit
-        :type endpoint: str
+        :type endpoint: ``str``
         :param target_id: which target service ID to patch
-        :type target_id: str
+        :type target_id: ``str``
         :param body: map between entity keys and values
-        :type body: dict
+        :type body: ``dict``
         :return: PATCH request response
-        :rtype: requests.Response
+        :rtype: ``requests.Response``
         """
         host = self.target_url
         return RetrySession().patch(
@@ -213,11 +234,11 @@ class LoadStage(IngestStage):
         Send a POST request to the target service.
 
         :param endpoint: which target service endpoint to hit
-        :type endpoint: str
+        :type endpoint: ``str``
         :param body: map between entity keys and values
-        :type body: dict
+        :type body: ``dict``
         :return: POST request response
-        :rtype: requests.Response
+        :rtype: ``requests.Response``
         """
         host = self.target_url
         return RetrySession().post(
@@ -229,11 +250,11 @@ class LoadStage(IngestStage):
         Send a GET request to the target service.
 
         :param endpoint: which target service endpoint to hit
-        :type endpoint: str
+        :type endpoint: ``str``
         :param body: filter arguments keys and values
-        :type body: dict
+        :type body: ``dict``
         :return: GET request response
-        :rtype: requests.Response
+        :rtype: ``requests.Response``
         """
         host = self.target_url
         return RetrySession().get(
@@ -246,16 +267,16 @@ class LoadStage(IngestStage):
         Negotiate submitting the data for an entity to the target service.
 
         :param entity_id: source unique ID for this entity
-        :type entity_id: str
+        :type entity_id: ``str``
         :param entity_type: the name of this type of entity
-        :type entity_type: str
+        :type entity_type: ``str``
         :param endpoint: which target service endpoint to hit
-        :type endpoint: str
+        :type endpoint: ``str``
         :param body: map between entity keys and values
-        :type body: dict
+        :type body: ``dict``
         :raises RequestException: Unhandled response error from the server
         :return: The entity that the target service says was created or updated
-        :rtype: dict
+        :rtype: ``dict``
         """
         resp = None
         target_id = body.get(self.target_id_key)
@@ -307,9 +328,9 @@ class LoadStage(IngestStage):
         property in payload
 
         :param schema: target concept properties schema for the payload
-        :type schema: dict
+        :type schema: ``dict``
         :param payload: target concept instance
-        :type payload: dict
+        :type payload: ``dict``
         :return: the modified payload with value transformations applied to it
         """
         for attribute, value in payload.items():
@@ -325,15 +346,15 @@ class LoadStage(IngestStage):
         Prepare a single entity for submission to the target service.
 
         :param entity_type: the name of this type of entity
-        :type entity_type: str
+        :type entity_type: ``str``
         :param endpoint: which target service endpoint to hit
-        :type endpoint: str
+        :type endpoint: ``str``
         :param entity_id: source unique ID for this entity
-        :type entity_id: str
+        :type entity_id: ``str``
         :param body: map between entity keys and values
-        :type body: dict
+        :type body: ``dict``
         :param links: map between entity keys and foreign key source unique IDs
-        :type links: dict
+        :type links: ``dict``
         """
         if current_thread() is not main_thread():
             current_thread().name = f"{entity_type} {entity_id}"
@@ -434,12 +455,12 @@ class LoadStage(IngestStage):
 
     def _validate_run_parameters(self, df_dict):
         """
-        Validate the parameters being passed into the _run method. This method
-        gets executed before the body of _run is executed.
+        Validate the parameters being passed into the ``_run`` method. This method
+        gets executed before the body of ``_run`` is executed.
 
-        :param df_dict: a dict of DataFrames, keyed by target concepts defined
-        in the target_api_config
-        :type df_dict: dict
+        :param df_dict: a ``dict`` of ``DataFrames``, keyed by target concepts defined \
+        in the ``target_api_config``
+        :type df_dict: ``dict``
         """
 
         try:
@@ -464,10 +485,10 @@ class LoadStage(IngestStage):
 
     def _run(self, transform_output):
         """
-        Load Stage internal entry point. Called by IngestStage.run
+        Load Stage internal entry point. Called by ``IngestStage.run``
 
         :param transform_output: Output data structure from the Transform stage
-        :type transform_output: dict
+        :type transform_output: ``dict``
         """
         self.totals = {}
         self.counts = {}

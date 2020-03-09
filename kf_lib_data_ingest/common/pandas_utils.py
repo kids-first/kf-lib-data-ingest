@@ -1,5 +1,5 @@
 """
-Utility functions to improve Pandas's rough edges and deficiencies.
+Utility functions to improve ``pandas``'s rough edges and deficiencies.
 """
 import logging
 import re
@@ -16,10 +16,10 @@ logger = logging.getLogger(__name__)
 
 
 class Split:
-    """Object for use with split_df_rows_on_splits to differentiate between
-    regular lists of things and lists of things to split.
+    """``Object`` for use with ``split_df_rows_on_splits`` to differentiate between
+    regular ``lists`` of things and ``lists`` of things to split.
 
-    Replaces lists with a Split object containing the list.
+    Replaces ``lists`` with a ``Split`` object containing the ``list``.
     """
 
     def __init__(self, things, group=None):
@@ -30,33 +30,33 @@ class Split:
 
 def split_df_rows_on_splits(df):
     """
-    Take a DataFrame and split any cell values that contain Splits into
-    multiple rows. Generally, multiple Splits on the same row will multiply to
-    produce the cartesian product of the values in those Splits. However, if
-    Splits are assigned a `group` value, then Splits on the same row in the
-    same group will be linked to each other so that they do not form a
-    cartesian product.
+    Take a ``DataFrame`` and split any cell values that contain ``Splits`` into \
+    multiple rows. Generally, multiple ``Splits`` on the same row will multiply \
+    to produce the cartesian product of the values in those ``Splits``. However, \
+    if ``Splits`` are assigned a ``group`` value, then ``Splits`` on the same row in \
+    the same group will be linked to each other so that they do not form a \
+    cartesian product. \
+    \
+    e.g., a row that looks like...
+    ::
 
-    e.g.:
-
-    a row that looks like...
-
-    {'a': Split([1, 2], 1), 'b': Split([3, 4, 5], 1), 'c': Split([6, 7])}
+        {'a': Split([1, 2], 1), 'b': Split([3, 4, 5], 1), 'c': Split([6, 7])}
 
     ...will become...
+    ::
 
-    [
-        {'a': 1,    'b': 3, 'c': 6},
-        {'a': 2,    'b': 4, 'c': 6},
-        {'a': None, 'b': 5, 'c': 6},
-        {'a': 1,    'b': 3, 'c': 7},
-        {'a': 2,    'b': 4, 'c': 7},
-        {'a': None, 'b': 5, 'c': 7}
-    ]
+        [
+            {'a': 1,    'b': 3, 'c': 6},
+            {'a': 2,    'b': 4, 'c': 6},
+            {'a': None, 'b': 5, 'c': 6},
+            {'a': 1,    'b': 3, 'c': 7},
+            {'a': 2,    'b': 4, 'c': 7},
+            {'a': None, 'b': 5, 'c': 7}
+        ]
 
-    :param df: a DataFrame
-    :return: a new DataFrame
-    :rtype: DataFrame
+    :param df: a ``DataFrame``
+    :return: a new ``DataFrame``
+    :rtype: ``DataFrame``
     """
 
     def split_row(df_row_dict):
@@ -108,22 +108,23 @@ def split_df_rows_on_splits(df):
 
 def split_df_rows_on_delims(df, delimiters, cols=None, cartesian=True):
     """
-    Split row into multiple rows based on delimited strings for all columns in
-    cols or df.columns.
+    Split row into multiple rows based on delimited strings for all columns \
+    in cols or ``df.columns``. \
+    \
+    Converts delimited entries into ``Split`` objects and then calls \
+    ``split_df_rows_on_splits``. If cartesian is ``False``, the ``Splits`` get \
+    assigned to a collective group. See docstring for ``split_df_rows_on_splits``.
 
-    Converts delimited entries into Split objects and then calls
-    split_df_rows_on_splits. If cartesian is false, the Splits get assigned to
-    a collective group. See docstring for split_df_rows_on_splits.
-
-    :param df: a DataFrame
+    :param df: a ``DataFrame``
     :param delimiters: delimiters to split on
-    :type delimiters: list
+    :type delimiters: ``list``
     :param cols: columns to split in (optional)
-    :type cols: list
+    :type cols: ``list``
     :param cartesian: generate the cartesian product of split values
-    :type cartesian: bool
-    :return: a new DataFrame
-    :rtype: DataFrame
+    :type cartesian: ``bool``
+    :return: a new ``DataFrame``
+    :rtype: ``DataFrame``
+
     """
     assert_safe_type(cols, list, None)
     assert_safe_type(delimiters, list)
@@ -143,7 +144,7 @@ def split_df_rows_on_delims(df, delimiters, cols=None, cartesian=True):
 
 def try_pop(df, key, default=None):
     """
-    Like pandas.DataFrame.pop but accepts a default return like dict.pop does.
+    Like ``pandas.DataFrame.pop`` but accepts a default return like ``dict.pop`` does.
     """
     try:
         return df.pop(key)
@@ -153,11 +154,11 @@ def try_pop(df, key, default=None):
 
 def get_col(df, key):
     """
-    Return a DataFrame column by either name or numeric index.
+    Return a ``DataFrame`` column by either name or numeric index.
 
-    :param df: A pandas.DataFrame
-    :param key: A string or int
-    :return: The indicated column from the dataframe, either by name or order.
+    :param df: A ``pandas.DataFrame``
+    :param key: A ``string`` or ``int``
+    :return: The indicated column from the ``DataFrame``, either by name or order.
     """
     try:
         if isinstance(key, int) and (key not in df.columns):
@@ -172,30 +173,35 @@ def get_col(df, key):
 
 def safe_pandas_replace(data, mappings, regex=False):
     """
-    Apply dict-based replacement to DataFrame and Series without cascading
+    Apply ``dict``-based replacement to ``DataFrame`` and ``Series`` without cascading
     changes. Once a mapping is applied to a cell it will not be mapped again.
-    pandas Series.replacement and DataFrame.replacement methods currently
-    will cascade dict-based mappings in whatever arbitrary order Python
-    happens to have internally stored the dict keys. That behavior is
+    ``pandas`` ``Series.replacement`` and ``DataFrame.replacement`` methods currently
+    will cascade ``dict``-based mappings in whatever arbitrary order Python
+    happens to have internally stored the ``dict`` keys. That behavior is
     inappropriate and dangerous, and should be considered a critical bug.
-    It means that s.replace({'A':'B', 'B':'C'}) will turn As into Cs but
-    s.replace({'B':'C', 'A':'B'}) will not, despite the two dicts being
+    It means that ``s.replace({'A':'B', 'B':'C'})`` will turn As into Cs but
+    ``s.replace({'B':'C', 'A':'B'})`` will not, despite the two ``dicts`` being
     logically identical and unambiguous.
 
-    The replacement value can also be a function instead of a string, and it
+    The replacement value can also be a ``function`` instead of a ``string``, and it
     will receive any regex captures, or the whole match if there aren't any
-    captures, and replace the matched cell with the function call result.
+    captures, and replace the matched cell with the ``function`` call result.
 
-    :param data: a DateFrame or Series
-    :param mappings: Dictionary with form {column: { original: replacement, ...}, ...},
-        or just {original: replacement, ...}, or some combination of the two as in
-        {column: {original1: replacement, ...}, original2: replacement}. The combined case
-        will apply non-column-specific replacements on all columns after any column-specific
-        replacements are applied.
-    :type mappings: Dictionary
-    :param: regex: Whether to treat mapping match patterns as regular expressions.
-    :type regex: Boolean
-    :return: Same as pandas.Series.replace and pandas.DataFrame.replace, except less wrong.
+    :param data: a ``DateFrame`` or ``Series``
+    :param mappings: ``dict`` with form \
+    ``{column: { original: replacement, ...}, ...}``, \
+    or just ``{original: replacement, ...}``, \
+    or some combination of the two as in \
+    ``{column: {original1: replacement, ...}, original2: replacement}``. \
+    The combined case will apply non-column-specific \
+    replacements on all columns after any column-specific replacements are \
+    applied.
+    :type mappings: ``dict``
+    :param: regex: Whether to treat mapping match patterns as regular \
+    expressions.
+    :type regex: ``Boolean``
+    :return: Same as ``pandas.Series.replace`` and ``pandas.DataFrame.replace``, \
+    except less wrong.
     """
 
     assert_safe_type(data, pandas.DataFrame, pandas.Series)
@@ -279,22 +285,23 @@ def safe_pandas_replace(data, mappings, regex=False):
 
 def merge_wo_duplicates(left, right, left_name=None, right_name=None, **kwargs):
     """
-    Merge two dataframes and return a dataframe with no duplicate columns.
+    Merge two ``DataFrames`` and return a ``DataFrame`` with no duplicate columns.
 
     If duplicate columns result from the merge, resolve duplicates by
-    filling nans on the left column with values from the right column.
+    filling ``NaNs`` on the left column with values from the right column.
 
-    :param left: left dataframe
-    :type left: Pandas.DataFrame
-    :param left_name: Optional name of left DataFrame to use in logging
-    the DataFrame's uniques using nunique()
-    :type left_name: str
-    :param right_name: Optional name of right DataFrame to use in logging
-    the DataFrame's uniques using nunique()
-    :type right_name: str
-    :param right: right dataframe
-    :type right: Pandas.DataFrame
-    :param kwargs: keyword args expected by Pandas.merge function
+    :param left: left ``DataFrame``
+    :type left: ``Pandas.DataFrame``
+    :param left_name: Optional name of left ``DataFrame`` to use in logging \
+    the DataFrame's uniques using ``nunique()``
+    :type left_name: ``str``
+    :param right_name: Optional name of right ``DataFrame`` to use in logging \
+    the DataFrame's uniques using ``nunique()``
+    :type right_name: ``str``
+    :param right: right ``DataFrame``
+    :type right: ``Pandas.DataFrame``
+    :param kwargs: keyword args expected by ``Pandas.merge`` function
+
     """
     left = left.astype(object)
     right = right.astype(object)
@@ -399,32 +406,33 @@ def outer_merge(
     **kwargs,
 ):
     """
-    Do Pandas outer merge, return merge result and 3 additional dfs if
-    with_merge_details=True. The 3 merge detail dataframes are useful for
+    Do ``pandas`` outer merge, return merge result and 3 additional ``dfs`` if
+    ``with_merge_details=True``. The 3 merge detail ``DataFrames`` are useful for
     quickly identifying missing data:
 
-        both - a dataframe of rows that matched in both the left and right
-        dataframes (equivalent to the df returned by an inner join)
-        left_only - a dataframe of rows that were ONLY in the left dataframe
-        right_only - a dataframe of rows that were ONLY in the right dataframe
+    - both: a ``DataFrame`` of rows that matched in both the left and right \
+    ``DataFrames`` (equivalent to the ``df`` returned by an inner join)
+    - left_only: a ``DataFrame`` of rows that were ONLY in the left ``DataFrame``
+    - right_only: a ``DataFrame`` of rows that were ONLY in the right ``DataFrame``
 
-    See https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.merge.html # noqa
+    See https://pandas.pydata.org/pandas-docs/stable/\
+    generated/pandas.DataFrame.merge.html # noqa
 
-    :param df1: the left dataframe to be merged
-    :type df1: Pandas.DataFrame
-    :param df2: the right dataframe to be merged
-    :type df2: Pandas.DataFrame
-    :param with_merge_detail_dfs: boolean specifying whether to output
-    additional dataframes
-    :type with_merge_details: boolean
-    :param left_name: Name to use in log statements pertaining to df1
-    :type left_name: str
-    :param left_name: Name to use in log statements pertaining to df2
-    :type left_name: str
-    the DataFrame's uniques using nunique()
-    :param kwargs: keyword args expected by Pandas.merge
-    :type kwargs: dict
-    :return: 1 dataframe or tuple of 4 dataframes
+    :param df1: the left ``DataFrame`` to be merged
+    :type df1: ``Pandas.DataFrame``
+    :param df2: the right ``DataFrame`` to be merged
+    :type df2: ``Pandas.DataFrame``
+    :param with_merge_detail_dfs: ``boolean`` specifying whether to output \
+    additional ``DataFrames``
+    :type with_merge_details: ``boolean``
+    :param left_name: Name to use in log statements pertaining to ``df1``
+    :type left_name: ``str``
+    :param left_name: Name to use in log statements pertaining to ``df2``
+    :type left_name: ``str``
+    :param kwargs: keyword args expected by ``Pandas.merge``
+    :type kwargs: ``dict``
+    :return: 1 ``DataFrame`` or tuple of 4 ``DataFrames``
+    
     """
     kwargs["how"] = "outer"
     kwargs["indicator"] = with_merge_detail_dfs

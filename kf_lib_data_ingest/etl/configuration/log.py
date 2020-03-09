@@ -41,11 +41,11 @@ def setup_logger(
     Configure and create the logger
 
     :param log_dir: the path to the log directory
-    :param overwrite_log: a boolean specifying whether to create new log files
-    or overwrite a defaul log file 'ingest.log'
-    :param log_level: a string specifying what level of log messages to record
-    in the log file. Values are not case sensitive. The list of acceptable
-    values are the names of Python's standard lib logging levels.
+    :param overwrite_log: a ``boolean`` specifying whether to create new log files\
+    or overwrite a default log file ``ingest.log``
+    :param log_level: a ``string`` specifying what level of log messages to \
+    record in the log file. Values are not case sensitive. The list of \
+    acceptable values are the names of Python's standard lib logging levels. \
     (critical, error, warning, info, debug, notset)
     """
     # Default file name

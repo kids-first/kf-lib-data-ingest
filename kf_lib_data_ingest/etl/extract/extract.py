@@ -66,11 +66,12 @@ class ExtractStage(IngestStage):
     def _output_path(self):
         """
         Construct the filepath of the output.
-        Something like:
+        Something like::
+
             <study config dir path>/output_cache/<ingest stage class name>.xxx
 
         :return: file location to put/get serialized output for this stage
-        :rtype: string
+        :rtype: ``string``
         """
         return os.path.join(
             self.stage_cache_dir, type(self).__name__ + "_cache.txt"
@@ -78,21 +79,21 @@ class ExtractStage(IngestStage):
 
     def _write_output(self, output):
         """
-        Implements IngestStage._write_output
+        Implements ``IngestStage._write_output``
 
-        Write dataframes to tsv files in the stage's output dir.
-        Write a JSON file that stores metadata needed to reconstruct the output
-        dict. This is the extract_config_url and source_url for each file.
+        Write dataframes to ``tsv`` files in the stage's output dir.
+        Write a ``JSON`` file that stores metadata needed to reconstruct the output
+        ``dict``. This is the ``extract_config_url`` and ``source_url`` for each file.
 
-        The metadata.json file looks like this:
+        The ``metadata.json`` file looks like this::
 
-        {
-            <path to output file>: <URL to the files's extract config>,
-            ...
-        }
+            {
+                <path to output file>: <URL to the files's extract config>,
+                ...
+            }
 
-        :param output: the return from ExtractStage._run
-        :type output: dict
+        :param output: the return from ``ExtractStage._run``
+        :type output: ``dict``
         """
         meta_fp = os.path.join(self.stage_cache_dir, "metadata.json")
         metadata = {}
@@ -106,12 +107,12 @@ class ExtractStage(IngestStage):
 
     def _read_output(self):
         """
-        Implements IngestStage._write_output
+        Implements ``IngestStage._write_output``
 
-        Read in the output files created by _write_output and reconstruct the
-        original output of ExtractStage._run.
+        Read in the output files created by ``_write_output`` and reconstruct the
+        original output of ``ExtractStage._run``.
 
-        :return: the original output of ExtractStage._run.
+        :return: the original output of ``ExtractStage._run``.
         """
         output = {}
 
@@ -139,7 +140,7 @@ class ExtractStage(IngestStage):
         :param op: an extract operation
         :type op: function
         :param nth: which operation number
-        :type nth: int
+        :type nth: ``int``
         """
         opname = op.__qualname__
         if op.__module__ == extract_operations.__name__:
@@ -179,14 +180,14 @@ class ExtractStage(IngestStage):
         self, file_path, do_after_read=None, read_func=None, **read_args
     ):
         """
-        Read the file using either read_func if given or according to the file
-        extension otherwise. Any read_args get forwarded to the read function.
+        Read the file using either ``read_func`` if given or according to the file
+        extension otherwise. Any ``read_args`` get forwarded to the read function.
 
-        :param file_path: <protocol>://<path> for a source data file
+        :param file_path: ``<protocol>://<path>`` for a source data file
         :param read_func: A function used for custom reading
         :kwargs read_args: Options passed to the reading functions
 
-        :return: A pandas dataframe containing the requested data
+        :return: A ``pandas`` ``DataFrame`` containing the requested data
         """
         self.logger.debug("Retrieving source file %s", file_path)
         f = self.FR.get(file_path)
@@ -226,10 +227,10 @@ class ExtractStage(IngestStage):
         Performs the operations sequence for extracting columns of data from
         the source data files.
 
-        :param df_in: A pandas dataframe containing all of the file data
-        :param operations: List of operations to perform
-        :return: A pandas dataframe containing extracted mapped data
-        :rtype: DataFrame
+        :param df_in: A ``pandas`` ``DataFrame`` containing all of the file data
+        :param operations: ``List`` of operations to perform
+        :return: A ``pandas`` ``DataFrame`` containing extracted mapped data
+        :rtype: ``DataFrame``
         """
         out_cols = defaultdict(pandas.Series)
         original_length = df_in.index.size
@@ -329,10 +330,10 @@ class ExtractStage(IngestStage):
 
     def _run(self, _ignore=None):
         """
-        :return: A dictionary where a key is the URL to the extract_config
-            that produced the dataframe and a value is a tuple containing:
-            (<URL to source data file>, <extracted DataFrame>)
-        :rtype: dict
+        :return: A ``dictionary`` where a key is the URL to the ``extract_config``
+            that produced the ``DataFrame`` and a value is a ``tuple`` containing:
+            ``(<URL to source data file>, <extracted DataFrame>)``
+        :rtype: ``dict``
         """
         output = {}
         for extract_config in self.extract_configs:

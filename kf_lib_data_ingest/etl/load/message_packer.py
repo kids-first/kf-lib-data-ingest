@@ -1,5 +1,5 @@
 """
-The MessagePacker class turns Pandas DataFrames of CONCEPT columns returned by
+The MessagePacker class turns ``pandas`` ``DataFrames`` of CONCEPT columns returned by
 the TransformStage into sendable service payloads. This is used by the Load
 Stage to generate sendable payloads.
 """
@@ -28,6 +28,15 @@ VALUE_DELIMITER = "-"
 
 
 class MessagePacker:
+    """
+        :param target_api_config: Config module describing a target api
+        :type target_api_config: TargetAPIConfig
+        :param target_api_url: API server, defaults to ``DEFAULT_TARGET_URL``
+        :type target_api_url: ``str``
+        :param logger: a logger instance, defaults to ``None``
+        :type logger: ``logging.Logger``, optional
+        """
+
     def __init__(
         self, target_api_config, target_api_url=DEFAULT_TARGET_URL, logger=None
     ):
@@ -47,15 +56,15 @@ class MessagePacker:
         """
         Main entry method for building messages.
 
-        For each DataFrame in df_dict, convert the DataFrame containing all of
-        the mapped source data into a dict of lists of dicts representing lists
+        For each ``DataFrame`` in ``df_dict``, convert the ``DataFrame`` containing all of
+        the mapped source data into a ``dict`` of ``lists`` of ``dicts`` representing ``lists``
         of target concept instances with nulls replaced by acceptable values
         based on the type of property as defined in the target API config.
 
-        :param df_dict: dict of dataframes keyed by name
-        :return: lists of message payloads for each payload type
-        :rtype: dict of lists of dicts
-            (See docstrings for _standard_to_target and _handle_nulls.)
+        :param df_dict: ``dict`` of ``DataFrames`` keyed by name
+        :return: ``lists`` of message payloads for each payload type
+        :rtype: ``dict`` of ``lists`` of ``dicts``
+            (See docstrings for ``_standard_to_target`` and ``_handle_nulls``.)
         """
         # Insert unique key columns
         for key, df in df_dict.items():
@@ -87,100 +96,106 @@ class MessagePacker:
 
     def _standard_to_target(self, df_dict):
         """
-        For each DataFrame in df_dict, convert the DataFrame containing all of
-        the mapped source data into a dict of lists of dicts representing
-        represent lists of target concept instances.
+        For each ``DataFrame`` in ``df_dict``, convert the ``DataFrame`` containing all of
+        the mapped source data into a ``dict`` of ``lists`` of ``dicts`` representing
+        represent ``lists`` of target concept instances.
 
         When building instances of a particular target concept type, first
         check to see whether an explicit key for that target concept exists.
         If it does, then build the target instances for this target concept
-        using the value for that key, which will be a DataFrame.
+        using the value for that key, which will be a ``DataFrame``.
 
-        Otherwise, use the DataFrame stored in the value for the default key.
-        See kf_lib_data_ingest.config.DEFAULT_KEY for the name of the default
+        Otherwise, use the ``DataFrame`` stored in the value for the default key.
+        See ``kf_lib_data_ingest.config.DEFAULT_KEY`` for the name of the default
         key.
 
         For example,
 
-        This:
+        This::
 
-        {
-            'diagnosis': diagnosis_df
-            'default': merged_df
-        }
+            {
+                'diagnosis': diagnosis_df
+                'default': merged_df
+            }
 
-        where diagnosis_df looks like:
+        where ``diagnosis_df`` looks like::
 
-        | DIAGNOSIS.UNIQUE_KEY | PARTICIPANT.UNIQUE_KEY | DIAGNOSIS.EVENT_AGE_DAYS | DIAGNOSIS.NAME  | # noqa E501
-        |----------------------|------------------------|--------------------------|-----------------| # noqa E501
-        |    P1-CDH-400        |             P1         |         400              |     CDH         | # noqa E501
-        |    P2-CNS-500        |             P2         |         500              |     CNS         | # noqa E501
+            +----------------------+------------------------+--------------------------+-----------------+
+            | DIAGNOSIS.UNIQUE_KEY | PARTICIPANT.UNIQUE_KEY | DIAGNOSIS.EVENT_AGE_DAYS | DIAGNOSIS.NAME  | # noqa E501
+            +----------------------+------------------------+--------------------------+-----------------+ # noqa E501
+            |    P1-CDH-400        |             P1         |         400              |     CDH         | # noqa E501
+            +----------------------+------------------------+--------------------------+-----------------+
+            |    P2-CNS-500        |             P2         |         500              |     CNS         | # noqa E501
+            +----------------------+------------------------+--------------------------+-----------------+
 
-        and merged_df looks like:
+        and ``merged_df`` looks like::
 
-        |     BIOSPECIMEN.UNIQUE_KEY    |  BIOSPECIMEN.ANALYTE  |  PARTICIPANT.UNIQUE_KEY | ... | # noqa E501
-        |-------------------------------|-----------------------|-------------------------|-----| # noqa E501
-        |            B1                 |            DNA        |           P1            | ... | # noqa E501
-        |            B2                 |            RNA        |           P2            | ... | # noqa E501
+            +-------------------------------+-----------------------+-------------------------+-----+
+            |     BIOSPECIMEN.UNIQUE_KEY    |  BIOSPECIMEN.ANALYTE  |  PARTICIPANT.UNIQUE_KEY | ... | # noqa E501
+            +-------------------------------+-----------------------+-------------------------+-----+ # noqa E501
+            |            B1                 |            DNA        |           P1            | ... | # noqa E501
+            +-------------------------------+-----------------------+-------------------------+-----+
+            |            B2                 |            RNA        |           P2            | ... | # noqa E501
+            +-------------------------------+-----------------------+-------------------------+-----+
 
-        Turns into:
+        Turns into::
 
-        {
-            'diagnosis': [
-                {
-                    'id': 'P1-CDH-400',
-                    'properties': {
-                         'age_at_event_days': 400,
-                         'source_text': 'CDH',
-                         ...
+            {
+                'diagnosis': [
+                    {
+                        'id': 'P1-CDH-400',
+                        'properties': {
+                            'age_at_event_days': 400,
+                            'source_text': 'CDH',
+                            ...
+                        },
+                        links: {
+                            'participant_id': 'P1'
+                        }
                     },
-                    links: {
-                        'participant_id': 'P1'
-                    }
-                },
-                {
-                    'id': 'P2-CNS-500',
-                    'properties': {
-                         'age_at_event_days': 500,
-                         'source_text': 'CNS',
-                         ...
+                    {
+                        'id': 'P2-CNS-500',
+                        'properties': {
+                            'age_at_event_days': 500,
+                            'source_text': 'CNS',
+                            ...
+                        },
+                        links: {
+                            'participant_id': 'P2'
+                        }
                     },
-                    links: {
-                        'participant_id': 'P2'
-                    }
-                },
-            ],
-            'biospecimen': [
-                {
-                    'id': 'B1',
-                    'properties': {
-                        'analyte_type': DNA
-                         ...
+                ],
+                'biospecimen': [
+                    {
+                        'id': 'B1',
+                        'properties': {
+                            'analyte_type': DNA
+                            ...
+                        },
+                        links: {
+                            'participant_id': 'P1'
+                        }
                     },
-                    links: {
-                        'participant_id': 'P1'
+                    {
+                        'id': 'B2',
+                        'properties': {
+                            'analyte_type': RNA
+                            ...
+                        },
+                        links: {
+                            'participant_id': 'P2'
+                        }
                     }
-                },
-                {
-                    'id': 'B2',
-                    'properties': {
-                        'analyte_type': RNA
-                         ...
-                    },
-                    links: {
-                        'participant_id': 'P2'
-                    }
-                }
-            ],
-            ...
-        }
+                ],
+                ...
+            }
 
-        :param df_dict: the output of the user transform function after
+        :param df_dict: the output of the user transform function after \
         unique keys have been inserted
-        :type df_dict: a dict of pandas.DataFrames
-        :return: target_instances: dict (keyed by target concept) of lists
-        of dicts (target concept instances)
-        :rtype: dict
+        :type df_dict: a ``dict`` of ``pandas.DataFrames``
+        :return: target_instances: ``dict`` (keyed by target concept) of ``lists`` \
+        of ``dicts`` (target concept instances)
+        :rtype: ``dict``
         """
         self.logger.info(
             "Begin transformation from standard concepts "
@@ -274,82 +289,82 @@ class MessagePacker:
 
     def _handle_nulls(self, target_instances, target_schema):
         """
-        Convert null property values in `target_instances` to acceptable values
+        Convert null property values in ``target_instances`` to acceptable values
         based on the type of property as defined in target schema.
 
-        See kf_lib_data_ingest.network.utils.get_open_api_v2_schema for
-        expected format of target_schema
+        See ``kf_lib_data_ingest.network.utils.get_open_api_v2_schema`` for
+        expected format of ``target_schema``
 
-        `target_instances` is a dict keyed by the `target_concepts` defined in
-        this `target_api_config.target_concepts`. The values are lists of
-        dicts, where a dict in the list takes on the same form as the dicts in
-        `target_api_config.target_concepts`.
+        ``target_instances`` is a ``dict`` keyed by the ``target_concepts`` defined in
+        this ``target_api_config.target_concepts``. The values are ``lists`` of
+        ``dicts``, where a ``dict`` in the ``list`` takes on the same form as the ``dicts`` in
+        ``target_api_config.target_concepts``.
 
-        For example, `target_instances` might look like:
+        For example, ``target_instances`` might look like::
 
-        {
-            'participant': [
-                {
-                    "endpoint": "/participants",
-                    "id": "1",
-                    "links": [
-                        {
-                            "family_id": "f1",
-                            "target_concept": "family"
-                        },
-                        {
-                            "study_id": null,
-                            "target_concept": "study"
+            {
+                'participant': [
+                    {
+                        "endpoint": "/participants",
+                        "id": "1",
+                        "links": [
+                            {
+                                "family_id": "f1",
+                                "target_concept": "family"
+                            },
+                            {
+                                "study_id": null,
+                                "target_concept": "study"
+                            }
+                        ],
+                        "properties": {
+                            "affected_status": None,
+                            "consent_type": "GRU",
+                            "ethnicity": None,
+                            "external_id": "1",
+                            "gender": "Female",
+                            "is_proband": None,
+                            "race": None,
+                            "visible": None
                         }
-                    ],
-                    "properties": {
-                        "affected_status": None,
-                        "consent_type": "GRU",
-                        "ethnicity": None,
-                        "external_id": "1",
-                        "gender": "Female",
-                        "is_proband": None,
-                        "race": None,
-                        "visible": None
-                    }
-                },
-                ...
-            ]
-        }
+                    },
+                    ...
+                ]
+            }
 
-        The `output` would look like:
+        The ``output`` would look like::
 
-        {
-            'participant': [
-                {
-                    "endpoint": "/participants",
-                    "id": "1",
-                    "links": [
-                        {
-                            "family_id": "f1",
-                            "target_concept": "family"
-                        },
-                        {
-                            "study_id": null,
-                            "target_concept": "study"
+            {
+                'participant': [
+                    {
+                        "endpoint": "/participants",
+                        "id": "1",
+                        "links": [
+                            {
+                                "family_id": "f1",
+                                "target_concept": "family"
+                            },
+                            {
+                                "study_id": null,
+                                "target_concept": "study"
+                            }
+                        ]
+                        "properties": {
+                            "affected_status": None,
+                            "consent_type": "GRU",
+                            "ethnicity": "Not Reported",
+                            "external_id": "1",
+                            "gender": "Female",
+                            "is_proband": None,
+                            "race": "Not Reported",
+                            "visible": None
                         }
-                    ]
-                    "properties": {
-                        "affected_status": None,
-                        "consent_type": "GRU",
-                        "ethnicity": "Not Reported",
-                        "external_id": "1",
-                        "gender": "Female",
-                        "is_proband": None,
-                        "race": "Not Reported",
-                        "visible": None
-                    }
-                },
-                ...
-            ]
-        }
+                    },
+                    ...
+                ]
+            }
 
-        :param target_instances: a dict of lists containing dicts representing
+        :param target_instances: a ``dict`` of ``lists`` containing ``dicts`` representing \
         target concepts
         :param target_schema: the target service concept schemas
         :return: target_instances: Updated version of the input
@@ -425,79 +440,79 @@ class MessagePacker:
         self, df_dict, unique_key_composition=DEFAULT_KEY_COMP
     ):
         """
-        Iterate over mapped dataframes and insert the unique key columns
-        (i.e. CONCEPT.PARTICIPANT.UNIQUE_KEY)
+        Iterate over mapped ``DataFrames`` and insert the unique key columns
+        (i.e. ``CONCEPT.PARTICIPANT.UNIQUE_KEY``)
 
-        Definition
-        ----------
+        **Definition**
 
-        UNIQUE_KEY is a special standard concept attribute which is
+        ``UNIQUE_KEY`` is a special standard concept attribute which is
         reserved to uniquely identify concept instances of the same type.
 
-        Purpose
-        -------
+        **Purpose**
+ 
         Unique keys have several purposes:
 
-        1. A unique key acts as a primary key for the concept instance in the
-        source data.
+            1. A unique key acts as a primary key for the concept instance in the
+            source data.
 
-        2. The ingest pipeline uses the unique key to identify duplicate
-        concept instances of the same type and drop them
+            2. The ingest pipeline uses the unique key to identify duplicate
+            concept instances of the same type and drop them
 
-        3. Each time a new concept instance is created in the target service,
-           the ingest pipeline saves a record of the created instance's ID from
-           the target service and the instance's UNIQUE_KEY. These records are
-           stored in the ID cache.
+            3. Each time a new concept instance is created in the target service,
+            the ingest pipeline saves a record of the created instance's ID from
+            the target service and the instance's ``UNIQUE_KEY``. These records are
+            stored in the ID cache.
 
         The ID cache is used for determining whether to create or update an
         entity in the target service each time the ingest pipeline runs. When
         ingest pipeline runs again for the same dataset, it will lookup the
-        concept instance's UNIQUE_KEY in the ID cache to see if there is an
+        concept instance's ``UNIQUE_KEY`` in the ID cache to see if there is an
         existing target service ID for the instance. If there is, an update
         will be performed. If not, a new instance will be created.
 
-        Construction
-        ------------
-        In most cases, the UNIQUE_KEY simply equates to the identifier
-        (i.e. CONCEPT.PARTICIPANT.ID) assigned to the concept instance in the
+        **Construction**
+
+        In most cases, the ``UNIQUE_KEY`` simply equates to the identifier
+        (i.e. ``CONCEPT.PARTICIPANT.ID``) assigned to the concept instance in the
         source data by the data provider.
 
         But some concepts don't have an explicit identifier that was given by
         the data provider. These are usually event type concepts such as
-        DIAGNOSIS and PHENOTYPE observation events. For example, `Participant
-        P1 was diagnosed with Ewing's Sarcoma on date X.` is a DIAGNOSIS event
+        ``DIAGNOSIS`` and ``PHENOTYPE`` observation events. For example, ``Participant
+        P1 was diagnosed with Ewing's Sarcoma on date X.`` is a ``DIAGNOSIS`` event
         concept
 
         For these concepts, a unique identifier must somehow be formed using
         existing columns in the data (a.k.a other concept attributes).
 
         Continuing with the above example, we can uniquely identify the
-        DIAGNOSIS event by combining the UNIQUE_KEY of the PARTICIPANT who has
-        been given the DIAGNOSIS, the name of the DIAGNOSIS, and the some sort
+        ``DIAGNOSIS`` event by combining the ``UNIQUE_KEY`` of the ``PARTICIPANT`` who has
+        been given the ``DIAGNOSIS``, the name of the ``DIAGNOSIS``, and the some sort
         of datetime of the event
 
-        Example - DIAGNOSIS.UNIQUE_KEY
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        Example - ``DIAGNOSIS.UNIQUE_KEY``
+
+        `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
 
         Composition Formula =
 
-            PARTICIPANT.UNIQUE_KEY + DIAGNOSIS.NAME + DIAGNOSIS.EVENT_AGE_IN_DAYS     # noqa E501
+            ``PARTICIPANT.UNIQUE_KEY`` + ``DIAGNOSIS.NAME`` + ``DIAGNOSIS.EVENT_AGE_IN_DAYS``     # noqa E501
 
-        Value of DIAGNOSIS.UNIQUE_KEY =
+        Value of ``DIAGNOSIS.UNIQUE_KEY`` =
 
-            P1-Ewings-Sarcoma-500
+            ``P1-Ewings-Sarcoma-500``
 
         The rules for composing UNIQUE_KEYs are defined in
-        `unique_key_composition` input parameter, and if not supplied, the
-        default will be loaded from kf_lib_data_ingest.common.concept_schema.
+        ``unique_key_composition`` input parameter, and if not supplied, the
+        default will be loaded from ``kf_lib_data_ingest.common.concept_schema``.
 
-        :param df_dict: a dict of Pandas DataFrames. A key is an extract config
-        URL and a value is a tuple of (source file url, DataFrame).
-        :param unique_key_composition: a dict where a key is a standard concept
-        string and a value is a list of required columns needed to compose
+        :param df_dict: a dict of ``pandas`` ``DataFrames``. A key is an extract config \
+        URL and a value is a ``tuple`` of ``(source file url, DataFrame)``.
+        :param unique_key_composition: a ``dict`` where a key is a standard concept \
+        ``string`` and a value is a ``list`` of required columns needed to compose \
         a unique key for the concept
-        :return: df_dict: a modified version of the input, with UNIQUE_KEY
-        columns added to each DataFrame
+        :return: df_dict: a modified version of the input, with ``UNIQUE_KEY`` \
+        columns added to each ``DataFrame``
         """
         self.logger.info("Begin unique key creation for standard concepts ...")
         for reference, (df_name, df) in df_dict.items():
@@ -520,56 +535,61 @@ class MessagePacker:
 
     def _add_unique_key_cols(self, df, unique_key_composition):
         """
-        Construct and insert UNIQUE_KEY columns for each concept present in the
-        mapped df. Only do this if there isn't already an existing UNIQUE_KEY
+        Construct and insert ``UNIQUE_KEY`` columns for each concept present in the
+        mapped ``DataFrame``. Only do this if there isn't already an existing ``UNIQUE_KEY``
         column for a particular concept.
+        
+        A ``UNIQUE_KEY`` column for a concept will only be added if all of the
+        columns required to compose the ``UNIQUE_KEY`` for that concept exist in
+        the ``DataFrame``.
 
-        A UNIQUE_KEY column for a concept will only be added if all of the
-        columns required to compose the UNIQUE_KEY for that concept exist in
-        the DataFrame.
-
-        The rules for composition are defined in unique_key_composition. See
-        kf_lib_data_ingest.common.concept_schema._create_unique_key_composition
+        The rules for composition are defined in ``unique_key_composition``. See
+        ``kf_lib_data_ingest.common.concept_schema._create_unique_key_composition``
         for details on structure and content.
 
-        The value of a UNIQUE_KEY will be a delimited string containing the
-        values from required columns needed to compose the UNIQUE_KEY.
+        The value of a ``UNIQUE_KEY`` will be a delimited string containing the
+        values from required columns needed to compose the ``UNIQUE_KEY``.
+        
+        For example, given the mapped ``DataFrame``::
 
-        For example, given the mapped dataframe:
+            +----------------------+-----------------------------+
+            |CONCEPT.PARTICIPANT.ID| CONCEPT.OUTCOME.VITAL_STATUS|
+            +----------------------------------------------------+
+            |    PT1               |  Deceased                   |
+            +----------------------+-----------------------------+
 
-            CONCEPT.PARTICIPANT.ID | CONCEPT.OUTCOME.VITAL_STATUS
-            -----------------------------------------------------
-                PT1                 Deceased
+        the ``unique_key_composition``::
 
-        the unique_key_composition:
-                {
-                    CONCEPT.PARTICIPANT: {
-                        'required': [
-                            CONCEPT.PARTICIPANT.ID
-                        ]
-                    }
-                    CONCEPT.OUTCOME: {
-                        'required': [
-                            CONCEPT.PARTICIPANT.UNIQUE_KEY,
-                            CONCEPT.OUTCOME.VITAL_STATUS
-                        ]
-                    }
+            {
+                CONCEPT.PARTICIPANT: {
+                    'required': [
+                        CONCEPT.PARTICIPANT.ID
+                    ]
                 }
+                CONCEPT.OUTCOME: {
+                    'required': [
+                        CONCEPT.PARTICIPANT.UNIQUE_KEY,
+                        CONCEPT.OUTCOME.VITAL_STATUS
+                    ]
+                }
+            }
 
         and the unique key delimiter: -
 
-        the output dataframe would be:
+        the output dataframe would be::
 
-            CONCEPT.PARTICIPANT.ID | CONCEPT.OUTCOME.VITAL_STATUS | CONCEPT.OUTCOME.UNIQUE_KEY # noqa E501
-            ---------------------------------------------------------------------------------- # noqa E501
-                PT1                 Deceased                        PT1-Deceased # noqa E501
+            +------------------------+------------------------------+---------------------------+
+            | CONCEPT.PARTICIPANT.ID | CONCEPT.OUTCOME.VITAL_STATUS | CONCEPT.OUTCOME.UNIQUE_KEY| # noqa E501
+            +-----------------------------------------------------------------------------------+ # noqa E501
+            |   PT1                  | Deceased                     |   PT1-Deceased # noqa E501|
+            +------------------------+------------------------------+---------------------------+
 
-        :param df: the Pandas DataFrame that will be modified
-        :param unique_key_composition: the rules for composing a concept's
+        :param df: the ``pandas`` ``DataFrame`` that will be modified
+        :param unique_key_composition: the rules for composing a concept\'s \
         unique key.
-        :return: modified version of input DataFrame with new UNIQUE_KEY
-        columns inserted for each concept present in the input DataFrame.
-        :rtype: DataFrame
+        :return: modified version of input ``DataFrame`` with new ``UNIQUE_KEY`` \
+        columns inserted for each concept present in the input ``DataFrame``.
+        :rtype: ``DataFrame``
         """
         # Iterate over all concepts and try to insert a unique key column
         # for each concept
@@ -663,7 +683,7 @@ class MessagePacker:
         is a unique key then the method will recurse in order to get
         the columns which make up that unique key.
 
-        For example, given the unique key composition:
+        For example, given the unique key composition::
 
             unique_key_composition = {
                 'PARTICIPANT': {
@@ -681,19 +701,19 @@ class MessagePacker:
                     ]
             }
 
-        If we want to make the unique key for DIAGNOSIS, then at a minimum the
-        required columns (PARTICIPANT|ID, DIAGNOSIS|NAME) must be present in
-        the DataFrame. If any of the optional columns are also present, they
+        If we want to make the unique key for ``DIAGNOSIS``, then at a minimum the
+        required columns ``(PARTICIPANT|ID, DIAGNOSIS|NAME)`` must be present in
+        the ``DataFrame``. If any of the optional columns are also present, they
         will be used to make the unique key too.
 
-        :param concept_name: a string and the name of the concept for which a
+        :param concept_name: a ``string`` and the name of the concept for which a \
         unique key will be made
-        :param df: a Pandas DataFrame
-        :param unique_key_cols: the output list of columns needed to build the
+        :param df: a ``pandas`` ``DataFrame``
+        :param unique_key_cols: the output list of columns needed to build the \
         unique key column for a concept.
-        :param required_cols: the required subset of columns needed to build
+        :param required_cols: the required subset of columns needed to build \
         the unique key column for a concept.
-        :param optional_cols: the additional columns that can be
+        :param optional_cols: the additional columns that can be \
         used in the construction of the unique key if they are present
         """
         self.logger.debug(f"Composing unique key columns for {concept_name}")

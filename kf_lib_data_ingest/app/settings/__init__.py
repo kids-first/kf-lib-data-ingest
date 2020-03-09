@@ -2,32 +2,33 @@
 Default app level settings for ingest CLI app
 
 App has 2 operation modes:
-    - development
-    - production
 
-The app mode can be changed via the environment variable `KF_INGEST_APP_MODE`
-If this variable is not set, then default to `development` mode
+- development
+- production
+
+The app mode can be changed via the environment variable ``KF_INGEST_APP_MODE``
+If this variable is not set, then default to ``development`` mode
 
 Default settings for each mode are encapsulated in Python modules
-inside this package, each named `{app_mode}.py`.
+inside this package, each named ``{app_mode}.py``.
 
-In `development` mode
----------------------
+In ``development`` mode
+-----------------------
+
 - Used by ingest developers when running or testing ingest for desired ingest
-packages
-
+  packages
 - User is responsible for setting the necessary environment variables
-needed for ingest (i.e. authentication with other services)
+  needed for ingest (i.e. authentication with other services)
 
-In `production` mode
---------------------
+In ``production`` mode
+----------------------
+
 - Used by a machine/process running or testing ingest in a deployed environment
-
 - Ingest app will run inside a Docker container
+- Docker ``scripts/entrypoint.sh`` script is responsible for setting necessary
+  environment variables needed for ingest (i.e. authentication with
+  other services)
 
-- Docker scripts/entrypoint.sh script is responsible for setting necessary
-environment variables needed for ingest (i.e. authentication with
-other services)
 """
 import os
 
@@ -40,9 +41,9 @@ def load(app_settings_filepath=None):
     """
     Import the app settings Python module
 
-    If `app_settings_filepath` is not supplied, load the appropriate
+    If ``app_settings_filepath`` is not supplied, load the appropriate
     default settings module based on the value of the environment variable
-    `KF_INGEST_APP_MODE`.
+    ``KF_INGEST_APP_MODE``.
 
     :param app_settings_filepath: path to app settings Python module
     :type app_mode: str

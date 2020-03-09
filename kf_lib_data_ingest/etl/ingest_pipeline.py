@@ -30,8 +30,8 @@ CODE_TO_STAGE_MAP = {"e": ExtractStage, "t": TransformStage, "l": LoadStage}
 
 def _valid_stages_to_run_strs():
     """
-    Returns all substrings of the string representing the full stage list.
-    This represents the valid (gapless) stage request strings.
+    Returns all substrings of the ``string`` representing the full stage list.
+    This represents the valid (gapless) stage request ``strings``.
     """
     valid_run_strs = []
     for i in range(len(DEFAULT_STAGES_TO_RUN_STR)):
@@ -47,6 +47,30 @@ VALID_STAGES_TO_RUN_STRS = _valid_stages_to_run_strs()
 
 
 class DataIngestPipeline(object):
+    """
+        Setup data ingest pipeline. Create the config object and setup logging
+
+        :param ingest_package_config_path: Path to config file containing all
+            parameters for data ingest.
+        :type ingest_package_config_path: ``str``
+        :param target_api_config_path: Path to the target api config file
+        :type target_api_config_path: ``str``
+        :param use_async: Whether to load asynchronously, defaults to ``False``
+        :type use_async: ``bool``, optional
+        :param target_url: The target API URL, defaults to
+            ``DEFAULT_TARGET_URL``
+        :type target_url: ``str``, optional
+        :param log_level_name: Override the logging level (e.g. ``debug``),
+            defaults to ``None`` (don't override)
+        :type log_level_name: ``str``, optional
+        :param log_dir: Override the logfile directory,
+            defaults to ``None`` (don't override)
+        :type log_dir: ``str``, optional
+        :param overwrite_log: Override whether to persist the previous log,
+            defaults to ``None`` (don't override)
+        :type overwrite_log: ``bool``, optional
+    """
+
     def __init__(
         self,
         ingest_package_config_path,
@@ -160,17 +184,19 @@ class DataIngestPipeline(object):
 
     def _validate_stages_to_run_str(self, stages_to_run_str):
         """
-        Validate `stages_to_run_str`, a char sequence where each char
+        Validate ``stages_to_run_str``, a char sequence where each char
         represents an ingest stage to run during pipeline execution
 
-        The stages_to_run_str is valid if the sequence of chars follows
+        The ``stages_to_run_str`` is valid if the sequence of chars follows
         the sequence of the stages in the pipeline and if there are no gaps
         in the stage/char sequence.
 
         Some valid values are:
+
             - e, et, etl, t, tl, l
 
         Some invalid values are:
+
             - el, lt
         """
         assert stages_to_run_str in set(VALID_STAGES_TO_RUN_STRS), (
@@ -388,14 +414,14 @@ class DataIngestPipeline(object):
         """
         Runs user defined data validation tests for the ingest package
 
-        User defined tests must be placed in the `tests` directory inside of
-        the ingest package dir (ingest_pipeline.ingest_config_dir).
+        User defined tests must be placed in the ``tests`` directory inside of
+        the ingest package dir (``ingest_pipeline.ingest_config_dir``).
 
-        pytest is used to run these tests and so all tests should conform to
-        the pytest standard.
+        ``pytest`` is used to run these tests and so all tests should conform to
+        the ``pytest`` standard.
 
-        :return: Boolean indiciating whether all tests passed or failed
-        :rtype: bool
+        :return: ``Boolean`` indiciating whether all tests passed or failed
+        :rtype: ``bool``
         """
         user_defined_test_dir = os.path.join(self.ingest_config_dir, "tests")
         # No user defined tests exist

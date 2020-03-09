@@ -26,7 +26,7 @@ class IngestStage(ABC):
     def stage_type(self):
         """
         Collapse stage subtypes to their bases for storage
-        (e.g. GuidedTransformStage -> TransformStage)
+        (e.g. ``GuidedTransformStage`` -> ``TransformStage``)
         """
         stage_type = type(self)
         while stage_type.__base__ != IngestStage:
@@ -37,11 +37,11 @@ class IngestStage(ABC):
     def read_output(self):
         """
         Read the stage's previously written output from the output directory,
-        stage_cache_dir. If stage_cache_dir is not defined or does not exist
-        raise FileNotFoundError. Otherwise call the private _read_output method
+        ``stage_cache_dir``. If ``stage_cache_dir`` is not defined or does not exist
+        raise ``FileNotFoundError``. Otherwise call the private ``_read_output`` method
         which is expected to be implemented by subclasses.
 
-        :return: the output produced by _read_output (defined by sublcasses)
+        :return: the output produced by ``_read_output`` (defined by subclasses)
         """
         if not (self.stage_cache_dir and os.path.isdir(self.stage_cache_dir)):
             raise FileNotFoundError(
@@ -55,7 +55,7 @@ class IngestStage(ABC):
     def write_output(self, output):
         """
         Write stage's output to the stage's output directory if it is
-        defined. Call the private _write_output method which is expected to be
+        defined. Call the private ``_write_output`` method which is expected to be
         implemented by subclasses.
         """
         if self.stage_cache_dir:
@@ -91,7 +91,7 @@ class IngestStage(ABC):
 
         :param serialized_output: a serialized representation of all of the
             data that this stage produces
-        :type serialized_output: string
+        :type serialized_output: ``string``
         :return: some data structure equal to what this stage produces
         """
         pass
@@ -142,7 +142,7 @@ class IngestStage(ABC):
 
     def write_concept_counts(self):
         """
-        Write concept discovery dict to disk
+        Write concept discovery ``dict`` to disk
         """
         fp = self._concept_discovery_filepath()
         self.logger.debug(f"Writing discovered counts to {fp}")
@@ -150,7 +150,7 @@ class IngestStage(ABC):
 
     def read_concept_counts(self):
         """
-        Read concept discovery dict from disk
+        Read concept discovery ``dict`` from disk
         """
         fp = self._concept_discovery_filepath()
         self.logger.debug(f"Reading discovered counts from {fp}")
@@ -185,25 +185,25 @@ class IngestStage(ABC):
 
     def _postrun_concept_discovery(self, df_dict):
         """
-        Builds a dict which stores all unique standard concept attributes (e.g.
-        each PARTICIPANT.ID) found in the stage output mapped to lists of the
-        places they appear
+        Builds a ``dict`` which stores all unique standard concept attributes (e.g.
+        each ``PARTICIPANT.ID``) found in the stage output mapped to ``lists`` of the
+        places they appear::
 
-        dict template
-        {
-            'sources': {
-                a_key: {  # e.g. PARTICIPANT.ID
-                    a1: [f1, f2],  # e.g. PARTICIPANT.ID==a1 in files f1 & f2
+            dict template
+            {
+                'sources': {
+                    a_key: {  # e.g. PARTICIPANT.ID
+                        a1: [f1, f2],  # e.g. PARTICIPANT.ID==a1 in files f1 & f2
+                        ...
+                    },
                     ...
-                },
-                ...
+                }
             }
-        }
 
-        :param df_dict: a dict of DataFrames returned by the _run() method
-        :return: a dict where concept values map to a list of the sources
+        :param df_dict: a ``dict`` of ``DataFrames`` returned by the ``_run()`` method
+        :return: a ``dict`` where concept values map to a list of the sources \
         containing them
-        :rtype: dict
+        :rtype: ``dict``
         """
         sources = defaultdict(lambda: defaultdict(set))
         # Skip columns which might be set artificially

@@ -11,12 +11,13 @@ from kf_lib_data_ingest.config import INGEST_PKG_TEMPLATE_NAME, TEMPLATES_DIR
 def new_ingest_pkg(dest_dir=None):
     """
     Create a new ingest package using the template defined in
-    ./templates/study
+    ``./templates/study``
 
     :param dest_dir: (Optional) path to the dir where ingest package will be
-    created
-    :type dest_dir: str
-    :return: dest_dir
+        created
+    :type dest_dir: ``str``
+    :return: ``dest_dir``
+
     """
     # Make destination dir path
     if not dest_dir:

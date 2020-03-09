@@ -24,6 +24,12 @@ class IngestPackageConfig(PyModuleConfig):
     # their types or KFIDs of things to delete from the dataservice if already
     # there and to prevent from loading subsequently.
 
+    """
+    Construct a IngestPackageConfig object from a config file
+
+    :param config_path: Path to the data ingest config file
+    """
+
     def __init__(self, config_path):
         """
         Construct a IngestPackageConfig object from a config file

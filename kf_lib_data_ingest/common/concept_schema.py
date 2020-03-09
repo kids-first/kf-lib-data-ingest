@@ -188,6 +188,8 @@ def _set_cls_attrs(
     attribute.
 
     For example, after running the method on this class definition:
+    ::
+
         class A:
             class B:
                 ID = None
@@ -196,9 +198,12 @@ def _set_cls_attrs(
             AGE = None
 
     Given a delimiter set to '|', the values of the attributes would be:
+    ::
+
         A.AGE = "A|AGE"
         A.B.ID = "A|B|ID"
         A.B.C.ID = "A|B|C|ID"
+
     """
     # Process a class or child node
     if callable(node):
@@ -280,12 +285,12 @@ concept_set = {
 
 def is_identifier(concept_property_string):
     """
-    Given a delimited concept property string, check whether it is a
-    UNIQUE_KEY property. The UNIQUE_KEY property is a standard concept property
-    which is reserved to uniquely identify concept instances of the same type.
-
+    Given a delimited concept property string, check whether it is a \
+    ``UNIQUE_KEY`` property. The ``UNIQUE_KEY`` property is a standard \
+    concept property which is reserved to uniquely identify concept \
+    instances of the same type.
     :param concept_property_string: a concept attribute string such as
-    CONCEPT|PARTICIPANT|ID
+    ``CONCEPT|PARTICIPANT|ID``
     """
 
     return concept_attr_from(concept_property_string) == UNIQUE_ID_ATTR

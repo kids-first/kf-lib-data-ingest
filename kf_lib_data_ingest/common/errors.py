@@ -9,7 +9,7 @@ Custom exceptions for ingest
 
 class InvalidIngestStageParameters(Exception):
     """
-    Exception raised if parameters passed to IngestStage.run fail validation
+    Exception raised if parameters passed to ``IngestStage.run`` fail validation
     """
 
     # TODO

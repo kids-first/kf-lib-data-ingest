@@ -20,16 +20,16 @@ logger = logging.getLogger(__name__)
 
 def http_get_file(url, dest_obj, **kwargs):
     """
-    Get the file at `url` and write to `dest_obj`, a file-like obj
+    Get the file at ``url`` and write to ``dest_obj``, a file-like obj
 
     :param url: the URL to send the GET request to
-    :type url: str
+    :type url: ``str``
     :param dest_obj: a file-like object that receives the data downloaded
     :type dest_obj: a file-like object
-    :param kwargs: keyword args forwarded to requests.get
-    :type kwargs: dict
-    :return: response, a requests.Response object
-    :rtype: requests.Response
+    :param kwargs: keyword args forwarded to ``requests.get``
+    :type kwargs: ``dict``
+    :return: ``response``, a ``requests.Response`` object
+    :rtype: ``requests.Response``
     """
 
     kwargs["stream"] = True
@@ -82,16 +82,16 @@ class RetrySession(requests.Session):
     """
     Session for sending http requests with retry on failures or redirects
 
-    See urllib3.Retry docs for details on all kwargs
+    See ``urllib3.Retry`` docs for details on all kwargs
     Modified source: https://www.peterbe.com/plog/best-practice-with-retries-with-requests # noqa E501
 
     :param total: total retry attempts
     :param read: total retries on read errors
     :param connect: total retries on connection errors
-    :param status: total retries on bad status codes defined in
-    `status_forcelist`
+    :param status: total retries on bad status codes defined in \
+    ``status_forcelist``
     :param backoff_factor: affects sleep time between retries
-    :param status_forcelist: list of HTTP status codes that force retry
+    :param status_forcelist: ``list`` of HTTP status codes that force retry
     """
 
     def __init__(
@@ -129,9 +129,9 @@ def get_open_api_v2_schema(
     url, entity_names, cached_schema_filepath=None, logger=None
 ):
     """
-    Get schemas for entities in the target API using {url}/swagger
-    endpoint. Will extract parts of the {url}/swagger response to create the
-    output dict
+    Get schemas for entities in the target API using ``{url}/swagger``
+    endpoint. Will extract parts of the ``{url}/swagger`` response to create the
+    output ``dict``
 
     It is expected that swagger endpoint implements the OpenAPI v2.0
     spec. This method currently supports parsing of responses
@@ -141,56 +141,57 @@ def get_open_api_v2_schema(
 
     https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md
 
-    Example response from /swagger endpoint:
-    {
-        'info': {
-            'version': '1.9.0',
-            'description':  'stuff',
-            ...
-        },
-        'definitions': {
-            'Participant': {
+    Example response from ``/swagger`` endpoint::
+
+        {
+            'info': {
+                'version': '1.9.0',
+                'description':  'stuff',
                 ...
             },
-            'Biospecimen': {
-                ...
-            },
-            'BiospecimenResponse': {
+            'definitions': {
+                'Participant': {
+                    ...
+                },
+                'Biospecimen': {
+                    ...
+                },
+                'BiospecimenResponse': {
+                    ...
+                }
                 ...
             }
-            ...
         }
-    }
 
-    Will turn into the output:
+        Will turn into the output:
 
-    {
-        'target_service': https://kf-api-dataservice.kidsfirstdrc.org,
-        'version': 1.9.0,
-        'definitions': {
-            'participant': {
+        {
+            'target_service': https://kf-api-dataservice.kidsfirstdrc.org,
+            'version': 1.9.0,
+            'definitions': {
+                'participant': {
+                    ...
+                },
+                'biospecimen': {
+                    ...
+                },
                 ...
-            },
-            'biospecimen': {
-                ...
-            },
-            ...
+            }
         }
-    }
 
-    Items in `entity_names` must be snake cased versions of existing keys in
-    swagger 'definitions'.
+    Items in ``entity_names`` must be snake cased versions of existing keys in
+    swagger ``definitions``.
 
     See https://github.com/OAI/OpenAPI-Specification/blob/master/examples/v2.0/json/petstore.json # noqa E501
 
     :param url: URL to a target service
-    :param entity_names: list of snake cased names of entities to extract from
-    swagger 'definitions' dict
-    :param cached_schema_filepath: file path to a JSON file containing a
+    :param entity_names: ``list`` of snake cased names of entities to extract from\
+    swagger ``definitions`` ``dict``
+    :param cached_schema_filepath: file path to a ``JSON`` file containing a \
     saved version of the target service's schema.
     :param logger: logger to use when reporting errors
-    :return: output, a dict with the schema definition and version
-    :rtype: dict
+    :return: output, a ``dict`` with the schema definition and version
+    :rtype: ``dict``
     """
     output = None
     err = None

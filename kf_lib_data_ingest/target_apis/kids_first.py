@@ -2,13 +2,13 @@
 Configuration module specifying how a target model maps to the standard model.
 
 This module is translated into an
-etl.configuration.target_api_config.TargetAPIConfig object which is used by the
+``etl.configuration.target_api_config.TargetAPIConfig`` object which is used by the
 transform stage to populate the concept graph and by the load stage to populate
 instances of target model concepts (i.e. participants, diagnoses, etc)
 with data from the standard model before those instances are loaded into the
 target service (i.e Kids First Dataservice)
 
-See etl.configuration.target_api_config docstring for more details on
+See ``etl.configuration.target_api_config`` docstring for more details on
 requirements for format and content.
 """
 from kf_lib_data_ingest.common.concept_schema import CONCEPT, concept_set
@@ -424,29 +424,30 @@ def validate():
 # TODO: This should be merged into the target API config!
 def _create_unique_key_composition():
     """
-    Build a dict which stores the attributes used to build a unique key
+    Build a ``dict`` which stores the attributes used to build a unique key
     for a particular concept. This key uniquely identifies concept instances of
     the same type.
 
-    A key in the dict is a standard concept and a value in
-    the dict is a set of concept attributes.
+    A key in the ``dict`` is a standard concept and a value in
+    the ``dict`` is a set of concept attributes.
 
-    - The ID attribute is usually populated with a unique identifier
-    provided from the source data and so the default unique key for a concept
+    - The ID attribute is usually populated with a unique identifier \
+    provided from the source data and so the default unique key for a concept \
     is composed of just the ID attribute.
 
-    - However, some concepts don't typically have a unique ID assigned in
-    the source data. These concepts can be uniquely identified by a
-    combination of one or more other concept attributes. Thus, the unique key
-    would be composed of a set of attribute values joined together by some
+    - However, some concepts don't typically have a unique ID assigned in \
+    the source data. These concepts can be uniquely identified by a \
+    combination of one or more other concept attributes. Thus, the unique key \
+    would be composed of a set of attribute values joined together by some \
     delimiter.
 
-    - For example a phenotype doesn't typically have a unique identifier
-    assigned to it in the source data. But a phenotype can be uniquely
-    identified by a combination of the participant's id, phenotype name,
-    observed status, and the age of the participant when the observation was
-    recorded. The values for these attributes would form the unique key for a
+    - For example a phenotype doesn't typically have a unique identifier \
+    assigned to it in the source data. But a phenotype can be uniquely \
+    identified by a combination of the participant's id, phenotype name, \
+    observed status, and the age of the participant when the observation was \
+    recorded. The values for these attributes would form the unique key for a \
     phenotype instance.
+
     """
     # Default unique keys
     identifiers = {}

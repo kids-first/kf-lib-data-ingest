@@ -3,6 +3,7 @@ FileRetriever is a class for downloading the contents of remote files using
 whatever mechanism is appropriate for the given protocol.
 """
 
+
 import logging
 import shutil
 import tempfile
@@ -35,7 +36,7 @@ def split_protocol(url):
     """
     Split file url string into protocol and path.
 
-    Expected format is always <protocol>://<path to file>, even for local
+    Expected format is always ``<protocol>://<path to file>``, even for local
     files.
 
     :param url: URL of local or remote file
@@ -60,16 +61,16 @@ def _s3_save(protocol, source_loc, dest_obj, auth_config=None, logger=None):
     Get contents of a file from Amazon S3 to a local file-like object.
 
     :param protocol: URL protocol identifier
-    :type protocol: str
+    :type protocol: ``str``
     :param source_loc: address or path
-    :type source_loc: str
+    :type source_loc: ``str``
     :param dest_obj: Receives the data downloaded from the source file
     :type dest_obj: File-like object
-    :param auth_config: a dict of necessary auth parameters (i.e. aws_profile)
+    :param auth_config: a ``dict`` of necessary auth parameters (i.e. aws_profile). \
     If profile not provided, default to all available profiles
-    :type auth_config: dict
+    :type auth_config: ``dict``
 
-    :return: None, the data goes to dest_obj
+    :return: ``None``, the data goes to ``dest_obj``
     """
     logger = logger or logging.getLogger(__name__)
 
@@ -106,29 +107,31 @@ def _web_save(protocol, source_loc, dest_obj, auth_config=None, logger=None):
     See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition # noqa E501
 
     Authentication
-    --------------
+
+    **===============**
+
     Currently supports the following authentication schemes:
+
         - HTTP Basic Authentication
         - Token Authentication
         - OAuth 2 Authentication
 
-    If `auth_config` is provided use the auth scheme and necessary auth
-    parameters in `auth_config` to get the file
+    If ``auth_config`` is provided use the auth scheme and necessary auth
+    parameters in ``auth_config`` to get the file
 
-    If `auth_config` is not provided then assume the file
+    If ``auth_config`` is not provided then assume the file
     requires no auth. Just send a get request to fetch it
 
     :param protocol: URL protocol identifier
-    :type protocol: str
+    :type protocol: ``str``
     :param source_loc: address or path
-    :type source_loc: str
+    :type source_loc: ``str``
     :param dest_obj: Receives the data downloaded from the source file
     :type dest_obj: File-like object
-    :param auth_config: a dict of necessary auth parameters for a particular
+    :param auth_config: a ``dict`` of necessary auth parameters for a particular \
     authentication scheme (i.e basic, oauth2, token, etc)
-    :type auth_config: dict
-
-    :return: None, the data goes to dest_obj
+    :type auth_config: ``dict``
+    :return: ``None``, the data goes to ``dest_obj``
     """
     logger = logger or logging.getLogger(__name__)
     url = protocol + PROTOCOL_SEP + source_loc
@@ -180,15 +183,15 @@ def _file_save(protocol, source_loc, dest_obj, auth_config=None, logger=None):
     Get contents of a file from a local file path to a local file-like object.
 
     :param protocol: URL protocol identifier
-    :type protocol: str
+    :type protocol: ``str``
     :param source_loc: address or path
-    :type source_loc: str
+    :type source_loc: ``str``
     :param dest_obj: receives the data downloaded from the source file
     :type dest_obj: file-like object
     :param auth_config: do not use
-    :type auth_config: None
+    :type auth_config: ``None``
 
-    :return: None, the data goes to dest_obj
+    :return: ``None``, the data goes to ``dest_obj``
     """
     logger = logger or logging.getLogger(__name__)
     with open(source_loc, "rb") as orig:
@@ -197,18 +200,17 @@ def _file_save(protocol, source_loc, dest_obj, auth_config=None, logger=None):
 
 def _select_auth_scheme(url, auth_configs):
     """
-    Select authentication scheme by inspecting `url`. If `url` starts with
-    any of the keys in auth_config, return the value, a dict containing
+    Select authentication scheme by inspecting ``url``. If ``url`` starts with
+    any of the keys in ``auth_config``, return the value, a ``dict`` containing
     necessary parameters for the selected auth scheme, of the first key match.
 
     :param url: the URL to be inspected
-    :type url: str
-    :param auth_configs: optional dict mapping URL patterns to authentication
+    :type url: ``str``
+    :param auth_configs: optional ``dict`` mapping URL patterns to authentication \
     schemes and necessary auth parameters
-    :type auth_configs: dict
-
-    :return: cfg, a configuration dict of the selected auth scheme
-    :rtype: dict
+    :type auth_configs: ``dict``
+    :return: cfg, a configuration ``dict`` of the selected auth scheme
+    :rtype: ``dict``
     """
     if auth_configs:
         for key, cfg in auth_configs.items():
@@ -219,8 +221,42 @@ def _select_auth_scheme(url, auth_configs):
 class FileRetriever(object):
     """
     A self-cleaning file contents downloader. Downloads contents of remote
-    files to local temp files. When the FileRetriever instance loses scope, the
+    files to local temp files. When the ``FileRetriever`` instance loses scope, the
     temp files optionally go away.
+
+    ``auth_configs`` looks something like::
+
+        {
+            'http://api.com/files': {
+                'type': 'basic',
+                'username': 'the username',
+                'password': 'the password'
+                }
+            },
+            'https://kf-api-study-creator.kids-first.io/download': {
+                'type': 'oauth2',
+                'client_id': 'STUDY_CREATOR_CLIENT_ID',
+                'client_secret': 'STUDY_CREATOR_CLIENT_ID',
+                'provider_domain': 'STUDY_CREATOR_AUTH0_DOMAIN',
+                'audience': 'STUDY_CREATOR_API_IDENTIFIER',
+            },
+            's3://bucket/key': {
+                'aws_profile': 'default'
+                }
+            }
+        }
+
+    The ``type`` key specifies the authentication scheme to use when fetching
+    a particular URL. Getters in ``FileRetriever._getters`` are responsible
+    for interpreting particular auth config dicts in ``auth_configs``.
+
+    :param storage_dir: optional specific tempfile storage location
+    :type storage_dir: ``str``
+    :param cleanup_at_exit: should the temp files vanish at exit
+    :type cleanup_at_exit: ``bool``
+    :param auth_configs: optional ``dict`` mapping URL patterns to \
+    authentication schemes and necessary auth parameters
+    :type auth_configs: ``dict``
     """
 
     _getters = {
@@ -237,7 +273,8 @@ class FileRetriever(object):
         """
         Construct FileRetriever instance
 
-        `auth_configs` looks something like:
+        ``auth_configs`` looks something like::
+
             {
                 'http://api.com/files': {
                     'type': 'basic',
@@ -291,11 +328,10 @@ class FileRetriever(object):
         Retrieve the contents of a remote file.
 
         :param url: full file URL
-        :type url: str
-        :param auth_config: optional dict containing necessary authentication
+        :type url: ``str``
+        :param auth_config: optional ``dict`` containing necessary authentication
          parameters needed to fetch URL
-        :type auth_config: dict
-
+        :type auth_config: ``dict``
         :raises LookupError: url is not of one of the handled protocols
         :return: a file-like object containing the remote file contents
         """
@@ -357,15 +393,15 @@ class FileRetriever(object):
 
     def _validate_auth_config(self, auth_config):
         """
-        Validate config dict containing authentication parameters needed to
-        access a particular URL.
+        Validate config ``dict`` containing authentication parameters needed to
+        access a particular URL. \
+        ``auth_config`` must be a dict with str key values, and have a \
+        key called ``type``.
 
-        `auth_config` must be a dict with str key values, and have a
-        key called `type`
-
-        :param auth_configs: optional dict mapping URL patterns to
+        :param auth_configs: optional ``dict`` mapping URL patterns to \
         authentication schemes and necessary auth parameters
-        :type auth_configs: dict
+        :type auth_configs: ``dict``
+
         """
         assert_safe_type(auth_config, dict)
         assert_all_safe_type(list(auth_config.keys()), str)

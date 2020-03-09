@@ -8,102 +8,104 @@ those instances are loaded into the target service.
 
 This module must have the following required attributes:
 
-    - target_service_entity_id
-    - target_concepts
+- ``target_service_entity_id``
+- ``target_concepts``
 
-All but the first of these required attributes must be dicts.
+All but the first of these required attributes must be ``dicts``.
 
-:param target_service_entity_id: A string containing the name of the unique identifier
-attribute a target entity has. This would likely be a primary key in the target service
-and the attribute used in CRUD operations for this entity.
-:param target_concepts: A dict of dicts. Each inner dict is a target concept dict, which
-contains mappings of target concept properties to standard concept attributes.
+:param target_service_entity_id: A ``string`` containing the name of the \
+unique identifier attribute a target entity has. This would likely be a \
+primary key in the target service and the attribute used in CRUD operations \
+for this entity.
+:param target_concepts: A ``dict`` of ``dicts``. Each inner ``dict`` is a target concept \
+``dict``, which contains mappings of target concept properties to standard \
+concept attributes.
 
-A target concept dict has the following schema:
+A target concept dict has the following schema::
 
     Required Keys:
-        - standard_concept
-        - properties
-        - endpoint
+    - ``standard_concept``
+    - ``properties``
+    - ``endpoint``
 
     Optional Keys:
-        - links
+    - ``links``
 
-{
-    'standard_concept':
-        type: etl.common.concept_schema.CONCEPT
-        example: CONCEPT.PARTICIPANT
-        description: the standard concept that this target concept
-        maps to.
+    {
+        'standard_concept':
+            type: etl.common.concept_schema.CONCEPT
+            example: CONCEPT.PARTICIPANT
+            description: the standard concept that this target concept
+            maps to.
 
-    'properties':
-        type: dict
+        'properties':
+            type: dict
 
-            key: a string containing the target concept property
-            value: a standard concept attribute from
-            etl.common.concept_schema OR a tuple
-            of the form
-            (standard concept attribute, a type from ALLOWABLE_TYPES)
+                key: a string containing the target concept property
+                value: a standard concept attribute from
+                etl.common.concept_schema OR a tuple
+                of the form
+                (standard concept attribute, a type from ALLOWABLE_TYPES)
 
-        example:
-        {
-            'external_id': CONCEPT.PARTICIPANT.ID,
-            'race': CONCEPT.PARTICIPANT.RACE,
-            'is_proband': (CONCEPT.PARTICIPANT.IS_PROBAND, bool)
-        }
-        description: the target concept property mappings to standard
-        concept attributes
-    },
-    links:
-        type: list of dicts
-
-            dict content:
-                - target_attribute: a string containing the target
-                concept property
-                - standard concept: a standard concept from
-                etl.common.concept_schema
-                - target_concept: name of the linked target concept
-
-            dict example:
+            example:
             {
-                'target_attribute': 'family_id',
-                'standard_concept': CONCEPT.FAMILY,
-                'target_concept': 'family'
+                'external_id': CONCEPT.PARTICIPANT.ID,
+                'race': CONCEPT.PARTICIPANT.RACE,
+                'is_proband': (CONCEPT.PARTICIPANT.IS_PROBAND, bool)
             }
-        description: identifiers which map to standard concept
-        UNIQUE_KEY attributes. These represent foreign keys in the
-        target model.
-    ,
-    'endpoint':
-        type: string
-        example: '/participants'
-        description: the CRUD endpoint for the concept in the target
-        service
-}
+            description: the target concept property mappings to standard
+            concept attributes
+        },
+        links:
+            type: list of dicts
 
-It may seem unecessary to separate the mappings into
-'properties', and 'links', but this is important because the
-mappings in 'links' are treated differently than those in
-'properties'.
+                dict content:
+                    - target_attribute: a string containing the target
+                    concept property
+                    - standard concept: a standard concept from
+                    etl.common.concept_schema
+                    - target_concept: name of the linked target concept
 
-The value in a key, value pair in a links dict, during the load
-stage, will be translated into a target model ID. A value in a
-key, value pair in the 'properties' dict will be kept as is during the
-load stage.
-
-For example, before ID translation in load stage, the 'links' list
-could be:
-
-    'links': [{
-        'target_concept': 'participant',
-        'participant_id': 'P1'
-    }]
-And after ID translation occurs, the 'links' list will be translated
-into:
-
-    'links': {
-        'participant_id': 'PT_00001111'
+                dict example:
+                {
+                    'target_attribute': 'family_id',
+                    'standard_concept': CONCEPT.FAMILY,
+                    'target_concept': 'family'
+                }
+            description: identifiers which map to standard concept
+            UNIQUE_KEY attributes. These represent foreign keys in the
+            target model.
+        ,
+        'endpoint':
+            type: string
+            example: '/participants'
+            description: the CRUD endpoint for the concept in the target
+            service
     }
+
+    It may seem unecessary to separate the mappings into
+    ``properties``, and ``links``, but this is important because the
+    mappings in ``links`` are treated differently than those in
+    ``properties``.
+
+    The value in a key, value pair in a links dict, during the load
+    stage, will be translated into a target model ID. A value in a
+    key, value pair in the 'properties' dict will be kept as is during the
+    load stage.
+
+    For example, before ID translation in load stage, the 'links' list
+    could be:
+
+        'links': [{
+            'target_concept': 'participant',
+            'participant_id': 'P1'
+        }]
+    And after ID translation occurs, the 'links' list will be translated
+    into:
+
+        'links': {
+            'participant_id': 'PT_00001111'
+        }
 
 """
 from pprint import pformat
@@ -163,8 +165,8 @@ class TargetAPIConfig(PyModuleConfig):
 
     def _validate_target_concepts(self):
         """
-        Validate target concept dicts in target_concepts.
-        Check the format and content of each dict.
+        Validate target concept ``dicts`` in ``target_concepts``.
+        Check the format and content of each ``dict``.
         """
         # Check that all required keys are present
         self._validate_required_keys()
@@ -180,10 +182,11 @@ class TargetAPIConfig(PyModuleConfig):
 
     def _validate_required_keys(self):
         """
-        Check that every target concept dict has the required keys:
-            - standard_concept
-            - properties
-            - endpoint
+        Check that every target concept ``dict`` has the required keys:
+
+            - ``standard_concept``
+            - ``properties``
+            - ``endpoint``
         """
         target_concepts = self.contents.target_concepts
 
@@ -198,11 +201,11 @@ class TargetAPIConfig(PyModuleConfig):
 
     def _validate_mapped_standard_concepts(self):
         """
-        Check that each target dict has a valid mapping for
-        standard_concept.
+        Check that each target ``dict`` has a valid mapping for
+        ``standard_concept``.
 
         The mapped value must be an existing standard concept
-        in etl.common.concept_schema.
+        in ``etl.common.concept_schema``.
         """
         mapped_concepts = [
             target_concept_dict.get("standard_concept")
@@ -219,9 +222,9 @@ class TargetAPIConfig(PyModuleConfig):
         """
         Validate target concept attribute mappings
 
-        All target concept attributes must be strings.
+        All target concept attributes must be ``strings``.
         All mapped values must be valid standard concept attributes in
-        etl.common.concept_schema.
+        ``etl.common.concept_schema``.
         """
         target_concepts = self.contents.target_concepts
 
@@ -235,10 +238,10 @@ class TargetAPIConfig(PyModuleConfig):
 
     def _validate_properties(self, target_concept, target_concept_dict):
         """
-        Validate properties dict for each target concept config dict.
+        Validate properties ``dict`` for each target concept config ``dict``.
 
-        Keys must be strs.
-        Values must be existing standard concept strings.
+        Keys must be ``strs``.
+        Values must be existing standard concept ``strings``.
         """
         props_dict = target_concept_dict["properties"]
 
@@ -269,16 +272,15 @@ class TargetAPIConfig(PyModuleConfig):
 
     def _validate_link_list(self, target_concept_dict):
         """
-        Validate the 'links' element in a target concept's config dict
+        Validate the ``links`` element in a target concept's config ``dict``
 
-        'links' must be a list of dicts
-        Each dict must have the required keys:
-            - target_attribute
-            - standard_concept
-            - target_concept
-        'target_attribute' must be a string
-        'standard_concept' must point to an existing standard concept
-        'target_concept' must point to an existing target_concept
+        ``links`` must be a ``list`` of ``dicts``
+        Each ``dict`` must have the required keys:
+
+            - ``target_attribute``, must be a string
+            - ``standard_concept``, must point to an existing standard concept
+            - ``target_concept``, must point to an existing ``target_concept``
+
         """
         valid_target_concepts = set(self.contents.target_concepts.keys())
         links = target_concept_dict["links"]
@@ -328,7 +330,7 @@ class TargetAPIConfig(PyModuleConfig):
 
     def _validate_endpoints(self):
         """
-        Check that all endpoints are strings
+        Check that all endpoints are ``strings``
         """
         endpoints = [
             target_concept_dict.get("endpoint")

@@ -12,23 +12,22 @@ logger = logging.getLogger(__name__)
 
 def get_service_token(provider_domain, audience, client_id, client_secret):
     """
-    Get OAuth 2 access token for the given `client_id`, `client_secret`
-    from the OAuth2 provider, `provider_domain`, using the
+    Get OAuth 2 access token for the given ``client_id``, ``client_secret``
+    from the OAuth2 provider, ``provider_domain``, using the
     Client Credentials grant type
 
-    :param provider_domain: the OAuth2 provider's domain name
-    (i.e. kidsfirst.auth0.org)
-    :type provider_domain: str
-    :param audience: the https URL of the endpoint we're trying to
+    :param provider_domain: the OAuth2 provider's domain name \
+    (i.e. ``kidsfirst.auth0.org``)
+    :type provider_domain: ``str``
+    :param audience: the https URL of the endpoint we're trying to \
     access (i.e. https://kf-api-study-creator.kidsfirst.io/files/download)
-    :type audience: str
+    :type audience: ``str``
     :param client_id: the client ID for this application issued by the provider
-    :type client_id: str
-    :param client_secret: the client secret for this application
+    :type client_id: ``str``
+    :param client_secret: the client secret for this application \
     issued by the provider
-    :type client_secret: str
-
-    :return: the access token string
+    :type client_secret: ``str``
+    :return: the access token ``string``
     """
     token = None
     if not (client_id and client_secret):
@@ -85,23 +84,22 @@ def get_file(
     **kwargs,
 ):
     """
-    Get an OAuth2 protected file at URL, `url`. Forward `kwargs` to
-    kf_lib_data_ingest.network.utils.http_get_file
+    Get an OAuth2 protected file at URL, ``url``. Forward ``kwargs`` to
+    ``kf_lib_data_ingest.network.utils.http_get_file``
 
     Get the service token first, then fetch the resources using the token.
 
     :param url: the URL of the resource to fetch
-    :type url: str
-    :param provider_domain: See get_service_token
-    :param audience: See get_service_token
-    :param client_id: See get_service_token
-    :param client_secret: See get_service_token
-    :param kwargs: keyword args that will be forwarded to
-    kf_lib_data_ingest.network.utils.get
-    :type kwargs: dict
-
-    :return: the requests.Response object
-    :rtype: requests.Response
+    :type url: ``str``
+    :param provider_domain: See ``get_service_token``
+    :param audience: See ``get_service_token``
+    :param client_id: See ``get_service_token``
+    :param client_secret: See ``get_service_token``
+    :param kwargs: keyword args that will be forwarded to \
+    ``kf_lib_data_ingest.network.utils.get``
+    :type kwargs: ``dict``
+    :return: the ``requests.Response`` object
+    :rtype: ``requests.Response``
     """
     # Get access token to request resource
     token = get_service_token(

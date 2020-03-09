@@ -1,5 +1,5 @@
 """
-Module for transforming source data DataFrames to the standard model.
+Module for transforming source data ``DataFrames`` to the standard model.
 """
 import os
 from abc import abstractmethod
@@ -21,10 +21,10 @@ class TransformStage(IngestStage):
         """
         Read previously written transform stage output
 
-        :return: dict (keyed by target concepts) of pandas.DataFrames
-        representing target concept instances (i.e. participant, biospecimen,
+        :return: ``dict`` (keyed by target concepts) of ``pandas.DataFrames`` \
+        representing target concept instances (i.e. participant, biospecimen, \
         etc)
-        :rtype: dict
+        :rtype: ``dict``
         """
         output = {
             os.path.splitext(filename)[0]: read_df(
@@ -44,8 +44,8 @@ class TransformStage(IngestStage):
         """
         Write output of transform stage.
 
-        :param output: output created by TransformStage._run
-        :type output: a dict of pandas.DataFrames
+        :param output: output created by ``TransformStage._run``
+        :type output: a ``dict`` of ``pandas.DataFrames``
         """
         assert_safe_type(output, dict)
         assert_all_safe_type(output.values(), pandas.DataFrame)
@@ -65,19 +65,19 @@ class TransformStage(IngestStage):
 
     def _validate_run_parameters(self, data_dict):
         """
-        Validate the parameters being passed into the _run method. This
-        method gets executed before the body of _run is executed.
+        Validate the parameters being passed into the ``_run`` method. This
+        method gets executed before the body of ``_run`` is executed.
 
-        A key in df_dict should be a string containing the URL to the
-        extract config module used to produce the Pandas DataFrame in the
-        value tuple.
+        A key in ``df_dict`` should be a ``string`` containing the URL to the
+        extract config module used to produce the ``pandas`` ``DataFrame`` in the
+        value ``tuple``.
 
-        A value in df_dict should be a tuple where the first member is a
-        string containing the URL to the source data file, and the second
-        member of the tuple is a Pandas DataFrame containing the mapped
+        A value in ``df_dict`` should be a ``tuple`` where the first member is a
+        ``string`` containing the URL to the source data file, and the second
+        member of the ``tuple`` is a ``pandas`` ``DataFrame`` containing the mapped
         source data.
 
-        :param data_dict: a dict containing the mapped source data which
+        :param data_dict: a ``dict`` containing the mapped source data which \
         follows the format outlined above.
         """
         try:
@@ -104,9 +104,9 @@ class TransformStage(IngestStage):
         """
         Transform the tabular mapped data into a unified form.
 
-        :param data_dict: the output (a dict of mapped DataFrames) from
-        ExtractStage.run. See TransformStage._validate_run_parameters for
+        :param data_dict: the output (a ``dict`` of mapped ``DataFrames``) from \
+        ``ExtractStage.run``. See ``TransformStage._validate_run_parameters`` for \
         a more detailed description.
-        :type data_dict: dict
+        :type data_dict: ``dict``
         """
         pass

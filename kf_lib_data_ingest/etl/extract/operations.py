@@ -3,14 +3,14 @@ Extract-stage predefined operations.
 
 Every extract config file declares a sequence of operations for pulling columns
 of data out of a clinical file. Each operation is defined as a function that
-takes the original data as input and returns a DataFrame with one or more
+takes the original data as input and returns a ``DataFrame`` with one or more
 columns with row index values equal to the relevant original indices.
 
 This module stores pre-made function wrappers that when invoked will return
 functions for performing common actions such as fetching a column and replacing
 its values with other values.
 
-See: docs/design/extract_config_format.py for function details
+See: ``docs/design/extract_config_format.py`` for function details
 """
 from pandas import DataFrame
 
@@ -24,16 +24,16 @@ from kf_lib_data_ingest.common.type_safety import assert_safe_type, function
 
 def df_map(m):
     """
-    Wraps the DataFrame mapping operation in a function that takes only a
-    DataFrame as input and returns a new DataFrame.
+    Wraps the ``DataFrame`` mapping operation in a function that takes only a
+    ``DataFrame`` as input and returns a new ``DataFrame``.
 
     For when you just can't figure out how to do what you want to do with the
-    other predefined operations. Take a whole DataFrame, do something with it,
-    and return a DataFrame with whichever standard concept columns
+    other predefined operations. Take a whole ``DataFrame``, do something with it,
+    and return a ``DataFrame`` with whichever standard concept columns
     you want (plus index).
 
-    :param m: A function to apply to a DataFrame
-    :return: A function that applies the specified m operation
+    :param m: A function to apply to a ``DataFrame``
+    :return: A function that applies the specified ``m`` operation
     """
     assert_safe_type(m, function)
 
@@ -48,34 +48,33 @@ def df_map(m):
 
 def value_map(m, in_col, out_col):
     """
-    Wraps the value mapping operation in a function that takes a DataFrame as
-    input and returns a single column DataFrame (plus index).
+    Wraps the value mapping operation in a function that takes a ``DataFrame`` as
+    input and returns a single column ``DataFrame`` (plus index).
 
-    :param m: Can be a dict, regex pattern string, or a function that takes a
-        string.
-
-        If a function, the return column values wil be the result of applying
-        that function to each cell of the <in_col> column in the DataFrame.
-
-        If a dict, each dict key is a regex pattern string that is forced to
-        have ^$ anchors if not already present (or none type), and each dict
-        value is either a constant or a function that takes one or more basic
-        strings. When a cell in the <in_col> column in the DataFrame matches
-        the regex pattern, corresponding cells in the <out_col> column of the
-        output will be either replaced by the indicated constant value or they
-        will be filled by application of the indicated function to the value of
-        the cell in <in_col>. If the regex pattern has capture groups, those
-        become the function inputs instead of the entire cell value.
-        For more details, read the docstring for safe_pandas_replace in
-        common/pandas_utils.py
-
-        If a regex string, the result will be the same as if it had been
-        `{m: lambda x: x}`.
-
-    :param in_col: The name of the column in the input DataFrame (the file)
-    :param out_col: The standard concept column in the extract output to
+    :param m: Can be a ``dict``, regex pattern ``string``, or a function that takes a\
+    ``string``. \
+    \
+    If a function, the return column values wil be the result of applying \
+    that function to each cell of the ``<in_col>`` column in the ``DataFrame``. \
+    \
+    If a ``dict``, each ``dict`` key is a regex pattern string that is forced to \
+    have ``^$`` anchors if not already present (or none type), and each ``dict`` \
+    value is either a constant or a function that takes one or more basic \
+    strings. When a cell in the ``<in_col>`` column in the ``DataFrame`` matches \
+    the regex pattern, corresponding cells in the ``<out_col>`` column of the \
+    output will be either replaced by the indicated constant value or they \
+    will be filled by application of the indicated function to the value of \
+    the cell in ``<in_col>``. If the regex pattern has capture groups, those \
+    become the function inputs instead of the entire cell value. \
+    For more details, read the docstring for ``safe_pandas_replace`` in \
+    ``common/pandas_utils.py`` \
+    \
+    If a regex string, the result will be the same as if it had been \
+    ``{m: lambda x: x}``. \
+    :param in_col: The name of the column in the input ``DataFrame`` (the file)
+    :param out_col: The standard concept column in the extract output to \
     populate
-    :return: A function that applies the specified m operation
+    :return: A function that applies the specified ``m`` operation
     """
     assert_safe_type(m, function, dict, str)
 
@@ -97,15 +96,15 @@ def value_map(m, in_col, out_col):
 
 def row_map(m, out_col):
     """
-    Wraps the row mapping operation in a function that takes a DataFrame as
-    input and returns a single column DataFrame with index values equal to the
+    Wraps the row mapping operation in a function that takes a ``DataFrame`` as \
+    input and returns a single column ``DataFrame`` with index values equal to the \
     relevant original indices.
 
-    :param m: A function that takes a row from the input DataFrame (the
-        file) and returns a single value using the cells in that row
-    :param out_col: The standard concept column in the extract output to
-        populate
-    :return: A function that applies the specified m operation
+    :param m: A function that takes a row from the input ``DataFrame`` (the \
+    file) and returns a single value using the cells in that row
+    :param out_col: The standard concept column in the extract output to \
+    populate
+    :return: A function that applies the specified ``m`` operation
     """
     assert_safe_type(m, function)
 
@@ -123,13 +122,13 @@ def constant_map(m, out_col):
     This is a special case map that returns a column filled with all the same
     value.
 
-    Wraps the const mapping operation in a function that takes only a DataFrame
+    Wraps the ``const`` mapping operation in a function that takes only a ``DataFrame``
     as input.
 
     :param m: A constant value
     :param out_col: The standard concept column in the extract output to
         populate
-    :return: A function that applies the specified m operation
+    :return: A function that applies the specified ``m`` operation
     """
 
     def constant_map_func(df):
@@ -144,14 +143,14 @@ def constant_map(m, out_col):
 def column_map(m, in_col, out_col):
     """
     Wraps the column mapping operation in a function that takes only a
-    DataFrame as input.
+    ``DataFrame`` as input.
 
     :param m: A function to apply to an entire column from the input
-        DataFrame (the file)
-    :param in_col: Which column from the input DataFrame to use
+        ``DataFrame`` (the file)
+    :param in_col: Which column from the input ``DataFrame`` to use
     :param out_col: The standard concept column in the extract output to
         populate
-    :return: A function that applies the specified m operation
+    :return: A function that applies the specified ``m`` operation
     """
     assert_safe_type(m, function)
 
@@ -165,31 +164,31 @@ def column_map(m, in_col, out_col):
 
 def keep_map(in_col, out_col):
     """
-    Shorthand for value_map or column_map with `m=lambda x: x`
+    Shorthand for ``value_map`` or ``column_map`` with ``m=lambda x: x``
 
-    :param in_col: Which column from the input DataFrame to use
+    :param in_col: Which column from the input ``DataFrame`` to use
     :param out_col: The standard concept column in the extract output to
         populate
-    :return: A function that transfers values from in_col to out_col
+    :return: A function that transfers values from ``in_col`` to ``out_col``
     """
     return column_map(lambda x: x, in_col, out_col)
 
 
 def melt_map(var_name, map_for_vars, value_name, map_for_values):
     """
-    Wraps the melt mapping operation in a function that takes only a DataFrame
+    Wraps the melt mapping operation in a function that takes only a ``DataFrame``
     as input.
 
-    melt_map is a combination of the pandas melt operation and the value_map
+    ``melt_map`` is a combination of the ``pandas`` ``melt`` operation and the ``value_map``
     operation. It both reshapes data and maps values.
 
-    :param var_name: What to name the melt's resulting var column
-    :param map_for_vars: A dict with keys equal to column names or numeric
-        indices from the input DataFrame (the file) and values equal to
+    :param var_name: What to name the melt's resulting ``var`` column
+    :param map_for_vars: A ``dict`` with keys equal to column names or numeric
+        indices from the input ``DataFrame`` (the file) and values equal to
         replacement names
-    :param value_name: What to name the melt's resulting value column
-    :param map_for_values: See the definition for the m argument of the
-        value_map operation
+    :param value_name: What to name the melt's resulting ``value`` column
+    :param map_for_values: See the definition for the ``m`` argument of the
+        ``value_map`` operation
     """
     assert_safe_type(map_for_vars, dict)
     assert_safe_type(map_for_values, dict, function)

@@ -1,6 +1,7 @@
 """
 Entry point for the Kids First Data Ingest Client
 """
+
 import inspect
 import logging
 import os
@@ -149,18 +150,18 @@ def ingest(
     no_warehouse,
 ):
     """
-    Run the Kids First data ingest pipeline.
+    Run the Kids First data ingest pipeline:
 
     \b
     Arguments:
         \b
         ingest_package_config_path - the path to the data ingest config file
         or a path to a directory which contains a file called
-        'ingest_package_config.py'
+        ``ingest_package_config.py``
 
-    :param ingest_package_config_path: the path to the data ingest config
-    file or a path to a directory which contains a file called
-    `ingest_package_config.py`
+    :param ingest_package_config_path: the path to the data ingest config \
+    file or a path to a directory which contains a file called \
+    ``ingest_package_config.py``
     """
 
     # Make kwargs from options

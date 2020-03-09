@@ -1,5 +1,5 @@
 """
-TransformModule encapsulates a user supplied python file that defines the
+``TransformModule`` encapsulates a user supplied python file that defines the
 transformation function to use during the transform stage of ingestion.
 """
 
@@ -28,7 +28,7 @@ class TransformModule(PyModuleConfig):
 
     def _validate(self):
         """
-        Validate that TransformModule has the required `transform_function`
+        Validate that ``TransformModule`` has the required ``transform_function``
         method
         """
         if not hasattr(self.contents, "transform_function"):

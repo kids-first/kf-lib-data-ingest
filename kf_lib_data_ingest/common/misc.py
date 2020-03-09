@@ -17,7 +17,7 @@ from kf_lib_data_ingest.common.type_safety import (
 
 def clean_walk(start_dir):
     """
-    Like os.walk but without hidden secrets
+    Like ``os.walk`` but without hidden secrets
     """
     paths = []
     exclude_prefixes = ("__", ".")
@@ -61,14 +61,16 @@ def convert_to_downcasted_str(val, replace_na=False, na=None):
     """
     Converts values to stripped strings while collapsing downcastable floats.
 
-    Examples:
+    Examples::
+
         to_str_with_floats_downcast_to_ints_first(1) -> "1"
         to_str_with_floats_downcast_to_ints_first(1.0) -> "1"
         to_str_with_floats_downcast_to_ints_first("1_1  ") -> "1_1"
         to_str_with_floats_downcast_to_ints_first(None) -> None
         to_str_with_floats_downcast_to_ints_first(None, True, "") -> ""
 
-    If you're wondering what this is good for, try the following:
+    If you're wondering what this is good for, try the following::
+
         import pandas
         df1 = pandas.DataFrame({"a":[1,2,3,None]}, dtype=object)
         df2 = pandas.read_json(df1.to_json(), dtype=object)
@@ -78,13 +80,11 @@ def convert_to_downcasted_str(val, replace_na=False, na=None):
         str(df1['a'][0]) == str(df2['a'][0])  # this returns True. Good.
 
     :param val: any basic type
-    :param replace_na: should None/NaN/blank values be replaced with something
-    :type replace_na: boolean
-    :param na: if replace_na is True, what should None/NaN/blank values be
-        replaced with
-
-
-    :return: new representation of `val`
+    :param replace_na: should ``None``/``NaN``/blank values be replaced with something
+    :type replace_na: ``boolean``
+    :param na: if ``replace_na`` is ``True``, what should None/NaN/blank values be \
+    replaced with
+    :return: new representation of ``val``
     """
     if isinstance(val, list):
         # make hashable without changing style or losing comparability
@@ -135,8 +135,8 @@ def convert_to_downcasted_str(val, replace_na=False, na=None):
 
 def str_to_obj(var):
     """
-    Convert a string that looks like a list, dict, tuple, or bool back into its
-    native object form.
+    Convert a ``string`` that looks like a ``list``, ``dict``, ``tuple``, or ``bool``
+    back into its native object form.
     """
     if not isinstance(var, str):
         return var
@@ -156,35 +156,35 @@ def str_to_obj(var):
 
 def recover_containers_from_df_strings(df):
     """
-    Undo one bit of necessary madness imposed by clean_up_df where lists and
-    dicts (both unhashable) are sorted and then converted to strings for
-    safekeeping. This finds strings that look like lists, dicts, or tuples and
+    Undo one bit of necessary madness imposed by ``clean_up_df`` where ``lists`` and
+    ``dicts`` (both unhashable) are sorted and then converted to ``strings`` for
+    safekeeping. This finds strings that look like ``lists``, ``dicts``, or ``tuples`` and
     converts them back to their native forms.
 
-    :param df: a pandas DataFrame
-    :return: Dataframe with object-like strings converted to native objects
-    :rtype: DataFrame
+    :param df: a ``pandas`` ``DataFrame``
+    :return: ``Dataframe`` with object-like strings converted to native objects
+    :rtype: ``DataFrame``
     """
     return df.applymap(str_to_obj)
 
 
 def clean_up_df(df):
     """
-    We can't universally control which null type will get used by a data
-    file loader, and it might also change, so let's always push them all
-    to None because other nulls are not our friends. It's easier for a
-    configurator to equate empty spreadsheet cells with None than e.g.
-    numpy.nan.
+    We can\'t universally control which null type will get used by a data
+    file loader, and it might also change, so let\'s always push them all
+    to ``None`` because other nulls are not our friends. It\'s easier for a
+    configurator to equate empty spreadsheet cells with ``None`` than e.g.
+    ``numpy.nan``.
 
-    Typed loaders like pandas.read_json force us into storing numerically
-    typed values. And then nulls, which read_json does not let you handle
-    inline, cause pandas to convert perfectly good ints into ugly floats.
-    So here we get any untidy values back to nice and tidy strings.
+    Typed loaders like ``pandas.read_json`` force us into storing numerically
+    typed values. And then nulls, which ``read_json`` does not let you handle
+    inline, cause ``pandas`` to convert perfectly good ints into ugly ``floats``.
+    So here we get any untidy values back to nice and tidy ``strings``.
 
-    :param df: a pandas DataFrame
-    :return: Dataframe with numbers converted to strings and NaNs/blanks
-        converted to None
-    :rtype: DataFrame
+    :param df: a ``pandas`` ``DataFrame``
+    :return: ``Dataframe`` with numbers converted to ``strings`` and NaNs/blanks \
+    converted to ``None``
+    :rtype: ``DataFrame``
     """
 
     return df.applymap(
@@ -194,7 +194,7 @@ def clean_up_df(df):
 
 def obj_attrs_to_dict(cls):
     """
-    Create a dict of obj attributes and values, including inherited attrs
+    Create a ``dict`` of obj attributes and values, including inherited ``attrs``
     """
     # Get non function attributes
     attributes = inspect.getmembers(cls, lambda x: not (inspect.isroutine(x)))
@@ -209,14 +209,14 @@ def obj_attrs_to_dict(cls):
 
 
 def multisplit(string: str, delimiters: list):
-    """Split a string by multiple delimiters.
+    """Split a ``string`` by multiple delimiters.
 
-    :param string: the string to split
-    :type string: str
-    :param delimiters: the list of delimiters to split by
-    :type delimiters: list
+    :param string: the ``string`` to split
+    :type string: ``str``
+    :param delimiters: the ``list`` of delimiters to split by
+    :type delimiters: ``list``
     :return: the split substrings
-    :rtype: list
+    :rtype: ``list``
     """
 
     assert_safe_type(string, str)
@@ -228,7 +228,7 @@ def multisplit(string: str, delimiters: list):
 
 def upper_camel_case(snake_str):
     """
-    Convert a snake case str to upper camel case
+    Convert a snake case ``str`` to upper camel case
     """
     words = snake_str.split("_")
     return "".join([w.title() for w in words])
@@ -236,7 +236,7 @@ def upper_camel_case(snake_str):
 
 def timestamp():
     """
-    Helper to create an ISO 8601 formatted string that represents local time
+    Helper to create an ISO 8601 formatted ``string`` that represents local time
     and includes the timezone info.
     """
     # Calculate the offset taking into account daylight saving time

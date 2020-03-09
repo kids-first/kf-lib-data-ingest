@@ -31,14 +31,14 @@ class GuidedTransformStage(TransformStage):
 
     def _apply_transform_funct(self, data_dict):
         """
-        Apply user supplied transform function to merge dataframes in data_dict
-        into a new set of dataframes, so that each target entity has 1
-        dataframe with all of its mapped data from extract stage.
+        Apply user supplied transform function to merge ``DataFrames`` in ``data_dict``
+        into a new set of ``DataFrames``, so that each target entity has 1
+        ``DataFrame`` with all of its mapped data from extract stage.
 
-        :param df_dict: a dict of mapped dataframes from the ExtractStage
-        :type df_dict: dict
-        :return: a dict of dataframes
-        :rtype: dict
+        :param df_dict: a ``dict`` of mapped ``DataFrames`` from the ExtractStage
+        :type df_dict: ``dict``
+        :return: a ``dict`` of ``DataFrames``
+        :rtype: ``dict``
         """
         filepath = self.transform_module.config_filepath
         self.logger.info(
@@ -62,13 +62,14 @@ class GuidedTransformStage(TransformStage):
         stopping pipeline execution so that the user can go back and fix their
         data or configs
 
-        BIOSPECIMEN Validation
-            - Any BIOSPECIMEN data must contain both the BIOSPECIMEN.ID and
-            BIOSPECIMEN_GROUP.ID concept identifiers
+        ``BIOSPECIMEN`` Validation
 
-        :param df_dict: output of the user transform function. A dict of Pandas
-        DataFrames
-        :type df_dict: dict
+            - Any ``BIOSPECIMEN`` data must contain both the ``BIOSPECIMEN.ID`` and \
+            ``BIOSPECIMEN_GROUP.ID`` concept identifiers
+
+        :param df_dict: output of the user transform function. A ``dict`` of ``pandas`` \
+        ``DataFrames``
+        :type df_dict: ``dict``
         """
         self.logger.info("Start data validation on transform function output")
 
@@ -115,7 +116,7 @@ class GuidedTransformStage(TransformStage):
 
     def _run(self, data_dict):
         """
-        See TransformStage._run
+        See ``TransformStage._run``
         """
         # Apply user transform func
         output = self._apply_transform_funct(data_dict)
