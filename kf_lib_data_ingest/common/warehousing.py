@@ -22,6 +22,7 @@ def init_study_db(db_maintenance_url, study_id, ingest_package_name):
     :type study_id: str
     """
     # create the study database if needed
+    # (this uses AUTOCOMMIT because CREATE DATABASE won't run in a transaction)
     eng = sqlalchemy.create_engine(
         db_maintenance_url,
         isolation_level="AUTOCOMMIT",
