@@ -11,12 +11,7 @@ Subpackages
 Submodules
 ----------
 
-kf\_lib\_data\_ingest.app.cli module
-------------------------------------
+.. toctree::
 
-.. automodule:: kf_lib_data_ingest.app.cli
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   kf_lib_data_ingest.app.cli
 

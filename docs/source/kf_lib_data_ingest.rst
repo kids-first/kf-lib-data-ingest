@@ -1,6 +1,11 @@
 kf\_lib\_data\_ingest package
 =============================
 
+.. automodule:: kf_lib_data_ingest
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
@@ -16,19 +21,7 @@ Subpackages
 Submodules
 ----------
 
-kf\_lib\_data\_ingest.config module
------------------------------------
+.. toctree::
 
-.. automodule:: kf_lib_data_ingest.config
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   kf_lib_data_ingest.config
 
-
-Module contents
----------------
-
-.. automodule:: kf_lib_data_ingest
-    :members:
-    :undoc-members:
-    :show-inheritance:
