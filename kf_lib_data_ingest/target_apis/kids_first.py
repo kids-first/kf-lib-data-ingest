@@ -1,20 +1,19 @@
 """
-Configuration module specifying how a target model maps to the standard model.
+This module is translated into a etl.configuration.target_api_config.TargetAPIConfig
+object which is used by the load stage to populate instances of target model
+entities (i.e. participants, diagnoses, etc) with data from the extracted
+concepts before those instances are loaded into the target service (i.e Kids
+First Dataservice)
 
-This module is translated into an
-etl.configuration.target_api_config.TargetAPIConfig object which is used by the
-transform stage to populate the concept graph and by the load stage to populate
-instances of target model concepts (i.e. participants, diagnoses, etc)
-with data from the standard model before those instances are loaded into the
-target service (i.e Kids First Dataservice)
-
-See etl.configuration.target_api_config docstring for more details on
+See etl.configuration.target_api_config docstring for more details on the
 requirements for format and content.
 """
-from kf_lib_data_ingest.common.concept_schema import CONCEPT, concept_set
-from kf_lib_data_ingest.common.misc import str_to_obj
+from requests import RequestException
 
-target_service_entity_id = "kf_id"
+from kf_lib_data_ingest.common import constants
+from kf_lib_data_ingest.common.concept_schema import CONCEPT
+from kf_lib_data_ingest.common.misc import str_to_obj
+from kf_lib_data_ingest.network.utils import RetrySession
 
 
 def indexd_hashes(dictstr):
@@ -23,497 +22,690 @@ def indexd_hashes(dictstr):
     }
 
 
-target_concepts = {
-    "investigator": {
-        "standard_concept": CONCEPT.INVESTIGATOR,
-        "properties": {
-            target_service_entity_id: CONCEPT.INVESTIGATOR.TARGET_SERVICE_ID,
-            "external_id": CONCEPT.INVESTIGATOR.UNIQUE_KEY,
-            "name": CONCEPT.INVESTIGATOR.NAME,
-            "institution": CONCEPT.INVESTIGATOR.INSTITUTION,
-            "visible": CONCEPT.INVESTIGATOR.VISIBLE,
-        },
-        "endpoint": "/investigators",
-    },
-    "study": {
-        "standard_concept": CONCEPT.STUDY,
-        "links": [
-            {
-                "target_attribute": "investigator_id",
-                "standard_concept": CONCEPT.INVESTIGATOR,
-                "target_concept": "investigator",
-            }
-        ],
-        "properties": {
-            target_service_entity_id: CONCEPT.STUDY.TARGET_SERVICE_ID,
-            "investigator_id": CONCEPT.INVESTIGATOR.TARGET_SERVICE_ID,
-            "external_id": CONCEPT.STUDY.UNIQUE_KEY,
-            "name": CONCEPT.STUDY.NAME,
-            "short_name": CONCEPT.STUDY.SHORT_NAME,
-            "version": CONCEPT.STUDY.VERSION,
-            "data_access_authority": CONCEPT.STUDY.AUTHORITY,
-            "release_status": CONCEPT.STUDY.RELEASE_STATUS,
-            "attribution": CONCEPT.STUDY.ATTRIBUTION,
-            "category": CONCEPT.STUDY.CATEGORY,
-            "visible": CONCEPT.STUDY.VISIBLE,
-        },
-        "endpoint": "/studies",
-    },
-    "family": {
-        "standard_concept": CONCEPT.FAMILY,
-        "properties": {
-            target_service_entity_id: CONCEPT.FAMILY.TARGET_SERVICE_ID,
-            "external_id": CONCEPT.FAMILY.UNIQUE_KEY,
-            "visible": CONCEPT.FAMILY.VISIBLE,
-        },
-        "endpoint": "/families",
-    },
-    "participant": {
-        "standard_concept": CONCEPT.PARTICIPANT,
-        "links": [
-            {
-                "target_attribute": "family_id",
-                "standard_concept": CONCEPT.FAMILY,
-                "target_concept": "family",
-            },
-            {
-                "target_attribute": "study_id",
-                "standard_concept": CONCEPT.STUDY,
-                "target_concept": "study",
-            },
-        ],
-        "properties": {
-            target_service_entity_id: CONCEPT.PARTICIPANT.TARGET_SERVICE_ID,
-            "study_id": CONCEPT.STUDY.TARGET_SERVICE_ID,
-            "family_id": CONCEPT.FAMILY.TARGET_SERVICE_ID,
-            "external_id": CONCEPT.PARTICIPANT.UNIQUE_KEY,
-            "is_proband": CONCEPT.PARTICIPANT.IS_PROBAND,
-            "ethnicity": CONCEPT.PARTICIPANT.ETHNICITY,
-            "gender": CONCEPT.PARTICIPANT.GENDER,
-            "race": CONCEPT.PARTICIPANT.RACE,
-            "affected_status": CONCEPT.PARTICIPANT.IS_AFFECTED_UNDER_STUDY,
-            "species": CONCEPT.PARTICIPANT.SPECIES,
-            "visible": CONCEPT.PARTICIPANT.VISIBLE,
-        },
-        "endpoint": "/participants",
-    },
-    "family_relationship": {
-        "standard_concept": CONCEPT.FAMILY_RELATIONSHIP,
-        "links": [
-            {
-                "target_attribute": "participant1_id",
-                "standard_concept": CONCEPT.FAMILY_RELATIONSHIP.PERSON1,
-                "target_concept": "participant",
-            },
-            {
-                "target_attribute": "participant2_id",
-                "standard_concept": CONCEPT.FAMILY_RELATIONSHIP.PERSON2,
-                "target_concept": "participant",
-            },
-        ],
-        "properties": {
-            target_service_entity_id: CONCEPT.FAMILY_RELATIONSHIP.TARGET_SERVICE_ID,
-            "participant1_id": CONCEPT.FAMILY_RELATIONSHIP.PERSON1.TARGET_SERVICE_ID,
-            "participant2_id": CONCEPT.FAMILY_RELATIONSHIP.PERSON2.TARGET_SERVICE_ID,
-            "external_id": CONCEPT.FAMILY_RELATIONSHIP.UNIQUE_KEY,
-            "participant1_to_participant2_relation": CONCEPT.FAMILY_RELATIONSHIP.RELATION_FROM_1_TO_2,
-            "visible": CONCEPT.FAMILY_RELATIONSHIP.VISIBLE,
-        },
-        "endpoint": "/family-relationships",
-    },
-    "diagnosis": {
-        "standard_concept": CONCEPT.DIAGNOSIS,
-        "links": [
-            {
-                "target_attribute": "participant_id",
-                "standard_concept": CONCEPT.PARTICIPANT,
-                "target_concept": "participant",
-            }
-        ],
-        "properties": {
-            target_service_entity_id: CONCEPT.DIAGNOSIS.TARGET_SERVICE_ID,
-            "participant_id": CONCEPT.PARTICIPANT.TARGET_SERVICE_ID,
-            "external_id": CONCEPT.DIAGNOSIS.UNIQUE_KEY,
-            "age_at_event_days": CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS,
-            "source_text_diagnosis": CONCEPT.DIAGNOSIS.NAME,
-            "source_text_tumor_location": CONCEPT.DIAGNOSIS.TUMOR_LOCATION,
-            "mondo_id_diagnosis": CONCEPT.DIAGNOSIS.MONDO_ID,
-            "icd_id_diagnosis": CONCEPT.DIAGNOSIS.ICD_ID,
-            "uberon_id_tumor_location": CONCEPT.DIAGNOSIS.UBERON_TUMOR_LOCATION_ID,
-            "ncit_id_diagnosis": CONCEPT.DIAGNOSIS.NCIT_ID,
-            "spatial_descriptor": CONCEPT.DIAGNOSIS.SPATIAL_DESCRIPTOR,
-            "diagnosis_category": CONCEPT.DIAGNOSIS.CATEGORY,
-            "visible": CONCEPT.DIAGNOSIS.VISIBLE,
-        },
-        "endpoint": "/diagnoses",
-    },
-    "phenotype": {
-        "standard_concept": CONCEPT.PHENOTYPE,
-        "links": [
-            {
-                "target_attribute": "participant_id",
-                "standard_concept": CONCEPT.PARTICIPANT,
-                "target_concept": "participant",
-            }
-        ],
-        "properties": {
-            target_service_entity_id: CONCEPT.PHENOTYPE.TARGET_SERVICE_ID,
-            "participant_id": CONCEPT.PARTICIPANT.TARGET_SERVICE_ID,
-            "external_id": CONCEPT.PHENOTYPE.UNIQUE_KEY,
-            "age_at_event_days": CONCEPT.PHENOTYPE.EVENT_AGE_DAYS,
-            "source_text_phenotype": CONCEPT.PHENOTYPE.NAME,
-            "hpo_id_phenotype": CONCEPT.PHENOTYPE.HPO_ID,
-            "snomed_id_phenotype": CONCEPT.PHENOTYPE.SNOMED_ID,
-            "observed": CONCEPT.PHENOTYPE.OBSERVED,
-            "visible": CONCEPT.PHENOTYPE.VISIBLE,
-        },
-        "endpoint": "/phenotypes",
-    },
-    "outcome": {
-        "standard_concept": CONCEPT.OUTCOME,
-        "links": [
-            {
-                "target_attribute": "participant_id",
-                "standard_concept": CONCEPT.PARTICIPANT,
-                "target_concept": "participant",
-            }
-        ],
-        "properties": {
-            target_service_entity_id: CONCEPT.OUTCOME.TARGET_SERVICE_ID,
-            "participant_id": CONCEPT.PARTICIPANT.TARGET_SERVICE_ID,
-            "external_id": CONCEPT.OUTCOME.UNIQUE_KEY,
-            "age_at_event_days": CONCEPT.OUTCOME.EVENT_AGE_DAYS,
-            "vital_status": CONCEPT.OUTCOME.VITAL_STATUS,
-            "disease_related": CONCEPT.OUTCOME.DISEASE_RELATED,
-            "visible": CONCEPT.OUTCOME.VISIBLE,
-        },
-        "endpoint": "/outcomes",
-    },
-    "biospecimen": {
-        "standard_concept": CONCEPT.BIOSPECIMEN,
-        "links": [
-            {
-                "target_attribute": "sequencing_center_id",
-                "standard_concept": CONCEPT.SEQUENCING.CENTER,
-                "target_concept": "sequencing_center",
-            },
-            {
-                "target_attribute": "participant_id",
-                "standard_concept": CONCEPT.PARTICIPANT,
-                "target_concept": "participant",
-            },
-        ],
-        "properties": {
-            "external_sample_id": CONCEPT.BIOSPECIMEN_GROUP.UNIQUE_KEY,
-            "external_aliquot_id": CONCEPT.BIOSPECIMEN.ID,
-            target_service_entity_id: CONCEPT.BIOSPECIMEN.TARGET_SERVICE_ID,
-            "participant_id": CONCEPT.PARTICIPANT.TARGET_SERVICE_ID,
-            "sequencing_center_id": CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID,
-            "source_text_tissue_type": CONCEPT.BIOSPECIMEN.TISSUE_TYPE,
-            "composition": CONCEPT.BIOSPECIMEN.COMPOSITION,
-            "source_text_anatomical_site": CONCEPT.BIOSPECIMEN.ANATOMY_SITE,
-            "age_at_event_days": CONCEPT.BIOSPECIMEN.EVENT_AGE_DAYS,
-            "source_text_tumor_descriptor": CONCEPT.BIOSPECIMEN.TUMOR_DESCRIPTOR,
-            "ncit_id_tissue_type": CONCEPT.BIOSPECIMEN.NCIT_TISSUE_TYPE_ID,
-            "ncit_id_anatomical_site": CONCEPT.BIOSPECIMEN.NCIT_ANATOMY_SITE_ID,
-            "spatial_descriptor": CONCEPT.BIOSPECIMEN.SPATIAL_DESCRIPTOR,
-            "shipment_origin": CONCEPT.BIOSPECIMEN.SHIPMENT_ORIGIN,
-            "shipment_date": CONCEPT.BIOSPECIMEN.SHIPMENT_DATE,
-            "analyte_type": CONCEPT.BIOSPECIMEN.ANALYTE,
-            "concentration_mg_per_ml": CONCEPT.BIOSPECIMEN.CONCENTRATION_MG_PER_ML,
-            "volume_ul": CONCEPT.BIOSPECIMEN.VOLUME_UL,
-            "visible": CONCEPT.BIOSPECIMEN.VISIBLE,
-            "method_of_sample_procurement": CONCEPT.BIOSPECIMEN.SAMPLE_PROCUREMENT,
-        },
-        "endpoint": "/biospecimens",
-    },
-    "genomic_file": {
-        "standard_concept": CONCEPT.GENOMIC_FILE,
-        "properties": {
-            target_service_entity_id: CONCEPT.GENOMIC_FILE.TARGET_SERVICE_ID,
-            "external_id": CONCEPT.GENOMIC_FILE.UNIQUE_KEY,
-            "file_name": CONCEPT.GENOMIC_FILE.FILE_NAME,
-            "file_format": CONCEPT.GENOMIC_FILE.FILE_FORMAT,
-            "data_type": CONCEPT.GENOMIC_FILE.DATA_TYPE,
-            "availability": CONCEPT.GENOMIC_FILE.AVAILABILITY,
-            "controlled_access": (
-                CONCEPT.GENOMIC_FILE.CONTROLLED_ACCESS,
-                str_to_obj,
-            ),
-            "is_harmonized": CONCEPT.GENOMIC_FILE.HARMONIZED,
-            "hashes": (CONCEPT.GENOMIC_FILE.HASH_DICT, indexd_hashes),
-            "size": (CONCEPT.GENOMIC_FILE.SIZE, int),
-            "urls": (CONCEPT.GENOMIC_FILE.URL_LIST, str_to_obj),
-            "acl": (CONCEPT.GENOMIC_FILE.ACL, str_to_obj),
-            "reference_genome": CONCEPT.GENOMIC_FILE.REFERENCE_GENOME,
-            "visible": CONCEPT.GENOMIC_FILE.VISIBLE,
-        },
-        "endpoint": "/genomic-files",
-    },
-    "read_group": {
-        "standard_concept": CONCEPT.READ_GROUP,
-        "properties": {
-            target_service_entity_id: CONCEPT.READ_GROUP.TARGET_SERVICE_ID,
-            "external_id": CONCEPT.READ_GROUP.UNIQUE_KEY,
-            "flow_cell": CONCEPT.READ_GROUP.FLOW_CELL,
-            "lane_number": CONCEPT.READ_GROUP.LANE_NUMBER,
-            "quality_scale": CONCEPT.READ_GROUP.QUALITY_SCALE,
-            "visible": CONCEPT.READ_GROUP.VISIBLE,
-        },
-        "endpoint": "/read-groups",
-    },
-    "sequencing_experiment": {
-        "standard_concept": CONCEPT.SEQUENCING,
-        "links": [
-            {
-                "target_attribute": "sequencing_center_id",
-                "standard_concept": CONCEPT.SEQUENCING.CENTER,
-                "target_concept": "sequencing_center",
-            }
-        ],
-        "properties": {
-            target_service_entity_id: CONCEPT.SEQUENCING.TARGET_SERVICE_ID,
-            "sequencing_center_id": CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID,
-            "external_id": CONCEPT.SEQUENCING.UNIQUE_KEY,
-            "experiment_date": CONCEPT.SEQUENCING.DATE,
-            "experiment_strategy": CONCEPT.SEQUENCING.STRATEGY,
-            "library_name": CONCEPT.SEQUENCING.LIBRARY_NAME,
-            "library_strand": CONCEPT.SEQUENCING.LIBRARY_STRAND,
-            "is_paired_end": CONCEPT.SEQUENCING.PAIRED_END,
-            "platform": CONCEPT.SEQUENCING.PLATFORM,
-            "instrument_model": CONCEPT.SEQUENCING.INSTRUMENT,
-            "max_insert_size": CONCEPT.SEQUENCING.MAX_INSERT_SIZE,
-            "mean_insert_size": CONCEPT.SEQUENCING.MEAN_INSERT_SIZE,
-            "mean_depth": CONCEPT.SEQUENCING.MEAN_DEPTH,
-            "total_reads": CONCEPT.SEQUENCING.TOTAL_READS,
-            "mean_read_length": CONCEPT.SEQUENCING.MEAN_READ_LENGTH,
-            "visible": CONCEPT.SEQUENCING.VISIBLE,
-        },
-        "endpoint": "/sequencing-experiments",
-    },
-    "sequencing_center": {
-        "standard_concept": CONCEPT.SEQUENCING.CENTER,
-        "properties": {
-            target_service_entity_id: CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID,
-            "external_id": CONCEPT.SEQUENCING.CENTER.UNIQUE_KEY,
-            "target_attribute": CONCEPT.SEQUENCING.CENTER.NAME,
-            "visible": CONCEPT.SEQUENCING.CENTER.VISIBLE,
-        },
-        "endpoint": "/sequencing-centers",
-    },
-    "biospecimen_genomic_file": {
-        "standard_concept": CONCEPT.BIOSPECIMEN_GENOMIC_FILE,
-        "links": [
-            {
-                "target_attribute": "biospecimen_id",
-                "standard_concept": CONCEPT.BIOSPECIMEN,
-                "target_concept": "biospecimen",
-            },
-            {
-                "target_attribute": "genomic_file_id",
-                "standard_concept": CONCEPT.GENOMIC_FILE,
-                "target_concept": "genomic_file",
-            },
-        ],
-        "properties": {
-            target_service_entity_id: CONCEPT.BIOSPECIMEN_GENOMIC_FILE.TARGET_SERVICE_ID,
-            "biospecimen_id": CONCEPT.BIOSPECIMEN.TARGET_SERVICE_ID,
-            "genomic_file_id": CONCEPT.GENOMIC_FILE.TARGET_SERVICE_ID,
-            "external_id": CONCEPT.BIOSPECIMEN_GENOMIC_FILE.UNIQUE_KEY,
-            "visible": CONCEPT.BIOSPECIMEN_GENOMIC_FILE.VISIBLE,
-        },
-        "endpoint": "/biospecimen-genomic-files",
-    },
-    "biospecimen_diagnosis": {
-        "standard_concept": CONCEPT.BIOSPECIMEN_DIAGNOSIS,
-        "links": [
-            {
-                "target_attribute": "biospecimen_id",
-                "standard_concept": CONCEPT.BIOSPECIMEN,
-                "target_concept": "biospecimen",
-            },
-            {
-                "target_attribute": "diagnosis_id",
-                "standard_concept": CONCEPT.DIAGNOSIS,
-                "target_concept": "diagnosis",
-            },
-        ],
-        "properties": {
-            target_service_entity_id: CONCEPT.BIOSPECIMEN_DIAGNOSIS.TARGET_SERVICE_ID,
-            "biospecimen_id": CONCEPT.BIOSPECIMEN.TARGET_SERVICE_ID,
-            "diagnosis_id": CONCEPT.DIAGNOSIS.TARGET_SERVICE_ID,
-            "external_id": CONCEPT.BIOSPECIMEN_DIAGNOSIS.UNIQUE_KEY,
-            "visible": CONCEPT.BIOSPECIMEN_DIAGNOSIS.VISIBLE,
-        },
-        "endpoint": "/biospecimen-diagnoses",
-    },
-    "read_group_genomic_file": {
-        "standard_concept": CONCEPT.READ_GROUP_GENOMIC_FILE,
-        "links": [
-            {
-                "target_attribute": "read_group_id",
-                "standard_concept": CONCEPT.READ_GROUP,
-                "target_concept": "read_group",
-            },
-            {
-                "target_attribute": "genomic_file_id",
-                "standard_concept": CONCEPT.GENOMIC_FILE,
-                "target_concept": "genomic_file",
-            },
-        ],
-        "properties": {
-            target_service_entity_id: CONCEPT.READ_GROUP_GENOMIC_FILE.TARGET_SERVICE_ID,
-            "read_group_id": CONCEPT.READ_GROUP.TARGET_SERVICE_ID,
-            "genomic_file_id": CONCEPT.GENOMIC_FILE.TARGET_SERVICE_ID,
-            "external_id": CONCEPT.READ_GROUP_GENOMIC_FILE.UNIQUE_KEY,
-            "visible": CONCEPT.READ_GROUP_GENOMIC_FILE.VISIBLE,
-        },
-        "endpoint": "/read-group-genomic-files",
-    },
-    "sequencing_experiment_genomic_file": {
-        "standard_concept": CONCEPT.SEQUENCING_GENOMIC_FILE,
-        "links": [
-            {
-                "target_attribute": "sequencing_experiment_id",
-                "standard_concept": CONCEPT.SEQUENCING,
-                "target_concept": "sequencing_experiment",
-            },
-            {
-                "target_attribute": "genomic_file_id",
-                "standard_concept": CONCEPT.GENOMIC_FILE,
-                "target_concept": "genomic_file",
-            },
-        ],
-        "properties": {
-            target_service_entity_id: CONCEPT.SEQUENCING_GENOMIC_FILE.TARGET_SERVICE_ID,
-            "sequencing_experiment_id": CONCEPT.SEQUENCING.TARGET_SERVICE_ID,
-            "genomic_file_id": CONCEPT.GENOMIC_FILE.TARGET_SERVICE_ID,
-            "external_id": CONCEPT.SEQUENCING_GENOMIC_FILE.UNIQUE_KEY,
-            "visible": CONCEPT.SEQUENCING_GENOMIC_FILE.VISIBLE,
-        },
-        "endpoint": "/sequencing-experiment-genomic-files",
-    },
-}
+def join(*args):
+    return ".".join([str(a) for a in args])
 
 
-def validate():
-    """
-    Custom validation specific to this target api config
-    """
-    for target_concept, schema in target_concepts.items():
-        # Ensure every schema has a mapping for target service entity id and
-        # linked target service entity ids
-        std_concept = schema["standard_concept"]
-        tgt_id_mapping = schema["properties"].get(target_service_entity_id)
-        assert tgt_id_mapping == getattr(std_concept, "TARGET_SERVICE_ID"), (
-            f"Properties schema for {target_concept} has an incorrect or null "
-            f"mapping {target_service_entity_id}: {tgt_id_mapping}"
+def get_target_id(entity_class, row, target_id_lookup_func):
+    tic = row.get(entity_class.target_id_concept)
+
+    if tic and (tic != constants.COMMON.NOT_REPORTED):
+        return tic
+    else:
+        return target_id_lookup_func(
+            entity_class.__name__, entity_class.build_key(row)
         )
 
-        for link_dict in schema.get("links", []):
-            link_std_concept = link_dict["standard_concept"]
-            link_key = link_dict["target_attribute"]
-            tgt_id_mapping = schema["properties"].get(link_key)
-            assert tgt_id_mapping == getattr(
-                link_std_concept, "TARGET_SERVICE_ID"
-            ), (
-                f'Links schema for "{target_concept}" has an '
-                f"incorrect or null mapping, {link_key}: {tgt_id_mapping}"
+
+def without_nulls(body):
+    # Remove elements with null values
+    return {k: v for k, v in body.items() if v is not None}
+
+
+class Investigator:
+    api_path = "/investigators"
+    target_id_concept = CONCEPT.INVESTIGATOR.TARGET_SERVICE_ID
+
+    @staticmethod
+    def build_key(row):
+        assert None is not row[CONCEPT.INVESTIGATOR.NAME]
+        assert None is not row[CONCEPT.INVESTIGATOR.INSTITUTION]
+        return join(
+            row[CONCEPT.INVESTIGATOR.NAME],
+            row[CONCEPT.INVESTIGATOR.INSTITUTION],
+        )
+
+    @staticmethod
+    def build_entity(row, key, target_id_lookup_func):
+        return without_nulls(
+            {
+                "kf_id": get_target_id(
+                    Investigator, row, target_id_lookup_func
+                ),
+                "external_id": key,
+                "name": row.get(CONCEPT.INVESTIGATOR.NAME),
+                "institution": row.get(CONCEPT.INVESTIGATOR.INSTITUTION),
+                "visible": row.get(CONCEPT.INVESTIGATOR.VISIBLE),
+            }
+        )
+
+
+class Study:
+    api_path = "/studies"
+    target_id_concept = CONCEPT.STUDY.TARGET_SERVICE_ID
+
+    @staticmethod
+    def build_key(row):
+        assert None is not row[CONCEPT.STUDY.ID]
+        return join(row[CONCEPT.STUDY.ID])
+
+    @staticmethod
+    def build_entity(row, key, target_id_lookup_func):
+        return without_nulls(
+            {
+                "kf_id": get_target_id(Study, row, target_id_lookup_func),
+                "external_id": key,
+                "investigator_id": get_target_id(
+                    Investigator, row, target_id_lookup_func
+                ),
+                "name": row.get(CONCEPT.STUDY.NAME),
+                "short_name": row.get(CONCEPT.STUDY.SHORT_NAME),
+                "version": row.get(CONCEPT.STUDY.VERSION),
+                "data_access_authority": row.get(CONCEPT.STUDY.AUTHORITY),
+                "release_status": row.get(CONCEPT.STUDY.RELEASE_STATUS),
+                "attribution": row.get(CONCEPT.STUDY.ATTRIBUTION),
+                "category": row.get(CONCEPT.STUDY.CATEGORY),
+                "visible": row.get(CONCEPT.STUDY.VISIBLE),
+            }
+        )
+
+
+class Family:
+    api_path = "/families"
+    target_id_concept = CONCEPT.FAMILY.TARGET_SERVICE_ID
+
+    @staticmethod
+    def build_key(row):
+        assert None is not row[CONCEPT.FAMILY.ID]
+        return join(row[CONCEPT.FAMILY.ID])
+
+    @staticmethod
+    def build_entity(row, key, target_id_lookup_func):
+        return without_nulls(
+            {
+                "kf_id": get_target_id(Family, row, target_id_lookup_func),
+                "external_id": key,
+                "visible": row.get(CONCEPT.FAMILY.VISIBLE),
+            }
+        )
+
+
+class Participant:
+    api_path = "/participants"
+    target_id_concept = CONCEPT.PARTICIPANT.TARGET_SERVICE_ID
+
+    @staticmethod
+    def build_key(row):
+        assert None is not row[CONCEPT.PARTICIPANT.ID]
+        return join(row[CONCEPT.PARTICIPANT.ID])
+
+    @staticmethod
+    def build_entity(row, key, target_id_lookup_func):
+        return without_nulls(
+            {
+                "kf_id": get_target_id(Participant, row, target_id_lookup_func),
+                "study_id": row[CONCEPT.STUDY.ID],
+                "family_id": get_target_id(Family, row, target_id_lookup_func),
+                "external_id": key,
+                "is_proband": row.get(CONCEPT.PARTICIPANT.IS_PROBAND),
+                "ethnicity": row.get(CONCEPT.PARTICIPANT.ETHNICITY),
+                "gender": row.get(CONCEPT.PARTICIPANT.GENDER),
+                "race": row.get(CONCEPT.PARTICIPANT.RACE),
+                "affected_status": row.get(
+                    CONCEPT.PARTICIPANT.IS_AFFECTED_UNDER_STUDY
+                ),
+                "species": row.get(CONCEPT.PARTICIPANT.SPECIES),
+                "visible": row.get(CONCEPT.PARTICIPANT.VISIBLE),
+            }
+        )
+
+
+class Diagnosis:
+    api_path = "/diagnoses"
+    target_id_concept = CONCEPT.DIAGNOSIS.TARGET_SERVICE_ID
+
+    @staticmethod
+    def build_key(row):
+        assert None is not row[CONCEPT.PARTICIPANT.ID]
+        assert None is not row[CONCEPT.DIAGNOSIS.NAME]
+        return join(
+            row[CONCEPT.PARTICIPANT.ID],
+            row[CONCEPT.DIAGNOSIS.NAME],
+            row.get(CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS),
+        )
+
+    @staticmethod
+    def build_entity(row, key, target_id_lookup_func):
+        return without_nulls(
+            {
+                "kf_id": get_target_id(Diagnosis, row, target_id_lookup_func),
+                "participant_id": get_target_id(
+                    Participant, row, target_id_lookup_func
+                ),
+                "external_id": key,
+                "age_at_event_days": row.get(CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS),
+                "source_text_diagnosis": row.get(CONCEPT.DIAGNOSIS.NAME),
+                "source_text_tumor_location": row.get(
+                    CONCEPT.DIAGNOSIS.TUMOR_LOCATION
+                ),
+                "mondo_id_diagnosis": row.get(CONCEPT.DIAGNOSIS.MONDO_ID),
+                "icd_id_diagnosis": row.get(CONCEPT.DIAGNOSIS.ICD_ID),
+                "uberon_id_tumor_location": row.get(
+                    CONCEPT.DIAGNOSIS.UBERON_TUMOR_LOCATION_ID
+                ),
+                "ncit_id_diagnosis": row.get(CONCEPT.DIAGNOSIS.NCIT_ID),
+                "spatial_descriptor": row.get(
+                    CONCEPT.DIAGNOSIS.SPATIAL_DESCRIPTOR
+                ),
+                "diagnosis_category": row.get(CONCEPT.DIAGNOSIS.CATEGORY),
+                "visible": row.get(CONCEPT.DIAGNOSIS.VISIBLE),
+            }
+        )
+
+
+class Phenotype:
+    api_path = "/phenotypes"
+    target_id_concept = CONCEPT.PHENOTYPE.TARGET_SERVICE_ID
+
+    @staticmethod
+    def build_key(row):
+        assert None is not row[CONCEPT.PARTICIPANT.ID]
+        assert None is not row[CONCEPT.PHENOTYPE.NAME]
+        assert row[CONCEPT.PHENOTYPE.OBSERVED] in {
+            constants.PHENOTYPE.OBSERVED.NO,
+            constants.PHENOTYPE.OBSERVED.YES,
+        }
+        return join(
+            row[CONCEPT.PARTICIPANT.ID],
+            row[CONCEPT.PHENOTYPE.NAME],
+            row[CONCEPT.PHENOTYPE.OBSERVED],  # TODO: WE SHOULD REMOVE OBSERVED
+            row.get(CONCEPT.PHENOTYPE.EVENT_AGE_DAYS),
+        )
+
+    @staticmethod
+    def build_entity(row, key, target_id_lookup_func):
+        return without_nulls(
+            {
+                "kf_id": get_target_id(Phenotype, row, target_id_lookup_func),
+                "participant_id": get_target_id(
+                    Participant, row, target_id_lookup_func
+                ),
+                "external_id": key,
+                "age_at_event_days": row.get(CONCEPT.PHENOTYPE.EVENT_AGE_DAYS),
+                "source_text_phenotype": row.get(CONCEPT.PHENOTYPE.NAME),
+                "hpo_id_phenotype": row.get(CONCEPT.PHENOTYPE.HPO_ID),
+                "snomed_id_phenotype": row.get(CONCEPT.PHENOTYPE.SNOMED_ID),
+                "observed": row.get(CONCEPT.PHENOTYPE.OBSERVED),
+                "visible": row.get(CONCEPT.PHENOTYPE.VISIBLE),
+            }
+        )
+
+
+class Outcome:
+    api_path = "/outcomes"
+    target_id_concept = CONCEPT.OUTCOME.TARGET_SERVICE_ID
+
+    @staticmethod
+    def build_key(row):
+        assert None is not row[CONCEPT.PARTICIPANT.ID]
+        assert row[CONCEPT.OUTCOME.VITAL_STATUS] in {
+            constants.OUTCOME.VITAL_STATUS.ALIVE,
+            constants.OUTCOME.VITAL_STATUS.DEAD,
+        }
+        return join(
+            row[CONCEPT.PARTICIPANT.ID],
+            row[CONCEPT.OUTCOME.VITAL_STATUS],
+            row.get(CONCEPT.OUTCOME.EVENT_AGE_DAYS),
+        )
+
+    @staticmethod
+    def build_entity(row, key, target_id_lookup_func):
+        return without_nulls(
+            {
+                "kf_id": get_target_id(Outcome, row, target_id_lookup_func),
+                "participant_id": get_target_id(
+                    Participant, row, target_id_lookup_func
+                ),
+                "external_id": key,
+                "age_at_event_days": row.get(CONCEPT.OUTCOME.EVENT_AGE_DAYS),
+                "vital_status": row.get(CONCEPT.OUTCOME.VITAL_STATUS),
+                "disease_related": row.get(CONCEPT.OUTCOME.DISEASE_RELATED),
+                "visible": row.get(CONCEPT.OUTCOME.VISIBLE),
+            }
+        )
+
+
+class Biospecimen:
+    api_path = "/biospecimens"
+    target_id_concept = CONCEPT.BIOSPECIMEN.TARGET_SERVICE_ID
+
+    @staticmethod
+    def build_key(row):
+        assert None is not row[CONCEPT.BIOSPECIMEN_GROUP.ID]
+        assert None is not row[CONCEPT.BIOSPECIMEN.ID]
+        assert row[CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID]
+        return join(
+            row[CONCEPT.BIOSPECIMEN_GROUP.ID], row[CONCEPT.BIOSPECIMEN.ID]
+        )
+
+    @staticmethod
+    def build_entity(row, key, target_id_lookup_func):
+        return without_nulls(
+            {
+                "kf_id": get_target_id(Biospecimen, row, target_id_lookup_func),
+                "participant_id": get_target_id(
+                    Participant, row, target_id_lookup_func
+                ),
+                "external_sample_id": row.get(CONCEPT.BIOSPECIMEN_GROUP.ID),
+                "external_aliquot_id": row.get(CONCEPT.BIOSPECIMEN.ID),
+                "sequencing_center_id": row.get(
+                    CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID
+                ),
+                "source_text_tissue_type": row.get(
+                    CONCEPT.BIOSPECIMEN.TISSUE_TYPE
+                ),
+                "composition": row.get(CONCEPT.BIOSPECIMEN.COMPOSITION),
+                "source_text_anatomical_site": row.get(
+                    CONCEPT.BIOSPECIMEN.ANATOMY_SITE
+                ),
+                "age_at_event_days": row.get(
+                    CONCEPT.BIOSPECIMEN.EVENT_AGE_DAYS
+                ),
+                "source_text_tumor_descriptor": row.get(
+                    CONCEPT.BIOSPECIMEN.TUMOR_DESCRIPTOR
+                ),
+                "ncit_id_tissue_type": row.get(
+                    CONCEPT.BIOSPECIMEN.NCIT_TISSUE_TYPE_ID
+                ),
+                "ncit_id_anatomical_site": row.get(
+                    CONCEPT.BIOSPECIMEN.NCIT_ANATOMY_SITE_ID
+                ),
+                "spatial_descriptor": row.get(
+                    CONCEPT.BIOSPECIMEN.SPATIAL_DESCRIPTOR
+                ),
+                "shipment_origin": row.get(CONCEPT.BIOSPECIMEN.SHIPMENT_ORIGIN),
+                "shipment_date": row.get(CONCEPT.BIOSPECIMEN.SHIPMENT_DATE),
+                "analyte_type": row.get(CONCEPT.BIOSPECIMEN.ANALYTE),
+                "concentration_mg_per_ml": row.get(
+                    CONCEPT.BIOSPECIMEN.CONCENTRATION_MG_PER_ML
+                ),
+                "volume_ul": row.get(CONCEPT.BIOSPECIMEN.VOLUME_UL),
+                "visible": row.get(CONCEPT.BIOSPECIMEN.VISIBLE),
+                "method_of_sample_procurement": row.get(
+                    CONCEPT.BIOSPECIMEN.SAMPLE_PROCUREMENT
+                ),
+            }
+        )
+
+
+class GenomicFile:
+    api_path = "/genomic-files"
+    target_id_concept = CONCEPT.GENOMIC_FILE.TARGET_SERVICE_ID
+
+    @staticmethod
+    def build_key(row):
+        assert None is not row[CONCEPT.GENOMIC_FILE.ID]
+        return join(row[CONCEPT.GENOMIC_FILE.ID])
+
+    @staticmethod
+    def build_entity(row, key, target_id_lookup_func):
+        return without_nulls(
+            {
+                "kf_id": get_target_id(GenomicFile, row, target_id_lookup_func),
+                "external_id": key,
+                "file_name": row.get(CONCEPT.GENOMIC_FILE.FILE_NAME),
+                "file_format": row.get(CONCEPT.GENOMIC_FILE.FILE_FORMAT),
+                "data_type": row.get(CONCEPT.GENOMIC_FILE.DATA_TYPE),
+                "availability": row.get(CONCEPT.GENOMIC_FILE.AVAILABILITY),
+                "controlled_access": str_to_obj(
+                    row.get(CONCEPT.GENOMIC_FILE.CONTROLLED_ACCESS)
+                ),
+                "is_harmonized": row.get(CONCEPT.GENOMIC_FILE.HARMONIZED),
+                "hashes": indexd_hashes(
+                    row.get(CONCEPT.GENOMIC_FILE.HASH_DICT)
+                ),
+                "size": int(row.get(CONCEPT.GENOMIC_FILE.SIZE)),
+                "urls": str_to_obj(row.get(CONCEPT.GENOMIC_FILE.URL_LIST)),
+                "acl": str_to_obj(row.get(CONCEPT.GENOMIC_FILE.ACL)),
+                "reference_genome": row.get(
+                    CONCEPT.GENOMIC_FILE.REFERENCE_GENOME
+                ),
+                "visible": row.get(CONCEPT.GENOMIC_FILE.VISIBLE),
+            }
+        )
+
+
+class ReadGroup:
+    api_path = "/read-groups"
+    target_id_concept = CONCEPT.READ_GROUP.TARGET_SERVICE_ID
+
+    @staticmethod
+    def build_key(row):
+        assert None is not row[CONCEPT.READ_GROUP.ID]
+        return join(row[CONCEPT.READ_GROUP.ID])
+
+    @staticmethod
+    def build_entity(row, key, target_id_lookup_func):
+        return without_nulls(
+            {
+                "kf_id": get_target_id(ReadGroup, row, target_id_lookup_func),
+                "external_id": key,
+                "flow_cell": row.get(CONCEPT.READ_GROUP.FLOW_CELL),
+                "lane_number": row.get(CONCEPT.READ_GROUP.LANE_NUMBER),
+                "quality_scale": row.get(CONCEPT.READ_GROUP.QUALITY_SCALE),
+                "visible": row.get(CONCEPT.READ_GROUP.VISIBLE),
+            }
+        )
+
+
+class SequencingExperiment:
+    api_path = "/sequencing-experiments"
+    target_id_concept = CONCEPT.SEQUENCING.TARGET_SERVICE_ID
+
+    @staticmethod
+    def build_key(row):
+        assert None is not row[CONCEPT.SEQUENCING.ID]
+        return join(row[CONCEPT.SEQUENCING.ID])
+
+    @staticmethod
+    def build_entity(row, key, target_id_lookup_func):
+        return without_nulls(
+            {
+                "kf_id": get_target_id(
+                    SequencingExperiment, row, target_id_lookup_func
+                ),
+                "sequencing_center_id": row[
+                    CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID
+                ],
+                "external_id": key,
+                "experiment_date": row.get(CONCEPT.SEQUENCING.DATE),
+                "experiment_strategy": row.get(CONCEPT.SEQUENCING.STRATEGY),
+                "library_name": row.get(CONCEPT.SEQUENCING.LIBRARY_NAME),
+                "library_strand": row.get(CONCEPT.SEQUENCING.LIBRARY_STRAND),
+                "is_paired_end": row.get(CONCEPT.SEQUENCING.PAIRED_END),
+                "platform": row.get(CONCEPT.SEQUENCING.PLATFORM),
+                "instrument_model": row.get(CONCEPT.SEQUENCING.INSTRUMENT),
+                "max_insert_size": row.get(CONCEPT.SEQUENCING.MAX_INSERT_SIZE),
+                "mean_insert_size": row.get(
+                    CONCEPT.SEQUENCING.MEAN_INSERT_SIZE
+                ),
+                "mean_depth": row.get(CONCEPT.SEQUENCING.MEAN_DEPTH),
+                "total_reads": row.get(CONCEPT.SEQUENCING.TOTAL_READS),
+                "mean_read_length": row.get(
+                    CONCEPT.SEQUENCING.MEAN_READ_LENGTH
+                ),
+                "visible": row.get(CONCEPT.SEQUENCING.VISIBLE),
+            }
+        )
+
+
+class FamilyRelationship:
+    api_path = "/family-relationships"
+    target_id_concept = CONCEPT.FAMILY_RELATIONSHIP.TARGET_SERVICE_ID
+
+    @staticmethod
+    def _pid(row, which, target_id_lookup_func):
+        return row.get(which.TARGET_SERVICE_ID) or target_id_lookup_func(
+            Participant.__name__, row.get(which.ID)
+        )
+
+    @staticmethod
+    def build_key(row):
+        p1 = row.get(
+            CONCEPT.FAMILY_RELATIONSHIP.PERSON1.TARGET_SERVICE_ID
+        ) or row.get(CONCEPT.FAMILY_RELATIONSHIP.PERSON1.ID)
+        p2 = row.get(
+            CONCEPT.FAMILY_RELATIONSHIP.PERSON2.TARGET_SERVICE_ID
+        ) or row.get(CONCEPT.FAMILY_RELATIONSHIP.PERSON2.ID)
+        assert None is not p1
+        assert None is not p2
+        assert None is not row[CONCEPT.FAMILY_RELATIONSHIP.RELATION_FROM_1_TO_2]
+        return join(
+            p1,
+            row[
+                CONCEPT.FAMILY_RELATIONSHIP.RELATION_FROM_1_TO_2
+            ],  # TODO: WE SHOULD REMOVE RELATION_FROM_1_TO_2
+            p2,
+        )
+
+    @staticmethod
+    def build_entity(row, key, target_id_lookup_func):
+        return without_nulls(
+            {
+                "kf_id": get_target_id(
+                    FamilyRelationship, row, target_id_lookup_func
+                ),
+                "participant1_id": FamilyRelationship._pid(
+                    row,
+                    CONCEPT.FAMILY_RELATIONSHIP.PERSON1,
+                    target_id_lookup_func,
+                ),
+                "participant2_id": FamilyRelationship._pid(
+                    row,
+                    CONCEPT.FAMILY_RELATIONSHIP.PERSON2,
+                    target_id_lookup_func,
+                ),
+                "external_id": key,
+                "participant1_to_participant2_relation": row[
+                    CONCEPT.FAMILY_RELATIONSHIP.RELATION_FROM_1_TO_2
+                ],
+                "visible": row.get(CONCEPT.FAMILY_RELATIONSHIP.VISIBLE),
+            }
+        )
+
+
+class BiospecimenGenomicFile:
+    api_path = "/biospecimen-genomic-files"
+    target_id_concept = CONCEPT.BIOSPECIMEN_GENOMIC_FILE.TARGET_SERVICE_ID
+
+    @staticmethod
+    def build_key(row):
+        bs = row.get(Biospecimen.target_id_concept) or Biospecimen.build_key(
+            row
+        )
+        gf = row.get(GenomicFile.target_id_concept) or GenomicFile.build_key(
+            row
+        )
+        assert None is not bs
+        assert None is not gf
+        return join(bs, gf)
+
+    @staticmethod
+    def build_entity(row, key, target_id_lookup_func):
+        return without_nulls(
+            {
+                "kf_id": get_target_id(
+                    BiospecimenGenomicFile, row, target_id_lookup_func
+                ),
+                "external_id": key,
+                "biospecimen_id": get_target_id(
+                    Biospecimen, row, target_id_lookup_func
+                ),
+                "genomic_file_id": get_target_id(
+                    GenomicFile, row, target_id_lookup_func
+                ),
+                "visible": row.get(CONCEPT.BIOSPECIMEN_GENOMIC_FILE.VISIBLE),
+            }
+        )
+
+
+class BiospecimenDiagnosis:
+    api_path = "/biospecimen-diagnoses"
+    target_id_concept = CONCEPT.BIOSPECIMEN_DIAGNOSIS.TARGET_SERVICE_ID
+
+    @staticmethod
+    def build_key(row):
+        bs = row.get(Biospecimen.target_id_concept) or Biospecimen.build_key(
+            row
+        )
+        dg = row.get(Diagnosis.target_id_concept) or Diagnosis.build_key(row)
+        assert None is not bs
+        assert None is not dg
+        return join(bs, dg)
+
+    @staticmethod
+    def build_entity(row, key, target_id_lookup_func):
+        return without_nulls(
+            {
+                "kf_id": get_target_id(
+                    BiospecimenDiagnosis, row, target_id_lookup_func
+                ),
+                "external_id": key,
+                "biospecimen_id": get_target_id(
+                    Biospecimen, row, target_id_lookup_func
+                ),
+                "diagnosis_id": get_target_id(
+                    Diagnosis, row, target_id_lookup_func
+                ),
+                "visible": row.get(CONCEPT.BIOSPECIMEN_DIAGNOSIS.VISIBLE),
+            }
+        )
+
+
+class ReadGroupGenomicFile:
+    api_path = "/read-group-genomic-files"
+    target_id_concept = CONCEPT.READ_GROUP_GENOMIC_FILE.TARGET_SERVICE_ID
+
+    @staticmethod
+    def build_key(row):
+        rg = row.get(ReadGroup.target_id_concept) or ReadGroup.build_key(row)
+        gf = row.get(GenomicFile.target_id_concept) or GenomicFile.build_key(
+            row
+        )
+        assert None is not rg
+        assert None is not gf
+        return join(rg, gf)
+
+    @staticmethod
+    def build_entity(row, key, target_id_lookup_func):
+        return without_nulls(
+            {
+                "kf_id": get_target_id(
+                    ReadGroupGenomicFile, row, target_id_lookup_func
+                ),
+                "external_id": key,
+                "read_group_id": get_target_id(
+                    ReadGroup, row, target_id_lookup_func
+                ),
+                "genomic_file_id": get_target_id(
+                    GenomicFile, row, target_id_lookup_func
+                ),
+                "visible": row.get(CONCEPT.READ_GROUP_GENOMIC_FILE.VISIBLE),
+            }
+        )
+
+
+class SequencingExperimentGenomicFile:
+    api_path = "/sequencing-experiment-genomic-files"
+    target_id_concept = CONCEPT.SEQUENCING_GENOMIC_FILE.TARGET_SERVICE_ID
+
+    @staticmethod
+    def build_key(row):
+        se = row.get(
+            SequencingExperiment.target_id_concept
+        ) or SequencingExperiment.build_key(row)
+        gf = row.get(GenomicFile.target_id_concept) or GenomicFile.build_key(
+            row
+        )
+        assert None is not se
+        assert None is not gf
+        return join(se, gf)
+
+    @staticmethod
+    def build_entity(row, key, target_id_lookup_func):
+        return without_nulls(
+            {
+                "kf_id": get_target_id(
+                    SequencingExperimentGenomicFile, row, target_id_lookup_func
+                ),
+                "external_id": key,
+                "sequencing_experiment_id": get_target_id(
+                    SequencingExperiment, row, target_id_lookup_func
+                ),
+                "genomic_file_id": get_target_id(
+                    GenomicFile, row, target_id_lookup_func
+                ),
+                "visible": row.get(CONCEPT.SEQUENCING_GENOMIC_FILE.VISIBLE),
+            }
+        )
+
+
+def _PATCH(host, api_path, kf_id, body):
+    return RetrySession().patch(
+        url="/".join([v.strip("/") for v in [host, api_path, kf_id]]),
+        json=body,
+    )
+
+
+def _POST(host, api_path, body):
+    return RetrySession().post(
+        url="/".join([v.strip("/") for v in [host, api_path]]), json=body
+    )
+
+
+def _GET(host, api_path, body):
+    return RetrySession().get(
+        url="/".join([v.strip("/") for v in [host, api_path]]),
+        params={k: v for k, v in body.items() if v is not None},
+    )
+
+
+# in the order to be loaded
+all_targets = [
+    Investigator,
+    Study,
+    Family,
+    Participant,
+    FamilyRelationship,
+    Diagnosis,
+    Phenotype,
+    Outcome,
+    Biospecimen,
+    GenomicFile,
+    ReadGroup,
+    SequencingExperiment,
+    BiospecimenGenomicFile,
+    BiospecimenDiagnosis,
+    ReadGroupGenomicFile,
+    SequencingExperimentGenomicFile,
+]
+
+
+def submit(host, entity_class, body):
+    """
+    Negotiate submitting the data for an entity to the target service.
+
+    :param host: host url
+    :type host: str
+    :param entity_class: which entity class is being sent
+    :type entity_class: class
+    :param body: map between entity keys and values
+    :type body: dict
+    :return: The target entity ID that the service says was created or updated
+    :rtype: str
+    :raise: RequestException on error
+    """
+    resp = None
+    kf_id = body.get("kf_id")
+    api_path = entity_class.api_path
+
+    if kf_id:
+        resp = _PATCH(host, api_path, kf_id, body)
+        if resp.status_code == 404:
+            resp = None
+
+    if not resp:
+        resp = _POST(host, api_path, body)
+
+    if resp.status_code in {200, 201}:
+        result = resp.json()["results"]
+        return result["kf_id"]
+    elif (resp.status_code == 400) and (
+        "already exists" in resp.json()["_status"]["message"]
+    ):
+        # Our dataservice returns 400 if a relationship already exists
+        # even though that's a silly thing to do.
+        # See https://github.com/kids-first/kf-api-dataservice/issues/419
+        extid = body.pop("external_id", None)
+        resp = _GET(host, api_path, body)
+        result = resp.json()["results"][0]
+        if extid != result["external_id"]:
+            resp = _PATCH(
+                host, api_path, result["kf_id"], {"external_id": extid}
             )
-
-
-# TODO: This should be merged into the target API config!
-def _create_unique_key_composition():
-    """
-    Build a dict which stores the attributes used to build a unique key
-    for a particular concept. This key uniquely identifies concept instances of
-    the same type.
-
-    A key in the dict is a standard concept and a value in
-    the dict is a set of concept attributes.
-
-    - The ID attribute is usually populated with a unique identifier
-    provided from the source data and so the default unique key for a concept
-    is composed of just the ID attribute.
-
-    - However, some concepts don't typically have a unique ID assigned in
-    the source data. These concepts can be uniquely identified by a
-    combination of one or more other concept attributes. Thus, the unique key
-    would be composed of a set of attribute values joined together by some
-    delimiter.
-
-    - For example a phenotype doesn't typically have a unique identifier
-    assigned to it in the source data. But a phenotype can be uniquely
-    identified by a combination of the participant's id, phenotype name,
-    observed status, and the age of the participant when the observation was
-    recorded. The values for these attributes would form the unique key for a
-    phenotype instance.
-    """
-    # Default unique keys
-    identifiers = {}
-    for concept in concept_set:
-        identifiers[concept._CONCEPT_NAME] = {"required": [concept.ID]}
-
-    # Compound unique keys
-    identifiers[CONCEPT.BIOSPECIMEN._CONCEPT_NAME] = {
-        "required": [CONCEPT.BIOSPECIMEN_GROUP.ID, CONCEPT.BIOSPECIMEN.ID]
-    }
-    identifiers[CONCEPT.INVESTIGATOR._CONCEPT_NAME] = {
-        "required": [
-            CONCEPT.INVESTIGATOR.NAME,
-            CONCEPT.INVESTIGATOR.INSTITUTION,
-        ]
-    }
-    identifiers[CONCEPT.DIAGNOSIS._CONCEPT_NAME] = {
-        "required": [CONCEPT.PARTICIPANT.UNIQUE_KEY, CONCEPT.DIAGNOSIS.NAME],
-        "optional": [CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS],
-    }
-    identifiers[CONCEPT.PHENOTYPE._CONCEPT_NAME] = {
-        "required": [CONCEPT.PARTICIPANT.UNIQUE_KEY, CONCEPT.PHENOTYPE.NAME],
-        "optional": [
-            CONCEPT.PHENOTYPE.OBSERVED,
-            CONCEPT.PHENOTYPE.EVENT_AGE_DAYS,
-        ],
-    }
-    identifiers[CONCEPT.OUTCOME._CONCEPT_NAME] = {
-        "required": [
-            CONCEPT.PARTICIPANT.UNIQUE_KEY,
-            CONCEPT.OUTCOME.VITAL_STATUS,
-        ],
-        "optional": [CONCEPT.OUTCOME.EVENT_AGE_DAYS],
-    }
-    identifiers[CONCEPT.BIOSPECIMEN_GENOMIC_FILE._CONCEPT_NAME] = {
-        "required": [
-            CONCEPT.BIOSPECIMEN.UNIQUE_KEY,
-            CONCEPT.GENOMIC_FILE.UNIQUE_KEY,
-        ]
-    }
-    identifiers[CONCEPT.BIOSPECIMEN_DIAGNOSIS._CONCEPT_NAME] = {
-        "required": [
-            CONCEPT.BIOSPECIMEN.UNIQUE_KEY,
-            CONCEPT.DIAGNOSIS.UNIQUE_KEY,
-        ]
-    }
-    identifiers[CONCEPT.READ_GROUP_GENOMIC_FILE._CONCEPT_NAME] = {
-        "required": [
-            CONCEPT.READ_GROUP.UNIQUE_KEY,
-            CONCEPT.GENOMIC_FILE.UNIQUE_KEY,
-        ]
-    }
-    identifiers[CONCEPT.SEQUENCING_GENOMIC_FILE._CONCEPT_NAME] = {
-        "required": [
-            CONCEPT.SEQUENCING.UNIQUE_KEY,
-            CONCEPT.GENOMIC_FILE.UNIQUE_KEY,
-        ]
-    }
-    identifiers[CONCEPT.FAMILY_RELATIONSHIP._CONCEPT_NAME] = {
-        "required": [
-            CONCEPT.FAMILY_RELATIONSHIP.PERSON1.UNIQUE_KEY,
-            CONCEPT.FAMILY_RELATIONSHIP.RELATION_FROM_1_TO_2,
-            CONCEPT.FAMILY_RELATIONSHIP.PERSON2.UNIQUE_KEY,
-        ]
-    }
-    return identifiers
-
-
-unique_key_composition = _create_unique_key_composition()
+            result = resp.json()["results"]
+        return result["kf_id"]
+    else:
+        raise RequestException(
+            f"Sent to {api_path}:\n{body}\nGot:\n{resp.text}"
+        )

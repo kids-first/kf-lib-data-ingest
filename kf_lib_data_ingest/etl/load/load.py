@@ -13,26 +13,23 @@ from threading import Lock, current_thread, main_thread
 from urllib.parse import urlparse
 
 from pandas import DataFrame
-from requests import RequestException
 from sqlite3worker import Sqlite3Worker, sqlite3worker
 
-from kf_lib_data_ingest.common import constants
+from kf_lib_data_ingest.common.concept_schema import CONCEPT
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
-from kf_lib_data_ingest.common.misc import multisplit
+from kf_lib_data_ingest.common.misc import multisplit, snake_case
 from kf_lib_data_ingest.common.stage import IngestStage
 from kf_lib_data_ingest.common.type_safety import (
     assert_all_safe_type,
     assert_safe_type,
 )
-from kf_lib_data_ingest.config import DEFAULT_ID_CACHE_FILENAME, DEFAULT_KEY
+from kf_lib_data_ingest.config import DEFAULT_ID_CACHE_FILENAME
 from kf_lib_data_ingest.etl.configuration.base_config import (
     ConfigValidationError,
 )
 from kf_lib_data_ingest.etl.configuration.target_api_config import (
     TargetAPIConfig,
 )
-from kf_lib_data_ingest.etl.load.message_packer import MessagePacker
-from kf_lib_data_ingest.network.utils import RetrySession
 
 sqlite3worker.LOGGER.setLevel(logging.WARNING)
 count_lock = Lock()
@@ -72,14 +69,10 @@ class LoadStage(IngestStage):
         """
         super().__init__(cache_dir)
         self.target_api_config = TargetAPIConfig(target_api_config_path)
-        self.concept_targets = {
-            v["standard_concept"].UNIQUE_KEY: k
-            for k, v in self.target_api_config.target_concepts.items()
-        }
-        self.target_id_key = (
-            self.target_api_config.contents.target_service_entity_id
+        self._validate_entities(
+            entities_to_load,
+            f"Your ingest package config says to load invalid entities:",
         )
-        self._validate_entities(entities_to_load)
         self.entities_to_load = entities_to_load
         self.target_url = target_url
         self.dry_run = dry_run
@@ -106,28 +99,51 @@ class LoadStage(IngestStage):
         self.uid_cache = defaultdict(dict)
         self.uid_cache_db = Sqlite3Worker(self.uid_cache_filepath)
 
-    def _validate_entities(self, entities_to_load):
+    def _validate_entities(self, entities_to_load, msg):
         """
         Validate that all entities in entities_to_load are one of the
-        target concepts specified in the target_api_config.target_concepts
+        target concepts specified in the target_api_config.all_targets
         """
-        assert_safe_type(entities_to_load, list)
-        assert_all_safe_type(entities_to_load, str)
-
+        target_names = [t.__name__ for t in self.target_api_config.all_targets]
+        lower_names = [n.lower() for n in target_names]
+        snake_names = [snake_case(name) for name in target_names]
         invalid_ents = [
             ent
             for ent in entities_to_load
-            if ent not in self.target_api_config.target_concepts
+            if (ent not in self.target_api_config.all_targets)
+            and (ent not in target_names + ["default"])
+            and (ent not in lower_names)
+            and (ent not in snake_names)
         ]
+
         if invalid_ents:
-            valid_ents = list(self.target_api_config.target_concepts.keys())
-            raise ValueError(
-                f"Ingest package config has invalid entities: "
-                f"{pformat(invalid_ents)} specified in `entities_to_load`. "
+            raise ConfigValidationError(
+                f"{msg} "
+                f"{pformat(invalid_ents)}. "
                 "Valid entities must be one of the target concepts: "
-                f"{pformat(valid_ents)} "
+                f"{pformat(target_names)} "
                 f"specified in {self.target_api_config.config_filepath}"
             )
+
+    def _validate_run_parameters(self, df_dict):
+        """
+        Validate the parameters being passed into the _run method. This method
+        gets executed before the body of _run is executed.
+
+        :param df_dict: a dict of DataFrames, keyed by target concepts defined
+        in the target_api_config
+        :type df_dict: dict
+        """
+
+        try:
+            assert_safe_type(df_dict, dict)
+            assert_all_safe_type(df_dict.values(), DataFrame)
+        except TypeError as e:
+            raise InvalidIngestStageParameters from e
+
+        self._validate_entities(
+            df_dict.keys(), "Your transform module output has invalid keys:"
+        )
 
     def _prime_uid_cache(self, entity_type):
         """
@@ -189,195 +205,23 @@ class LoadStage(IngestStage):
     def _write_output(self, output):
         pass  # TODO
 
-    def _PATCH(self, endpoint, target_id, body):
-        """
-        Send a PATCH request to the target service.
-
-        :param endpoint: which target service endpoint to hit
-        :type endpoint: str
-        :param target_id: which target service ID to patch
-        :type target_id: str
-        :param body: map between entity keys and values
-        :type body: dict
-        :return: PATCH request response
-        :rtype: requests.Response
-        """
-        host = self.target_url
-        return RetrySession().patch(
-            url="/".join([v.strip("/") for v in [host, endpoint, target_id]]),
-            json=body,
-        )
-
-    def _POST(self, endpoint, body):
-        """
-        Send a POST request to the target service.
-
-        :param endpoint: which target service endpoint to hit
-        :type endpoint: str
-        :param body: map between entity keys and values
-        :type body: dict
-        :return: POST request response
-        :rtype: requests.Response
-        """
-        host = self.target_url
-        return RetrySession().post(
-            url="/".join([v.strip("/") for v in [host, endpoint]]), json=body
-        )
-
-    def _GET(self, endpoint, body):
-        """
-        Send a GET request to the target service.
-
-        :param endpoint: which target service endpoint to hit
-        :type endpoint: str
-        :param body: filter arguments keys and values
-        :type body: dict
-        :return: GET request response
-        :rtype: requests.Response
-        """
-        host = self.target_url
-        return RetrySession().get(
-            url="/".join([v.strip("/") for v in [host, endpoint]]),
-            params={k: v for k, v in body.items() if v is not None},
-        )
-
-    def _submit(self, entity_id, entity_type, endpoint, body):
-        """
-        Negotiate submitting the data for an entity to the target service.
-
-        :param entity_id: source unique ID for this entity
-        :type entity_id: str
-        :param entity_type: the name of this type of entity
-        :type entity_type: str
-        :param endpoint: which target service endpoint to hit
-        :type endpoint: str
-        :param body: map between entity keys and values
-        :type body: dict
-        :raises RequestException: Unhandled response error from the server
-        :return: The entity that the target service says was created or updated
-        :rtype: dict
-        """
-        resp = None
-        target_id = body.get(self.target_id_key)
-        if target_id:
-            self.logger.debug(f"Trying to PATCH {entity_type} {target_id}.")
-            resp = self._PATCH(endpoint, target_id, body)
-            if resp.status_code == 404:
-                self.logger.debug(
-                    f"Entity {entity_type} {target_id} not found in target "
-                    "service."
-                )
-                resp = None
-
-        if not resp:
-            self.logger.debug(f"Trying to POST new {entity_type} {entity_id}.")
-            resp = self._POST(endpoint, body)
-
-        self.logger.debug(f"Request body: \n{pformat(body)}")
-
-        if resp.status_code in {200, 201}:
-            result = resp.json()["results"]
-            self.logger.debug(f"Response body:\n{pformat(result)}")
-            return result
-        elif (resp.status_code == 400) and (
-            "already exists" in resp.json()["_status"]["message"]
-        ):
-            # Our dataservice returns 400 if a relationship already exists
-            # even though that's a silly thing to do.
-            # See https://github.com/kids-first/kf-api-dataservice/issues/419
-            extid = body.pop("external_id", None)
-            resp = self._GET(endpoint, body)
-            result = resp.json()["results"][0]
-            self.logger.debug(f"Already exists:\n{pformat(result)}")
-            if extid != result["external_id"]:
-                self.logger.debug(f"Patching with new external_id: {extid}")
-                resp = self._PATCH(
-                    endpoint, result["kf_id"], {"external_id": extid}
-                )
-                result = resp.json()["results"]
-            return result
-        else:
-            self.logger.debug(f"Response error:\n{pformat(resp.__dict__)}")
-            raise RequestException(resp.text)
-
-    def _apply_property_value_transformations(self, schema, payload):
-        """
-        For any properties in payload that have a value transform function
-        specified in schema, apply the function to the value of the
-        property in payload
-
-        :param schema: target concept properties schema for the payload
-        :type schema: dict
-        :param payload: target concept instance
-        :type payload: dict
-        :return: the modified payload with value transformations applied to it
-        """
-        for attribute, value in payload.items():
-            payload[attribute] = value
-            mapping = schema.get(attribute)
-            if isinstance(mapping, tuple):
-                payload[attribute] = mapping[-1](value)
-
-        return payload
-
-    def _load_entity(self, entity_type, endpoint, entity_id, body, links):
+    def _load_entity(self, entity_class, body, unique_key):
         """
         Prepare a single entity for submission to the target service.
-
-        :param entity_type: the name of this type of entity
-        :type entity_type: str
-        :param endpoint: which target service endpoint to hit
-        :type endpoint: str
-        :param entity_id: source unique ID for this entity
-        :type entity_id: str
-        :param body: map between entity keys and values
-        :type body: dict
-        :param links: map between entity keys and foreign key source unique IDs
-        :type links: dict
         """
         if current_thread() is not main_thread():
-            current_thread().name = f"{entity_type} {entity_id}"
-
-        # populate target uid
-        target_id_value = body.get(self.target_id_key)
-        if target_id_value == constants.COMMON.NOT_REPORTED:
-            target_id_value = self._get_target_id(entity_type, entity_id)
-        body[self.target_id_key] = target_id_value
-
-        # Remove elements with null values
-        body = {k: v for k, v in body.items() if v is not None}
-
-        # Apply property value transformations, if provided
-        body = self._apply_property_value_transformations(
-            self.target_api_config.target_concepts.get(entity_type).get(
-                "properties"
-            ),
-            body,
-        )
-        # link cached foreign keys
-        for link_dict in links:
-            link_type = link_dict.pop("target_concept", None)
-            for link_key, link_value in link_dict.items():
-                if link_key == "study_id":
-                    body[link_key] = self.study_id
-                else:
-                    target_link_value = body.get(link_key)
-                    if target_link_value == constants.COMMON.NOT_REPORTED:
-                        target_link_value = self._get_target_id(
-                            link_type, link_value
-                        )
-                    body[link_key] = target_link_value
+            current_thread().name = f"{entity_class.__name__} {unique_key}"
 
         if self.resume_from:
-            tgt_id = body.get(self.target_id_key)
-            if not tgt_id:
+            target_id = self._get_target_id(entity_class.__name__, unique_key)
+            if not target_id:
                 raise InvalidIngestStageParameters(
                     "Use of the resume_from flag requires having already"
                     " cached target IDs for all prior entities. The resume"
                     " target has not yet been reached, and no cached ID"
                     f" was found for this entity body:\n{pformat(body)}"
                 )
-            elif tgt_id.startswith(self.resume_from):
+            elif target_id.startswith(self.resume_from):
                 self.logger.info(
                     f"Found resume target '{self.resume_from}'. Resuming"
                     " normal load."
@@ -386,78 +230,44 @@ class LoadStage(IngestStage):
                 self.resume_from = None
 
         if self.dry_run:
-            # Fake sending with fake primary/foreign keys
-            tgt_id = body.get(self.target_id_key)
-            body[
-                self.target_id_key
-            ] = f"source: {entity_id} --> target: {tgt_id}"
-            for link_dict in links:
-                for link_key, link_value in link_dict.items():
-                    if not link_value:
-                        link_value = body[link_key]
-                    body[
-                        link_key
-                    ] = f"source: {link_value} --> target: {body[link_key]}"
-
-            if tgt_id:
-                req_method = "PATCH"
-                id_str = f"{{{self.target_id_key}: {tgt_id}}}"
+            target_id = self._get_target_id(entity_class.__name__, unique_key)
+            if target_id:
+                req_method = "UPDATE"
+                id_str = f"({target_id})"
             else:
-                req_method = "POST"
-                id_str = f"({entity_id})"
+                req_method = "ADD"
+                id_str = f"({unique_key})"
 
             self.logger.debug(f"Request body preview:\n{pformat(body)}")
-            done_msg = f"DRY RUN - {req_method} {endpoint} {id_str}"
+            done_msg = (
+                f"DRY RUN - {req_method} {entity_class.__name__} {id_str}"
+            )
         else:
             # send to the target service
-            entity = self._submit(entity_id, entity_type, endpoint, body)
+            target_id = self.target_api_config.submit(
+                self.target_url, entity_class, body
+            )
 
             # cache source_ID:target_ID lookup
-            tgt_id = entity[self.target_id_key]
-            self._store_target_id(entity_type, entity_id, tgt_id)
+            self._store_target_id(entity_class.__name__, unique_key, target_id)
 
             done_msg = (
-                f"Loaded {entity_type} {entity_id} --> {{"
-                f"{self.target_id_key}: {tgt_id}}}"
+                f"Loaded {entity_class.__name__} {unique_key} --> {target_id}"
             )
 
         # log action
         with count_lock:
-            url = "/".join([v.strip("/") for v in [self.target_url, endpoint]])
-            msg = {"url": url, "body": body}
-            self.sent_messages.append(msg)
-            self.counts[entity_type] += 1
-            self.logger.info(
-                done_msg + f" (#{self.counts[entity_type]} "
-                f"of {self.totals[entity_type]})"
+            self.sent_messages.append(
+                {
+                    "host": self.target_url,
+                    "type": entity_class.__name__,
+                    "body": body,
+                }
             )
-
-    def _validate_run_parameters(self, df_dict):
-        """
-        Validate the parameters being passed into the _run method. This method
-        gets executed before the body of _run is executed.
-
-        :param df_dict: a dict of DataFrames, keyed by target concepts defined
-        in the target_api_config
-        :type df_dict: dict
-        """
-
-        try:
-            assert_safe_type(df_dict, dict)
-            assert_all_safe_type(df_dict.keys(), str)
-            assert_all_safe_type(df_dict.values(), DataFrame)
-        except TypeError as e:
-            raise InvalidIngestStageParameters from e
-
-        valid_keys = set(self.target_api_config.target_concepts.keys())
-        valid_keys.add(DEFAULT_KEY)
-        for key, df in df_dict.items():
-            if key not in valid_keys:
-                raise ConfigValidationError(
-                    f'Invalid dict key "{key}" found in transform function '
-                    f"output! A Key must be one of:\n {pformat(valid_keys)} "
-                    f"\nCheck your transform module."
-                )
+            self.counts[entity_class.__name__] += 1
+            self.logger.info(
+                done_msg + f" (#{self.counts[entity_class.__name__]})"
+            )
 
     def _postrun_concept_discovery(self, run_output):
         pass  # TODO
@@ -469,9 +279,8 @@ class LoadStage(IngestStage):
         :param transform_output: Output data structure from the Transform stage
         :type transform_output: dict
         """
-        self.totals = {}
         self.counts = {}
-        self.entity_cache = dict()
+        self.seen_entities = defaultdict(set)
 
         if self.dry_run:
             self.logger.info(
@@ -486,66 +295,91 @@ class LoadStage(IngestStage):
             )
             self.dry_run = True
 
-        target_entities = MessagePacker(
-            self.target_api_config, self.target_url
-        ).pack_messages(transform_output)
-
-        pack_cache = os.path.join(self.stage_cache_dir, "PackedMessages.json")
-        with open(pack_cache, "w") as pc:
-            json.dump(target_entities, pc, indent=2)
-
         # Loop through all target concepts
         self.sent_messages = []
         try:
-            for entity_type in self.target_api_config.target_concepts.keys():
-                # Skip entities that are not in user specified list or
-                # not in the input data
-                if (entity_type not in self.entities_to_load) or (
-                    entity_type not in target_entities
+            for entity_class in self.target_api_config.all_targets:
+                if not any(
+                    x in self.entities_to_load
+                    for x in [
+                        entity_class,
+                        entity_class.__name__,
+                        entity_class.__name__.lower(),
+                        snake_case(entity_class.__name__),
+                    ]
                 ):
-                    self.logger.info(f"Skipping load of {entity_type}")
+                    self.logger.info(
+                        f"Skipping load of {entity_class.__name__}"
+                    )
                     continue
 
-                entities = target_entities[entity_type]
+                self.logger.info(f"Begin loading {entity_class.__name__}")
 
-                self.logger.info(f"Begin loading {entity_type}")
+                # we can be flexible about what we accept from transform
+                t_key = None
+                if entity_class in transform_output:
+                    t_key = entity_class
+                elif entity_class.__name__ in transform_output:
+                    t_key = entity_class.__name__
+                elif entity_class.__name__.lower() in transform_output:
+                    t_key = entity_class.__name__.lower()
+                elif snake_case(entity_class.__name__) in transform_output:
+                    t_key = snake_case(entity_class.__name__)
 
-                self.prev_entity = None
-                self.totals[entity_type] = len(entities)
-                self.counts[entity_type] = 0
+                if t_key is None:
+                    t_key = "default"
+
+                if isinstance(transform_output[t_key], DataFrame):
+                    # guarantee existence of the study ID column
+                    transform_output[t_key][CONCEPT.STUDY.ID] = self.study_id
+                    # convert df to list of dicts
+                    transform_output[t_key] = transform_output[t_key].to_dict(
+                        "records"
+                    )
+
+                self.counts[entity_class.__name__] = 0
 
                 if self.use_async:
                     ex = concurrent.futures.ThreadPoolExecutor()
                     futures = []
 
-                for entity in entities:
-                    entity_id = entity["id"]
-                    endpoint = entity["endpoint"]
-                    body = entity["properties"]
-                    links = entity["links"]
+                for row in transform_output[t_key]:
+                    try:
+                        unique_key = entity_class.build_key(row)
+                    except Exception:
+                        # no new key, no new entity
+                        continue
+
+                    if (not unique_key) or (
+                        unique_key in self.seen_entities[entity_class.__name__]
+                    ):
+                        # no new key, no new entity
+                        continue
+
+                    self.seen_entities[entity_class.__name__].add(unique_key)
+
+                    payload = entity_class.build_entity(
+                        row, unique_key, self._get_target_id
+                    )
 
                     if self.use_async and not self.resume_from:
                         futures.append(
                             ex.submit(
                                 self._load_entity,
-                                entity_type,
-                                endpoint,
-                                entity_id,
-                                body,
-                                links,
+                                entity_class,
+                                payload,
+                                unique_key,
                             )
                         )
                     else:
-                        self._load_entity(
-                            entity_type, endpoint, entity_id, body, links
-                        )
+                        self._load_entity(entity_class, payload, unique_key)
 
                 if self.use_async:
                     for f in concurrent.futures.as_completed(futures):
                         f.result()
                     ex.shutdown()
 
-                self.logger.info(f"End loading {entity_type}")
+                self.logger.info(f"End loading {entity_class.__name__}")
         finally:
             json_out = os.path.join(self.stage_cache_dir, "SentMessages.json")
             with open(json_out, "w") as jo:

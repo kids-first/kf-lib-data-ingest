@@ -7,12 +7,10 @@ import pytest
 
 from kf_lib_data_ingest.app.settings.base import SECRETS
 from kf_lib_data_ingest.common.io import read_json
-from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
 from kf_lib_data_ingest.etl.configuration.target_api_config import (
     TargetAPIConfig,
 )
 from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
-from kf_lib_data_ingest.etl.load.message_packer import MessagePacker
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
 
 os.environ[SECRETS.WAREHOUSE_DB_URL] = ""
@@ -133,15 +131,6 @@ def target_api_config():
     the transform stage and you don't want to worry about setting it up.
     """
     return TargetAPIConfig(KIDS_FIRST_CONFIG)
-
-
-@pytest.fixture(scope="function")
-def message_packer(target_api_config):
-    """
-    Re-usable fixture for tests. Use this one for all tests that need
-    the message_packer and you don't want to worry about setting it up.
-    """
-    return MessagePacker(target_api_config, DEFAULT_TARGET_URL)
 
 
 @pytest.fixture(scope="function")
