@@ -50,7 +50,7 @@ class Investigator:
     def build_key(row):
         assert None is not row[CONCEPT.INVESTIGATOR.NAME]
         assert None is not row[CONCEPT.INVESTIGATOR.INSTITUTION]
-        return join(
+        return row.get(CONCEPT.INVESTIGATOR.UNIQUE_KEY) or join(
             row[CONCEPT.INVESTIGATOR.NAME],
             row[CONCEPT.INVESTIGATOR.INSTITUTION],
         )
@@ -77,7 +77,7 @@ class Study:
     @staticmethod
     def build_key(row):
         assert None is not row[CONCEPT.STUDY.ID]
-        return join(row[CONCEPT.STUDY.ID])
+        return row.get(CONCEPT.STUDY.UNIQUE_KEY) or join(row[CONCEPT.STUDY.ID])
 
     @staticmethod
     def build_entity(row, key, target_id_lookup_func):
@@ -107,7 +107,9 @@ class Family:
     @staticmethod
     def build_key(row):
         assert None is not row[CONCEPT.FAMILY.ID]
-        return join(row[CONCEPT.FAMILY.ID])
+        return row.get(CONCEPT.FAMILY.UNIQUE_KEY) or join(
+            row[CONCEPT.FAMILY.ID]
+        )
 
     @staticmethod
     def build_entity(row, key, target_id_lookup_func):
@@ -127,7 +129,9 @@ class Participant:
     @staticmethod
     def build_key(row):
         assert None is not row[CONCEPT.PARTICIPANT.ID]
-        return join(row[CONCEPT.PARTICIPANT.ID])
+        return row.get(CONCEPT.PARTICIPANT.UNIQUE_KEY) or join(
+            row[CONCEPT.PARTICIPANT.ID]
+        )
 
     @staticmethod
     def build_entity(row, key, target_id_lookup_func):
@@ -158,7 +162,7 @@ class Diagnosis:
     def build_key(row):
         assert None is not row[CONCEPT.PARTICIPANT.ID]
         assert None is not row[CONCEPT.DIAGNOSIS.NAME]
-        return join(
+        return row.get(CONCEPT.DIAGNOSIS.UNIQUE_KEY) or join(
             row[CONCEPT.PARTICIPANT.ID],
             row[CONCEPT.DIAGNOSIS.NAME],
             row.get(CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS),
@@ -205,7 +209,7 @@ class Phenotype:
             constants.PHENOTYPE.OBSERVED.NO,
             constants.PHENOTYPE.OBSERVED.YES,
         }
-        return join(
+        return row.get(CONCEPT.PHENOTYPE.UNIQUE_KEY) or join(
             row[CONCEPT.PARTICIPANT.ID],
             row[CONCEPT.PHENOTYPE.NAME],
             row[CONCEPT.PHENOTYPE.OBSERVED],  # TODO: WE SHOULD REMOVE OBSERVED
@@ -242,7 +246,7 @@ class Outcome:
             constants.OUTCOME.VITAL_STATUS.ALIVE,
             constants.OUTCOME.VITAL_STATUS.DEAD,
         }
-        return join(
+        return row.get(CONCEPT.OUTCOME.UNIQUE_KEY) or join(
             row[CONCEPT.PARTICIPANT.ID],
             row[CONCEPT.OUTCOME.VITAL_STATUS],
             row.get(CONCEPT.OUTCOME.EVENT_AGE_DAYS),
@@ -274,7 +278,7 @@ class Biospecimen:
         assert None is not row[CONCEPT.BIOSPECIMEN_GROUP.ID]
         assert None is not row[CONCEPT.BIOSPECIMEN.ID]
         assert row[CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID]
-        return join(
+        return row.get(CONCEPT.BIOSPECIMEN.UNIQUE_KEY) or join(
             row[CONCEPT.BIOSPECIMEN_GROUP.ID], row[CONCEPT.BIOSPECIMEN.ID]
         )
 
@@ -335,7 +339,9 @@ class GenomicFile:
     @staticmethod
     def build_key(row):
         assert None is not row[CONCEPT.GENOMIC_FILE.ID]
-        return join(row[CONCEPT.GENOMIC_FILE.ID])
+        return row.get(CONCEPT.GENOMIC_FILE.UNIQUE_KEY) or join(
+            row[CONCEPT.GENOMIC_FILE.ID]
+        )
 
     @staticmethod
     def build_entity(row, key, target_id_lookup_func):
@@ -372,7 +378,9 @@ class ReadGroup:
     @staticmethod
     def build_key(row):
         assert None is not row[CONCEPT.READ_GROUP.ID]
-        return join(row[CONCEPT.READ_GROUP.ID])
+        return row.get(CONCEPT.READ_GROUP.UNIQUE_KEY) or join(
+            row[CONCEPT.READ_GROUP.ID]
+        )
 
     @staticmethod
     def build_entity(row, key, target_id_lookup_func):
@@ -395,7 +403,9 @@ class SequencingExperiment:
     @staticmethod
     def build_key(row):
         assert None is not row[CONCEPT.SEQUENCING.ID]
-        return join(row[CONCEPT.SEQUENCING.ID])
+        return row.get(CONCEPT.SEQUENCING.UNIQUE_KEY) or join(
+            row[CONCEPT.SEQUENCING.ID]
+        )
 
     @staticmethod
     def build_entity(row, key, target_id_lookup_func):
@@ -436,21 +446,25 @@ class FamilyRelationship:
     @staticmethod
     def _pid(row, which, target_id_lookup_func):
         return row.get(which.TARGET_SERVICE_ID) or target_id_lookup_func(
-            Participant.__name__, row.get(which.ID)
+            Participant.__name__, row.get(which.UNIQUE_KEY) or row.get(which.ID)
         )
 
     @staticmethod
     def build_key(row):
-        p1 = row.get(
-            CONCEPT.FAMILY_RELATIONSHIP.PERSON1.TARGET_SERVICE_ID
-        ) or row.get(CONCEPT.FAMILY_RELATIONSHIP.PERSON1.ID)
-        p2 = row.get(
-            CONCEPT.FAMILY_RELATIONSHIP.PERSON2.TARGET_SERVICE_ID
-        ) or row.get(CONCEPT.FAMILY_RELATIONSHIP.PERSON2.ID)
+        p1 = (
+            row.get(CONCEPT.FAMILY_RELATIONSHIP.PERSON1.TARGET_SERVICE_ID)
+            or row.get(CONCEPT.FAMILY_RELATIONSHIP.PERSON1.UNIQUE_KEY)
+            or row.get(CONCEPT.FAMILY_RELATIONSHIP.PERSON1.ID)
+        )
+        p2 = (
+            row.get(CONCEPT.FAMILY_RELATIONSHIP.PERSON2.TARGET_SERVICE_ID)
+            or row.get(CONCEPT.FAMILY_RELATIONSHIP.PERSON2.UNIQUE_KEY)
+            or row.get(CONCEPT.FAMILY_RELATIONSHIP.PERSON2.ID)
+        )
         assert None is not p1
         assert None is not p2
         assert None is not row[CONCEPT.FAMILY_RELATIONSHIP.RELATION_FROM_1_TO_2]
-        return join(
+        return row.get(CONCEPT.FAMILY_RELATIONSHIP.UNIQUE_KEY) or join(
             p1,
             row[
                 CONCEPT.FAMILY_RELATIONSHIP.RELATION_FROM_1_TO_2
@@ -498,7 +512,9 @@ class BiospecimenGenomicFile:
         )
         assert None is not bs
         assert None is not gf
-        return join(bs, gf)
+        return row.get(CONCEPT.BIOSPECIMEN_GENOMIC_FILE.UNIQUE_KEY) or join(
+            bs, gf
+        )
 
     @staticmethod
     def build_entity(row, key, target_id_lookup_func):
@@ -531,7 +547,7 @@ class BiospecimenDiagnosis:
         dg = row.get(Diagnosis.target_id_concept) or Diagnosis.build_key(row)
         assert None is not bs
         assert None is not dg
-        return join(bs, dg)
+        return row.get(CONCEPT.BIOSPECIMEN_DIAGNOSIS.UNIQUE_KEY) or join(bs, dg)
 
     @staticmethod
     def build_entity(row, key, target_id_lookup_func):
@@ -564,7 +580,9 @@ class ReadGroupGenomicFile:
         )
         assert None is not rg
         assert None is not gf
-        return join(rg, gf)
+        return row.get(CONCEPT.READ_GROUP_GENOMIC_FILE.UNIQUE_KEY) or join(
+            rg, gf
+        )
 
     @staticmethod
     def build_entity(row, key, target_id_lookup_func):
@@ -599,7 +617,9 @@ class SequencingExperimentGenomicFile:
         )
         assert None is not se
         assert None is not gf
-        return join(se, gf)
+        return row.get(CONCEPT.SEQUENCING_GENOMIC_FILE.UNIQUE_KEY) or join(
+            se, gf
+        )
 
     @staticmethod
     def build_entity(row, key, target_id_lookup_func):
