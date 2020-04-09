@@ -7,10 +7,7 @@ import os
 import urllib.parse
 from pprint import pformat
 
-import requests
-from requests.adapters import HTTPAdapter
-from requests.exceptions import ConnectionError
-from requests.packages.urllib3.util.retry import Retry
+from d3b_utils.requests_retry import Session
 
 from kf_lib_data_ingest.common.io import read_json, write_json
 from kf_lib_data_ingest.common.misc import upper_camel_case
@@ -33,7 +30,7 @@ def http_get_file(url, dest_obj, **kwargs):
     """
 
     kwargs["stream"] = True
-    response = RetrySession(connect=1).get(url, **kwargs)
+    response = Session(connect=1).get(url, **kwargs)
 
     if response.status_code == 200:
         # Get filename from Content-Disposition header
@@ -76,53 +73,6 @@ def http_get_file(url, dest_obj, **kwargs):
         logger.error(f"Could not fetch {url}. Caused by: '{response.text}'")
 
     return response
-
-
-class RetrySession(requests.Session):
-    """
-    Session for sending http requests with retry on failures or redirects
-
-    See urllib3.Retry docs for details on all kwargs
-    Modified source: https://www.peterbe.com/plog/best-practice-with-retries-with-requests # noqa E501
-
-    :param total: total retry attempts
-    :param read: total retries on read errors
-    :param connect: total retries on connection errors
-    :param status: total retries on bad status codes defined in
-    `status_forcelist`
-    :param backoff_factor: affects sleep time between retries
-    :param status_forcelist: list of HTTP status codes that force retry
-    """
-
-    def __init__(
-        self,
-        total=10,
-        read=10,
-        connect=10,
-        status=10,
-        backoff_factor=5,
-        status_forcelist=(500, 502, 503, 504),
-    ):
-        self.logger = logging.getLogger(type(self).__name__)
-        total = int(os.environ.get("MAX_RETRIES_ON_CONN_ERROR", total))
-
-        super().__init__()
-
-        retry = Retry(
-            total=total,
-            read=read,
-            connect=connect,
-            backoff_factor=backoff_factor,
-            status_forcelist=status_forcelist,
-            method_whitelist=False,
-        )
-        adapter = HTTPAdapter(max_retries=retry)
-        self.mount("http://", adapter)
-        self.mount("https://", adapter)
-
-    def send(self, req, **kwargs):
-        self.logger.debug("Sending request: " + pformat(vars(req)))
-        return super().send(req, **kwargs)
 
 
 def get_open_api_v2_schema(
@@ -208,7 +158,7 @@ def get_open_api_v2_schema(
         # like dataservice were causing tests to hang. What we really need
         # to do is remove this flag and do integration tests with a
         # live dataservice server - Natasha
-        response = RetrySession(connect=0).get(schema_url)
+        response = Session(connect=0).get(schema_url)
 
     except ConnectionError as e:
 

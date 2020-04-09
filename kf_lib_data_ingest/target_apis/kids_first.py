@@ -8,12 +8,12 @@ First Dataservice)
 See etl.configuration.target_api_config docstring for more details on the
 requirements for format and content.
 """
+from d3b_utils.requests_retry import Session
 from requests import RequestException
 
 from kf_lib_data_ingest.common import constants
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
 from kf_lib_data_ingest.common.misc import str_to_obj
-from kf_lib_data_ingest.network.utils import RetrySession
 
 
 def indexd_hashes(dictstr):
@@ -641,20 +641,20 @@ class SequencingExperimentGenomicFile:
 
 
 def _PATCH(host, api_path, kf_id, body):
-    return RetrySession().patch(
+    return Session().patch(
         url="/".join([v.strip("/") for v in [host, api_path, kf_id]]),
         json=body,
     )
 
 
 def _POST(host, api_path, body):
-    return RetrySession().post(
+    return Session().post(
         url="/".join([v.strip("/") for v in [host, api_path]]), json=body
     )
 
 
 def _GET(host, api_path, body):
-    return RetrySession().get(
+    return Session().get(
         url="/".join([v.strip("/") for v in [host, api_path]]),
         params={k: v for k, v in body.items() if v is not None},
     )
