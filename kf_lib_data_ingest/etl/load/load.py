@@ -104,18 +104,10 @@ class LoadStage(IngestStage):
         Validate that all entities in entities_to_load are one of the
         target concepts specified in the target_api_config.all_targets
         """
-        target_names = [t.__name__ for t in self.target_api_config.all_targets]
-        lower_names = [n.lower() for n in target_names]
-        snake_names = [snake_case(name) for name in target_names]
-        invalid_ents = [
-            ent
-            for ent in entities_to_load
-            if (ent not in self.target_api_config.all_targets)
-            and (ent not in target_names + ["default"])
-            and (ent not in lower_names)
-            and (ent not in snake_names)
-        ]
-
+        target_names = {
+            t.class_name for t in self.target_api_config.all_targets
+        }
+        invalid_ents = set(entities_to_load) - target_names
         if invalid_ents:
             raise ConfigValidationError(
                 f"{msg} "
@@ -142,7 +134,8 @@ class LoadStage(IngestStage):
             raise InvalidIngestStageParameters from e
 
         self._validate_entities(
-            df_dict.keys(), "Your transform module output has invalid keys:"
+            set(df_dict.keys()) - {"default"},
+            "Your transform module output has invalid keys:",
         )
 
     def _prime_uid_cache(self, entity_type):
@@ -210,10 +203,10 @@ class LoadStage(IngestStage):
         Prepare a single entity for submission to the target service.
         """
         if current_thread() is not main_thread():
-            current_thread().name = f"{entity_class.__name__} {unique_key}"
+            current_thread().name = f"{entity_class.class_name} {unique_key}"
 
         if self.resume_from:
-            target_id = self._get_target_id(entity_class.__name__, unique_key)
+            target_id = self._get_target_id(entity_class.class_name, unique_key)
             if not target_id:
                 raise InvalidIngestStageParameters(
                     "Use of the resume_from flag requires having already"
@@ -230,7 +223,7 @@ class LoadStage(IngestStage):
                 self.resume_from = None
 
         if self.dry_run:
-            target_id = self._get_target_id(entity_class.__name__, unique_key)
+            target_id = self._get_target_id(entity_class.class_name, unique_key)
             if target_id:
                 req_method = "UPDATE"
                 id_str = f"({target_id})"
@@ -240,7 +233,7 @@ class LoadStage(IngestStage):
 
             self.logger.debug(f"Request body preview:\n{pformat(body)}")
             done_msg = (
-                f"DRY RUN - {req_method} {entity_class.__name__} {id_str}"
+                f"DRY RUN - {req_method} {entity_class.class_name} {id_str}"
             )
         else:
             # send to the target service
@@ -249,10 +242,12 @@ class LoadStage(IngestStage):
             )
 
             # cache source_ID:target_ID lookup
-            self._store_target_id(entity_class.__name__, unique_key, target_id)
+            self._store_target_id(
+                entity_class.class_name, unique_key, target_id
+            )
 
             done_msg = (
-                f"Loaded {entity_class.__name__} {unique_key} --> {target_id}"
+                f"Loaded {entity_class.class_name} {unique_key} --> {target_id}"
             )
 
         # log action
@@ -260,13 +255,13 @@ class LoadStage(IngestStage):
             self.sent_messages.append(
                 {
                     "host": self.target_url,
-                    "type": entity_class.__name__,
+                    "type": entity_class.class_name,
                     "body": body,
                 }
             )
-            self.counts[entity_class.__name__] += 1
+            self.counts[entity_class.class_name] += 1
             self.logger.info(
-                done_msg + f" (#{self.counts[entity_class.__name__]})"
+                done_msg + f" (#{self.counts[entity_class.class_name]})"
             )
 
     def _postrun_concept_discovery(self, run_output):
@@ -299,32 +294,24 @@ class LoadStage(IngestStage):
         self.sent_messages = []
         try:
             for entity_class in self.target_api_config.all_targets:
-                if not any(
-                    x in self.entities_to_load
-                    for x in [
-                        entity_class,
-                        entity_class.__name__,
-                        entity_class.__name__.lower(),
-                        snake_case(entity_class.__name__),
-                    ]
-                ):
+                if entity_class.class_name not in self.entities_to_load:
                     self.logger.info(
-                        f"Skipping load of {entity_class.__name__}"
+                        f"Skipping load of {entity_class.class_name}"
                     )
                     continue
 
-                self.logger.info(f"Begin loading {entity_class.__name__}")
+                self.logger.info(f"Begin loading {entity_class.class_name}")
 
                 # we can be flexible about what we accept from transform
                 t_key = None
                 if entity_class in transform_output:
                     t_key = entity_class
-                elif entity_class.__name__ in transform_output:
-                    t_key = entity_class.__name__
-                elif entity_class.__name__.lower() in transform_output:
-                    t_key = entity_class.__name__.lower()
-                elif snake_case(entity_class.__name__) in transform_output:
-                    t_key = snake_case(entity_class.__name__)
+                elif entity_class.class_name in transform_output:
+                    t_key = entity_class.class_name
+                elif entity_class.class_name.lower() in transform_output:
+                    t_key = entity_class.class_name.lower()
+                elif snake_case(entity_class.class_name) in transform_output:
+                    t_key = snake_case(entity_class.class_name)
 
                 if t_key is None:
                     t_key = "default"
@@ -337,7 +324,7 @@ class LoadStage(IngestStage):
                         "records"
                     )
 
-                self.counts[entity_class.__name__] = 0
+                self.counts[entity_class.class_name] = 0
 
                 if self.use_async:
                     ex = concurrent.futures.ThreadPoolExecutor()
@@ -351,12 +338,13 @@ class LoadStage(IngestStage):
                         continue
 
                     if (not unique_key) or (
-                        unique_key in self.seen_entities[entity_class.__name__]
+                        unique_key
+                        in self.seen_entities[entity_class.class_name]
                     ):
                         # no new key, no new entity
                         continue
 
-                    self.seen_entities[entity_class.__name__].add(unique_key)
+                    self.seen_entities[entity_class.class_name].add(unique_key)
 
                     payload = entity_class.build_entity(
                         row, unique_key, self._get_target_id
@@ -379,7 +367,7 @@ class LoadStage(IngestStage):
                         f.result()
                     ex.shutdown()
 
-                self.logger.info(f"End loading {entity_class.__name__}")
+                self.logger.info(f"End loading {entity_class.class_name}")
         finally:
             json_out = os.path.join(self.stage_cache_dir, "SentMessages.json")
             with open(json_out, "w") as jo:

@@ -33,7 +33,7 @@ def get_target_id(entity_class, row, target_id_lookup_func):
         return tic
     else:
         return target_id_lookup_func(
-            entity_class.__name__, entity_class.build_key(row)
+            entity_class.class_name, entity_class.build_key(row)
         )
 
 
@@ -43,6 +43,7 @@ def without_nulls(body):
 
 
 class Investigator:
+    class_name = "investigator"
     api_path = "/investigators"
     target_id_concept = CONCEPT.INVESTIGATOR.TARGET_SERVICE_ID
 
@@ -71,6 +72,7 @@ class Investigator:
 
 
 class Study:
+    class_name = "study"
     api_path = "/studies"
     target_id_concept = CONCEPT.STUDY.TARGET_SERVICE_ID
 
@@ -101,6 +103,7 @@ class Study:
 
 
 class Family:
+    class_name = "family"
     api_path = "/families"
     target_id_concept = CONCEPT.FAMILY.TARGET_SERVICE_ID
 
@@ -123,6 +126,7 @@ class Family:
 
 
 class Participant:
+    class_name = "participant"
     api_path = "/participants"
     target_id_concept = CONCEPT.PARTICIPANT.TARGET_SERVICE_ID
 
@@ -155,6 +159,7 @@ class Participant:
 
 
 class Diagnosis:
+    class_name = "diagnosis"
     api_path = "/diagnoses"
     target_id_concept = CONCEPT.DIAGNOSIS.TARGET_SERVICE_ID
 
@@ -198,6 +203,7 @@ class Diagnosis:
 
 
 class Phenotype:
+    class_name = "phenotype"
     api_path = "/phenotypes"
     target_id_concept = CONCEPT.PHENOTYPE.TARGET_SERVICE_ID
 
@@ -236,6 +242,7 @@ class Phenotype:
 
 
 class Outcome:
+    class_name = "outcome"
     api_path = "/outcomes"
     target_id_concept = CONCEPT.OUTCOME.TARGET_SERVICE_ID
 
@@ -270,6 +277,7 @@ class Outcome:
 
 
 class Biospecimen:
+    class_name = "biospecimen"
     api_path = "/biospecimens"
     target_id_concept = CONCEPT.BIOSPECIMEN.TARGET_SERVICE_ID
 
@@ -333,6 +341,7 @@ class Biospecimen:
 
 
 class GenomicFile:
+    class_name = "genomic_file"
     api_path = "/genomic-files"
     target_id_concept = CONCEPT.GENOMIC_FILE.TARGET_SERVICE_ID
 
@@ -372,6 +381,7 @@ class GenomicFile:
 
 
 class ReadGroup:
+    class_name = "read_group"
     api_path = "/read-groups"
     target_id_concept = CONCEPT.READ_GROUP.TARGET_SERVICE_ID
 
@@ -397,6 +407,7 @@ class ReadGroup:
 
 
 class SequencingExperiment:
+    class_name = "sequencing_experiment"
     api_path = "/sequencing-experiments"
     target_id_concept = CONCEPT.SEQUENCING.TARGET_SERVICE_ID
 
@@ -440,13 +451,14 @@ class SequencingExperiment:
 
 
 class FamilyRelationship:
+    class_name = "family_relationship"
     api_path = "/family-relationships"
     target_id_concept = CONCEPT.FAMILY_RELATIONSHIP.TARGET_SERVICE_ID
 
     @staticmethod
     def _pid(row, which, target_id_lookup_func):
         return row.get(which.TARGET_SERVICE_ID) or target_id_lookup_func(
-            Participant.__name__, row.get(which.UNIQUE_KEY) or row.get(which.ID)
+            Participant.class_name, row.get(which.UNIQUE_KEY) or row.get(which.ID)
         )
 
     @staticmethod
@@ -499,6 +511,7 @@ class FamilyRelationship:
 
 
 class BiospecimenGenomicFile:
+    class_name = "biospecimen_genomic_file"
     api_path = "/biospecimen-genomic-files"
     target_id_concept = CONCEPT.BIOSPECIMEN_GENOMIC_FILE.TARGET_SERVICE_ID
 
@@ -536,6 +549,7 @@ class BiospecimenGenomicFile:
 
 
 class BiospecimenDiagnosis:
+    class_name = "biospecimen_diagnosis"
     api_path = "/biospecimen-diagnoses"
     target_id_concept = CONCEPT.BIOSPECIMEN_DIAGNOSIS.TARGET_SERVICE_ID
 
@@ -569,6 +583,7 @@ class BiospecimenDiagnosis:
 
 
 class ReadGroupGenomicFile:
+    class_name = "read_group_genomic_file"
     api_path = "/read-group-genomic-files"
     target_id_concept = CONCEPT.READ_GROUP_GENOMIC_FILE.TARGET_SERVICE_ID
 
@@ -604,6 +619,7 @@ class ReadGroupGenomicFile:
 
 
 class SequencingExperimentGenomicFile:
+    class_name = "sequencing_experiment_genomic_file"
     api_path = "/sequencing-experiment-genomic-files"
     target_id_concept = CONCEPT.SEQUENCING_GENOMIC_FILE.TARGET_SERVICE_ID
 
