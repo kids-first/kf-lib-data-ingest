@@ -11,7 +11,8 @@ the target service, target entity classes (not instances) of the form:
             '''
             :param row: CONCEPT values representing one row of extracted data
             :type row: dict
-            :return: string of row components which uniquely distinguish the entity
+            :return: string of row components that uniquely identify the entity
+                in the dataset
             :rtype: str
             :raises: Exception if row is not valid for entity
             '''
@@ -41,8 +42,9 @@ The all_targets list will look like this:
     ]
 
 Your target API configuration module must also contain a `submit` function with
-the following signature that sends a ready entity payload to the service and
-returns the unique target entity ID that was created or updated:
+the following signature that sends a ready entity payload to the target service
+and returns the unique identifier of the target entity that was created or
+updated on the target server:
 
     def submit(host, entity_class, body):
         '''
@@ -78,7 +80,8 @@ class TargetAPIConfig(PyModuleConfig):
     def _validate(self):
         if not isinstance(self.all_targets, list):
             raise ConfigValidationError(
-                "TargetAPIConfig modules must contain an `all_targets` list of target entity classes."
+                "TargetAPIConfig modules must contain an `all_targets` list of"
+                " target entity classes."
             )
 
         invalid_targets = defaultdict(list)

@@ -23,10 +23,30 @@ def indexd_hashes(dictstr):
 
 
 def join(*args):
+    """
+    Joins args using periods.
+    This is used when making compound unique keys from row data.
+
+    :return: `".".join([str(a) for a in args])`
+    :rtype: str
+    """
     return ".".join([str(a) for a in args])
 
 
 def get_target_id(entity_class, row, target_id_lookup_func):
+    """
+    Find the target service ID for the given row and entity class.
+
+    :param entity_class: one of the classes contained in the all_targets list
+    :type entity_class: class
+    :param row: a row of extracted data
+    :type row: dict
+    :param target_id_lookup_func: a function that takes a class name and a lookup key
+        and returns a target service ID based on those arguments if one has been cached
+    :type target_id_lookup_func: function
+    :return: the target service ID
+    :rtype: str
+    """
     tic = row.get(entity_class.target_id_concept)
 
     if tic and (tic != constants.COMMON.NOT_REPORTED):
@@ -458,7 +478,8 @@ class FamilyRelationship:
     @staticmethod
     def _pid(row, which, target_id_lookup_func):
         return row.get(which.TARGET_SERVICE_ID) or target_id_lookup_func(
-            Participant.class_name, row.get(which.UNIQUE_KEY) or row.get(which.ID)
+            Participant.class_name,
+            row.get(which.UNIQUE_KEY) or row.get(which.ID),
         )
 
     @staticmethod
