@@ -5,7 +5,6 @@ import cgi
 import logging
 import os
 import urllib.parse
-from pprint import pformat
 
 from d3b_utils.requests_retry import Session
 
