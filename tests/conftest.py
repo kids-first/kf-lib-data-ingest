@@ -23,7 +23,7 @@ KIDS_FIRST_CONFIG = os.path.join(
     os.path.dirname(os.path.dirname(__file__)),
     "kf_lib_data_ingest",
     "target_apis",
-    "kids_first.py",
+    "kids_first_original_dataservice.py",
 )
 TRANSFORM_MODULE_PATH = os.path.join(
     TEST_DATA_DIR, "simple_study", "transform_module.py"

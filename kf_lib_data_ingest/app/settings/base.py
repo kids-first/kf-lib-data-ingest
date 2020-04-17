@@ -2,7 +2,9 @@ import os
 
 from kf_lib_data_ingest.config import ROOT_DIR
 
-TARGET_API_CONFIG = os.path.join(ROOT_DIR, "target_apis", "kids_first.py")
+TARGET_API_CONFIG = os.path.join(
+    ROOT_DIR, "target_apis", "kids_first_original_dataservice.py"
+)
 
 
 class SECRETS:
