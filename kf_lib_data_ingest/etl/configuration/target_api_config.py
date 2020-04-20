@@ -121,7 +121,7 @@ class TargetAPIConfig(PyModuleConfig):
                 "   def build_entity(row, key, target_id_lookup_func):\n"
                 "       return payload_body_composed_from_row\n"
                 "\n\n"
-                f"The following list entries do not validate:\n {pformat(dict(invalid_targets))}"
+                f"Errors found:\n {pformat(dict(invalid_targets))}"
             )
 
         if not (
