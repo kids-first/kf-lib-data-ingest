@@ -30,7 +30,7 @@ def join(*args):
     :return: `".".join([str(a) for a in args])`
     :rtype: str
     """
-    return ".".join([str(a) for a in args])
+    return "|".join([str(a) for a in args])
 
 
 def get_target_id(entity_class, row, target_id_lookup_func):
