@@ -234,15 +234,6 @@ def upper_camel_case(snake_str):
     return "".join([w.title() for w in words])
 
 
-def snake_case(camel_str):
-    """
-    Convert a camel case str to snake case
-    """
-    return "".join(
-        ["_" + c.lower() if c.isupper() else c for c in camel_str]
-    ).strip("_")
-
-
 def timestamp():
     """
     Helper to create an ISO 8601 formatted string that represents local time

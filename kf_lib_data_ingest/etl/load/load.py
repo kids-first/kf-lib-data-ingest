@@ -17,7 +17,7 @@ from sqlite3worker import Sqlite3Worker, sqlite3worker
 
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
-from kf_lib_data_ingest.common.misc import multisplit, snake_case
+from kf_lib_data_ingest.common.misc import multisplit
 from kf_lib_data_ingest.common.stage import IngestStage
 from kf_lib_data_ingest.common.type_safety import (
     assert_all_safe_type,
@@ -302,18 +302,9 @@ class LoadStage(IngestStage):
 
                 self.logger.info(f"Begin loading {entity_class.class_name}")
 
-                # we can be flexible about what we accept from transform
-                t_key = None
-                if entity_class in transform_output:
-                    t_key = entity_class
-                elif entity_class.class_name in transform_output:
+                if entity_class.class_name in transform_output:
                     t_key = entity_class.class_name
-                elif entity_class.class_name.lower() in transform_output:
-                    t_key = entity_class.class_name.lower()
-                elif snake_case(entity_class.class_name) in transform_output:
-                    t_key = snake_case(entity_class.class_name)
-
-                if t_key is None:
+                else:
                     t_key = "default"
 
                 if isinstance(transform_output[t_key], DataFrame):
