@@ -52,9 +52,12 @@ def get_target_id(entity_class, row, target_id_lookup_func):
     if tic and (tic != constants.COMMON.NOT_REPORTED):
         return tic
     else:
-        return target_id_lookup_func(
-            entity_class.class_name, entity_class.build_key(row)
-        )
+        try:
+            return target_id_lookup_func(
+                entity_class.class_name, entity_class.build_key(row)
+            )
+        except AssertionError:
+            return None
 
 
 def without_nulls(body):
