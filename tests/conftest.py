@@ -14,7 +14,7 @@ from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
 
 os.environ[SECRETS.WAREHOUSE_DB_URL] = ""
-
+os.environ["MAX_RETRIES_ON_CONN_ERROR"] = "0"
 
 TEST_ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 TEST_DATA_DIR = os.path.join(TEST_ROOT_DIR, "data")

@@ -29,7 +29,7 @@ def http_get_file(url, dest_obj, **kwargs):
     """
 
     kwargs["stream"] = True
-    response = Session(connect=1).get(url, **kwargs)
+    response = Session().get(url, **kwargs)
 
     if response.status_code == 200:
         # Get filename from Content-Disposition header
@@ -152,15 +152,8 @@ def get_open_api_v2_schema(
 
     # Try to get schemas and version from the target service
     try:
-        # ***** TODO remove connect=0, its a temporary hack!!! ***** #
-        # Before connect=0, any non-mocked calls to unreachable APIs
-        # like dataservice were causing tests to hang. What we really need
-        # to do is remove this flag and do integration tests with a
-        # live dataservice server - Natasha
-        response = Session(connect=0).get(schema_url)
-
+        response = Session().get(schema_url)
     except ConnectionError as e:
-
         err = f"{common_msg}\nCaused by {str(e)}"
 
     else:

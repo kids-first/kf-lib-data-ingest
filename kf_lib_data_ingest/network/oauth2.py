@@ -51,7 +51,7 @@ def get_service_token(provider_domain, audience, client_id, client_secret):
         f"{audience} resources"
     )
 
-    response = Session(connect=1).post(oauth_token_url, json=body)
+    response = Session().post(oauth_token_url, json=body)
 
     if response.status_code != 200:
         logger.error(
