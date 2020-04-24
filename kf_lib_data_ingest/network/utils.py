@@ -9,9 +9,8 @@ import urllib.parse
 from d3b_utils.requests_retry import Session
 
 from kf_lib_data_ingest.common.io import read_json, write_json
-from kf_lib_data_ingest.common.misc import upper_camel_case
 
-logger = logging.getLogger(__name__)
+module_logger = logging.getLogger(__name__)
 
 
 def http_get_file(url, dest_obj, **kwargs):
@@ -29,6 +28,8 @@ def http_get_file(url, dest_obj, **kwargs):
     """
 
     kwargs["stream"] = True
+    logger = kwargs.get("logger", module_logger)
+
     response = Session().get(url, **kwargs)
 
     if response.status_code == 200:
@@ -74,9 +75,7 @@ def http_get_file(url, dest_obj, **kwargs):
     return response
 
 
-def get_open_api_v2_schema(
-    url, entity_names, cached_schema_filepath=None, logger=None
-):
+def get_open_api_v2_schema(url, cached_schema_filepath=None, logger=None):
     """
     Get schemas for entities in the target API using {url}/swagger
     endpoint. Will extract parts of the {url}/swagger response to create the
@@ -117,30 +116,26 @@ def get_open_api_v2_schema(
         'target_service': https://kf-api-dataservice.kidsfirstdrc.org,
         'version': 1.9.0,
         'definitions': {
-            'participant': {
+            'Participant': {
                 ...
             },
-            'biospecimen': {
+            'Biospecimen': {
                 ...
             },
             ...
         }
     }
 
-    Items in `entity_names` must be snake cased versions of existing keys in
-    swagger 'definitions'.
-
     See https://github.com/OAI/OpenAPI-Specification/blob/master/examples/v2.0/json/petstore.json # noqa E501
 
     :param url: URL to a target service
-    :param entity_names: list of snake cased names of entities to extract from
-    swagger 'definitions' dict
     :param cached_schema_filepath: file path to a JSON file containing a
     saved version of the target service's schema.
     :param logger: logger to use when reporting errors
     :return: output, a dict with the schema definition and version
     :rtype: dict
     """
+    logger = logger or module_logger
     output = None
     err = None
     common_msg = "Unable to retrieve target schema from target service!"
@@ -162,15 +157,10 @@ def get_open_api_v2_schema(
             version = response.json()["info"]["version"]
             # Schemas
             defs = response.json()["definitions"]
-            schemas = {
-                k: defs[upper_camel_case(k)]
-                for k in entity_names
-                if upper_camel_case(k) in defs
-            }
             # Make output
             output = {
                 "target_service": url,
-                "definitions": schemas,
+                "definitions": defs,
                 "version": version,
             }
             # Update cache file
@@ -189,9 +179,6 @@ def get_open_api_v2_schema(
                 f"but could not find file: {cached_schema_filepath}"
             )
         # Report error
-        if logger:
-            logger.warning(err)
-        else:
-            print(err)
+        logger.warning(err)
 
     return output
