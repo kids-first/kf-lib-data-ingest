@@ -80,8 +80,8 @@ class TargetAPIConfig(PyModuleConfig):
     def _validate(self):
         if not isinstance(self.all_targets, list):
             raise ConfigValidationError(
-                "TargetAPIConfig modules must contain an `all_targets` list of"
-                " target entity classes."
+                f"Target API Config module {self.config_filepath} is missing"
+                " required `all_targets` list of target entity classes."
             )
 
         invalid_targets = defaultdict(list)
@@ -132,9 +132,10 @@ class TargetAPIConfig(PyModuleConfig):
             )
         ):
             raise ConfigValidationError(
-                "TargetAPIConfig modules must contain function signature `submit(host, entity_class, body)`"
-                " that sends an entity to the target service and returns the designated unique"
-                " target service identifier."
+                f"Target API Config module {self.config_filepath} is missing"
+                " required function signature `submit(host, entity_class, body)`"
+                " that sends an entity to the target service and returns the"
+                " designated unique target service identifier."
             )
 
         if isfunction(self.validate):
