@@ -13,7 +13,8 @@ from requests import RequestException
 
 from kf_lib_data_ingest.common import constants
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
-from kf_lib_data_ingest.common.misc import str_to_obj
+from kf_lib_data_ingest.common.misc import str_to_obj, upper_camel_case
+from kf_lib_data_ingest.network.utils import get_open_api_v2_schema
 
 
 def indexd_hashes(dictstr):
@@ -60,11 +61,6 @@ def get_target_id(entity_class, row, target_id_lookup_func):
             return None
 
 
-def without_nulls(body):
-    # Remove elements with null values
-    return {k: v for k, v in body.items() if v is not None}
-
-
 class Investigator:
     class_name = "investigator"
     api_path = "/investigators"
@@ -81,17 +77,13 @@ class Investigator:
 
     @staticmethod
     def build_entity(row, key, target_id_lookup_func):
-        return without_nulls(
-            {
-                "kf_id": get_target_id(
-                    Investigator, row, target_id_lookup_func
-                ),
-                "external_id": key,
-                "name": row.get(CONCEPT.INVESTIGATOR.NAME),
-                "institution": row.get(CONCEPT.INVESTIGATOR.INSTITUTION),
-                "visible": row.get(CONCEPT.INVESTIGATOR.VISIBLE),
-            }
-        )
+        return {
+            "kf_id": get_target_id(Investigator, row, target_id_lookup_func),
+            "external_id": key,
+            "name": row.get(CONCEPT.INVESTIGATOR.NAME),
+            "institution": row.get(CONCEPT.INVESTIGATOR.INSTITUTION),
+            "visible": row.get(CONCEPT.INVESTIGATOR.VISIBLE),
+        }
 
 
 class Study:
@@ -106,23 +98,21 @@ class Study:
 
     @staticmethod
     def build_entity(row, key, target_id_lookup_func):
-        return without_nulls(
-            {
-                "kf_id": get_target_id(Study, row, target_id_lookup_func),
-                "external_id": key,
-                "investigator_id": get_target_id(
-                    Investigator, row, target_id_lookup_func
-                ),
-                "name": row.get(CONCEPT.STUDY.NAME),
-                "short_name": row.get(CONCEPT.STUDY.SHORT_NAME),
-                "version": row.get(CONCEPT.STUDY.VERSION),
-                "data_access_authority": row.get(CONCEPT.STUDY.AUTHORITY),
-                "release_status": row.get(CONCEPT.STUDY.RELEASE_STATUS),
-                "attribution": row.get(CONCEPT.STUDY.ATTRIBUTION),
-                "category": row.get(CONCEPT.STUDY.CATEGORY),
-                "visible": row.get(CONCEPT.STUDY.VISIBLE),
-            }
-        )
+        return {
+            "kf_id": get_target_id(Study, row, target_id_lookup_func),
+            "external_id": key,
+            "investigator_id": get_target_id(
+                Investigator, row, target_id_lookup_func
+            ),
+            "name": row.get(CONCEPT.STUDY.NAME),
+            "short_name": row.get(CONCEPT.STUDY.SHORT_NAME),
+            "version": row.get(CONCEPT.STUDY.VERSION),
+            "data_access_authority": row.get(CONCEPT.STUDY.AUTHORITY),
+            "release_status": row.get(CONCEPT.STUDY.RELEASE_STATUS),
+            "attribution": row.get(CONCEPT.STUDY.ATTRIBUTION),
+            "category": row.get(CONCEPT.STUDY.CATEGORY),
+            "visible": row.get(CONCEPT.STUDY.VISIBLE),
+        }
 
 
 class Family:
@@ -139,13 +129,11 @@ class Family:
 
     @staticmethod
     def build_entity(row, key, target_id_lookup_func):
-        return without_nulls(
-            {
-                "kf_id": get_target_id(Family, row, target_id_lookup_func),
-                "external_id": key,
-                "visible": row.get(CONCEPT.FAMILY.VISIBLE),
-            }
-        )
+        return {
+            "kf_id": get_target_id(Family, row, target_id_lookup_func),
+            "external_id": key,
+            "visible": row.get(CONCEPT.FAMILY.VISIBLE),
+        }
 
 
 class Participant:
@@ -162,23 +150,21 @@ class Participant:
 
     @staticmethod
     def build_entity(row, key, target_id_lookup_func):
-        return without_nulls(
-            {
-                "kf_id": get_target_id(Participant, row, target_id_lookup_func),
-                "study_id": row[CONCEPT.STUDY.ID],
-                "family_id": get_target_id(Family, row, target_id_lookup_func),
-                "external_id": key,
-                "is_proband": row.get(CONCEPT.PARTICIPANT.IS_PROBAND),
-                "ethnicity": row.get(CONCEPT.PARTICIPANT.ETHNICITY),
-                "gender": row.get(CONCEPT.PARTICIPANT.GENDER),
-                "race": row.get(CONCEPT.PARTICIPANT.RACE),
-                "affected_status": row.get(
-                    CONCEPT.PARTICIPANT.IS_AFFECTED_UNDER_STUDY
-                ),
-                "species": row.get(CONCEPT.PARTICIPANT.SPECIES),
-                "visible": row.get(CONCEPT.PARTICIPANT.VISIBLE),
-            }
-        )
+        return {
+            "kf_id": get_target_id(Participant, row, target_id_lookup_func),
+            "study_id": row[CONCEPT.STUDY.ID],
+            "family_id": get_target_id(Family, row, target_id_lookup_func),
+            "external_id": key,
+            "is_proband": row.get(CONCEPT.PARTICIPANT.IS_PROBAND),
+            "ethnicity": row.get(CONCEPT.PARTICIPANT.ETHNICITY),
+            "gender": row.get(CONCEPT.PARTICIPANT.GENDER),
+            "race": row.get(CONCEPT.PARTICIPANT.RACE),
+            "affected_status": row.get(
+                CONCEPT.PARTICIPANT.IS_AFFECTED_UNDER_STUDY
+            ),
+            "species": row.get(CONCEPT.PARTICIPANT.SPECIES),
+            "visible": row.get(CONCEPT.PARTICIPANT.VISIBLE),
+        }
 
 
 class Diagnosis:
@@ -198,31 +184,27 @@ class Diagnosis:
 
     @staticmethod
     def build_entity(row, key, target_id_lookup_func):
-        return without_nulls(
-            {
-                "kf_id": get_target_id(Diagnosis, row, target_id_lookup_func),
-                "participant_id": get_target_id(
-                    Participant, row, target_id_lookup_func
-                ),
-                "external_id": key,
-                "age_at_event_days": row.get(CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS),
-                "source_text_diagnosis": row.get(CONCEPT.DIAGNOSIS.NAME),
-                "source_text_tumor_location": row.get(
-                    CONCEPT.DIAGNOSIS.TUMOR_LOCATION
-                ),
-                "mondo_id_diagnosis": row.get(CONCEPT.DIAGNOSIS.MONDO_ID),
-                "icd_id_diagnosis": row.get(CONCEPT.DIAGNOSIS.ICD_ID),
-                "uberon_id_tumor_location": row.get(
-                    CONCEPT.DIAGNOSIS.UBERON_TUMOR_LOCATION_ID
-                ),
-                "ncit_id_diagnosis": row.get(CONCEPT.DIAGNOSIS.NCIT_ID),
-                "spatial_descriptor": row.get(
-                    CONCEPT.DIAGNOSIS.SPATIAL_DESCRIPTOR
-                ),
-                "diagnosis_category": row.get(CONCEPT.DIAGNOSIS.CATEGORY),
-                "visible": row.get(CONCEPT.DIAGNOSIS.VISIBLE),
-            }
-        )
+        return {
+            "kf_id": get_target_id(Diagnosis, row, target_id_lookup_func),
+            "participant_id": get_target_id(
+                Participant, row, target_id_lookup_func
+            ),
+            "external_id": key,
+            "age_at_event_days": row.get(CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS),
+            "source_text_diagnosis": row.get(CONCEPT.DIAGNOSIS.NAME),
+            "source_text_tumor_location": row.get(
+                CONCEPT.DIAGNOSIS.TUMOR_LOCATION
+            ),
+            "mondo_id_diagnosis": row.get(CONCEPT.DIAGNOSIS.MONDO_ID),
+            "icd_id_diagnosis": row.get(CONCEPT.DIAGNOSIS.ICD_ID),
+            "uberon_id_tumor_location": row.get(
+                CONCEPT.DIAGNOSIS.UBERON_TUMOR_LOCATION_ID
+            ),
+            "ncit_id_diagnosis": row.get(CONCEPT.DIAGNOSIS.NCIT_ID),
+            "spatial_descriptor": row.get(CONCEPT.DIAGNOSIS.SPATIAL_DESCRIPTOR),
+            "diagnosis_category": row.get(CONCEPT.DIAGNOSIS.CATEGORY),
+            "visible": row.get(CONCEPT.DIAGNOSIS.VISIBLE),
+        }
 
 
 class Phenotype:
@@ -247,21 +229,19 @@ class Phenotype:
 
     @staticmethod
     def build_entity(row, key, target_id_lookup_func):
-        return without_nulls(
-            {
-                "kf_id": get_target_id(Phenotype, row, target_id_lookup_func),
-                "participant_id": get_target_id(
-                    Participant, row, target_id_lookup_func
-                ),
-                "external_id": key,
-                "age_at_event_days": row.get(CONCEPT.PHENOTYPE.EVENT_AGE_DAYS),
-                "source_text_phenotype": row.get(CONCEPT.PHENOTYPE.NAME),
-                "hpo_id_phenotype": row.get(CONCEPT.PHENOTYPE.HPO_ID),
-                "snomed_id_phenotype": row.get(CONCEPT.PHENOTYPE.SNOMED_ID),
-                "observed": row.get(CONCEPT.PHENOTYPE.OBSERVED),
-                "visible": row.get(CONCEPT.PHENOTYPE.VISIBLE),
-            }
-        )
+        return {
+            "kf_id": get_target_id(Phenotype, row, target_id_lookup_func),
+            "participant_id": get_target_id(
+                Participant, row, target_id_lookup_func
+            ),
+            "external_id": key,
+            "age_at_event_days": row.get(CONCEPT.PHENOTYPE.EVENT_AGE_DAYS),
+            "source_text_phenotype": row.get(CONCEPT.PHENOTYPE.NAME),
+            "hpo_id_phenotype": row.get(CONCEPT.PHENOTYPE.HPO_ID),
+            "snomed_id_phenotype": row.get(CONCEPT.PHENOTYPE.SNOMED_ID),
+            "observed": row.get(CONCEPT.PHENOTYPE.OBSERVED),
+            "visible": row.get(CONCEPT.PHENOTYPE.VISIBLE),
+        }
 
 
 class Outcome:
@@ -284,19 +264,17 @@ class Outcome:
 
     @staticmethod
     def build_entity(row, key, target_id_lookup_func):
-        return without_nulls(
-            {
-                "kf_id": get_target_id(Outcome, row, target_id_lookup_func),
-                "participant_id": get_target_id(
-                    Participant, row, target_id_lookup_func
-                ),
-                "external_id": key,
-                "age_at_event_days": row.get(CONCEPT.OUTCOME.EVENT_AGE_DAYS),
-                "vital_status": row.get(CONCEPT.OUTCOME.VITAL_STATUS),
-                "disease_related": row.get(CONCEPT.OUTCOME.DISEASE_RELATED),
-                "visible": row.get(CONCEPT.OUTCOME.VISIBLE),
-            }
-        )
+        return {
+            "kf_id": get_target_id(Outcome, row, target_id_lookup_func),
+            "participant_id": get_target_id(
+                Participant, row, target_id_lookup_func
+            ),
+            "external_id": key,
+            "age_at_event_days": row.get(CONCEPT.OUTCOME.EVENT_AGE_DAYS),
+            "vital_status": row.get(CONCEPT.OUTCOME.VITAL_STATUS),
+            "disease_related": row.get(CONCEPT.OUTCOME.DISEASE_RELATED),
+            "visible": row.get(CONCEPT.OUTCOME.VISIBLE),
+        }
 
 
 class Biospecimen:
@@ -315,52 +293,46 @@ class Biospecimen:
 
     @staticmethod
     def build_entity(row, key, target_id_lookup_func):
-        return without_nulls(
-            {
-                "kf_id": get_target_id(Biospecimen, row, target_id_lookup_func),
-                "participant_id": get_target_id(
-                    Participant, row, target_id_lookup_func
-                ),
-                "external_sample_id": row.get(CONCEPT.BIOSPECIMEN_GROUP.ID),
-                "external_aliquot_id": row.get(CONCEPT.BIOSPECIMEN.ID),
-                "sequencing_center_id": row.get(
-                    CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID
-                ),
-                "source_text_tissue_type": row.get(
-                    CONCEPT.BIOSPECIMEN.TISSUE_TYPE
-                ),
-                "composition": row.get(CONCEPT.BIOSPECIMEN.COMPOSITION),
-                "source_text_anatomical_site": row.get(
-                    CONCEPT.BIOSPECIMEN.ANATOMY_SITE
-                ),
-                "age_at_event_days": row.get(
-                    CONCEPT.BIOSPECIMEN.EVENT_AGE_DAYS
-                ),
-                "source_text_tumor_descriptor": row.get(
-                    CONCEPT.BIOSPECIMEN.TUMOR_DESCRIPTOR
-                ),
-                "ncit_id_tissue_type": row.get(
-                    CONCEPT.BIOSPECIMEN.NCIT_TISSUE_TYPE_ID
-                ),
-                "ncit_id_anatomical_site": row.get(
-                    CONCEPT.BIOSPECIMEN.NCIT_ANATOMY_SITE_ID
-                ),
-                "spatial_descriptor": row.get(
-                    CONCEPT.BIOSPECIMEN.SPATIAL_DESCRIPTOR
-                ),
-                "shipment_origin": row.get(CONCEPT.BIOSPECIMEN.SHIPMENT_ORIGIN),
-                "shipment_date": row.get(CONCEPT.BIOSPECIMEN.SHIPMENT_DATE),
-                "analyte_type": row.get(CONCEPT.BIOSPECIMEN.ANALYTE),
-                "concentration_mg_per_ml": row.get(
-                    CONCEPT.BIOSPECIMEN.CONCENTRATION_MG_PER_ML
-                ),
-                "volume_ul": row.get(CONCEPT.BIOSPECIMEN.VOLUME_UL),
-                "visible": row.get(CONCEPT.BIOSPECIMEN.VISIBLE),
-                "method_of_sample_procurement": row.get(
-                    CONCEPT.BIOSPECIMEN.SAMPLE_PROCUREMENT
-                ),
-            }
-        )
+        return {
+            "kf_id": get_target_id(Biospecimen, row, target_id_lookup_func),
+            "participant_id": get_target_id(
+                Participant, row, target_id_lookup_func
+            ),
+            "external_sample_id": row.get(CONCEPT.BIOSPECIMEN_GROUP.ID),
+            "external_aliquot_id": row.get(CONCEPT.BIOSPECIMEN.ID),
+            "sequencing_center_id": row.get(
+                CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID
+            ),
+            "source_text_tissue_type": row.get(CONCEPT.BIOSPECIMEN.TISSUE_TYPE),
+            "composition": row.get(CONCEPT.BIOSPECIMEN.COMPOSITION),
+            "source_text_anatomical_site": row.get(
+                CONCEPT.BIOSPECIMEN.ANATOMY_SITE
+            ),
+            "age_at_event_days": row.get(CONCEPT.BIOSPECIMEN.EVENT_AGE_DAYS),
+            "source_text_tumor_descriptor": row.get(
+                CONCEPT.BIOSPECIMEN.TUMOR_DESCRIPTOR
+            ),
+            "ncit_id_tissue_type": row.get(
+                CONCEPT.BIOSPECIMEN.NCIT_TISSUE_TYPE_ID
+            ),
+            "ncit_id_anatomical_site": row.get(
+                CONCEPT.BIOSPECIMEN.NCIT_ANATOMY_SITE_ID
+            ),
+            "spatial_descriptor": row.get(
+                CONCEPT.BIOSPECIMEN.SPATIAL_DESCRIPTOR
+            ),
+            "shipment_origin": row.get(CONCEPT.BIOSPECIMEN.SHIPMENT_ORIGIN),
+            "shipment_date": row.get(CONCEPT.BIOSPECIMEN.SHIPMENT_DATE),
+            "analyte_type": row.get(CONCEPT.BIOSPECIMEN.ANALYTE),
+            "concentration_mg_per_ml": row.get(
+                CONCEPT.BIOSPECIMEN.CONCENTRATION_MG_PER_ML
+            ),
+            "volume_ul": row.get(CONCEPT.BIOSPECIMEN.VOLUME_UL),
+            "visible": row.get(CONCEPT.BIOSPECIMEN.VISIBLE),
+            "method_of_sample_procurement": row.get(
+                CONCEPT.BIOSPECIMEN.SAMPLE_PROCUREMENT
+            ),
+        }
 
 
 class GenomicFile:
@@ -377,30 +349,24 @@ class GenomicFile:
 
     @staticmethod
     def build_entity(row, key, target_id_lookup_func):
-        return without_nulls(
-            {
-                "kf_id": get_target_id(GenomicFile, row, target_id_lookup_func),
-                "external_id": key,
-                "file_name": row.get(CONCEPT.GENOMIC_FILE.FILE_NAME),
-                "file_format": row.get(CONCEPT.GENOMIC_FILE.FILE_FORMAT),
-                "data_type": row.get(CONCEPT.GENOMIC_FILE.DATA_TYPE),
-                "availability": row.get(CONCEPT.GENOMIC_FILE.AVAILABILITY),
-                "controlled_access": str_to_obj(
-                    row.get(CONCEPT.GENOMIC_FILE.CONTROLLED_ACCESS)
-                ),
-                "is_harmonized": row.get(CONCEPT.GENOMIC_FILE.HARMONIZED),
-                "hashes": indexd_hashes(
-                    row.get(CONCEPT.GENOMIC_FILE.HASH_DICT)
-                ),
-                "size": int(row.get(CONCEPT.GENOMIC_FILE.SIZE)),
-                "urls": str_to_obj(row.get(CONCEPT.GENOMIC_FILE.URL_LIST)),
-                "acl": str_to_obj(row.get(CONCEPT.GENOMIC_FILE.ACL)),
-                "reference_genome": row.get(
-                    CONCEPT.GENOMIC_FILE.REFERENCE_GENOME
-                ),
-                "visible": row.get(CONCEPT.GENOMIC_FILE.VISIBLE),
-            }
-        )
+        return {
+            "kf_id": get_target_id(GenomicFile, row, target_id_lookup_func),
+            "external_id": key,
+            "file_name": row.get(CONCEPT.GENOMIC_FILE.FILE_NAME),
+            "file_format": row.get(CONCEPT.GENOMIC_FILE.FILE_FORMAT),
+            "data_type": row.get(CONCEPT.GENOMIC_FILE.DATA_TYPE),
+            "availability": row.get(CONCEPT.GENOMIC_FILE.AVAILABILITY),
+            "controlled_access": str_to_obj(
+                row.get(CONCEPT.GENOMIC_FILE.CONTROLLED_ACCESS)
+            ),
+            "is_harmonized": row.get(CONCEPT.GENOMIC_FILE.HARMONIZED),
+            "hashes": indexd_hashes(row.get(CONCEPT.GENOMIC_FILE.HASH_DICT)),
+            "size": int(row.get(CONCEPT.GENOMIC_FILE.SIZE)),
+            "urls": str_to_obj(row.get(CONCEPT.GENOMIC_FILE.URL_LIST)),
+            "acl": str_to_obj(row.get(CONCEPT.GENOMIC_FILE.ACL)),
+            "reference_genome": row.get(CONCEPT.GENOMIC_FILE.REFERENCE_GENOME),
+            "visible": row.get(CONCEPT.GENOMIC_FILE.VISIBLE),
+        }
 
 
 class ReadGroup:
@@ -417,16 +383,14 @@ class ReadGroup:
 
     @staticmethod
     def build_entity(row, key, target_id_lookup_func):
-        return without_nulls(
-            {
-                "kf_id": get_target_id(ReadGroup, row, target_id_lookup_func),
-                "external_id": key,
-                "flow_cell": row.get(CONCEPT.READ_GROUP.FLOW_CELL),
-                "lane_number": row.get(CONCEPT.READ_GROUP.LANE_NUMBER),
-                "quality_scale": row.get(CONCEPT.READ_GROUP.QUALITY_SCALE),
-                "visible": row.get(CONCEPT.READ_GROUP.VISIBLE),
-            }
-        )
+        return {
+            "kf_id": get_target_id(ReadGroup, row, target_id_lookup_func),
+            "external_id": key,
+            "flow_cell": row.get(CONCEPT.READ_GROUP.FLOW_CELL),
+            "lane_number": row.get(CONCEPT.READ_GROUP.LANE_NUMBER),
+            "quality_scale": row.get(CONCEPT.READ_GROUP.QUALITY_SCALE),
+            "visible": row.get(CONCEPT.READ_GROUP.VISIBLE),
+        }
 
 
 class SequencingExperiment:
@@ -443,34 +407,28 @@ class SequencingExperiment:
 
     @staticmethod
     def build_entity(row, key, target_id_lookup_func):
-        return without_nulls(
-            {
-                "kf_id": get_target_id(
-                    SequencingExperiment, row, target_id_lookup_func
-                ),
-                "sequencing_center_id": row[
-                    CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID
-                ],
-                "external_id": key,
-                "experiment_date": row.get(CONCEPT.SEQUENCING.DATE),
-                "experiment_strategy": row.get(CONCEPT.SEQUENCING.STRATEGY),
-                "library_name": row.get(CONCEPT.SEQUENCING.LIBRARY_NAME),
-                "library_strand": row.get(CONCEPT.SEQUENCING.LIBRARY_STRAND),
-                "is_paired_end": row.get(CONCEPT.SEQUENCING.PAIRED_END),
-                "platform": row.get(CONCEPT.SEQUENCING.PLATFORM),
-                "instrument_model": row.get(CONCEPT.SEQUENCING.INSTRUMENT),
-                "max_insert_size": row.get(CONCEPT.SEQUENCING.MAX_INSERT_SIZE),
-                "mean_insert_size": row.get(
-                    CONCEPT.SEQUENCING.MEAN_INSERT_SIZE
-                ),
-                "mean_depth": row.get(CONCEPT.SEQUENCING.MEAN_DEPTH),
-                "total_reads": row.get(CONCEPT.SEQUENCING.TOTAL_READS),
-                "mean_read_length": row.get(
-                    CONCEPT.SEQUENCING.MEAN_READ_LENGTH
-                ),
-                "visible": row.get(CONCEPT.SEQUENCING.VISIBLE),
-            }
-        )
+        return {
+            "kf_id": get_target_id(
+                SequencingExperiment, row, target_id_lookup_func
+            ),
+            "sequencing_center_id": row[
+                CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID
+            ],
+            "external_id": key,
+            "experiment_date": row.get(CONCEPT.SEQUENCING.DATE),
+            "experiment_strategy": row.get(CONCEPT.SEQUENCING.STRATEGY),
+            "library_name": row.get(CONCEPT.SEQUENCING.LIBRARY_NAME),
+            "library_strand": row.get(CONCEPT.SEQUENCING.LIBRARY_STRAND),
+            "is_paired_end": row.get(CONCEPT.SEQUENCING.PAIRED_END),
+            "platform": row.get(CONCEPT.SEQUENCING.PLATFORM),
+            "instrument_model": row.get(CONCEPT.SEQUENCING.INSTRUMENT),
+            "max_insert_size": row.get(CONCEPT.SEQUENCING.MAX_INSERT_SIZE),
+            "mean_insert_size": row.get(CONCEPT.SEQUENCING.MEAN_INSERT_SIZE),
+            "mean_depth": row.get(CONCEPT.SEQUENCING.MEAN_DEPTH),
+            "total_reads": row.get(CONCEPT.SEQUENCING.TOTAL_READS),
+            "mean_read_length": row.get(CONCEPT.SEQUENCING.MEAN_READ_LENGTH),
+            "visible": row.get(CONCEPT.SEQUENCING.VISIBLE),
+        }
 
 
 class FamilyRelationship:
@@ -510,28 +468,22 @@ class FamilyRelationship:
 
     @staticmethod
     def build_entity(row, key, target_id_lookup_func):
-        return without_nulls(
-            {
-                "kf_id": get_target_id(
-                    FamilyRelationship, row, target_id_lookup_func
-                ),
-                "participant1_id": FamilyRelationship._pid(
-                    row,
-                    CONCEPT.FAMILY_RELATIONSHIP.PERSON1,
-                    target_id_lookup_func,
-                ),
-                "participant2_id": FamilyRelationship._pid(
-                    row,
-                    CONCEPT.FAMILY_RELATIONSHIP.PERSON2,
-                    target_id_lookup_func,
-                ),
-                "external_id": key,
-                "participant1_to_participant2_relation": row[
-                    CONCEPT.FAMILY_RELATIONSHIP.RELATION_FROM_1_TO_2
-                ],
-                "visible": row.get(CONCEPT.FAMILY_RELATIONSHIP.VISIBLE),
-            }
-        )
+        return {
+            "kf_id": get_target_id(
+                FamilyRelationship, row, target_id_lookup_func
+            ),
+            "participant1_id": FamilyRelationship._pid(
+                row, CONCEPT.FAMILY_RELATIONSHIP.PERSON1, target_id_lookup_func,
+            ),
+            "participant2_id": FamilyRelationship._pid(
+                row, CONCEPT.FAMILY_RELATIONSHIP.PERSON2, target_id_lookup_func,
+            ),
+            "external_id": key,
+            "participant1_to_participant2_relation": row[
+                CONCEPT.FAMILY_RELATIONSHIP.RELATION_FROM_1_TO_2
+            ],
+            "visible": row.get(CONCEPT.FAMILY_RELATIONSHIP.VISIBLE),
+        }
 
 
 class BiospecimenGenomicFile:
@@ -555,21 +507,19 @@ class BiospecimenGenomicFile:
 
     @staticmethod
     def build_entity(row, key, target_id_lookup_func):
-        return without_nulls(
-            {
-                "kf_id": get_target_id(
-                    BiospecimenGenomicFile, row, target_id_lookup_func
-                ),
-                "external_id": key,
-                "biospecimen_id": get_target_id(
-                    Biospecimen, row, target_id_lookup_func
-                ),
-                "genomic_file_id": get_target_id(
-                    GenomicFile, row, target_id_lookup_func
-                ),
-                "visible": row.get(CONCEPT.BIOSPECIMEN_GENOMIC_FILE.VISIBLE),
-            }
-        )
+        return {
+            "kf_id": get_target_id(
+                BiospecimenGenomicFile, row, target_id_lookup_func
+            ),
+            "external_id": key,
+            "biospecimen_id": get_target_id(
+                Biospecimen, row, target_id_lookup_func
+            ),
+            "genomic_file_id": get_target_id(
+                GenomicFile, row, target_id_lookup_func
+            ),
+            "visible": row.get(CONCEPT.BIOSPECIMEN_GENOMIC_FILE.VISIBLE),
+        }
 
 
 class BiospecimenDiagnosis:
@@ -589,21 +539,19 @@ class BiospecimenDiagnosis:
 
     @staticmethod
     def build_entity(row, key, target_id_lookup_func):
-        return without_nulls(
-            {
-                "kf_id": get_target_id(
-                    BiospecimenDiagnosis, row, target_id_lookup_func
-                ),
-                "external_id": key,
-                "biospecimen_id": get_target_id(
-                    Biospecimen, row, target_id_lookup_func
-                ),
-                "diagnosis_id": get_target_id(
-                    Diagnosis, row, target_id_lookup_func
-                ),
-                "visible": row.get(CONCEPT.BIOSPECIMEN_DIAGNOSIS.VISIBLE),
-            }
-        )
+        return {
+            "kf_id": get_target_id(
+                BiospecimenDiagnosis, row, target_id_lookup_func
+            ),
+            "external_id": key,
+            "biospecimen_id": get_target_id(
+                Biospecimen, row, target_id_lookup_func
+            ),
+            "diagnosis_id": get_target_id(
+                Diagnosis, row, target_id_lookup_func
+            ),
+            "visible": row.get(CONCEPT.BIOSPECIMEN_DIAGNOSIS.VISIBLE),
+        }
 
 
 class ReadGroupGenomicFile:
@@ -625,21 +573,19 @@ class ReadGroupGenomicFile:
 
     @staticmethod
     def build_entity(row, key, target_id_lookup_func):
-        return without_nulls(
-            {
-                "kf_id": get_target_id(
-                    ReadGroupGenomicFile, row, target_id_lookup_func
-                ),
-                "external_id": key,
-                "read_group_id": get_target_id(
-                    ReadGroup, row, target_id_lookup_func
-                ),
-                "genomic_file_id": get_target_id(
-                    GenomicFile, row, target_id_lookup_func
-                ),
-                "visible": row.get(CONCEPT.READ_GROUP_GENOMIC_FILE.VISIBLE),
-            }
-        )
+        return {
+            "kf_id": get_target_id(
+                ReadGroupGenomicFile, row, target_id_lookup_func
+            ),
+            "external_id": key,
+            "read_group_id": get_target_id(
+                ReadGroup, row, target_id_lookup_func
+            ),
+            "genomic_file_id": get_target_id(
+                GenomicFile, row, target_id_lookup_func
+            ),
+            "visible": row.get(CONCEPT.READ_GROUP_GENOMIC_FILE.VISIBLE),
+        }
 
 
 class SequencingExperimentGenomicFile:
@@ -663,21 +609,19 @@ class SequencingExperimentGenomicFile:
 
     @staticmethod
     def build_entity(row, key, target_id_lookup_func):
-        return without_nulls(
-            {
-                "kf_id": get_target_id(
-                    SequencingExperimentGenomicFile, row, target_id_lookup_func
-                ),
-                "external_id": key,
-                "sequencing_experiment_id": get_target_id(
-                    SequencingExperiment, row, target_id_lookup_func
-                ),
-                "genomic_file_id": get_target_id(
-                    GenomicFile, row, target_id_lookup_func
-                ),
-                "visible": row.get(CONCEPT.SEQUENCING_GENOMIC_FILE.VISIBLE),
-            }
-        )
+        return {
+            "kf_id": get_target_id(
+                SequencingExperimentGenomicFile, row, target_id_lookup_func
+            ),
+            "external_id": key,
+            "sequencing_experiment_id": get_target_id(
+                SequencingExperiment, row, target_id_lookup_func
+            ),
+            "genomic_file_id": get_target_id(
+                GenomicFile, row, target_id_lookup_func
+            ),
+            "visible": row.get(CONCEPT.SEQUENCING_GENOMIC_FILE.VISIBLE),
+        }
 
 
 def _PATCH(host, api_path, kf_id, body):
@@ -720,6 +664,37 @@ all_targets = [
     SequencingExperimentGenomicFile,
 ]
 
+swagger_cache = {}
+json_type_casts = {
+    "boolean": bool,
+    "string": str,
+    "integer": int,
+}
+
+
+def coerce_types(host, entity_name, body):
+    if not swagger_cache:
+        swagger = get_open_api_v2_schema(host)
+        defs = swagger["definitions"]
+        for c in all_targets:
+            n = c.class_name
+            uccn = upper_camel_case(n)
+            if uccn in defs:
+                swagger_cache[n] = defs[uccn]
+
+    properties = swagger_cache[entity_name]["properties"]
+
+    ret = {}
+    for k, v in body.items():
+        if (v is None) or properties[k].get("readOnly"):
+            continue
+        ret[k] = json_type_casts.get(properties[k]["type"], lambda x: x)(v)
+
+    return ret
+
+
+seen_types = set()
+
 
 def submit(host, entity_class, body):
     """
@@ -738,6 +713,8 @@ def submit(host, entity_class, body):
     resp = None
     kf_id = body.get("kf_id")
     api_path = entity_class.api_path
+
+    body = coerce_types(host, entity_class.class_name, body)
 
     if kf_id:
         resp = _PATCH(host, api_path, kf_id, body)
