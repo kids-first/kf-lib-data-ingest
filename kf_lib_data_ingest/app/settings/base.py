@@ -3,7 +3,7 @@ import os
 from kf_lib_data_ingest.config import ROOT_DIR
 
 TARGET_API_CONFIG = os.path.join(
-    ROOT_DIR, "target_apis", "kids_first_dataservice.py"
+    ROOT_DIR, "target_api_plugins", "kids_first_dataservice.py"
 )
 
 

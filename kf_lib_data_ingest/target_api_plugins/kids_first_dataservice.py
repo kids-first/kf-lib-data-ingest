@@ -65,6 +65,7 @@ class Investigator:
     class_name = "investigator"
     api_path = "/investigators"
     target_id_concept = CONCEPT.INVESTIGATOR.TARGET_SERVICE_ID
+    id_fields = {"kf_id"}
 
     @staticmethod
     def build_key(row):
@@ -90,6 +91,7 @@ class Study:
     class_name = "study"
     api_path = "/studies"
     target_id_concept = CONCEPT.STUDY.TARGET_SERVICE_ID
+    id_fields = {"kf_id", "investigator_id"}
 
     @staticmethod
     def build_key(row):
@@ -119,6 +121,7 @@ class Family:
     class_name = "family"
     api_path = "/families"
     target_id_concept = CONCEPT.FAMILY.TARGET_SERVICE_ID
+    id_fields = {"kf_id"}
 
     @staticmethod
     def build_key(row):
@@ -140,6 +143,7 @@ class Participant:
     class_name = "participant"
     api_path = "/participants"
     target_id_concept = CONCEPT.PARTICIPANT.TARGET_SERVICE_ID
+    id_fields = {"kf_id", "family_id"}
 
     @staticmethod
     def build_key(row):
@@ -171,6 +175,7 @@ class Diagnosis:
     class_name = "diagnosis"
     api_path = "/diagnoses"
     target_id_concept = CONCEPT.DIAGNOSIS.TARGET_SERVICE_ID
+    id_fields = {"kf_id", "participant_id"}
 
     @staticmethod
     def build_key(row):
@@ -211,6 +216,7 @@ class Phenotype:
     class_name = "phenotype"
     api_path = "/phenotypes"
     target_id_concept = CONCEPT.PHENOTYPE.TARGET_SERVICE_ID
+    id_fields = {"kf_id", "participant_id"}
 
     @staticmethod
     def build_key(row):
@@ -248,6 +254,7 @@ class Outcome:
     class_name = "outcome"
     api_path = "/outcomes"
     target_id_concept = CONCEPT.OUTCOME.TARGET_SERVICE_ID
+    id_fields = {"kf_id", "participant_id"}
 
     @staticmethod
     def build_key(row):
@@ -281,6 +288,7 @@ class Biospecimen:
     class_name = "biospecimen"
     api_path = "/biospecimens"
     target_id_concept = CONCEPT.BIOSPECIMEN.TARGET_SERVICE_ID
+    id_fields = {"kf_id", "participant_id"}
 
     @staticmethod
     def build_key(row):
@@ -339,6 +347,7 @@ class GenomicFile:
     class_name = "genomic_file"
     api_path = "/genomic-files"
     target_id_concept = CONCEPT.GENOMIC_FILE.TARGET_SERVICE_ID
+    id_fields = {"kf_id"}
 
     @staticmethod
     def build_key(row):
@@ -373,6 +382,7 @@ class ReadGroup:
     class_name = "read_group"
     api_path = "/read-groups"
     target_id_concept = CONCEPT.READ_GROUP.TARGET_SERVICE_ID
+    id_fields = {"kf_id"}
 
     @staticmethod
     def build_key(row):
@@ -397,6 +407,7 @@ class SequencingExperiment:
     class_name = "sequencing_experiment"
     api_path = "/sequencing-experiments"
     target_id_concept = CONCEPT.SEQUENCING.TARGET_SERVICE_ID
+    id_fields = {"kf_id"}
 
     @staticmethod
     def build_key(row):
@@ -435,6 +446,7 @@ class FamilyRelationship:
     class_name = "family_relationship"
     api_path = "/family-relationships"
     target_id_concept = CONCEPT.FAMILY_RELATIONSHIP.TARGET_SERVICE_ID
+    id_fields = {"kf_id", "participant1_id", "participant2_id"}
 
     @staticmethod
     def _pid(row, which, target_id_lookup_func):
@@ -490,6 +502,7 @@ class BiospecimenGenomicFile:
     class_name = "biospecimen_genomic_file"
     api_path = "/biospecimen-genomic-files"
     target_id_concept = CONCEPT.BIOSPECIMEN_GENOMIC_FILE.TARGET_SERVICE_ID
+    id_fields = {"kf_id", "biospecimen_id", "genomic_file_id"}
 
     @staticmethod
     def build_key(row):
@@ -526,6 +539,7 @@ class BiospecimenDiagnosis:
     class_name = "biospecimen_diagnosis"
     api_path = "/biospecimen-diagnoses"
     target_id_concept = CONCEPT.BIOSPECIMEN_DIAGNOSIS.TARGET_SERVICE_ID
+    id_fields = {"kf_id", "biospecimen_id", "diagnosis_id"}
 
     @staticmethod
     def build_key(row):
@@ -558,6 +572,7 @@ class ReadGroupGenomicFile:
     class_name = "read_group_genomic_file"
     api_path = "/read-group-genomic-files"
     target_id_concept = CONCEPT.READ_GROUP_GENOMIC_FILE.TARGET_SERVICE_ID
+    id_fields = {"kf_id", "read_group_id", "genomic_file_id"}
 
     @staticmethod
     def build_key(row):
@@ -592,6 +607,7 @@ class SequencingExperimentGenomicFile:
     class_name = "sequencing_experiment_genomic_file"
     api_path = "/sequencing-experiment-genomic-files"
     target_id_concept = CONCEPT.SEQUENCING_GENOMIC_FILE.TARGET_SERVICE_ID
+    id_fields = {"kf_id", "sequencing_experiment_id", "genomic_file_id"}
 
     @staticmethod
     def build_key(row):
@@ -669,10 +685,12 @@ json_type_casts = {
     "boolean": bool,
     "string": str,
     "integer": int,
+    "number": float,
+    "object": str_to_obj,
 }
 
 
-def coerce_types(host, entity_name, body):
+def coerce_types(host, entity_class, body):
     if not swagger_cache:
         swagger = get_open_api_v2_schema(host)
         defs = swagger["definitions"]
@@ -682,13 +700,28 @@ def coerce_types(host, entity_name, body):
             if uccn in defs:
                 swagger_cache[n] = defs[uccn]
 
-    properties = swagger_cache[entity_name]["properties"]
+    properties = swagger_cache[entity_class.class_name]["properties"]
 
     ret = {}
     for k, v in body.items():
-        if (v is None) or properties[k].get("readOnly"):
+        if properties[k].get("readOnly"):  # e.g. modified_at/created_at
             continue
-        ret[k] = json_type_casts.get(properties[k]["type"], lambda x: x)(v)
+        elif (v is None) or (v == ""):
+            if properties[k]["type"] == "string":
+                if "date" in k:  # TODO: FIX THE DATASERVICE?
+                    ret[k] = None
+                elif k not in entity_class.id_fields:
+                    ret[k] = constants.COMMON.NOT_REPORTED
+                else:
+                    ret[k] = None
+            elif properties[k].get("x-nullable"):
+                ret[k] = None
+            else:
+                # The field is required but we have no value.
+                # Don't include it so that the server applies default behavior.
+                continue
+        else:
+            ret[k] = json_type_casts.get(properties[k]["type"], lambda x: x)(v)
 
     return ret
 
@@ -714,12 +747,14 @@ def submit(host, entity_class, body):
     kf_id = body.get("kf_id")
     api_path = entity_class.api_path
 
-    body = coerce_types(host, entity_class.class_name, body)
+    body = coerce_types(host, entity_class, body)
 
     if kf_id:
         resp = _PATCH(host, api_path, kf_id, body)
         if resp.status_code == 404:
             resp = None
+    else:
+        body.pop("kf_id", None)
 
     if not resp:
         resp = _POST(host, api_path, body)

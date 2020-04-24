@@ -18,7 +18,7 @@ logger = logging.getLogger("test_logger")
 @requests_mock.Mocker(kw="mock")
 def test_get_kf_schema_server_down(caplog, tmpdir, **kwargs):
     """
-    Test kf_lib_data_ingest.target_apis.get_open_api_v2_schema
+    Test kf_lib_data_ingest.target_api_plugins.get_open_api_v2_schema
 
     Test retrieval when server is down and no cached schema exists yet
     """
