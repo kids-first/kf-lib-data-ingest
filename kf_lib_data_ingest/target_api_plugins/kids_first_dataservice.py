@@ -726,9 +726,6 @@ def coerce_types(host, entity_class, body):
     return ret
 
 
-seen_types = set()
-
-
 def submit(host, entity_class, body):
     """
     Negotiate submitting the data for an entity to the target service.
