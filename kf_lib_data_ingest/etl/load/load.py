@@ -15,6 +15,7 @@ from urllib.parse import urlparse
 from pandas import DataFrame
 from sqlite3worker import Sqlite3Worker, sqlite3worker
 
+from kf_lib_data_ingest.common import constants
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
 from kf_lib_data_ingest.common.misc import multisplit
@@ -158,39 +159,62 @@ class LoadStage(IngestStage):
             ):
                 self.uid_cache[entity_type][unique_id] = target_id
 
-    def _get_target_id(self, entity_type, entity_id):
+    def _get_target_id_from_key(self, entity_type, entity_key):
         """
-        Retrieve the target service ID for a given source unique ID.
+        Retrieve the target service ID for a given source unique key.
 
         :param entity_type: the name of this type of entity
         :type entity_type: str
-        :param entity_id: source unique ID for this entity
-        :type entity_id: str
+        :param entity_key: source unique key for this entity
+        :type entity_key: str
         """
         self._prime_uid_cache(entity_type)
-        return self.uid_cache[entity_type].get(entity_id)
+        return self.uid_cache[entity_type].get(entity_key)
 
-    def _store_target_id(self, entity_type, entity_id, target_id):
+    def _store_target_id_for_key(self, entity_type, entity_key, target_id):
         """
-        Cache the relationship between a source unique ID and its corresponding
+        Cache the relationship between a source unique key and its corresponding
         target service ID.
 
         :param entity_type: the name of this type of entity
         :type entity_type: str
-        :param entity_id: source unique ID for this entity
-        :type entity_id: str
+        :param entity_key: source unique key for this entity
+        :type entity_key: str
         :param target_id: target service ID for this entity
         :type target_id: str
         """
         self._prime_uid_cache(entity_type)
-        if self.uid_cache[entity_type].get(entity_id) != target_id:
-            self.uid_cache[entity_type][entity_id] = target_id
+        if self.uid_cache[entity_type].get(entity_key) != target_id:
+            self.uid_cache[entity_type][entity_key] = target_id
             self.uid_cache_db.execute(
                 f'INSERT OR REPLACE INTO "{entity_type}"'
                 " (unique_id, target_id)"
                 " VALUES (?,?);",
-                (entity_id, target_id),
+                (entity_key, target_id),
             )
+
+    def _get_target_id_from_row(self, entity_class, row):
+        """
+        Find the target service ID for the given row and entity class.
+
+        :param entity_class: one of the classes contained in the all_targets list
+        :type entity_class: class
+        :param row: a row of extracted data
+        :type row: dict
+        :return: the target service ID
+        :rtype: str
+        """
+        tic = row.get(entity_class.target_id_concept)
+
+        if tic and (tic != constants.COMMON.NOT_REPORTED):
+            return tic
+        else:
+            try:
+                return self._get_target_id_from_key(
+                    entity_class.class_name, entity_class.build_key(row)
+                )
+            except AssertionError:
+                return None
 
     def _read_output(self):
         pass  # TODO
@@ -206,7 +230,9 @@ class LoadStage(IngestStage):
             current_thread().name = f"{entity_class.class_name} {unique_key}"
 
         if self.resume_from:
-            target_id = self._get_target_id(entity_class.class_name, unique_key)
+            target_id = self._get_target_id_from_key(
+                entity_class.class_name, unique_key
+            )
             if not target_id:
                 raise InvalidIngestStageParameters(
                     "Use of the resume_from flag requires having already"
@@ -223,7 +249,9 @@ class LoadStage(IngestStage):
                 self.resume_from = None
 
         if self.dry_run:
-            target_id = self._get_target_id(entity_class.class_name, unique_key)
+            target_id = self._get_target_id_from_key(
+                entity_class.class_name, unique_key
+            )
             if target_id:
                 req_method = "UPDATE"
                 id_str = f"({target_id})"
@@ -242,7 +270,7 @@ class LoadStage(IngestStage):
             )
 
             # cache source_ID:target_ID lookup
-            self._store_target_id(
+            self._store_target_id_for_key(
                 entity_class.class_name, unique_key, target_id
             )
 
@@ -338,7 +366,7 @@ class LoadStage(IngestStage):
                     self.seen_entities[entity_class.class_name].add(unique_key)
 
                     payload = entity_class.build_entity(
-                        row, unique_key, self._get_target_id
+                        row, unique_key, self._get_target_id_from_row
                     )
 
                     if self.use_async and not self.resume_from:

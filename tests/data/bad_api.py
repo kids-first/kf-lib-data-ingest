@@ -30,7 +30,7 @@ class Good:
         pass
 
     @staticmethod
-    def build_entity(row, key, target_id_lookup_func):
+    def build_entity(row, key, get_target_id_from_row):
         pass
 
 

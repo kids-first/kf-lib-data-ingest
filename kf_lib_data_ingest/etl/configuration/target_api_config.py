@@ -19,17 +19,16 @@ the target service, target entity classes (not instances) of the form:
             return unique_key_composed_from_row
 
         @staticmethod
-        def build_entity(row, key, target_id_lookup_func):
+        def build_entity(row, key, get_target_id_from_row):
             '''
             :param row: CONCEPT values representing one row of extracted data
             :type row: dict
             :param key: the value returned by the build_key method
             :type key: str
-            :param target_id_lookup_func: a function that, given input arguments
-                (entity_class.__name__, entity_class.build_key(row)), will return
-                the unique reference identifier assigned by the target service
-                for that entity
-            :type target_id_lookup_func: function
+            :param get_target_id_from_row: a function that, given input arguments
+                (entity_class, row), will return the unique reference identifier
+                assigned by the target service for that entity
+            :type get_target_id_from_row: function
             :return: an entity body ready to send to the target service
             '''
             return payload_body_composed_from_row
@@ -94,7 +93,7 @@ class TargetAPIConfig(PyModuleConfig):
                 invalid_targets["build_entity not a method"].append(t)
             elif not (
                 list(signature(t.build_entity).parameters)
-                == ["row", "key", "target_id_lookup_func"]
+                == ["row", "key", "get_target_id_from_row"]
             ):
                 invalid_targets[
                     "build_entity takes wrong input arguments"

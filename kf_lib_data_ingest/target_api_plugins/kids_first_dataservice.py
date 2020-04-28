@@ -34,33 +34,6 @@ def join(*args):
     return "|".join([str(a) for a in args])
 
 
-def get_target_id(entity_class, row, target_id_lookup_func):
-    """
-    Find the target service ID for the given row and entity class.
-
-    :param entity_class: one of the classes contained in the all_targets list
-    :type entity_class: class
-    :param row: a row of extracted data
-    :type row: dict
-    :param target_id_lookup_func: a function that takes a class name and a lookup key
-        and returns a target service ID based on those arguments if one has been cached
-    :type target_id_lookup_func: function
-    :return: the target service ID
-    :rtype: str
-    """
-    tic = row.get(entity_class.target_id_concept)
-
-    if tic and (tic != constants.COMMON.NOT_REPORTED):
-        return tic
-    else:
-        try:
-            return target_id_lookup_func(
-                entity_class.class_name, entity_class.build_key(row)
-            )
-        except AssertionError:
-            return None
-
-
 class Investigator:
     class_name = "investigator"
     api_path = "/investigators"
@@ -77,9 +50,9 @@ class Investigator:
         )
 
     @staticmethod
-    def build_entity(row, key, target_id_lookup_func):
+    def build_entity(row, key, get_target_id_from_row):
         return {
-            "kf_id": get_target_id(Investigator, row, target_id_lookup_func),
+            "kf_id": get_target_id_from_row(Investigator, row),
             "external_id": key,
             "name": row.get(CONCEPT.INVESTIGATOR.NAME),
             "institution": row.get(CONCEPT.INVESTIGATOR.INSTITUTION),
@@ -99,13 +72,11 @@ class Study:
         return row.get(CONCEPT.STUDY.UNIQUE_KEY) or join(row[CONCEPT.STUDY.ID])
 
     @staticmethod
-    def build_entity(row, key, target_id_lookup_func):
+    def build_entity(row, key, get_target_id_from_row):
         return {
-            "kf_id": get_target_id(Study, row, target_id_lookup_func),
+            "kf_id": get_target_id_from_row(Study, row),
             "external_id": key,
-            "investigator_id": get_target_id(
-                Investigator, row, target_id_lookup_func
-            ),
+            "investigator_id": get_target_id_from_row(Investigator, row),
             "name": row.get(CONCEPT.STUDY.NAME),
             "short_name": row.get(CONCEPT.STUDY.SHORT_NAME),
             "version": row.get(CONCEPT.STUDY.VERSION),
@@ -131,9 +102,9 @@ class Family:
         )
 
     @staticmethod
-    def build_entity(row, key, target_id_lookup_func):
+    def build_entity(row, key, get_target_id_from_row):
         return {
-            "kf_id": get_target_id(Family, row, target_id_lookup_func),
+            "kf_id": get_target_id_from_row(Family, row),
             "external_id": key,
             "visible": row.get(CONCEPT.FAMILY.VISIBLE),
         }
@@ -153,11 +124,11 @@ class Participant:
         )
 
     @staticmethod
-    def build_entity(row, key, target_id_lookup_func):
+    def build_entity(row, key, get_target_id_from_row):
         return {
-            "kf_id": get_target_id(Participant, row, target_id_lookup_func),
+            "kf_id": get_target_id_from_row(Participant, row),
             "study_id": row[CONCEPT.STUDY.ID],
-            "family_id": get_target_id(Family, row, target_id_lookup_func),
+            "family_id": get_target_id_from_row(Family, row),
             "external_id": key,
             "is_proband": row.get(CONCEPT.PARTICIPANT.IS_PROBAND),
             "ethnicity": row.get(CONCEPT.PARTICIPANT.ETHNICITY),
@@ -188,12 +159,10 @@ class Diagnosis:
         )
 
     @staticmethod
-    def build_entity(row, key, target_id_lookup_func):
+    def build_entity(row, key, get_target_id_from_row):
         return {
-            "kf_id": get_target_id(Diagnosis, row, target_id_lookup_func),
-            "participant_id": get_target_id(
-                Participant, row, target_id_lookup_func
-            ),
+            "kf_id": get_target_id_from_row(Diagnosis, row),
+            "participant_id": get_target_id_from_row(Participant, row),
             "external_id": key,
             "age_at_event_days": row.get(CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS),
             "source_text_diagnosis": row.get(CONCEPT.DIAGNOSIS.NAME),
@@ -234,12 +203,10 @@ class Phenotype:
         )
 
     @staticmethod
-    def build_entity(row, key, target_id_lookup_func):
+    def build_entity(row, key, get_target_id_from_row):
         return {
-            "kf_id": get_target_id(Phenotype, row, target_id_lookup_func),
-            "participant_id": get_target_id(
-                Participant, row, target_id_lookup_func
-            ),
+            "kf_id": get_target_id_from_row(Phenotype, row),
+            "participant_id": get_target_id_from_row(Participant, row),
             "external_id": key,
             "age_at_event_days": row.get(CONCEPT.PHENOTYPE.EVENT_AGE_DAYS),
             "source_text_phenotype": row.get(CONCEPT.PHENOTYPE.NAME),
@@ -270,12 +237,10 @@ class Outcome:
         )
 
     @staticmethod
-    def build_entity(row, key, target_id_lookup_func):
+    def build_entity(row, key, get_target_id_from_row):
         return {
-            "kf_id": get_target_id(Outcome, row, target_id_lookup_func),
-            "participant_id": get_target_id(
-                Participant, row, target_id_lookup_func
-            ),
+            "kf_id": get_target_id_from_row(Outcome, row),
+            "participant_id": get_target_id_from_row(Participant, row),
             "external_id": key,
             "age_at_event_days": row.get(CONCEPT.OUTCOME.EVENT_AGE_DAYS),
             "vital_status": row.get(CONCEPT.OUTCOME.VITAL_STATUS),
@@ -300,12 +265,10 @@ class Biospecimen:
         )
 
     @staticmethod
-    def build_entity(row, key, target_id_lookup_func):
+    def build_entity(row, key, get_target_id_from_row):
         return {
-            "kf_id": get_target_id(Biospecimen, row, target_id_lookup_func),
-            "participant_id": get_target_id(
-                Participant, row, target_id_lookup_func
-            ),
+            "kf_id": get_target_id_from_row(Biospecimen, row),
+            "participant_id": get_target_id_from_row(Participant, row),
             "external_sample_id": row.get(CONCEPT.BIOSPECIMEN_GROUP.ID),
             "external_aliquot_id": row.get(CONCEPT.BIOSPECIMEN.ID),
             "sequencing_center_id": row.get(
@@ -357,9 +320,9 @@ class GenomicFile:
         )
 
     @staticmethod
-    def build_entity(row, key, target_id_lookup_func):
+    def build_entity(row, key, get_target_id_from_row):
         return {
-            "kf_id": get_target_id(GenomicFile, row, target_id_lookup_func),
+            "kf_id": get_target_id_from_row(GenomicFile, row),
             "external_id": key,
             "file_name": row.get(CONCEPT.GENOMIC_FILE.FILE_NAME),
             "file_format": row.get(CONCEPT.GENOMIC_FILE.FILE_FORMAT),
@@ -392,9 +355,9 @@ class ReadGroup:
         )
 
     @staticmethod
-    def build_entity(row, key, target_id_lookup_func):
+    def build_entity(row, key, get_target_id_from_row):
         return {
-            "kf_id": get_target_id(ReadGroup, row, target_id_lookup_func),
+            "kf_id": get_target_id_from_row(ReadGroup, row),
             "external_id": key,
             "flow_cell": row.get(CONCEPT.READ_GROUP.FLOW_CELL),
             "lane_number": row.get(CONCEPT.READ_GROUP.LANE_NUMBER),
@@ -417,11 +380,9 @@ class SequencingExperiment:
         )
 
     @staticmethod
-    def build_entity(row, key, target_id_lookup_func):
+    def build_entity(row, key, get_target_id_from_row):
         return {
-            "kf_id": get_target_id(
-                SequencingExperiment, row, target_id_lookup_func
-            ),
+            "kf_id": get_target_id_from_row(SequencingExperiment, row),
             "sequencing_center_id": row[
                 CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID
             ],
@@ -449,10 +410,16 @@ class FamilyRelationship:
     id_fields = {"kf_id", "participant1_id", "participant2_id"}
 
     @staticmethod
-    def _pid(row, which, target_id_lookup_func):
-        return row.get(which.TARGET_SERVICE_ID) or target_id_lookup_func(
-            Participant.class_name,
-            row.get(which.UNIQUE_KEY) or row.get(which.ID),
+    def _pid(row, which, get_target_id_from_row):
+        return get_target_id_from_row(
+            Participant,
+            {
+                CONCEPT.PARTICIPANT.TARGET_SERVICE_ID: row.get(
+                    which.TARGET_SERVICE_ID
+                ),
+                CONCEPT.PARTICIPANT.UNIQUE_KEY: row.get(which.UNIQUE_KEY),
+                CONCEPT.PARTICIPANT.ID: row.get(which.ID),
+            },
         )
 
     @staticmethod
@@ -467,9 +434,9 @@ class FamilyRelationship:
             or row.get(CONCEPT.FAMILY_RELATIONSHIP.PERSON2.UNIQUE_KEY)
             or row.get(CONCEPT.FAMILY_RELATIONSHIP.PERSON2.ID)
         )
-        assert None is not p1
-        assert None is not p2
-        assert None is not row[CONCEPT.FAMILY_RELATIONSHIP.RELATION_FROM_1_TO_2]
+        assert p1 is not None
+        assert p2 is not None
+        assert row[CONCEPT.FAMILY_RELATIONSHIP.RELATION_FROM_1_TO_2] is not None
         return row.get(CONCEPT.FAMILY_RELATIONSHIP.UNIQUE_KEY) or join(
             p1,
             row[
@@ -479,16 +446,18 @@ class FamilyRelationship:
         )
 
     @staticmethod
-    def build_entity(row, key, target_id_lookup_func):
+    def build_entity(row, key, get_target_id_from_row):
         return {
-            "kf_id": get_target_id(
-                FamilyRelationship, row, target_id_lookup_func
-            ),
+            "kf_id": get_target_id_from_row(FamilyRelationship, row),
             "participant1_id": FamilyRelationship._pid(
-                row, CONCEPT.FAMILY_RELATIONSHIP.PERSON1, target_id_lookup_func,
+                row,
+                CONCEPT.FAMILY_RELATIONSHIP.PERSON1,
+                get_target_id_from_row,
             ),
             "participant2_id": FamilyRelationship._pid(
-                row, CONCEPT.FAMILY_RELATIONSHIP.PERSON2, target_id_lookup_func,
+                row,
+                CONCEPT.FAMILY_RELATIONSHIP.PERSON2,
+                get_target_id_from_row,
             ),
             "external_id": key,
             "participant1_to_participant2_relation": row[
@@ -519,18 +488,12 @@ class BiospecimenGenomicFile:
         )
 
     @staticmethod
-    def build_entity(row, key, target_id_lookup_func):
+    def build_entity(row, key, get_target_id_from_row):
         return {
-            "kf_id": get_target_id(
-                BiospecimenGenomicFile, row, target_id_lookup_func
-            ),
+            "kf_id": get_target_id_from_row(BiospecimenGenomicFile, row),
             "external_id": key,
-            "biospecimen_id": get_target_id(
-                Biospecimen, row, target_id_lookup_func
-            ),
-            "genomic_file_id": get_target_id(
-                GenomicFile, row, target_id_lookup_func
-            ),
+            "biospecimen_id": get_target_id_from_row(Biospecimen, row),
+            "genomic_file_id": get_target_id_from_row(GenomicFile, row),
             "visible": row.get(CONCEPT.BIOSPECIMEN_GENOMIC_FILE.VISIBLE),
         }
 
@@ -552,18 +515,12 @@ class BiospecimenDiagnosis:
         return row.get(CONCEPT.BIOSPECIMEN_DIAGNOSIS.UNIQUE_KEY) or join(bs, dg)
 
     @staticmethod
-    def build_entity(row, key, target_id_lookup_func):
+    def build_entity(row, key, get_target_id_from_row):
         return {
-            "kf_id": get_target_id(
-                BiospecimenDiagnosis, row, target_id_lookup_func
-            ),
+            "kf_id": get_target_id_from_row(BiospecimenDiagnosis, row),
             "external_id": key,
-            "biospecimen_id": get_target_id(
-                Biospecimen, row, target_id_lookup_func
-            ),
-            "diagnosis_id": get_target_id(
-                Diagnosis, row, target_id_lookup_func
-            ),
+            "biospecimen_id": get_target_id_from_row(Biospecimen, row),
+            "diagnosis_id": get_target_id_from_row(Diagnosis, row),
             "visible": row.get(CONCEPT.BIOSPECIMEN_DIAGNOSIS.VISIBLE),
         }
 
@@ -587,18 +544,12 @@ class ReadGroupGenomicFile:
         )
 
     @staticmethod
-    def build_entity(row, key, target_id_lookup_func):
+    def build_entity(row, key, get_target_id_from_row):
         return {
-            "kf_id": get_target_id(
-                ReadGroupGenomicFile, row, target_id_lookup_func
-            ),
+            "kf_id": get_target_id_from_row(ReadGroupGenomicFile, row),
             "external_id": key,
-            "read_group_id": get_target_id(
-                ReadGroup, row, target_id_lookup_func
-            ),
-            "genomic_file_id": get_target_id(
-                GenomicFile, row, target_id_lookup_func
-            ),
+            "read_group_id": get_target_id_from_row(ReadGroup, row),
+            "genomic_file_id": get_target_id_from_row(GenomicFile, row),
             "visible": row.get(CONCEPT.READ_GROUP_GENOMIC_FILE.VISIBLE),
         }
 
@@ -624,18 +575,16 @@ class SequencingExperimentGenomicFile:
         )
 
     @staticmethod
-    def build_entity(row, key, target_id_lookup_func):
+    def build_entity(row, key, get_target_id_from_row):
         return {
-            "kf_id": get_target_id(
-                SequencingExperimentGenomicFile, row, target_id_lookup_func
+            "kf_id": get_target_id_from_row(
+                SequencingExperimentGenomicFile, row
             ),
             "external_id": key,
-            "sequencing_experiment_id": get_target_id(
-                SequencingExperiment, row, target_id_lookup_func
+            "sequencing_experiment_id": get_target_id_from_row(
+                SequencingExperiment, row
             ),
-            "genomic_file_id": get_target_id(
-                GenomicFile, row, target_id_lookup_func
-            ),
+            "genomic_file_id": get_target_id_from_row(GenomicFile, row),
             "visible": row.get(CONCEPT.SEQUENCING_GENOMIC_FILE.VISIBLE),
         }
 
