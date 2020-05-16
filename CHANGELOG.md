@@ -1,3 +1,18 @@
+#  Change History
+
+## Release 0.11.0
+
+### Summary
+
+- Emojis: 📝 x1, 🚧 x1, 💡 x1
+- Categories: Documentation x2, Other Changes x1
+
+### New features and changes
+
+- [#451](https://github.com/kids-first/kf-lib-data-ingest/pull/451) - 📝 Add psycopg2 to the install instructions - [3b64a076](https://github.com/kids-first/kf-lib-data-ingest/commit/3b64a076a2211286890a0195222aa9d826254ba2) by [fiendish](https://github.com/fiendish)
+- [#447](https://github.com/kids-first/kf-lib-data-ingest/pull/447) - 🚧 Add sample procurement - [fb55890f](https://github.com/kids-first/kf-lib-data-ingest/commit/fb55890f469b4d755e2862e132538fcff7d30de1) by [liberaliscomputing](https://github.com/liberaliscomputing)
+- [#445](https://github.com/kids-first/kf-lib-data-ingest/pull/445) - 💡 Explain why AUTOCOMMIT is invoked - [127be01e](https://github.com/kids-first/kf-lib-data-ingest/commit/127be01e82994bb210246a33290176799c49b814) by [fiendish](https://github.com/fiendish)
+
 # Kids First Lib Data Ingest Release 0.10.0
 
 ## ⚠️ Important - README!
