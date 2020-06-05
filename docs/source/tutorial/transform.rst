@@ -23,7 +23,7 @@ code, and return type for ``transform_function``.
 
 Let's take a look:
 
-.. literalinclude:: ../../../templates/my_study/transform_module.py
+.. literalinclude:: ../../../kf_lib_data_ingest/templates/my_study/transform_module.py
    :language: python
    :caption: my_study/transform_module.py
 
