@@ -274,7 +274,7 @@ def test_handle_nulls_no_prop_def(
     message_packer._handle_nulls(target_instances, schema)
     assert (
         "No property definition found for "
-        f"participant.gender in target schema " in caplog.text
+        "participant.gender in target schema " in caplog.text
     )
 
 
