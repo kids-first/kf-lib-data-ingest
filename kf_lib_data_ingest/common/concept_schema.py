@@ -110,6 +110,7 @@ class CONCEPT:
         ANALYTE = None
         CONCENTRATION_MG_PER_ML = None
         VOLUME_UL = None
+        SAMPLE_PROCUREMENT = None
 
     class GENOMIC_FILE(PropertyMixin, FileMixin):
         HARMONIZED = None

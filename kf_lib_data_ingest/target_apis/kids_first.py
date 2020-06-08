@@ -223,6 +223,7 @@ target_concepts = {
             "concentration_mg_per_ml": CONCEPT.BIOSPECIMEN.CONCENTRATION_MG_PER_ML,
             "volume_ul": CONCEPT.BIOSPECIMEN.VOLUME_UL,
             "visible": CONCEPT.BIOSPECIMEN.VISIBLE,
+            "method_of_sample_procurement": CONCEPT.BIOSPECIMEN.SAMPLE_PROCUREMENT,
         },
         "endpoint": "/biospecimens",
     },
