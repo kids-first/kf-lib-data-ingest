@@ -420,7 +420,7 @@ class DataIngestPipeline(object):
         passed = exit_code in {0, 5}
 
         if exit_code == 0:
-            self.logger.info(f"✅ User defined data validation tests passed")
+            self.logger.info("✅ User defined data validation tests passed")
         elif exit_code == 5:
             self.logger.warning(
                 f"⚠️ pytest did not collect any user defined tests, "

@@ -48,7 +48,7 @@ def test_user_def_test_not_collected(info_caplog, ingest_pkg_dir):
     )
     assert ingest_pipeline.run()
     assert (
-        f"⚠️ pytest did not collect any user defined tests" in info_caplog.text
+        "⚠️ pytest did not collect any user defined tests" in info_caplog.text
     )
 
 
@@ -64,4 +64,4 @@ def test_user_def_test_fail(info_caplog, ingest_pkg_dir):
         log_dir=os.path.join(ingest_pkg_dir, "logs"),
     )
     assert not ingest_pipeline.run()
-    assert f"❌ User defined data validation tests failed" in info_caplog.text
+    assert "❌ User defined data validation tests failed" in info_caplog.text
