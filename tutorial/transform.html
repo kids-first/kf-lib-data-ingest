@@ -217,11 +217,12 @@ code, and return type for <code class="docutils literal notranslate"><span class
 <span class="sd">implementing transform_function.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.concept_schema</span> <span class="kn">import</span> <span class="n">CONCEPT</span>
+<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.concept_schema</span> <span class="kn">import</span> <span class="n">CONCEPT</span>  <span class="c1"># noqa F401</span>
+
 <span class="c1"># Use these merge funcs, not pandas.merge</span>
-<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.pandas_utils</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.pandas_utils</span> <span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa F401</span>
     <span class="n">merge_wo_duplicates</span><span class="p">,</span>
-    <span class="n">outer_merge</span>
+    <span class="n">outer_merge</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">kf_lib_data_ingest.config</span> <span class="kn">import</span> <span class="n">DEFAULT_KEY</span>
 
