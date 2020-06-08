@@ -2,7 +2,7 @@ import logging
 import os
 
 ROOT_DIR = os.path.dirname(__file__)
-TEMPLATES_DIR = os.path.join(os.path.dirname(ROOT_DIR), "templates")
+TEMPLATES_DIR = os.path.join(ROOT_DIR, "templates")
 
 INGEST_PACKAGE_CONFIG_DEFAULT_FILENAME = "ingest_package_config.py"
 

@@ -18,7 +18,7 @@ def test_family_count():
     Test that we have at least 2 families
     """
     selector = CONCEPT.FAMILY.ID
-    selected_data = extract_stage_data['sources'].get(selector)
+    selected_data = extract_stage_data["sources"].get(selector)
     assert selected_data
 
     expected_families = 3

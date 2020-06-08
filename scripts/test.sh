@@ -5,7 +5,7 @@ set -e
 
 . venv/bin/activate
 pip install -r dev-requirements.txt
-py.test --cov=kf_lib_data_ingest tests
+py.test -s --cov=kf_lib_data_ingest tests
 
 black --check --line-length 80 kf_lib_data_ingest tests
 flake8 --ignore=E501,W503,E203 kf_lib_data_ingest

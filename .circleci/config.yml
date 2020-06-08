@@ -28,6 +28,15 @@ jobs:
           - v1-dependencies-
 
       - run:
+          name: test package installation
+          command: |
+              python3 -m venv package_venv
+              . package_venv/bin/activate
+              pip install .
+              kidsfirst -h
+              rm -rf package_venv
+
+      - run:
           name: build lib and docs
           command: ./scripts/build.sh
 

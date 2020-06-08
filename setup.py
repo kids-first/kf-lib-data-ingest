@@ -18,6 +18,9 @@ setup(
             'kidsfirst=kf_lib_data_ingest.app.cli:cli',
         ],
     },
+    package_data={
+        'templates': ['*.tsv']
+    },
     include_package_data=True,
     install_requires=requirements
 )

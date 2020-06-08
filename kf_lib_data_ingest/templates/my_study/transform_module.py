@@ -8,11 +8,12 @@ https://kids-first.github.io/kf-lib-data-ingest/ for information on
 implementing transform_function.
 """
 
-from kf_lib_data_ingest.common.concept_schema import CONCEPT
+from kf_lib_data_ingest.common.concept_schema import CONCEPT  # noqa F401
+
 # Use these merge funcs, not pandas.merge
-from kf_lib_data_ingest.common.pandas_utils import (
+from kf_lib_data_ingest.common.pandas_utils import (  # noqa F401
     merge_wo_duplicates,
-    outer_merge
+    outer_merge,
 )
 from kf_lib_data_ingest.config import DEFAULT_KEY
 
