@@ -14,7 +14,7 @@ from kf_lib_data_ingest.config import (
 VERBOTEN_PATTERNS = {
     re.escape(os.environ[v]): f"<env['{v}']>"
     for k, v in SECRETS.__dict__.items()
-    if not k.startswith("_") and v in os.environ and os.environ[v]
+    if not k.startswith("_") and os.environ.get(v)
 }
 
 VERBOTEN_PATTERNS['"access_token":".+"'] = '"access_token":"<ACCESS_TOKEN>"'

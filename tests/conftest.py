@@ -7,16 +7,14 @@ import pytest
 
 from kf_lib_data_ingest.app.settings.base import SECRETS
 from kf_lib_data_ingest.common.io import read_json
-from kf_lib_data_ingest.config import DEFAULT_TARGET_URL
 from kf_lib_data_ingest.etl.configuration.target_api_config import (
     TargetAPIConfig,
 )
 from kf_lib_data_ingest.etl.ingest_pipeline import DataIngestPipeline
-from kf_lib_data_ingest.etl.load.message_packer import MessagePacker
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
 
 os.environ[SECRETS.WAREHOUSE_DB_URL] = ""
-
+os.environ["MAX_RETRIES_ON_CONN_ERROR"] = "0"
 
 TEST_ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 TEST_DATA_DIR = os.path.join(TEST_ROOT_DIR, "data")
@@ -24,8 +22,8 @@ TEST_INGEST_OUTPUT_DIR = os.path.join(TEST_DATA_DIR, "simple_study", "output")
 KIDS_FIRST_CONFIG = os.path.join(
     os.path.dirname(os.path.dirname(__file__)),
     "kf_lib_data_ingest",
-    "target_apis",
-    "kids_first.py",
+    "target_api_plugins",
+    "kids_first_dataservice.py",
 )
 TRANSFORM_MODULE_PATH = os.path.join(
     TEST_DATA_DIR, "simple_study", "transform_module.py"
@@ -133,15 +131,6 @@ def target_api_config():
     the transform stage and you don't want to worry about setting it up.
     """
     return TargetAPIConfig(KIDS_FIRST_CONFIG)
-
-
-@pytest.fixture(scope="function")
-def message_packer(target_api_config):
-    """
-    Re-usable fixture for tests. Use this one for all tests that need
-    the message_packer and you don't want to worry about setting it up.
-    """
-    return MessagePacker(target_api_config, DEFAULT_TARGET_URL)
 
 
 @pytest.fixture(scope="function")
