@@ -119,8 +119,8 @@ class ExtractStage(IngestStage):
         metadata = read_json(meta_fp)
 
         for extract_config_url, filepath in metadata.items():
-            output[extract_config_url] = read_df(
-                filepath, delimiter="\t", index_col=0
+            output[extract_config_url] = clean_up_df(
+                read_df(filepath, delimiter="\t", index_col=0)
             )
 
         self.logger.info(

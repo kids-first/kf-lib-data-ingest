@@ -18,7 +18,7 @@ logger = logging.getLogger("test_logger")
 @requests_mock.Mocker(kw="mock")
 def test_get_kf_schema_server_down(caplog, tmpdir, **kwargs):
     """
-    Test kf_lib_data_ingest.target_apis.get_open_api_v2_schema
+    Test kf_lib_data_ingest.target_api_plugins.get_open_api_v2_schema
 
     Test retrieval when server is down and no cached schema exists yet
     """
@@ -32,7 +32,7 @@ def test_get_kf_schema_server_down(caplog, tmpdir, **kwargs):
     # Test retrieval when server is down and no cached schema exists
     cached_schema_file = os.path.join(tmpdir, "cached_schema.json")
     output = get_open_api_v2_schema(
-        url, [], cached_schema_filepath=cached_schema_file, logger=logger
+        url, cached_schema_filepath=cached_schema_file, logger=logger
     )
     assert output is None
     assert "Unable to retrieve target schema" in caplog.text
@@ -58,7 +58,6 @@ def test_get_kf_schema(caplog, tmpdir, target_api_config, **kwargs):
     cached_schema_file = os.path.join(tmpdir, "cached_schema.json")
     output = get_open_api_v2_schema(
         KIDSFIRST_DATASERVICE_PROD_URL,
-        target_api_config.target_concepts.keys(),
         cached_schema_filepath=cached_schema_file,
     )
     assert output.get("definitions")
@@ -70,7 +69,6 @@ def test_get_kf_schema(caplog, tmpdir, target_api_config, **kwargs):
     mock.get(schema_url, status_code=500)
     output = get_open_api_v2_schema(
         KIDSFIRST_DATASERVICE_PROD_URL,
-        target_api_config.target_concepts.keys(),
         cached_schema_filepath=cached_schema_file,
     )
     assert output.get("definitions")
@@ -79,7 +77,5 @@ def test_get_kf_schema(caplog, tmpdir, target_api_config, **kwargs):
 
     # Test cached schema file created in default loc
     mock.get(schema_url, json=mock_dataservice_schema)
-    output = get_open_api_v2_schema(
-        KIDSFIRST_DATASERVICE_PROD_URL, target_api_config.target_concepts.keys()
-    )
+    output = get_open_api_v2_schema(KIDSFIRST_DATASERVICE_PROD_URL)
     assert os.path.isfile(os.path.realpath("./cached_schema.json"))

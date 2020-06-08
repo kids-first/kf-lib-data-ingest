@@ -9,6 +9,7 @@ import pandas
 
 from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
 from kf_lib_data_ingest.common.io import read_df
+from kf_lib_data_ingest.common.misc import clean_up_df
 from kf_lib_data_ingest.common.stage import IngestStage
 from kf_lib_data_ingest.common.type_safety import (
     assert_all_safe_type,
@@ -27,8 +28,8 @@ class TransformStage(IngestStage):
         :rtype: dict
         """
         output = {
-            os.path.splitext(filename)[0]: read_df(
-                os.path.join(self.stage_cache_dir, filename)
+            os.path.splitext(filename)[0]: clean_up_df(
+                read_df(os.path.join(self.stage_cache_dir, filename))
             )
             for filename in os.listdir(self.stage_cache_dir)
             if filename.endswith(".tsv")

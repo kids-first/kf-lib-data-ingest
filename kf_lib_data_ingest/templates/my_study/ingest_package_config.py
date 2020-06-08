@@ -1,7 +1,9 @@
 """ Ingest Package Config """
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
 
-# The list of entities that will be loaded into the target service
+# The list of entities that will be loaded into the target service. These
+# should be class_name values of your target API config's target entity
+# classes.
 target_service_entities = [
     "family",
     "participant",
