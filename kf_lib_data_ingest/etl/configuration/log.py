@@ -1,6 +1,7 @@
 import logging
 import logging.handlers
 import os
+import re
 
 from kf_lib_data_ingest.app.settings.base import SECRETS
 from kf_lib_data_ingest.common.misc import timestamp
@@ -10,18 +11,23 @@ from kf_lib_data_ingest.config import (
     DEFAULT_LOG_OVERWRITE_OPT,
 )
 
-VERBOTEN_STRINGS = {
-    v: os.environ[v]
+VERBOTEN_PATTERNS = {
+    re.escape(os.environ[v]): f"<env['{v}']>"
     for k, v in SECRETS.__dict__.items()
     if not k.startswith("_") and v in os.environ and os.environ[v]
 }
+
+VERBOTEN_PATTERNS['"access_token":".+"'] = '"access_token":"<ACCESS_TOKEN>"'
+VERBOTEN_PATTERNS[
+    "'Authorization': '.+'"
+] = "'Authorization': '<AUTHORIZATION>'"
 
 
 class NoTokenFormatter(logging.Formatter):
     def format(self, record):
         s = super().format(record)
-        for k, v in VERBOTEN_STRINGS.items():
-            s = s.replace(v, f"<env['{k}']>")
+        for k, v in VERBOTEN_PATTERNS.items():
+            s = re.sub(k, v, s)
         return s
 
 
