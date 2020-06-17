@@ -90,7 +90,7 @@ def test_complex_bad_type_checking():
     """
     for k, v in type_exemplars:
         to_compare = []
-        for l, w in type_exemplars:
+        for _, w in type_exemplars:
             if (v is not w) and not _func_call(v, w):
                 to_compare.append(w)
         with pytest.raises(TypeError):
@@ -104,7 +104,7 @@ def test_complex_good_type_checking():
     """
     for k, v in type_exemplars:
         to_compare = []
-        for l, w in type_exemplars:
+        for _, w in type_exemplars:
             to_compare.append(w)
         assert_safe_type(k, *to_compare)
 

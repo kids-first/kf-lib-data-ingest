@@ -17,7 +17,9 @@ def create_test_stub(ingest_pkg_dir, true_or_false):
     """
     Create passing or failing test file
     """
-    filepath = os.path.join(ingest_pkg_dir, "tests", "test_passing.py")
+    filepath = os.path.join(
+        ingest_pkg_dir, "tests", f"test_passing_{true_or_false}.py"
+    )
     with open(filepath, "w") as test_file:
         content = f"def test():\n    assert {true_or_false}"
         test_file.write(content)
