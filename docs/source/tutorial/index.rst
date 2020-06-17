@@ -35,5 +35,5 @@ In this tutorial we will cover (not necessarily in this order):
    study_creator.rst
    package_testing.rst
    transform.rst
-   load.rst
+   target_service_plugin.rst
    app.rst
