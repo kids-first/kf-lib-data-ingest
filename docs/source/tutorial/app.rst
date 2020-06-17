@@ -19,12 +19,6 @@ App Settings
 App settings include configuration that applies to a group of ingest packages
 which are all part of the same project.
 
-Here's what an example app settings file looks like:
-
-.. literalinclude:: ../../../kf_lib_data_ingest/app/settings/development.py
-   :language: python
-   :caption: kf_lib_data_ingest/app/settings/development.py
-
 Each app settings file is a Python module, and all app settings files live in
 the ``kf_lib_data_ingest/app/settings`` directory. Common settings can be
 imported from ``base.py``.
@@ -36,6 +30,12 @@ App level settings currently include but are not limited to:
   service
 - ``AUTH_CONFIGS`` dict, which specifies what authentication parameters to use
   when fetching remote source data files that require authentication.
+
+Here's what an example app settings file looks like:
+
+.. literalinclude:: ../../../kf_lib_data_ingest/app/settings/development.py
+   :language: python
+   :caption: kf_lib_data_ingest/app/settings/development.py
 
 .. _Tutorial-Authorization-Configs:
 
