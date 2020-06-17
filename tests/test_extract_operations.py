@@ -166,12 +166,12 @@ def test_column_map():
 def test_melt_map():
     # tests passing allowed and disallowed types
     for k, v in type_exemplars:
-        for l, w in type_exemplars:
+        for j, w in type_exemplars:
             if (v not in {dict}) or (w not in {dict, function}):
                 with pytest.raises(TypeError):
-                    operations.melt_map("VAR_COL", k, "VAL_COL", l)
+                    operations.melt_map("VAR_COL", k, "VAL_COL", j)
             else:
-                operations.melt_map("VAR_COL", k, "VAL_COL", l)
+                operations.melt_map("VAR_COL", k, "VAL_COL", j)
 
     func = operations.melt_map(
         "VAR_COL",
