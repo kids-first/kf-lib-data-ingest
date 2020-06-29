@@ -1,6 +1,8 @@
 import logging
 import os
 
+NETWORK_USER_AGENT = "kf-lib-data-ingest"
+
 ROOT_DIR = os.path.dirname(__file__)
 TEMPLATES_DIR = os.path.join(ROOT_DIR, "templates")
 

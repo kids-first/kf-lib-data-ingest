@@ -15,6 +15,9 @@ from requests.packages.urllib3.util.retry import Retry
 from kf_lib_data_ingest.common.io import read_json, write_json
 from kf_lib_data_ingest.common.misc import upper_camel_case
 
+from kf_lib_data_ingest.config import NETWORK_USER_AGENT
+
+requests.utils.default_user_agent = lambda: NETWORK_USER_AGENT
 logger = logging.getLogger(__name__)
 
 
