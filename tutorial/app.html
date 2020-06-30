@@ -207,22 +207,29 @@ which are all part of the same project.</p>
 <span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">from</span> <span class="nn">kf_lib_data_ingest.app.settings.base</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">AUTH_CONFIGS</span><span class="p">,</span>
     <span class="n">SECRETS</span><span class="p">,</span>
     <span class="n">TARGET_API_CONFIG</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">TARGET_API_CONFIG</span> <span class="o">=</span> <span class="n">TARGET_API_CONFIG</span>
 
-<span class="n">AUTH_CONFIGS</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;https://kf-study-creator.kidsfirstdrc.org/download/study&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;token&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;token_location&quot;</span><span class="p">:</span> <span class="s2">&quot;header&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SECRETS</span><span class="o">.</span><span class="n">KF_STUDY_CREATOR_API_TOKEN</span><span class="p">),</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-<span class="p">)</span>
+<span class="n">AUTH_CONFIGS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;http://localhost:8080/download/study&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;token&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;token_location&quot;</span><span class="p">:</span> <span class="s2">&quot;url&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SECRETS</span><span class="o">.</span><span class="n">KF_STUDY_CREATOR_API_TOKEN</span><span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;http://kf-study-creator-dev.kids-first.io/download/study&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;token&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;token_location&quot;</span><span class="p">:</span> <span class="s2">&quot;header&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SECRETS</span><span class="o">.</span><span class="n">KF_STUDY_CREATOR_API_TOKEN</span><span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;https://kf-study-creator.kidsfirstdrc.org/download/study&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;token&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;token_location&quot;</span><span class="p">:</span> <span class="s2">&quot;header&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SECRETS</span><span class="o">.</span><span class="n">KF_STUDY_CREATOR_API_TOKEN</span><span class="p">),</span>
+    <span class="p">},</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </div>
