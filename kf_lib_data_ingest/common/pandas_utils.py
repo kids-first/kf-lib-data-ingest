@@ -102,7 +102,7 @@ def split_df_rows_on_splits(df):
     df = pandas.DataFrame.from_dict(split_out, dtype=object).set_index(
         index_key
     )
-    del df.index.name
+    df.index.name = None
     return df
 
 

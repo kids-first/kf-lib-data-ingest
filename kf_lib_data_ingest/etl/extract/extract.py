@@ -231,7 +231,7 @@ class ExtractStage(IngestStage):
         :return: A pandas dataframe containing extracted mapped data
         :rtype: DataFrame
         """
-        out_cols = defaultdict(pandas.Series)
+        out_cols = defaultdict(lambda: pandas.Series(dtype=object))
         original_length = df_in.index.size
 
         # collect columns of extracted data
@@ -382,7 +382,7 @@ class ExtractStage(IngestStage):
             df_out = split_df_rows_on_splits(df_out.reset_index()).set_index(
                 "index"
             )
-            del df_out.index.name
+            df_out.index.name = None
 
             # VISIBLE = not HIDDEN
             self._obvert_visibility(df_out)
