@@ -1,4 +1,4 @@
-FROM python:3
+FROM blackdentech/kf-pandas
 
 ENV KF_INGEST_APP_MODE production
 

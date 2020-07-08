@@ -621,7 +621,7 @@ class MessagePacker:
                     # to constants.COMMON.NOT_REPORTED
                     values.append(
                         convert_to_downcasted_str(
-                            row[c],
+                            row.get(c),
                             replace_na=True,
                             na=constants.COMMON.NOT_REPORTED,
                         )
