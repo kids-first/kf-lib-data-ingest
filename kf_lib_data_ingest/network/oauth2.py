@@ -5,6 +5,8 @@ Module for requests using OAuth 2 based authentication/authorization
 import logging
 from pprint import pformat
 
+from d3b_utils.requests_retry import Session
+
 from kf_lib_data_ingest.network import utils
 
 logger = logging.getLogger(__name__)
@@ -49,7 +51,7 @@ def get_service_token(provider_domain, audience, client_id, client_secret):
         f"{audience} resources"
     )
 
-    response = utils.RetrySession(connect=1).post(oauth_token_url, json=body)
+    response = Session().post(oauth_token_url, json=body)
 
     if response.status_code != 200:
         logger.error(
