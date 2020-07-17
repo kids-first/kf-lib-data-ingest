@@ -27,6 +27,7 @@ In this tutorial we will cover (not necessarily in this order):
    :caption: Contents
    :maxdepth: 2
 
+   app.rst
    ingest_package.rst
    package_setup.rst
    debugging.rst
@@ -35,5 +36,5 @@ In this tutorial we will cover (not necessarily in this order):
    study_creator.rst
    package_testing.rst
    transform.rst
+   target_service_plugins/index.rst
    load.rst
-   app.rst

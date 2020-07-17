@@ -37,8 +37,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Developers" href="../developer.html" />
-    <link rel="prev" title="Load Stage" href="load.html" />
+    <link rel="next" title="Ingest Package Configuration" href="ingest_package.html" />
+    <link rel="prev" title="How To" href="index.html" />
     <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
  
 </head>
@@ -98,15 +98,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Design Overview</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">How To</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="ingest_package.html">Ingest Package Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="package_setup.html">New Ingest Package Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="debugging.html">Debugging and Developing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extract/index.html">Extract Stage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extract/challenge_scenarios/index.html">Common Challenges when Extracting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="package_testing.html">Testing Your Ingest Package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="transform.html">Transform Stage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="load.html">Load Stage</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Kids First Ingest App</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#app-settings">App Settings</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#authorization-configs">Authorization Configs</a></li>
@@ -115,6 +106,16 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="ingest_package.html">Ingest Package Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="package_setup.html">New Ingest Package Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="debugging.html">Debugging and Developing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extract/index.html">Extract Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extract/challenge_scenarios/index.html">Common Challenges when Extracting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="package_testing.html">Testing Your Ingest Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transform.html">Transform Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="target_service_plugins/index.html">Target Service Plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="load.html">Understanding the Load Stage</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../developer.html">Developers</a></li>
@@ -198,6 +199,17 @@ then this section will also explain where source data files should live
 <h2>App Settings<a class="headerlink" href="#app-settings" title="Permalink to this headline">¶</a></h2>
 <p>App settings include configuration that applies to a group of ingest packages
 which are all part of the same project.</p>
+<p>Each app settings file is a Python module, and all app settings files live in
+the <code class="docutils literal notranslate"><span class="pre">kf_lib_data_ingest/app/settings</span></code> directory. Common settings can be
+imported from <code class="docutils literal notranslate"><span class="pre">base.py</span></code>.</p>
+<p>App level settings currently include but are not limited to:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">TARGET_API_CONFIG</span></code> the path to the target API configuration module
+which specifies how to transform data into a form expected by the target
+service</li>
+<li><code class="docutils literal notranslate"><span class="pre">AUTH_CONFIGS</span></code> dict, which specifies what authentication parameters to use
+when fetching remote source data files that require authentication.</li>
+</ul>
 <p>Here’s what an example app settings file looks like:</p>
 <div class="literal-block-wrapper docutils container" id="id1">
 <div class="code-block-caption"><span class="caption-text">kf_lib_data_ingest/app/settings/development.py</span><a class="headerlink" href="#id1" title="Permalink to this code">¶</a></div>
@@ -233,17 +245,6 @@ which are all part of the same project.</p>
 </pre></div>
 </div>
 </div>
-<p>Each app settings file is a Python module, and all app settings files live in
-the <code class="docutils literal notranslate"><span class="pre">kf_lib_data_ingest/app/settings</span></code> directory. Common settings can be
-imported from <code class="docutils literal notranslate"><span class="pre">base.py</span></code>.</p>
-<p>App level settings currently include but are not limited to:</p>
-<ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">TARGET_API_CONFIG</span></code> the path to the target API configuration module
-which specifies how to transform data into a form expected by the target
-service</li>
-<li><code class="docutils literal notranslate"><span class="pre">AUTH_CONFIGS</span></code> dict, which specifies what authentication parameters to use
-when fetching remote source data files that require authentication.</li>
-</ul>
 <div class="section" id="authorization-configs">
 <span id="tutorial-authorization-configs"></span><h3>Authorization Configs<a class="headerlink" href="#authorization-configs" title="Permalink to this headline">¶</a></h3>
 <p>TODO</p>
@@ -293,10 +294,10 @@ settings file via the <code class="docutils literal notranslate"><span class="pr
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../developer.html" class="btn btn-neutral float-right" title="Developers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="ingest_package.html" class="btn btn-neutral float-right" title="Ingest Package Configuration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="load.html" class="btn btn-neutral float-left" title="Load Stage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="How To" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

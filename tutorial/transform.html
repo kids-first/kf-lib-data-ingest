@@ -37,7 +37,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Load Stage" href="load.html" />
+    <link rel="next" title="Target Service Plugins" href="target_service_plugins/index.html" />
     <link rel="prev" title="Testing Your Ingest Package" href="package_testing.html" />
     <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
  
@@ -98,6 +98,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Design Overview</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">How To</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="app.html">Kids First Ingest App</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ingest_package.html">Ingest Package Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="package_setup.html">New Ingest Package Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="debugging.html">Debugging and Developing</a></li>
@@ -116,8 +117,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#test-your-package">Test Your Package</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="load.html">Load Stage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="app.html">Kids First Ingest App</a></li>
+<li class="toctree-l2"><a class="reference internal" href="target_service_plugins/index.html">Target Service Plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="load.html">Understanding the Load Stage</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../developer.html">Developers</a></li>
@@ -332,6 +333,10 @@ particular target concepts.</p>
 <p>You can do this by setting a key in the transform function’s output dict
 specifically named after a particular target concept, with its value set to the
 DataFrame containing the data to build instances of that target concept.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">To further understand this, read: <a class="reference internal" href="load.html#tutorial-load-stage-expects"><span class="std std-ref">What the Load Stage Expects</span></a></p>
+</div>
 <p>For example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.concept_schema</span> <span class="kn">import</span> <span class="n">CONCEPT</span>
 <span class="c1"># Use these merge funcs, not pandas.merge</span>
@@ -382,7 +387,7 @@ that the GuidedTransformStage began and ended.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="load.html" class="btn btn-neutral float-right" title="Load Stage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="target_service_plugins/index.html" class="btn btn-neutral float-right" title="Target Service Plugins" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="package_testing.html" class="btn btn-neutral float-left" title="Testing Your Ingest Package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

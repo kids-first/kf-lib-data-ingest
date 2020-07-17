@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Load Stage &mdash; Kids First Data Ingest Libraries  documentation</title>
+  <title>Understanding the Load Stage &mdash; Kids First Data Ingest Libraries  documentation</title>
   
 
   
@@ -37,8 +37,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Kids First Ingest App" href="app.html" />
-    <link rel="prev" title="Transform Stage" href="transform.html" />
+    <link rel="next" title="Developers" href="../developer.html" />
+    <link rel="prev" title="Using a Target Service Plugin" href="target_service_plugins/how_to_use.html" />
     <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
  
 </head>
@@ -98,6 +98,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Design Overview</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">How To</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="app.html">Kids First Ingest App</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ingest_package.html">Ingest Package Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="package_setup.html">New Ingest Package Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="debugging.html">Debugging and Developing</a></li>
@@ -106,11 +107,12 @@
 <li class="toctree-l2"><a class="reference internal" href="study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="package_testing.html">Testing Your Ingest Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="transform.html">Transform Stage</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Load Stage</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#under-construction">Under Construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="target_service_plugins/index.html">Target Service Plugins</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Understanding the Load Stage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#what-the-load-stage-expects">What the Load Stage Expects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-the-load-stage-on-its-own">Using The Load Stage On Its Own</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="app.html">Kids First Ingest App</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../developer.html">Developers</a></li>
@@ -162,7 +164,7 @@
         
           <li><a href="index.html">How To</a> &raquo;</li>
         
-      <li>Load Stage</li>
+      <li>Understanding the Load Stage</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -181,12 +183,61 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="load-stage">
-<span id="tutorial-load-stage"></span><h1>Load Stage<a class="headerlink" href="#load-stage" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="under-construction">
-<h2>Under Construction<a class="headerlink" href="#under-construction" title="Permalink to this headline">¶</a></h2>
-<a class="reference internal image-reference" href="../_images/construction.svg"><img alt="Under Construction" height="150px" src="../_images/construction.svg" width="150px" /></a>
-<p>But coming soon …</p>
+  <div class="section" id="understanding-the-load-stage">
+<span id="tutorial-load-stage"></span><h1>Understanding the Load Stage<a class="headerlink" href="#understanding-the-load-stage" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="what-the-load-stage-expects">
+<span id="tutorial-load-stage-expects"></span><h2>What the Load Stage Expects<a class="headerlink" href="#what-the-load-stage-expects" title="Permalink to this headline">¶</a></h2>
+<p>The Load stage expects to receive a dictionary of pandas DataFrames keyed by
+hints about which data can be found in the tables.</p>
+<p>Example input:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">pandas</span> <span class="n">DataFrame</span> <span class="mi">1</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;phenotypes&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">pandas</span> <span class="n">DataFrame</span> <span class="mi">2</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;family_relationships&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">pandas</span> <span class="n">DataFrame</span> <span class="mi">3</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The keys must either be the value of a <code class="docutils literal notranslate"><span class="pre">class_name</span></code> attribute from one of
+your target service plugin’s included entity builders or <code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code> (where the
+<code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code> entry will be used for any entity builder that isn’t explicitly named
+in the dict), and each DataFrame must contain all of the necessary data used by
+its respective target service entity builder.</p>
+<p>In the above example, if building <code class="docutils literal notranslate"><span class="pre">&quot;phenotypes&quot;</span></code> requires knowing who is
+being described, what characteristic they have, and when the characteristic was
+observed, the attached DataFrame must therefore include those values.</p>
+</div>
+<div class="section" id="using-the-load-stage-on-its-own">
+<h2>Using The Load Stage On Its Own<a class="headerlink" href="#using-the-load-stage-on-its-own" title="Permalink to this headline">¶</a></h2>
+<p>If your data is already appropriately standardized, you don’t need to use the
+Extract and Transform stages in order to use the Load Stage. The Load stage can
+be invoked on its own in Python like so:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.io</span> <span class="kn">import</span> <span class="n">read_df</span>
+<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.etl.load.load</span> <span class="kn">import</span> <span class="n">LoadStage</span>
+
+<span class="n">path_to_my_target_service_plugin</span> <span class="o">=</span> <span class="s2">&quot;foo/bar/my_plugin.py&quot;</span>
+<span class="n">target_service_base_url</span> <span class="o">=</span> <span class="s2">&quot;https://my_service:8080&quot;</span>
+<span class="n">list_of_class_names_to_load</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;patient&quot;</span><span class="p">,</span> <span class="s2">&quot;family_relationship&quot;</span><span class="p">,</span> <span class="s2">&quot;specimen&quot;</span><span class="p">]</span>
+<span class="n">study_id</span> <span class="o">=</span> <span class="s2">&quot;SD_ME0WME0W&quot;</span>
+<span class="n">path_to_cache_storage_directory</span> <span class="o">=</span> <span class="s2">&quot;foo/bar/my_output&quot;</span>
+
+<span class="n">LoadStage</span><span class="p">(</span>
+    <span class="n">path_to_my_target_service_plugin</span><span class="p">,</span>
+    <span class="n">target_service_base_url</span><span class="p">,</span>
+    <span class="n">list_of_class_names_to_load</span><span class="p">,</span>
+    <span class="n">study_id</span><span class="p">,</span>
+    <span class="n">path_to_cache_storage_directory</span>
+<span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">read_df</span><span class="p">(</span><span class="s2">&quot;my_input/default.tsv&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;family_relationship&quot;</span><span class="p">:</span> <span class="n">read_df</span><span class="p">(</span><span class="s2">&quot;my_input/family_relationships.tsv&quot;</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>As mentioned, you may choose to do this if all of your incoming data is
+guaranteed to be in a strict standardized format that requires no special
+slicing, chopping, or blending.</p>
 </div>
 </div>
 
@@ -198,10 +249,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="app.html" class="btn btn-neutral float-right" title="Kids First Ingest App" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../developer.html" class="btn btn-neutral float-right" title="Developers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="transform.html" class="btn btn-neutral float-left" title="Transform Stage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="target_service_plugins/how_to_use.html" class="btn btn-neutral float-left" title="Using a Target Service Plugin" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

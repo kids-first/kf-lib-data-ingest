@@ -100,6 +100,10 @@ You can do this by setting a key in the transform function's output dict
 specifically named after a particular target concept, with its value set to the
 DataFrame containing the data to build instances of that target concept.
 
+.. note::
+
+    To further understand this, read: :ref:`Tutorial-Load-Stage-Expects`
+
 For example:
 
 .. code-block:: python

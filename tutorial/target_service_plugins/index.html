@@ -1,0 +1,255 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Target Service Plugins &mdash; Kids First Data Ingest Libraries  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Making a Target Service Plugin" href="how_to_make.html" />
+    <link rel="prev" title="Transform Stage" href="../transform.html" />
+    <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
+ 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html">
+          
+
+          
+            
+            <img src="../../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design/overview.html">Design Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">How To</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../app.html">Kids First Ingest App</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ingest_package.html">Ingest Package Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../package_setup.html">New Ingest Package Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../debugging.html">Debugging and Developing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../extract/index.html">Extract Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../extract/challenge_scenarios/index.html">Common Challenges when Extracting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../package_testing.html">Testing Your Ingest Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../transform.html">Transform Stage</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Target Service Plugins</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="how_to_make.html">Making a Target Service Plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="how_to_use.html">Using a Target Service Plugin</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../load.html">Understanding the Load Stage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer.html">Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/index.html">Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Kids First Data Ingest Libraries</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">How To</a> &raquo;</li>
+        
+      <li>Target Service Plugins</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/tutorial/target_service_plugins/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="target-service-plugins">
+<span id="tutorial-target-service-plugins"></span><h1>Target Service Plugins<a class="headerlink" href="#target-service-plugins" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="how_to_make.html">Making a Target Service Plugin</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="how_to_make.html#the-parts-of-a-target-service-plugin">The Parts of a Target Service Plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how_to_make.html#example">Example</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="how_to_make.html#example-target-service">Example Target Service</a></li>
+<li class="toctree-l3"><a class="reference internal" href="how_to_make.html#example-entity-builder-class">Example Entity Builder Class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="how_to_make.html#example-list">Example List</a></li>
+<li class="toctree-l3"><a class="reference internal" href="how_to_make.html#example-submit-function">Example Submit Function</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="how_to_use.html">Using a Target Service Plugin</a></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="how_to_make.html" class="btn btn-neutral float-right" title="Making a Target Service Plugin" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../transform.html" class="btn btn-neutral float-left" title="Transform Stage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Kids First
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
