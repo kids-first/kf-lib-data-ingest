@@ -1,3 +1,27 @@
+# Kids First Data Ingest Library Change History
+
+## Release 0.11.0
+
+### Summary
+
+- Emojis: ♻️ x1, ⬆️ x1, 🔇 x1, 🍱 x1, 👽 x1, ✨ x1, 🚨 x2, 🐛 x1, 📝 x1, 🚧 x1, 💡 x1
+- Categories: Other Changes x3, Ops x1, Removals x1, Fixes x4, Additions x1, Documentation x2
+
+### New features and changes
+
+- [#458](https://github.com/kids-first/kf-lib-data-ingest/pull/458) - ♻️ Refactor target entity construction into plugin API - [d753e5d2](https://github.com/kids-first/kf-lib-data-ingest/commit/d753e5d2d9a0a23a75a390625ab53ed60910de93) by [fiendish](https://github.com/fiendish)
+- [#467](https://github.com/kids-first/kf-lib-data-ingest/pull/467) - ⬆️ Upgrade boto3 and pandas - [4f3370d7](https://github.com/kids-first/kf-lib-data-ingest/commit/4f3370d71ebd3c46a19ac936653376196c10af33) by [fiendish](https://github.com/fiendish)
+- [#465](https://github.com/kids-first/kf-lib-data-ingest/pull/465) - 🔇 Censor more strings from the logs - [1ad910b2](https://github.com/kids-first/kf-lib-data-ingest/commit/1ad910b2a3bd21a6c8d4cbdd69b00cc1e038bab3) by [fiendish](https://github.com/fiendish)
+- [#466](https://github.com/kids-first/kf-lib-data-ingest/pull/466) - 🍱 Reduce sizes of _static/images/*.png - [2c0339ec](https://github.com/kids-first/kf-lib-data-ingest/commit/2c0339ece435221e7c67717837a7da7e6a39c8dd) by [fiendish](https://github.com/fiendish)
+- [#463](https://github.com/kids-first/kf-lib-data-ingest/pull/463) - 👽 Use token auth for prod study creator - [6ff222c3](https://github.com/kids-first/kf-lib-data-ingest/commit/6ff222c376729b094b8e530a02b428d85b853709) by [fiendish](https://github.com/fiendish)
+- [#460](https://github.com/kids-first/kf-lib-data-ingest/pull/460) - ✨ Customize requests user agent - [c889b4d5](https://github.com/kids-first/kf-lib-data-ingest/commit/c889b4d5626187a4b5bd544e8296c30dcf94598b) by [fiendish](https://github.com/fiendish)
+- [#462](https://github.com/kids-first/kf-lib-data-ingest/pull/462) - 🚨 Fix some test warnings - [80a76d90](https://github.com/kids-first/kf-lib-data-ingest/commit/80a76d90410cfa406502fbba2a9e97570f946ea7) by [fiendish](https://github.com/fiendish)
+- [#455](https://github.com/kids-first/kf-lib-data-ingest/pull/455) - 🐛 Fix python packages - [7fb18219](https://github.com/kids-first/kf-lib-data-ingest/commit/7fb182193ccef56fbc4df0eeffa6d1138bc2dafd) by [znatty22](https://github.com/znatty22)
+- [#457](https://github.com/kids-first/kf-lib-data-ingest/pull/457) - 🚨 Fix new flake alerts - [c015bc96](https://github.com/kids-first/kf-lib-data-ingest/commit/c015bc96e073ae28e26c989c541552a393250005) by [fiendish](https://github.com/fiendish)
+- [#451](https://github.com/kids-first/kf-lib-data-ingest/pull/451) - 📝 Add psycopg2 to the install instructions - [3b64a076](https://github.com/kids-first/kf-lib-data-ingest/commit/3b64a076a2211286890a0195222aa9d826254ba2) by [fiendish](https://github.com/fiendish)
+- [#447](https://github.com/kids-first/kf-lib-data-ingest/pull/447) - 🚧 Add sample procurement - [fb55890f](https://github.com/kids-first/kf-lib-data-ingest/commit/fb55890f469b4d755e2862e132538fcff7d30de1) by [liberaliscomputing](https://github.com/liberaliscomputing)
+- [#445](https://github.com/kids-first/kf-lib-data-ingest/pull/445) - 💡 Explain why AUTOCOMMIT is invoked - [127be01e](https://github.com/kids-first/kf-lib-data-ingest/commit/127be01e82994bb210246a33290176799c49b814) by [fiendish](https://github.com/fiendish)
+
 # Kids First Lib Data Ingest Release 0.10.0
 
 ## ⚠️ Important - README!
