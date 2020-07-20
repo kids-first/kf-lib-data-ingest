@@ -1,6 +1,11 @@
 import logging
 import os
 
+try:  # Python 3.8
+    from importlib.metadata import version
+except ImportError:
+    from importlib_metadata import version
+
 NETWORK_USER_AGENT = "kf-lib-data-ingest"
 
 ROOT_DIR = os.path.dirname(__file__)
@@ -20,7 +25,8 @@ INGEST_PKG_TEMPLATE_NAME = "my_study"
 
 DEFAULT_ID_CACHE_FILENAME = "uid_cache.db"
 
-VERSION = __import__("kf_lib_data_ingest").__version__
+VERSION = version("kf-lib-data-ingest")
+
 
 # Key in transform func's output dict whose value is the default DataFrame
 # to use when transforming from DataFrame into target concept instances

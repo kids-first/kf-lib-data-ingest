@@ -6,11 +6,14 @@ req_file = os.path.join(root_dir, "requirements.txt")
 with open(req_file) as f:
     requirements = f.read().splitlines()
 
-version = __import__("kf_lib_data_ingest").__version__
 
 setup(
     name="kf-lib-data-ingest",
-    version=version,
+    use_scm_version={
+        "local_scheme": "dirty-tag",
+        "version_scheme": "post-release",
+    },
+    setup_requires=["setuptools_scm"],
     description="Kids First Data Ingest Library",
     packages=find_packages(),
     entry_points={
