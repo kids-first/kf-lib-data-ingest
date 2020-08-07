@@ -11,6 +11,21 @@ your tabular extracted data into the appropriate form for sending to your
 target service and that will negotiate the submission according to the demands
 of the service.
 
+Existing Plugins For Reference
+==============================
+
+Here are two complete examples that work with the same input data for different
+target servers. Seeing what they look like in their entirety may be helpful in
+understanding what we're trying to make:
+
+- Plugin for loading data into the Kids First FHIR server:
+
+  https://github.com/kids-first/kf-model-fhir/tree/master/kf_model_fhir/ingest_plugin
+
+- Plugin for loading data into the Kids First non-FHIR Dataservice:
+
+  https://github.com/kids-first/kf-lib-data-ingest/blob/master/kf_lib_data_ingest/target_api_plugins/kids_first_dataservice.py
+
 The Parts of a Target Service Plugin
 ====================================
 
@@ -81,9 +96,10 @@ This class tells the Load stage how to build a participant from extracted data
 Example List
 ------------
 
-This tells the Load stage which order to load things in. In this example
-there's only one entry because we're only defining the builder for
-participants, but you will probably have many.
+This tells the Load stage which order to load things in (You probably don't
+want to submit biospecimens before submitting participants if biospecimens
+reference participants). In this example there's only one entry because we're
+only defining the builder for participants, but you will probably have many.
 
 .. code-block:: python
 
