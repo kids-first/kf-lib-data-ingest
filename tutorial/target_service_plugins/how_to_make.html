@@ -109,6 +109,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../transform.html">Transform Stage</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Target Service Plugins</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Making a Target Service Plugin</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#existing-plugins-for-reference">Existing Plugins For Reference</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#the-parts-of-a-target-service-plugin">The Parts of a Target Service Plugin</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#example">Example</a></li>
 </ul>
@@ -197,6 +198,20 @@ that server. You need a target service plugin module that will convert from
 your tabular extracted data into the appropriate form for sending to your
 target service and that will negotiate the submission according to the demands
 of the service.</p>
+<div class="section" id="existing-plugins-for-reference">
+<h2>Existing Plugins For Reference<a class="headerlink" href="#existing-plugins-for-reference" title="Permalink to this headline">¶</a></h2>
+<p>Here are two complete examples that work with the same input data for different
+target servers. Seeing what they look like in their entirety may be helpful in
+understanding what we’re trying to make:</p>
+<ul>
+<li><p class="first">Plugin for loading data into the Kids First FHIR server:</p>
+<p><a class="reference external" href="https://github.com/kids-first/kf-model-fhir/tree/master/kf_model_fhir/ingest_plugin">https://github.com/kids-first/kf-model-fhir/tree/master/kf_model_fhir/ingest_plugin</a></p>
+</li>
+<li><p class="first">Plugin for loading data into the Kids First non-FHIR Dataservice:</p>
+<p><a class="reference external" href="https://github.com/kids-first/kf-lib-data-ingest/blob/master/kf_lib_data_ingest/target_api_plugins/kids_first_dataservice.py">https://github.com/kids-first/kf-lib-data-ingest/blob/master/kf_lib_data_ingest/target_api_plugins/kids_first_dataservice.py</a></p>
+</li>
+</ul>
+</div>
 <div class="section" id="the-parts-of-a-target-service-plugin">
 <h2>The Parts of a Target Service Plugin<a class="headerlink" href="#the-parts-of-a-target-service-plugin" title="Permalink to this headline">¶</a></h2>
 <p><strong>Target service plugins have two parts:</strong></p>
@@ -346,9 +361,10 @@ for submitting Participant data:</p>
 </div>
 <div class="section" id="example-list">
 <h3>Example List<a class="headerlink" href="#example-list" title="Permalink to this headline">¶</a></h3>
-<p>This tells the Load stage which order to load things in. In this example
-there’s only one entry because we’re only defining the builder for
-participants, but you will probably have many.</p>
+<p>This tells the Load stage which order to load things in (You probably don’t
+want to submit biospecimens before submitting participants if biospecimens
+reference participants). In this example there’s only one entry because we’re
+only defining the builder for participants, but you will probably have many.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">all_targets</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">Participant</span>
 <span class="p">]</span>
