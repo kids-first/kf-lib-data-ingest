@@ -1,5 +1,11 @@
+
 @Library(value='kids-first/aws-infra-jenkins-shared-libraries', changelog=false) _
-ecs_service_type_1 {
-    projectName = "kf-lib-data-ingest"
-    agentLabel = "terraform-testing"
+ecs_service_type_1_standard {
+    projectName                = "kf-lib-data-ingest"
+    orgFullName                = "kids-first"
+    account                    = "kf-strides"
+    environments               = "n/a"
+    docker_image_type          = "debian"
+    quick_deploy               = "true"
+    dependencies               = "ecr"
 }
