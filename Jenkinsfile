@@ -6,6 +6,5 @@ ecs_service_type_1_standard {
     account                    = "kf-strides"
     environments               = "n/a"
     docker_image_type          = "debian"
-    quick_deploy               = "true"
     dependencies               = "ecr"
 }
