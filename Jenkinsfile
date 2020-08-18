@@ -7,4 +7,5 @@ ecs_service_type_1_standard {
     environments               = "n/a"
     docker_image_type          = "debian"
     dependencies               = "ecr"
+    quick_deploy               = "false"
 }
