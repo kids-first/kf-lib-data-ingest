@@ -5,23 +5,13 @@ set -e
 if [[ $KF_INGEST_APP_MODE = "production" ]]; then
     echo "Loading production app settings into environment ..."
 
-    if [[ -n $VAULT_ADDR ]] && [[ -n $VAULT_ROLE ]]; then
-        vault login -method=aws role=$VAULT_ROLE 2>&1 | grep authent
+    SECRETS=$(aws s3 cp s3://kf-strides-232196027141-us-east-1-prd-secrets/kf-lib-data-ingest/secrets.env -)
 
-        echo "Load secrets from vault ..."
-
-        # Get secrets from vault
-        VAULT_JSON=$(vault read -format=json 'secret/aws/kf-ingest-app/auth0')
-        SECRETS=$(echo $VAULT_JSON | jq -r ".data | to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]")
-
-        # Set env vars
-        for s in $SECRETS; do
-            while IFS=$'=' read -r key value
-            do
-                export "$key"="$value"
-            done <<< "$s"
+    for s in $SECRETS; do
+        export "$s"
         done
-    fi
+    done
+    
 fi
 
 kidsfirst "$@"
