@@ -4,6 +4,7 @@
 set -e
 
 . venv/bin/activate
+pip install -e .
 pip install -r dev-requirements.txt
 py.test -s --cov=kf_lib_data_ingest tests
 
