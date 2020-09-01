@@ -14,10 +14,8 @@ NULL_VALUES = {
     constants.COMMON.NOT_AVAILABLE
 }
 
-check_bool = lambda x: x in {
-        constants.COMMON.TRUE,
-        constants.COMMON.FALSE
-    }
+def null_wrapper(values):
+    return lambda x: (x in values) or (x in NULL_VALUES)
 
 check_age = lambda x: (int(x) >= MIN_AGE_DAYS) and (int(x) < MAX_AGE_DAYS)
 
@@ -30,6 +28,7 @@ def check_date(x):
 
 
 check_positive = lambda x: int(x) > 0
+check_non_negative = lambda x: int(x) >= 0
 
 
 INPUT_VALIDATION = {
@@ -44,8 +43,6 @@ INPUT_VALIDATION = {
           constants.RACE.MULTIPLE
     },
     CONCEPT.PARTICIPANT.ENROLLMENT_AGE_DAYS: check_age,
-    CONCEPT.PARTICIPANT.IS_PROBAND: check_bool,
-    CONCEPT.PARTICIPANT.IS_AFFECTED_UNDER_STUDY: check_bool,
     CONCEPT.PARTICIPANT.ETHNICITY: lambda x: x in {
         constants.ETHNICITY.HISPANIC,
         constants.ETHNICITY.NON_HISPANIC
@@ -88,14 +85,11 @@ INPUT_VALIDATION = {
         constants.COMMON.OTHER
     },
     CONCEPT.BIOSPECIMEN.SHIPMENT_DATE: check_date,
-    CONCEPT.BIOSPECIMEN.VISIBLE: check_bool,
     CONCEPT.BIOSPECIMEN.VOLUME_UL: check_positive,
 
     # BIOSPECIMEN_DIAGNOSIS
-    CONCEPT.BIOSPECIMEN_DIAGNOSIS.VISIBLE: check_bool,
 
     # BIOSPECIMEN_GENOMIC_FILE
-    CONCEPT.BIOSPECIMEN_GENOMIC_FILE.VISIBLE: check_bool,
 
     # DIAGNOSIS
     CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS: check_positive,
@@ -104,13 +98,10 @@ INPUT_VALIDATION = {
         constants.STUDY.STRUCTURAL_DEFECT,
         constants.COMMON.OTHER
     },
-    CONCEPT.DIAGNOSIS.VISIBLE: check_bool,
 
     # FAMILY
-    CONCEPT.FAMILY.VISIBLE: check_bool,
 
     # FAMILY_RELATIONSHIP
-    CONCEPT.FAMILY_RELATIONSHIP.VISIBLE: check_bool,
 
     # GENOMIC_FILE
     CONCEPT.GENOMIC_FILE.AVAILABILITY: lambda x:
@@ -119,8 +110,121 @@ INPUT_VALIDATION = {
             constants.GENOMIC_FILE.AVAILABILITY.COLD_STORAGE
         }) or
         (x in NULL_VALUES),
-    CONCEPT.GENOMIC_FILE.CONTROLLED_ACCESS: check_bool,
+    CONCEPT.GENOMIC_FILE.DATA_TYPE: lambda x: (x in {
+        constants.GENOMIC_FILE.DATA_TYPE.ALIGNED_READS,
+        constants.GENOMIC_FILE.DATA_TYPE.ALIGNED_READS_INDEX,
+        constants.GENOMIC_FILE.DATA_TYPE.EXPRESSION,
+        constants.GENOMIC_FILE.DATA_TYPE.GENE_EXPRESSION,
+        constants.GENOMIC_FILE.DATA_TYPE.GENE_FUSIONS,
+        constants.GENOMIC_FILE.DATA_TYPE.GVCF,
+        constants.GENOMIC_FILE.DATA_TYPE.GVCF_INDEX,
+        constants.GENOMIC_FILE.DATA_TYPE.HISTOLOGY_IMAGES,
+        constants.GENOMIC_FILE.DATA_TYPE.ISOFORM_EXPRESSION,
+        constants.GENOMIC_FILE.DATA_TYPE.OPERATION_REPORTS,
+        constants.COMMON.OTHER,
+        constants.GENOMIC_FILE.DATA_TYPE.PATHOLOGY_REPORTS,
+        constants.GENOMIC_FILE.DATA_TYPE.RADIOLOGY_IMAGES,
+        constants.GENOMIC_FILE.DATA_TYPE.RADIOLOGY_REPORTS,
+        constants.GENOMIC_FILE.DATA_TYPE.NUCLEOTIDE_VARIATION,
+        constants.GENOMIC_FILE.DATA_TYPE.SOMATIC_COPY_NUMBER_VARIATIONS,
+        constants.GENOMIC_FILE.DATA_TYPE.SOMATIC_STRUCTURAL_VARIATIONS,
+        constants.GENOMIC_FILE.DATA_TYPE.UNALIGNED_READS,
+        constants.GENOMIC_FILE.DATA_TYPE.VARIANT_CALLS,
+        constants.GENOMIC_FILE.DATA_TYPE.VARIANT_CALLS_INDEX
+    }) or (x in NULL_VALUES),
+    CONCEPT.SEQUENCING.PAIRED_END: lambda x: (x in {1, 2}) or (x in NULL_VALUES),
+    CONCEPT.GENOMIC_FILE.SIZE: check_non_negative,
 
+    # INVESTIGATOR
+
+    # OUTCOME
+    CONCEPT.OUTCOME.EVENT_AGE_DAYS: check_age,
+    CONCEPT.OUTCOME.DISEASE_RELATED: lambda x: (x in {
+        constants.OUTCOME.DISEASE_RELATED.YES,
+        constants.OUTCOME.DISEASE_RELATED.NO
+    }) or (x in NULL_VALUES),
+    CONCEPT.OUTCOME.VITAL_STATUS: lambda x: (x in {
+        constants.OUTCOME.VITAL_STATUS.ALIVE,
+        constants.OUTCOME.VITAL_STATUS.DEAD
+    }) or (x in NULL_VALUES),
+
+    # PHENOTYPE
+    CONCEPT.PHENOTYPE.EVENT_AGE_DAYS: check_age,
+    CONCEPT.PHENOTYPE.OBSERVED: lambda x: (x in {
+        constants.PHENOTYPE.OBSERVED.YES,
+        constants.PHENOTYPE.OBSERVED.NO
+    }) or (x in NULL_VALUES),
+
+    # READ_GROUP
+    CONCEPT.READ_GROUP.LANE_NUMBER: check_positive,
+    CONCEPT.READ_GROUP.QUALITY_SCALE: lambda x: (x in {
+        constants.READ_GROUP.QUALITY_SCALE.ILLUMINA13,
+        constants.READ_GROUP.QUALITY_SCALE.ILLUMINA15,
+        constants.READ_GROUP.QUALITY_SCALE.ILLUMINA18,
+        constants.READ_GROUP.QUALITY_SCALE.SANGER,
+        constants.READ_GROUP.QUALITY_SCALE.SOLEXA
+    }) or (x in NULL_VALUES),
+
+    # READ_GROUP_GENOMIC_FILE
+
+    # SEQUENCING_CENTER
+
+    # SEQUENCING_EXPERIMENT
+    CONCEPT.SEQUENCING.DATE: check_date,
+    CONCEPT.SEQUENCING.STRATEGY: lambda x: (x in {
+        constants.SEQUENCING.STRATEGY.TARGETED,
+        constants.SEQUENCING.STRATEGY.WXS,
+        constants.SEQUENCING.STRATEGY.WGS,
+        constants.SEQUENCING.STRATEGY.RNA,
+        constants.SEQUENCING.STRATEGY.MRNA,
+        constants.SEQUENCING.STRATEGY.LINKED_WGS
+    }) or (x in NULL_VALUES),
+    #TODO: CONCEPT.SEQUENCING.LIBRARY_PREP
+    #TODO: CONCEPT.SEQUENCING.LIBRARY_SELECTION
+    CONCEPT.SEQUENCING.LIBRARY_STRAND: lambda x: (x in {
+        constants.SEQUENCING.STRAND.UNSTRANDED,
+        constants.SEQUENCING.STRAND.FIRST,
+        constants.SEQUENCING.STRAND.SECOND,
+        constants.COMMON.OTHER
+    }) or (x in NULL_VALUES),
+    CONCEPT.SEQUENCING.MAX_INSERT_SIZE: check_positive,
+    CONCEPT.SEQUENCING.MEAN_DEPTH: check_positive,
+    CONCEPT.SEQUENCING.MEAN_INSERT_SIZE: check_positive,
+    CONCEPT.SEQUENCING.MEAN_READ_LENGTH: check_positive,
+    CONCEPT.SEQUENCING.PLATFORM: lambda x: (x in {
+        constants.SEQUENCING.PLATFORM.ION_TORRENT,
+        constants.SEQUENCING.PLATFORM.SOLID,
+        constants.SEQUENCING.PLATFORM.ILLUMINA,
+        constants.SEQUENCING.PLATFORM.LS454,
+        constants.SEQUENCING.PLATFORM.GENOMICS,
+        constants.SEQUENCING.PLATFORM.PACBIO,
+        constants.COMMON.OTHER
+    }) or (x in NULL_VALUES),
+    CONCEPT.SEQUENCING.TOTAL_READS: check_positive,
+
+    # SEQUENCING_EXPERIMENT_GENOMIC_FILE
+
+    # STUDY
+    CONCEPT.STUDY.RELEASE_STATUS: lambda x: (x in {
+        constants.STUDY.STATUS.FAILED,
+        constants.STUDY.STATUS.PENDING,
+        constants.STUDY.STATUS.PUBLISHING,
+        constants.STUDY.STATUS.CANCELED,
+        constants.STUDY.STATUS.STAGED,
+        constants.STUDY.STATUS.RUNNING,
+        constants.STUDY.STATUS.PUBLISHED,
+        constants.STUDY.STATUS.WAITING
+    }) or (x in NULL_VALUES),
+
+    # STUDY_FILE
+    CONCEPT.STUDY_FILE.AVAILABILITY: lambda x: (x in {
+        constants.GENOMIC_FILE.AVAILABILITY.IMMEDIATE,
+        constants.GENOMIC_FILE.AVAILABILITY.COLD_STORAGE
+    }) or (x in NULL_VALUES),
+    
+    # TASK
+    
+    # TASK_GENOMIC_FILE
 
 }
 

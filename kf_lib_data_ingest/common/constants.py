@@ -106,6 +106,13 @@ class GENOMIC_FILE:
         TBI = "tbi"
         VCF = "vcf"
 
+class READ_GROUP:
+    class QUALITY_SCALE:
+        ILLUMINA13 = "Illumina13"
+        ILLUMINA15 = "Illumina15"
+        ILLUMINA18 = "Illumina18"
+        SANGER = "Sanger"
+        SOLEXA = "Solexa"
 
 class SEQUENCING:
     class REFERENCE_GENOME:
@@ -230,6 +237,7 @@ class SEQUENCING:
         RNA = "RNA-Seq"
         WGS = "WGS"
         WXS = "WXS"
+        TARGETED = "Targeted Sequencing"
 
     class ANALYTE:
         DNA = "DNA"
