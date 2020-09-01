@@ -45,7 +45,7 @@ def test_ingest_template_study(caplog, tmpdir):
     """
     Test ingest runs successfully for the template package
     """
-    caplog.set_level(logging.INFO)
+    caplog.set_level(logging.DEBUG)
     # > kidsfirst new
     study_dir = os.path.join(tmpdir, "my_study")
     runner = CliRunner()
