@@ -144,13 +144,37 @@ class SEQUENCING:
             NAME = "BGI@CHOP Genome Center"
             KF_ID = "SC_WWEQ9HFY"
 
+        class BGI_CHINA:
+            NAME = "BGI"
+            KF_ID = "SC_FAD4KCQG"
+
         class BROAD:
             NAME = "Broad Institute"
             KF_ID = "SC_DGDDQVYR"
 
+        class CBTN_UNSEQUENCED:
+            NAME = "CBTN Unsequenced"
+            KF_ID = "SC_31369RXZ"
+
+        class CHOP:
+            NAME = "CHOP"
+            KF_ID = "SC_9NSC532X"
+
+        class CHOP_DGD:
+            NAME = "CHOP DGD"
+            KF_ID = "SC_ZZPPF973"
+
+        class COMPLETE_GENOMICS:
+            NAME = "Complete Genomics"
+            KF_ID = "SC_D30SEWS4"
+
         class FELINE_DIAGNOSTICS:
             NAME = "Feline Diagnostics LLC"
             KF_ID = "SC_CATTVETT"
+
+        class FG:
+            NAME = "fg"
+            KF_ID = "SC_XXXXXXX2"
 
         class HUDSON_ALPHA:
             NAME = "HudsonAlpha Institute for Biotechnology"
@@ -176,9 +200,17 @@ class SEQUENCING:
             NAME = "St Jude"
             KF_ID = "SC_1K3QGW4V"
 
+        class TEMP:
+            NAME = "TEMP"
+            KF_ID = "SC_SJJ0B9GN"
+
         class TGEN:
             NAME = "The Translational Genomics Research Institute"
             KF_ID = "SC_KQ9JZG3P"
+
+        class UNKNOWN_CHRIS_JONES:
+            NAME = "UNKNOWN:CHRIS_JONES"
+            KF_ID = "SC_5A2B1T4K"
 
         class VIRTUAL:
             NAME = "Virtual"
@@ -187,6 +219,10 @@ class SEQUENCING:
         class WASHU:
             NAME = "Washington University"
             KF_ID = "SC_K52V7463"
+
+        class YALE:
+            NAME = "Yale"
+            KF_ID = "SC_31W52VNX"
 
     class STRATEGY:
         LINKED_WGS = "Linked-Read WGS (10x Chromium)"
