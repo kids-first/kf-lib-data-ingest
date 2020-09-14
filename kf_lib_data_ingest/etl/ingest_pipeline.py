@@ -7,9 +7,6 @@ from pprint import pformat
 
 import pytest
 
-import kf_lib_data_ingest.etl.stage_analyses as stage_analyses
-from kf_lib_data_ingest.common.concept_schema import UNIQUE_ID_ATTR
-from kf_lib_data_ingest.common.misc import timestamp
 from kf_lib_data_ingest.common.type_safety import assert_safe_type
 from kf_lib_data_ingest.common.warehousing import (
     init_study_db,
@@ -229,7 +226,6 @@ class DataIngestPipeline(object):
         self.logger.info("BEGIN data ingestion.")
         self.stages = {}
         all_passed = True
-        all_messages = []
 
         # Top level exception handler
         # Catch exception, log it to file and console, and exit
@@ -259,19 +255,14 @@ class DataIngestPipeline(object):
                     output = stage.run(output)
 
                     # Standard stage output validation
-                    if stage.concept_discovery_dict:
-                        passed, messages = self.check_stage_counts(stage)
-                        all_passed = passed and all_passed
-                        all_messages.extend(messages)
+                    # TODO
 
-                # Load cached output and concept counts
+                # Load cached output and validation results
                 else:
                     self.logger.info(
-                        "Loading previously cached output and concept counts "
-                        f"from {stage_name}"
+                        "Loading previously cached output " f"from {stage_name}"
                     )
                     output = stage.read_output()
-                    stage.read_concept_counts()
 
                 if self.warehouse_db_url and isinstance(
                     stage, (TransformStage, ExtractStage)
@@ -288,7 +279,6 @@ class DataIngestPipeline(object):
                         self.logger.info(
                             f"Loaded {schema}.{df_name} in {study_id} warehouse."
                         )
-            self._log_count_results(all_passed, all_messages)
 
             # Run user defined data validation tests
             all_passed = self.user_defined_tests() and all_passed
@@ -301,88 +291,6 @@ class DataIngestPipeline(object):
         # Log the end of the run
         self.logger.info("END data ingestion")
         return all_passed
-
-    def _log_count_results(self, all_passed, messages):
-        if all_passed:
-            summary = "✅ Count Analysis Passed!\n"
-        else:
-            summary = "❌ Count Analysis Failed!\n"
-
-        self.logger.info(summary + f"See {self.counts_file_path} for details")
-
-        summary += (
-            "Ingest package: "
-            f"{self.data_ingest_config.config_filepath}\n"
-            f"Completed at: {timestamp()}"
-        )
-        header = [
-            "======================\n"
-            "COUNT ANALYSIS RESULTS\n"
-            "======================",
-            summary,
-        ]
-        doc = "\n\n".join(header + messages)
-        with open(self.counts_file_path, "w") as cfp:
-            cfp.write(doc)
-        self.logger.debug(doc)
-
-    def check_stage_counts(self, stage):
-        """
-        Do some standard basic stage output tests like assessing whether there
-        are as many unique values discovered for a given key as anticipated and
-        also whether any values were lost between Extract and Transform.
-        """
-        stage_name = stage.stage_type.__name__
-        stage.logger.info("Begin Basic Stage Output Validation")
-        discovery_sources = stage.concept_discovery_dict.get("sources")
-
-        all_messages = [stage_name + "\n" + "=" * len(stage_name)]
-
-        # Missing data
-        if not discovery_sources:
-            stage.logger.info("❌ Discovery Data Sources Not Found")
-            return False, all_messages
-
-        passed_all = True
-
-        # Do stage counts validation
-        passed, messages = stage_analyses.check_counts(
-            discovery_sources, self.data_ingest_config.expected_counts
-        )
-        all_messages.extend(messages)
-
-        passed_all = passed_all and passed
-
-        # Compare stage counts to make sure we didn't lose values between
-        # Extract and Transform
-        if stage.stage_type == TransformStage:
-            extract_disc = self.stages[ExtractStage].concept_discovery_dict
-            if extract_disc and extract_disc.get("sources"):
-                passed, messages = stage_analyses.compare_counts(
-                    ExtractStage.__name__,
-                    extract_disc["sources"],
-                    TransformStage.__name__,
-                    {
-                        k: v
-                        for k, v in discovery_sources.items()
-                        if (
-                            # only use UNIQUE KEYs if they're from Extract
-                            (UNIQUE_ID_ATTR not in k)
-                            or (k in extract_disc["sources"])
-                        )
-                    },
-                )
-                passed_all = passed_all and passed
-                all_messages.extend(messages)
-            else:
-                # Missing data
-                passed_all = False
-                stage.logger.info(
-                    "❌ No ExtractStage Discovery Data Sources To Compare"
-                )
-        stage.logger.info("End Basic Stage Output Validation")
-
-        return passed_all, all_messages
 
     def user_defined_tests(self):
         """

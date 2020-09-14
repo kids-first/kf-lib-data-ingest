@@ -2,11 +2,7 @@ import logging
 import os
 import time
 from abc import ABC, abstractmethod
-from collections import defaultdict
 from functools import wraps
-
-from kf_lib_data_ingest.common.concept_schema import concept_attr_from
-from kf_lib_data_ingest.common.io import read_json, write_json
 
 
 class IngestStage(ABC):
@@ -131,30 +127,26 @@ class IngestStage(ABC):
 
         return wrapper
 
-    def _concept_discovery_filepath(self):
+    def _validation_filepath(self):
         """
-        Location of stage run output's discovered counts file
+        Location of stage run output's validation
         """
-        return os.path.join(
-            self.ingest_output_dir,
-            self.stage_type.__name__ + "_concept_discovery.json",
-        )
+        # TODO
+        pass
 
-    def write_concept_counts(self):
+    def write_validation(self):
         """
-        Write concept discovery dict to disk
+        Write validation to disk
         """
-        fp = self._concept_discovery_filepath()
-        self.logger.debug(f"Writing discovered counts to {fp}")
-        write_json(self.concept_discovery_dict, fp)
+        # TODO
+        pass
 
-    def read_concept_counts(self):
+    def read_validation(self):
         """
-        Read concept discovery dict from disk
+        Read validation from disk
         """
-        fp = self._concept_discovery_filepath()
-        self.logger.debug(f"Reading discovered counts from {fp}")
-        self.concept_discovery_dict = read_json(fp)
+        # TODO
+        pass
 
     @_log_run
     def run(self, *args, **kwargs):
@@ -167,56 +159,19 @@ class IngestStage(ABC):
         # Write output of stage to disk
         self.write_output(output)
 
-        # Write data for accounting to disk
-        self.logger.info("Counting what we got")
-        self.concept_discovery_dict = self._postrun_concept_discovery(output)
-        self.logger.info("Done counting what we got")
-        if self.concept_discovery_dict:
-            # Undefault any defaultdicts. Defaultdicts are slightly dangerous
-            # to pass downstream to someone else's custom test code where they
-            # might accidentally add things while looking for keys.
-            self.concept_discovery_dict = {
-                k: dict(v)
-                for k, v in self.concept_discovery_dict.items()
-                if v is not None
-            }
-            self.write_concept_counts()
+        # Write data for validation to disk
+        # TODO
+
         return output
 
-    def _postrun_concept_discovery(self, df_dict):
+    def _postrun_validation(self, df_dict):
         """
-        Builds a dict which stores all unique standard concept attributes (e.g.
-        each PARTICIPANT.ID) found in the stage output mapped to lists of the
-        places they appear
-
-        dict template
-        {
-            'sources': {
-                a_key: {  # e.g. PARTICIPANT.ID
-                    a1: [f1, f2],  # e.g. PARTICIPANT.ID==a1 in files f1 & f2
-                    ...
-                },
-                ...
-            }
-        }
+        Post run validation
 
         :param df_dict: a dict of DataFrames returned by the _run() method
         :return: a dict where concept values map to a list of the sources
         containing them
         :rtype: dict
         """
-        sources = defaultdict(lambda: defaultdict(set))
-        # Skip columns which might be set artificially
-        skip = ["VISIBLE"]
-        for df_name, df in df_dict.items():
-            cols = [c for c in df.columns if concept_attr_from(c) not in skip]
-            self.logger.info(
-                f"Doing concept discovery for DataFrame {df_name} in "
-                f"{type(self).__name__} output"
-            )
-            for key in cols:
-                sk = sources[key]
-                for val in df[key]:
-                    sk[val].add(df_name)
-
-        return {"sources": sources}
+        # TODO
+        pass
