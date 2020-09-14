@@ -5,6 +5,9 @@ from kf_lib_data_ingest.common.concept_schema import CONCEPT
 
 
 MIN_AGE_DAYS = 0
+# Max value chosen due to HIPAA de-identification standard
+# Using safe harbor guidelines
+# Equates to 90 years
 MAX_AGE_DAYS = 32872
 NULL_VALUES = {
     constants.COMMON.NOT_REPORTED,
@@ -15,36 +18,55 @@ NULL_VALUES = {
 }
 
 
-def try_wrap(func):
-    def inner(x):
-        if x is not None:
-            try:
-                func(x)
-            except Exception:
-                return False
-        return True
+def try_wrap(description):
+    """
+    A decorator which accepts a _description_ of the decorated validation
+    function (_func_) and catches exceptions. Modifies _func_ to return
+    a tuple of _description_ with a result (_ret_). If _x_ is None,
+    _func_ is not invoked and the result is True. If _x_ is not None
+    and _func_(x) runs without exception, the result will be True.
+    If _func_(x) raises an exception, the result will be False.
+    """
 
-    return inner
+    def wrapper(func):
+        def inner(x):
+            ret = True
+            if x is not None:
+                try:
+                    ret = func(x)
+                except Exception:
+                    ret = False
+            return description, ret
+
+        return inner
+
+    return wrapper
 
 
-@try_wrap
+@try_wrap(
+    f"Must be an integer x such that {MIN_AGE_DAYS} <= x <= {MAX_AGE_DAYS}"
+)
 def check_age(x):
-    assert (int(x) >= MIN_AGE_DAYS) and (int(x) < MAX_AGE_DAYS)
+    return (int(x) >= MIN_AGE_DAYS) and (int(x) < MAX_AGE_DAYS)
 
 
-@try_wrap
+@try_wrap("Must be a valid representation of a Date or Datetime object")
 def check_date(x):
     parsedate(str(x))
+    # It doesn't seem possible to get a null value from _parsedate_ (it throws
+    # a ValueError if no date is found). So if it executes without exception,
+    # just return True.
+    return True
 
 
-@try_wrap
+@try_wrap("Must be an integer > 0")
 def check_positive(x):
-    assert int(x) > 0
+    return int(x) > 0
 
 
-@try_wrap
+@try_wrap("Must be an integer >= 0")
 def check_non_negative(x):
-    assert int(x) >= 0
+    return int(x) >= 0
 
 
 INPUT_VALIDATION = {
@@ -112,7 +134,7 @@ INPUT_VALIDATION = {
     },
     # FAMILY
     # There's an enum for FAMILY_TYPE in the dataservice, but nothing for this
-    # exists in the ingest library. Not sure what to do here.
+    # exists in the ingest library.
     # FAMILY_RELATIONSHIP
     # GENOMIC_FILE
     CONCEPT.GENOMIC_FILE.AVAILABILITY: {
@@ -182,8 +204,8 @@ INPUT_VALIDATION = {
         constants.SEQUENCING.STRATEGY.LINKED_WGS,
         constants.COMMON.OTHER,
     },
-    # TODO: CONCEPT.SEQUENCING.LIBRARY_PREP - there is no concept for this
-    # TODO: CONCEPT.SEQUENCING.LIBRARY_SELECTION - no concept for this either
+    # CONCEPT.SEQUENCING.LIBRARY_PREP - there is no concept for this
+    # CONCEPT.SEQUENCING.LIBRARY_SELECTION - no concept for this either
     CONCEPT.SEQUENCING.LIBRARY_STRAND: {
         constants.SEQUENCING.STRAND.UNSTRANDED,
         constants.SEQUENCING.STRAND.FIRST,
@@ -206,16 +228,6 @@ INPUT_VALIDATION = {
     CONCEPT.SEQUENCING.TOTAL_READS: check_positive,
     # SEQUENCING_EXPERIMENT_GENOMIC_FILE
     # STUDY
-    CONCEPT.STUDY.RELEASE_STATUS: {
-        constants.STUDY.STATUS.FAILED,
-        constants.STUDY.STATUS.PENDING,
-        constants.STUDY.STATUS.PUBLISHING,
-        constants.STUDY.STATUS.CANCELED,
-        constants.STUDY.STATUS.STAGED,
-        constants.STUDY.STATUS.RUNNING,
-        constants.STUDY.STATUS.PUBLISHED,
-        constants.STUDY.STATUS.WAITING,
-    },
     # STUDY_FILE
     CONCEPT.STUDY_FILE.AVAILABILITY: {
         constants.GENOMIC_FILE.AVAILABILITY.IMMEDIATE,
@@ -224,7 +236,16 @@ INPUT_VALIDATION = {
     # TASK
     # TASK_GENOMIC_FILE
 }
+
+
 INPUT_VALIDATION = {
-    k: ((v | NULL_VALUES) if isinstance(v, set) else v)
+    k: (
+        try_wrap(
+            f"Must be one of {(v | NULL_VALUES)}",
+            lambda x: x in (v | NULL_VALUES),
+        )
+        if isinstance(v, set)
+        else v
+    )
     for k, v in INPUT_VALIDATION.items()
 }
