@@ -150,6 +150,22 @@ class Participant:
         }
 
 
+def flexible_age(record, days_concept, generic_concept):
+    age = record.get(days_concept)
+    units = record.get(generic_concept.UNITS)
+    value = record.get(generic_concept.VALUE)
+
+    if (age is None) and (units is not None) and (value is not None):
+        if units == constants.AGE.UNITS.DAYS:
+            age = int(value)
+        elif units == constants.AGE.UNITS.MONTHS:
+            age = int(value * 30.44)
+        elif units == constants.AGE.UNITS.YEARS:
+            age = int(value * 365.25)
+
+    return age
+
+
 class Diagnosis:
     class_name = "diagnosis"
     api_path = "/diagnoses"
@@ -163,7 +179,11 @@ class Diagnosis:
         return record.get(CONCEPT.DIAGNOSIS.UNIQUE_KEY) or join(
             record[CONCEPT.PARTICIPANT.ID],
             record[CONCEPT.DIAGNOSIS.NAME],
-            record.get(CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS),
+            flexible_age(
+                record,
+                CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS,
+                CONCEPT.DIAGNOSIS.EVENT_AGE,
+            ),
         )
 
     @staticmethod
@@ -172,7 +192,11 @@ class Diagnosis:
             "kf_id": get_target_id_from_record(Diagnosis, record),
             "participant_id": get_target_id_from_record(Participant, record),
             "external_id": key,
-            "age_at_event_days": record.get(CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS),
+            "age_at_event_days": flexible_age(
+                record,
+                CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS,
+                CONCEPT.DIAGNOSIS.EVENT_AGE,
+            ),
             "source_text_diagnosis": record.get(CONCEPT.DIAGNOSIS.NAME),
             "source_text_tumor_location": record.get(
                 CONCEPT.DIAGNOSIS.TUMOR_LOCATION
@@ -211,7 +235,11 @@ class Phenotype:
             record[
                 CONCEPT.PHENOTYPE.OBSERVED
             ],  # TODO: WE SHOULD REMOVE OBSERVED
-            record.get(CONCEPT.PHENOTYPE.EVENT_AGE_DAYS),
+            flexible_age(
+                record,
+                CONCEPT.PHENOTYPE.EVENT_AGE_DAYS,
+                CONCEPT.PHENOTYPE.EVENT_AGE,
+            ),
         )
 
     @staticmethod
@@ -220,7 +248,11 @@ class Phenotype:
             "kf_id": get_target_id_from_record(Phenotype, record),
             "participant_id": get_target_id_from_record(Participant, record),
             "external_id": key,
-            "age_at_event_days": record.get(CONCEPT.PHENOTYPE.EVENT_AGE_DAYS),
+            "age_at_event_days": flexible_age(
+                record,
+                CONCEPT.PHENOTYPE.EVENT_AGE_DAYS,
+                CONCEPT.PHENOTYPE.EVENT_AGE,
+            ),
             "source_text_phenotype": record.get(CONCEPT.PHENOTYPE.NAME),
             "hpo_id_phenotype": record.get(CONCEPT.PHENOTYPE.HPO_ID),
             "snomed_id_phenotype": record.get(CONCEPT.PHENOTYPE.SNOMED_ID),
@@ -242,7 +274,11 @@ class Outcome:
         return record.get(CONCEPT.OUTCOME.UNIQUE_KEY) or join(
             record[CONCEPT.PARTICIPANT.ID],
             record[CONCEPT.OUTCOME.VITAL_STATUS],
-            record.get(CONCEPT.OUTCOME.EVENT_AGE_DAYS),
+            flexible_age(
+                record,
+                CONCEPT.OUTCOME.EVENT_AGE_DAYS,
+                CONCEPT.OUTCOME.EVENT_AGE,
+            ),
         )
 
     @staticmethod
@@ -251,7 +287,11 @@ class Outcome:
             "kf_id": get_target_id_from_record(Outcome, record),
             "participant_id": get_target_id_from_record(Participant, record),
             "external_id": key,
-            "age_at_event_days": record.get(CONCEPT.OUTCOME.EVENT_AGE_DAYS),
+            "age_at_event_days": flexible_age(
+                record,
+                CONCEPT.OUTCOME.EVENT_AGE_DAYS,
+                CONCEPT.OUTCOME.EVENT_AGE,
+            ),
             "vital_status": record.get(CONCEPT.OUTCOME.VITAL_STATUS),
             "disease_related": record.get(CONCEPT.OUTCOME.DISEASE_RELATED),
             "visible": record.get(CONCEPT.OUTCOME.VISIBLE),
@@ -295,7 +335,11 @@ class Biospecimen:
             "source_text_anatomical_site": record.get(
                 CONCEPT.BIOSPECIMEN.ANATOMY_SITE
             ),
-            "age_at_event_days": record.get(CONCEPT.BIOSPECIMEN.EVENT_AGE_DAYS),
+            "age_at_event_days": flexible_age(
+                record,
+                CONCEPT.BIOSPECIMEN.EVENT_AGE_DAYS,
+                CONCEPT.BIOSPECIMEN.EVENT_AGE,
+            ),
             "source_text_tumor_descriptor": record.get(
                 CONCEPT.BIOSPECIMEN.TUMOR_DESCRIPTOR
             ),
