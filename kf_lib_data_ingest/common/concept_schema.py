@@ -4,6 +4,11 @@ DELIMITER = "|"
 UNIQUE_ID_ATTR = "UNIQUE_KEY"
 
 
+class QuantityMixin(object):
+    VALUE = None
+    UNITS = None
+
+
 class FileMixin(object):
     SIZE = None
     FILE_NAME = None
@@ -69,9 +74,19 @@ class CONCEPT:
         SPECIES = None
         ENROLLMENT_AGE_DAYS = None
 
+        class ENROLLMENT_AGE(QuantityMixin):
+            pass
+
+        class LAST_CONTACT(QuantityMixin):
+            pass
+
     class OUTCOME(PropertyMixin):
         VITAL_STATUS = None
         EVENT_AGE_DAYS = None
+
+        class EVENT_AGE(QuantityMixin):
+            pass
+
         DISEASE_RELATED = None
 
     class DIAGNOSIS(PropertyMixin):
@@ -81,6 +96,10 @@ class CONCEPT:
         CATEGORY = None
         UBERON_TUMOR_LOCATION_ID = None
         EVENT_AGE_DAYS = None
+
+        class EVENT_AGE(QuantityMixin):
+            pass
+
         MONDO_ID = None
         NCIT_ID = None
         ICD_ID = None
@@ -91,6 +110,9 @@ class CONCEPT:
         SNOMED_ID = None
         OBSERVED = None
         EVENT_AGE_DAYS = None
+
+        class EVENT_AGE(QuantityMixin):
+            pass
 
     class BIOSPECIMEN_GROUP(PropertyMixin):
         pass
@@ -104,6 +126,10 @@ class CONCEPT:
         TUMOR_DESCRIPTOR = None
         COMPOSITION = None
         EVENT_AGE_DAYS = None
+
+        class EVENT_AGE(QuantityMixin):
+            pass
+
         SPATIAL_DESCRIPTOR = None
         SHIPMENT_ORIGIN = None
         SHIPMENT_DATE = None
