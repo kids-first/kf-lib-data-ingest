@@ -127,10 +127,16 @@ class Participant:
 
     @staticmethod
     def build_entity(record, key, get_target_id_from_record):
+        # family foreign key is optional
+        try:
+            family_id = get_target_id_from_record(Family, record)
+        except Exception:
+            family_id = None
+
         return {
             "kf_id": get_target_id_from_record(Participant, record),
             "study_id": record[CONCEPT.STUDY.ID],
-            "family_id": get_target_id_from_record(Family, record),
+            "family_id": family_id,
             "external_id": key,
             "is_proband": record.get(CONCEPT.PARTICIPANT.IS_PROBAND),
             "ethnicity": record.get(CONCEPT.PARTICIPANT.ETHNICITY),
