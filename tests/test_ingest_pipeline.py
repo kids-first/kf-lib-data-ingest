@@ -68,7 +68,7 @@ def test_valid_ingest_subset_stages(
                     DEFAULT_STAGES_TO_RUN_STR[idx]
                 )
                 assert (
-                    f"Loading previously cached output "
+                    f"Loading previously cached output and concept counts "
                     f"from {prev_name}" in result.output
                 ) == should_exist
 
@@ -137,8 +137,10 @@ def test_ingest_cmds(cli_cmd, arg_list):
     assert "version" in result.output
     assert f"{VERSION}" in result.output
 
-    # Make sure that post-extract validation runs
-    # TODO
+    # Make sure that post-extract counts run
+    assert "Begin Basic Stage Output Validation" in result.output
+    assert "'BIOSPECIMEN|ID': 16," in result.output
+    assert "| BIOSPECIMEN|ID |         16 |      16 | ✅" in result.output
 
     assert "DRY RUN" in result.output
 
