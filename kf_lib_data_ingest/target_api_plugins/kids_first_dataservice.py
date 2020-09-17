@@ -646,7 +646,6 @@ all_targets = [
 
 swagger_cache = {}
 json_type_casts = {
-    "boolean": bool,
     "string": str,
     "integer": int,
     "number": float,
