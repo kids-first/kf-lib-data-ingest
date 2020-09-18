@@ -38,8 +38,8 @@ DEFAULT_FORMAT = (
 DEFAULT_FORMATTER = NoTokenFormatter(DEFAULT_FORMAT)
 
 
-def setup_logger(
     log_dir,
+def init_logger(
     overwrite_log=DEFAULT_LOG_OVERWRITE_OPT,
     log_level=DEFAULT_LOG_LEVEL,
 ):
@@ -63,11 +63,9 @@ def setup_logger(
 
     log_filepath = os.path.join(log_dir, filename)
 
-    # Setup rotating file handler
     fileHandler = logging.handlers.RotatingFileHandler(log_filepath, mode="w")
     fileHandler.setFormatter(DEFAULT_FORMATTER)
 
-    # Setup console handler
     consoleHandler = logging.StreamHandler()
     consoleHandler.setFormatter(DEFAULT_FORMATTER)
 

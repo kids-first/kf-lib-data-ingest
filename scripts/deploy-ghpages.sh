@@ -25,7 +25,7 @@ mv -fv docs/build/html/* ../tmp_docs
 mkdir gh-pages-branch
 cd gh-pages-branch
 
-# Now lets setup a new repo so we can update the gh-pages branch
+# Now let's set up a new repo so we can update the gh-pages branch
 git config --global user.email "$GH_EMAIL" > /dev/null 2>&1
 git config --global user.name "$GH_NAME" > /dev/null 2>&1
 git init
