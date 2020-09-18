@@ -16,7 +16,7 @@ from kf_lib_data_ingest.config import DEFAULT_TARGET_URL, VERSION
 from kf_lib_data_ingest.etl.configuration.ingest_package_config import (
     IngestPackageConfig,
 )
-from kf_lib_data_ingest.etl.configuration.log import setup_logger
+from kf_lib_data_ingest.etl.configuration.log import init_logger
 from kf_lib_data_ingest.etl.extract.extract import ExtractStage
 from kf_lib_data_ingest.etl.load.load import LoadStage
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
@@ -60,7 +60,7 @@ class DataIngestPipeline(object):
         db_url_env_key=None,
     ):
         """
-        Setup data ingest pipeline. Create the config object and setup logging
+        Set up data ingest pipeline. Create the config object and logger
 
         :param ingest_package_config_path: Path to config file containing all
         parameters for data ingest.
@@ -129,8 +129,8 @@ class DataIngestPipeline(object):
         if log_level:
             log_kwargs["log_level"] = log_level
 
-        # Setup logger
-        self.log_file_path = setup_logger(log_dir, **log_kwargs)
+        # Set up logger
+        self.log_file_path = init_logger(log_dir, **log_kwargs)
         self.logger = logging.getLogger(type(self).__name__)
 
         head, tail = os.path.split(self.log_file_path)
