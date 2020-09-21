@@ -262,6 +262,28 @@ def create_new_ingest(dest_dir=None):
     new_ingest_pkg(dest_dir)
 
 
+@click.command()
+@click.argument(
+    "file_or_dir",
+    type=click.Path(exists=True, file_okay=True, dir_okay=True),
+)
+@click.option(
+    "--exclude_implicit",
+    default=False,
+    is_flag=True,
+)
+def validate(file_or_dir, exclude_implicit=False):
+    # TODO
+    from kf_lib_data_ingest.common.io import path_to_file_list
+    from kf_lib_data_ingest.validation.validation import Validator
+
+    # Convert file_or_dir to file_paths
+    Validator().validate(
+        path_to_file_list(file_or_dir), include_implicit=(not exclude_implicit)
+    )
+
+
 cli.add_command(ingest)
 cli.add_command(test)
 cli.add_command(create_new_ingest)
+cli.add_command(validate)

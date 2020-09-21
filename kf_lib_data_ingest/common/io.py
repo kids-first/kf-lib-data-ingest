@@ -168,3 +168,25 @@ def write_json(data, filepath, use_jsonpickle=True, **kwargs):
         if use_jsonpickle:
             data = json.loads(jsonpickle.encode(data, keys=True))
         json.dump(data, json_file, **kwargs)
+
+
+def path_to_file_list(file_or_dir, recursive=True):
+    """
+    Convert input which is either a file or a directory to a list of filepaths.
+
+    :param file_or_dir: path to a file or directory
+    :return: a list of filepaths
+    """
+    file_or_dir = os.path.abspath(os.path.expanduser(file_or_dir))
+    files = []
+    if os.path.isdir(file_or_dir):
+        if recursive:
+            for _, _, file_list in os.walk(file_or_dir):
+                for file in file_list:
+                    files.append(file)
+        else:
+            _, _, file_list = next(os.walk(file_or_dir))
+            files.extend(file_list)
+    else:
+        files.append(file_or_dir)
+    return files
