@@ -212,12 +212,12 @@ def path_to_file_list(file_or_dir, recursive=True):
     files = []
     if os.path.isdir(file_or_dir):
         if recursive:
-            for _, _, file_list in os.walk(file_or_dir):
+            for root, _, file_list in os.walk(file_or_dir):
                 for file in file_list:
-                    files.append(file)
+                    files.append(os.path.join(root, file))
         else:
-            _, _, file_list = next(os.walk(file_or_dir))
-            files.extend(file_list)
+            root, _, file_list = next(os.walk(file_or_dir))
+            files.extend([os.path.join(root, f) for f in file_list])
     else:
         files.append(file_or_dir)
     return files
