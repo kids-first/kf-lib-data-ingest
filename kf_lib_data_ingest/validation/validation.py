@@ -2,13 +2,37 @@ import os
 import sys
 import logging
 
+from kf_lib_data_ingest.common.type_safety import assert_safe_type
 from kf_lib_data_ingest.common.io import read_df, write_json
 from kf_lib_data_ingest.validation.data_validator import (
     Validator as DataValidator
 )
+from kf_lib_data_ingest.validation.reporting.table import TableReportBuilder
+from kf_lib_data_ingest.validation.reporting.markdown import (
+    MarkdownReportBuilder,
+
+)
 
 VALIDATION_OUTPUT_DIR = "validation_results"
 RESULTS_FILENAME = "validation_results.json"
+REPORT_BUILDERS = {"tsv": TableReportBuilder, "md": MarkdownReportBuilder}
+
+
+def check_results(results):
+    """
+    Validation passes if every test in `results` has no errors. Otherwise
+    validation fails
+
+    This method is called when `results` was read from file and you only need
+    to evaluate whether validation passed or not
+
+    :param results: Validation results. See sample_validation_results.py in
+    kf_lib_data_ingest.validation.reporting for an example
+    :type results: dict
+
+    :returns: whether validation passed or not
+    """
+    return all([not r['errors'] for r in results['validation']])
 
 
 def check_results(results):
@@ -83,8 +107,7 @@ class Validator(object):
             self.logger.info(f"Wrote validation results json to: {p}")
 
             # Build and write validation reports to disk
-            # TODO - Uncomment later
-            # self._build_report(results, report_kwargs=report_kwargs)
+            self._build_report(results, report_kwargs=report_kwargs)
 
             return check_results(results)
 
@@ -94,5 +117,46 @@ class Validator(object):
             sys.exit(1)
 
     def _build_report(self, results, formats=None, report_kwargs={}):
-        # TODO - Fill in later
-        pass
+        """
+        Write validation report(s) (optionally in various formats) to disk
+        Write original validation results to disk
+
+        The `report_kwargs` is a dict of keyword argument dicts, where keys
+        are the same as keys in REPORT_BUILDERS and values are the keyword
+        arguments for a specific report builder. The builder's kwargs are
+        passed to its `build` method.
+
+        For example:
+
+        report_kwargs = {
+            'md': {'title': 'My Report'},
+            'html': {'title': 'My Report', 'other_setting': 'foo'}
+        }
+        MarkdownReportBuilder().build(**report_kwargs['md'])
+
+        :param results: validation results
+        :type results: dict
+        :param formats: iterable of format strings. See keys of REPORT_BUILDERS
+        for current list of accepted formats
+        :type formats: iterable
+        :param report_kwargs: Keyword argument dicts passed to the report
+        builder `build` methods.
+        :type report_kwargs: dict
+
+        :returns: list of report file paths
+        """
+        assert_safe_type(report_kwargs, dict)
+        paths = []
+        formats = formats or REPORT_BUILDERS.keys()
+        for f in formats:
+            if f in REPORT_BUILDERS:
+                paths.extend(
+                    REPORT_BUILDERS[f](output_dir=self.output_dir).build(
+                        results, **report_kwargs.get(f, {})
+                    )
+                )
+            else:
+                self.logger.warning(
+                    f"Validation report format `{f}` not supported"
+                )
+        return paths
