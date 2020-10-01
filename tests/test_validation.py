@@ -16,6 +16,8 @@ from kf_lib_data_ingest.validation.data_validator import (
     Validator as DataValidator
 )
 from kf_lib_data_ingest.validation.default_hierarchy import DH
+from kf_lib_data_ingest.validation.validation import Validator
+from kf_lib_data_ingest.validation.reporting import sample_validation_results
 
 from conftest import TEST_DATA_DIR
 
@@ -131,3 +133,31 @@ def test_datasets(dir):
         test_hierarchy = None
     assert df_dict and reference
     verify_df_dict(df_dict, reference, test_hierarchy)
+
+
+def test_build_reports(tmpdir, info_caplog):
+    """
+    Test validation report building in kf_lib_data_ingest.validation.reporting
+    """
+    # Test normal case with sample validation results
+    path = tmpdir.mkdir("validation_results")
+    report_paths = Validator(output_dir=path)._build_report(
+        sample_validation_results.results, formats={"tsv", "md", "foobar"}
+    )
+    # Unsupported report format
+    assert "`foobar` not supported" in info_caplog.text
+
+    # Check report(s) content
+    for rp in report_paths:
+        assert os.path.isfile(rp)
+        fn, ext = os.path.splitext(rp)
+        if ext == '.md':
+            with open(rp, 'r') as md_file:
+                assert md_file.read()
+        elif ext == '.tsv':
+            df = None
+            try:
+                df = read_df(rp)
+            except Exception:
+                assert False
+            assert (df is not None) and (not df.empty)
