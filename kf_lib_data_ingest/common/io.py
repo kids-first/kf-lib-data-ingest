@@ -10,11 +10,33 @@ import pandas
 import xlrd
 import yaml
 from pandas.api.types import is_file_like
+from cchardet import UniversalDetector
+from functools import partial
 
 
-def __ascii_wrap(potentially_binary_buffer):
+def __detect_encoding(potentially_binary_buffer):
+    def detect(buffer):
+        detector = UniversalDetector()
+        for chunk in iter(partial(buffer.read, 1024), b""):
+            detector.feed(chunk)
+            if detector.done:
+                break
+        detector.close()
+        buffer.seek(0)
+        return detector.result["encoding"]
+
     try:
-        return io.TextIOWrapper(potentially_binary_buffer)
+        res = detect(potentially_binary_buffer)
+    except AttributeError:
+        with open(potentially_binary_buffer, "rb") as f:
+            res = detect(f)
+
+    return res
+
+
+def __text_wrap(potentially_binary_buffer, encoding):
+    try:
+        return io.TextIOWrapper(potentially_binary_buffer, encoding=encoding)
     except Exception:
         return potentially_binary_buffer
 
@@ -62,7 +84,11 @@ def read_delimited_text_df(filepath_or_buffer, **kwargs):
     kwargs["engine"] = "python"
     kwargs["dtype"] = str
     kwargs["na_filter"] = False
-    return pandas.read_csv(__ascii_wrap(filepath_or_buffer), **kwargs)
+    kwargs["encoding"] = kwargs.get("encoding") or __detect_encoding(
+        filepath_or_buffer
+    )
+    f = __text_wrap(filepath_or_buffer, kwargs["encoding"])
+    return pandas.read_csv(f, **kwargs)
 
 
 def read_json_df(filepath_or_buffer, **kwargs):
@@ -77,7 +103,12 @@ def read_json_df(filepath_or_buffer, **kwargs):
     :rtype: pandas.Dataframe
     """
     kwargs["convert_dates"] = False
-    return pandas.read_json(__ascii_wrap(filepath_or_buffer), **kwargs)
+    kwargs["encoding"] = kwargs.get("encoding") or __detect_encoding(
+        filepath_or_buffer
+    )
+    return pandas.read_json(
+        __text_wrap(filepath_or_buffer, kwargs["encoding"]), **kwargs
+    )
 
 
 def read_df(filepath_or_buffer, original_name=None, **kwargs):
