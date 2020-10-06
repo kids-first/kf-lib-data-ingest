@@ -8,6 +8,7 @@ tabulate==0.8.7
 sqlite3worker==1.1.7
 jsonpickle==1.4.1
 SQLAlchemy==1.3.19
-d3b_utils @ git+https://git@github.com/d3b-center/d3b-utils-python.git
+d3b_utils @ git+https://github.com/d3b-center/d3b-utils-python.git
 pytest==6.0.1
 cchardet>=2.1.6<3
+graph_theory @ git+https://github.com/root-11/graph-theory.git
