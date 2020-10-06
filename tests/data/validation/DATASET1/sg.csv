@@ -1,0 +1,3 @@
+BIOSPECIMEN|ID,GENOMIC_FILE|URL_LIST
+S7,['foo/s7.txt']
+S10,['foo/s10.txt']

@@ -1,0 +1,4 @@
+FAMILY|ID,GENOMIC_FILE|URL_LIST
+F5,['foo/s5.txt']
+F9,['foo/s9.txt']
+F11,['foo/s11.txt']
