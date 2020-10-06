@@ -1,13 +1,15 @@
+import codecs
 import os
 
 import pandas
-
-from conftest import TEST_DATA_DIR
+import pytest
 from kf_lib_data_ingest.common.io import (
     read_delimited_text_df,
     read_df,
     read_excel_df,
 )
+
+from conftest import TEST_DATA_DIR
 
 excel_path = os.path.join(
     TEST_DATA_DIR, "test_study", "data", "unsimple_xlsx_1.xlsx"
@@ -51,3 +53,25 @@ def test_read_tsv():
 def test_read_file():
     _file_reader_test(excel_path, read_df, excel_first_page)
     _file_reader_test(tsv_path, read_df, tsv_page)
+
+
+bom_test_content = "A,B\n1,2"
+
+
+@pytest.mark.parametrize(
+    "content",
+    [
+        bom_test_content.encode("utf-8"),
+        codecs.BOM_UTF8 + bom_test_content.encode("utf-8"),
+        codecs.BOM_UTF16_BE + bom_test_content.encode("utf-16-be"),
+        codecs.BOM_UTF16_LE + bom_test_content.encode("utf-16-le"),
+        codecs.BOM_UTF32_BE + bom_test_content.encode("utf-32-be"),
+        codecs.BOM_UTF32_LE + bom_test_content.encode("utf-32-le"),
+    ],
+)
+def test_read_byte_order_mark(tmp_path, content):
+    d = tmp_path / "foo.csv"
+    d.write_bytes(content)
+    _file_reader_test(
+        d, read_df, pandas.DataFrame({"A": [1], "B": [2]}, dtype=str)
+    )
