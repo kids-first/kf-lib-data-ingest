@@ -10,8 +10,8 @@ from kf_lib_data_ingest.validation.validation import (
     check_results,
     RESULTS_FILENAME,
 )
-
-VALIDATION_MODES = ["basic", "advanced"]
+BASIC_VALIDATION = 'basic'
+ADVANCED_VALIDATION = 'advanced'
 
 
 class IngestStage(ABC):
@@ -162,7 +162,7 @@ class IngestStage(ABC):
         # Validate run parameters
         vmode = kwargs.pop("validation_mode", None)
         report_kwargs = kwargs.pop("report_kwargs", {})
-        assert vmode in [None] + VALIDATION_MODES
+        assert vmode in [None, BASIC_VALIDATION, ADVANCED_VALIDATION]
         self._validate_run_parameters(*args, **kwargs)
 
         # Execute data ingest stage
@@ -184,15 +184,22 @@ class IngestStage(ABC):
 
         If validation_mode = None, do not run validation.
 
-        The `basic` mode runs validation faster but may not find 100% of
-        the errors if the data contains implied connections between entity
-        types (e.g. The stage output includes a file that relates participants
-        to source genomic files and a file that relates participants to
-        biospecimens, instead of a file which relates participants
-        directly to biospecimens).
+        If validation_mode = BASIC_VALIDATION, validation runs faster but is
+        not as thorough.
 
-        The `advanced` mode runs validation slower but is guarenteed to find
-        all errors even if your data has implied connections.
+        If validation_mode = ADVANCED_VALIDATION, validation takes into account
+        implied relationships in the data and is able to resolve
+        ambiguities or report the ambiguities if they cannot be resolved.
+
+        For example, you have a file that relates participants and  specimens,
+        and a file that relates participants and genomic files.
+        This means your specimens have implied connections to their genomic
+        files through the participants.
+
+        In ADVANCED_VALIDATION mode, the validator may be able to resolve these
+        implied connections and report that all specimens are validly linked to
+        genomic files. In BASIC_VALIDATION mode, the validator will report
+        that all specimens are missing links to genomic files.
 
         :param validation_mode: validation mode
         :return: whether or not validation passed
@@ -205,14 +212,14 @@ class IngestStage(ABC):
             f"Running validation on {type(self).__name__} output files ..."
         )
 
-        if validation_mode == VALIDATION_MODES[0]:
+        if validation_mode == BASIC_VALIDATION:
             include_implicit = False
         else:
             include_implicit = True
 
         self.validation_success = Validator(
             output_dir=os.path.dirname(self._validation_results_filepath()),
-            setup_logger=False,
+            init_logger=False,
         ).validate(
             path_to_file_list(self.stage_cache_dir, recursive=False),
             include_implicit=include_implicit,
