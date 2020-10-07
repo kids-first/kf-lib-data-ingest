@@ -4,6 +4,15 @@ import time
 from abc import ABC, abstractmethod
 from functools import wraps
 
+from kf_lib_data_ingest.common.io import path_to_file_list, read_json
+from kf_lib_data_ingest.validation.validation import (
+    Validator,
+    check_results,
+    RESULTS_FILENAME,
+)
+
+VALIDATION_MODES = ["basic", "advanced"]
+
 
 class IngestStage(ABC):
     def __init__(self, ingest_output_dir=None):
@@ -17,6 +26,7 @@ class IngestStage(ABC):
             self.stage_cache_dir = None
 
         self.logger = logging.getLogger(type(self).__name__)
+        self.validation_success = True
 
     @property
     def stage_type(self):
@@ -46,6 +56,18 @@ class IngestStage(ABC):
                 f'"{self.stage_cache_dir}" does not exist'
             )
         else:
+            # Read and evaluate cached validation results
+            fp = self._validation_results_filepath()
+            try:
+                results = read_json(fp)
+                self.validation_success = check_results(results)
+            except FileNotFoundError:
+                self.logger.info(
+                    f"Validation results file: {fp} not found for "
+                    f"stage: {type(self).__name__}"
+                )
+
+            # Read stage output
             return self._read_output()
 
     def write_output(self, output):
@@ -92,6 +114,14 @@ class IngestStage(ABC):
         """
         pass
 
+    def _validation_results_filepath(self):
+        """
+        Path to validation results file
+        """
+        return os.path.join(
+            self.stage_cache_dir, "validation_results", RESULTS_FILENAME
+        )
+
     def _log_run(func):
         """
         Decorator to log the ingest stage's run
@@ -127,30 +157,12 @@ class IngestStage(ABC):
 
         return wrapper
 
-    def _validation_filepath(self):
-        """
-        Location of stage run output's validation
-        """
-        # TODO
-        pass
-
-    def write_validation(self):
-        """
-        Write validation to disk
-        """
-        # TODO
-        pass
-
-    def read_validation(self):
-        """
-        Read validation from disk
-        """
-        # TODO
-        pass
-
     @_log_run
     def run(self, *args, **kwargs):
         # Validate run parameters
+        vmode = kwargs.pop("validation_mode", None)
+        report_kwargs = kwargs.pop("report_kwargs", {})
+        assert vmode in [None] + VALIDATION_MODES
         self._validate_run_parameters(*args, **kwargs)
 
         # Execute data ingest stage
@@ -159,19 +171,57 @@ class IngestStage(ABC):
         # Write output of stage to disk
         self.write_output(output)
 
-        # Write data for validation to disk
-        # TODO
+        # Run validation and write results to disk
+        self._postrun_validation(
+            validation_mode=vmode, report_kwargs=report_kwargs
+        )
 
         return output
 
-    def _postrun_validation(self, df_dict):
+    def _postrun_validation(self, validation_mode=None, report_kwargs={}):
         """
-        Post run validation
+        Post run validation.
 
-        :param df_dict: a dict of DataFrames returned by the _run() method
-        :return: a dict where concept values map to a list of the sources
-        containing them
-        :rtype: dict
+        If validation_mode = None, do not run validation.
+
+        The `basic` mode runs validation faster but may not find 100% of
+        the errors if the data contains implied connections between entity
+        types (e.g. The stage output includes a file that relates participants
+        to source genomic files and a file that relates participants to
+        biospecimens, instead of a file which relates participants
+        directly to biospecimens).
+
+        The `advanced` mode runs validation slower but is guarenteed to find
+        all errors even if your data has implied connections.
+
+        :param validation_mode: validation mode
+        :return: whether or not validation passed
+        :rtype: bool
         """
-        # TODO
-        pass
+        if not validation_mode:
+            return True
+
+        self.logger.info(
+            f"Running validation on {type(self).__name__} output files ..."
+        )
+
+        if validation_mode == VALIDATION_MODES[0]:
+            include_implicit = False
+        else:
+            include_implicit = True
+
+        self.validation_success = (
+            Validator(
+                output_dir=os.path.dirname(self._validation_results_filepath()),
+                setup_logger=False
+            )
+            .validate(
+                path_to_file_list(self.stage_cache_dir, recursive=False),
+                include_implicit=include_implicit,
+                report_kwargs=report_kwargs
+            )
+        )
+        if self.validation_success:
+            self.logger.info(f'✅ {self.stage_type.__name__} passed validation!')
+        else:
+            self.logger.info(f'❌ {self.stage_type.__name__} failed validatoin!')

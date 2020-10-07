@@ -292,8 +292,10 @@ class LoadStage(IngestStage):
                 done_msg + f" (#{self.counts[entity_class.class_name]})"
             )
 
-    def _postrun_concept_discovery(self, run_output):
-        pass  # TODO
+    def _postrun_validation(self, validation_mode=None, report_kwargs={}):
+        # Override implemented base class method because we don't need to
+        # do any validation on this stage's output
+        pass
 
     def _run(self, transform_output):
         """
