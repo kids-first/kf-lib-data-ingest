@@ -10,7 +10,6 @@ from kf_lib_data_ingest.validation.data_validator import (
 from kf_lib_data_ingest.validation.reporting.table import TableReportBuilder
 from kf_lib_data_ingest.validation.reporting.markdown import (
     MarkdownReportBuilder,
-
 )
 
 VALIDATION_OUTPUT_DIR = "validation_results"
@@ -32,25 +31,7 @@ def check_results(results):
 
     :returns: whether validation passed or not
     """
-    return all([not r['errors'] for r in results['validation']])
-
-
-def check_results(results):
-    """
-    Validation passes if every test in `results` has no errors. Otherwise
-    validation fails
-
-    This method is called when `results` was read from file and you only need
-    to evaluate whether validation passed or not
-
-    :param results: Validation results. See sample_validation_results.py in
-    kf_lib_data_ingest.validation.reporting for an example
-    :type results: dict
-
-    :returns: whether validation passed or not
-    """
-
-    return all([not r['errors'] for r in results['validation']])
+    return all([not r["errors"] for r in results["validation"]])
 
 
 class Validator(object):
@@ -67,6 +48,7 @@ class Validator(object):
         self.output_dir = output_dir or os.path.join(
             os.getcwd(), VALIDATION_OUTPUT_DIR
         )
+        self.report_file_paths = []
         os.makedirs(self.output_dir, exist_ok=True)
 
         if init_logger:
@@ -85,6 +67,16 @@ class Validator(object):
         """
         Validate a set of tabular files containing a standardized set of
         columns and write validation report(s) to disk
+
+        :param filepath_list: List of paths of files to validate
+        :type filepath_list: list
+        :param include_implicit: whether to account for implied connections
+        :type include_implicit: bool
+        :param report_kwargs: Keyword arguments for each report builder
+        Forwarded to Validator._build_report
+        :type report_kwargs: dict
+
+        :returns: boolean indicating whether validation passed
         """
         try:
             # File paths to dict of DataFrames
@@ -107,7 +99,9 @@ class Validator(object):
             self.logger.info(f"Wrote validation results json to: {p}")
 
             # Build and write validation reports to disk
-            self._build_report(results, report_kwargs=report_kwargs)
+            self.report_file_paths = self._build_report(
+                results, report_kwargs=report_kwargs
+            )
 
             return check_results(results)
 

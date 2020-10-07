@@ -26,15 +26,13 @@ FILES_VALIDATED_FILENAME = "files_validated.tsv"
 class TableReportBuilder(AbstractReportBuilder):
     def __init__(self, output_dir=None, setup_logger=False):
         """
-        Constructor
-
-        See AbstractReportBuilder.__init__
+        Constructor - see AbstractReportBuilder.__init__
         """
         super().__init__(output_dir=output_dir, setup_logger=setup_logger)
 
     def _build(self, results):
         """
-        Build a pandas.DataFrame from the validation results
+        Build a pandas.DataFrame from the list of validation test result dicts
 
         :param results: See AbstractReportBuilder._build
         :param type: See AbstractReportBuilder._build
@@ -91,10 +89,10 @@ class TableReportBuilder(AbstractReportBuilder):
         """
         Write tabular validation report files to disk:
 
-            table_reports/
-              - validation_results.tsv  -> Validation test results
-              - files_validated.tsv     -> List of files validated
-              - type_counts.tsv         -> Entity counts by type
+        table_reports/
+          - validation_results.tsv  -> Validation test results
+          - files_validated.tsv     -> List of files validated
+          - type_counts.tsv         -> Entity counts by type
 
         :param dfs: list of (pandas.DataFrame, filename)
         :type dfs: list of tuples
@@ -156,7 +154,7 @@ class TableReportBuilder(AbstractReportBuilder):
                 formatted_locations = defaultdict(set)
                 for (typ, val), files in error["locations"].items():
                     for f in files:
-                        formatted_locations[f].add(f'`{val}`')
+                        formatted_locations[f].add(f"`{val}`")
 
                 row_dicts.append(
                     {

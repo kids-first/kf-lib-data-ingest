@@ -131,8 +131,7 @@ class AbstractReportBuilder(ABC):
         else:
             paths = [path]
 
-        for p in paths:
-            self.logger.info(f"Wrote validation report file: {p}")
+        self.logger.info(f"Wrote validation report file(s):\n{pformat(paths)}")
 
         return paths
 
@@ -147,9 +146,13 @@ class AbstractReportBuilder(ABC):
 
         :type results: list of dicts
         """
-        req_keys = {'counts', 'files_validated', 'validation'}
+        req_keys = {"counts", "files_validated", "validation"}
         req_result_keys = {
-            "type", "description", "is_applicable", "errors", "inputs"
+            "type",
+            "description",
+            "is_applicable",
+            "errors",
+            "inputs",
         }
 
         assert_safe_type(results["counts"], dict)
@@ -172,7 +175,7 @@ class AbstractReportBuilder(ABC):
         # Check for validation result dict required keys by attempting to
         # access all expected keyss
         try:
-            for r in results['validation']:
+            for r in results["validation"]:
                 for k in req_result_keys:
                     r[k]
         except KeyError:

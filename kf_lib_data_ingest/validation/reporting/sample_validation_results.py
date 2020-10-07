@@ -1,5 +1,5 @@
 """
-Sample validation results from do_all_validation() in
+Sample validation results from Validator.validate in
 kf_lib_data_ingest.validation.data_validator.py
 """
 
@@ -69,6 +69,8 @@ results = {
                 },
             ],
         },
+        # Gaps test result example 1
+        # Follows same format as relationship test result
         {
             "type": "gaps",
             "inputs": {},
@@ -84,7 +86,7 @@ results = {
                         ("PARTICIPANT|ID", "P1"): ["fp.csv"],
                     },
                 }
-            ]
+            ],
         },
         # Attribute test example 1 - Success
         {
