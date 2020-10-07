@@ -12,7 +12,7 @@ from kf_lib_data_ingest.app import settings
 from kf_lib_data_ingest.config import DEFAULT_LOG_LEVEL, DEFAULT_TARGET_URL
 from kf_lib_data_ingest.common.stage import (
     BASIC_VALIDATION,
-    ADVANCED_VALIDATION
+    ADVANCED_VALIDATION,
 )
 from kf_lib_data_ingest.etl.ingest_pipeline import (
     DEFAULT_STAGES_TO_RUN_STR,

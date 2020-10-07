@@ -10,8 +10,9 @@ from kf_lib_data_ingest.validation.validation import (
     check_results,
     RESULTS_FILENAME,
 )
-BASIC_VALIDATION = 'basic'
-ADVANCED_VALIDATION = 'advanced'
+
+BASIC_VALIDATION = "basic"
+ADVANCED_VALIDATION = "advanced"
 
 
 class IngestStage(ABC):
