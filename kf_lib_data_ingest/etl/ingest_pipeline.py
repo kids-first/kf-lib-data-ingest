@@ -1,4 +1,3 @@
-import contextlib
 import inspect
 import logging
 import os
@@ -58,6 +57,7 @@ class DataIngestPipeline(object):
         stages_to_run_str=DEFAULT_STAGES_TO_RUN_STR,
         resume_from=None,
         db_url_env_key=None,
+        validation_mode=None,
     ):
         """
         Set up data ingest pipeline. Create the config object and logger
@@ -93,12 +93,14 @@ class DataIngestPipeline(object):
         assert_safe_type(stages_to_run_str, str)
         assert_safe_type(resume_from, None, str)
         assert_safe_type(db_url_env_key, None, str)
+        assert_safe_type(validation_mode, None, str)
         stages_to_run_str = stages_to_run_str.lower()
         self._validate_stages_to_run_str(stages_to_run_str)
 
         self.data_ingest_config = IngestPackageConfig(
             ingest_package_config_path
         )
+        self.study = self.data_ingest_config.study
         self.ingest_config_dir = os.path.dirname(
             self.data_ingest_config.config_filepath
         )
@@ -113,6 +115,7 @@ class DataIngestPipeline(object):
         self.resume_from = resume_from
         self.stages_to_run = {CODE_TO_STAGE_MAP[c] for c in stages_to_run_str}
         self.warehouse_db_url = os.environ.get(db_url_env_key or "")
+        self.validation_mode = validation_mode
 
         # Get log params from ingest_package_config
         log_dir = log_dir or self.data_ingest_config.log_dir
@@ -133,14 +136,9 @@ class DataIngestPipeline(object):
         self.log_file_path = init_logger(log_dir, **log_kwargs)
         self.logger = logging.getLogger(type(self).__name__)
 
-        head, tail = os.path.split(self.log_file_path)
-        self.counts_file_path = os.path.join(head, "counts_for_" + tail)
-
-        # Remove the previous counts file. This isn't important. I just don't
-        # want the previous run's file sitting around until the new one gets
-        # written. - Avi
-        with contextlib.suppress(FileNotFoundError):
-            os.remove(self.counts_file_path)
+        # Validation
+        if not validation_mode:
+            self.logger.warning("Ingest will run with validation disabled!")
 
         # Log args, kwargs
         frame = inspect.currentframe()
@@ -248,14 +246,15 @@ class DataIngestPipeline(object):
 
                 self.stages[stage.stage_type] = stage
 
-                # Execute/run stage
+                # Run stage operation and validate stage output
                 if stage.stage_type in self.stages_to_run:
                     self.stages_to_run.remove(stage.stage_type)
-
-                    output = stage.run(output)
-
-                    # Standard stage output validation
-                    # TODO
+                    title = f"📓 Data Validation Report: `{self.study}`"
+                    output = stage.run(
+                        output,
+                        validation_mode=self.validation_mode,
+                        report_kwargs={"md": {"title": title}},
+                    )
 
                 # Load cached output and validation results
                 else:
@@ -281,12 +280,24 @@ class DataIngestPipeline(object):
                         )
 
             # Run user defined data validation tests
-            all_passed = self.user_defined_tests() and all_passed
+            all_passed = self.user_defined_tests() and all(
+                [stage.validation_success for stage in self.stages.values()]
+            )
+
+            if all_passed:
+                self.logger.info("✅ Ingest passed validation!")
+            else:
+                self.logger.error("⚠️  Ingest failed validation! ")
 
         except Exception as e:
             self.logger.exception(str(e))
-            self.logger.info("Exiting.")
+            self.logger.error(
+                "❌ Ingest pipeline did not complete execution! "
+                f"See {self.log_file_path} for details"
+            )
             sys.exit(1)
+        else:
+            self.logger.info("✅ Ingest pipeline completed execution!")
 
         # Log the end of the run
         self.logger.info("END data ingestion")

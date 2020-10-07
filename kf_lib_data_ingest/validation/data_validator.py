@@ -216,7 +216,6 @@ class Validator:
                     logger.info(
                         f"{len(links)} links left to insert BEFORE pruning."
                     )
-                    graph.is_connected.cache_clear()
                     links = [
                         e for e in links if not graph.is_connected(e[0], e[1])
                     ]
