@@ -30,7 +30,7 @@ def check_results(results):
 
 
 class Validator(object):
-    def __init__(self, output_dir=None, setup_logger=True):
+    def __init__(self, output_dir=None, init_logger=True):
         """
         Constructor
 
@@ -45,7 +45,7 @@ class Validator(object):
         )
         os.makedirs(self.output_dir, exist_ok=True)
 
-        if setup_logger:
+        if init_logger:
             root = logging.getLogger()
             root.setLevel(logging.DEBUG)
             consoleHandler = logging.StreamHandler()

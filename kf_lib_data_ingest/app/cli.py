@@ -10,7 +10,10 @@ import click
 
 from kf_lib_data_ingest.app import settings
 from kf_lib_data_ingest.config import DEFAULT_LOG_LEVEL, DEFAULT_TARGET_URL
-from kf_lib_data_ingest.common.stage import VALIDATION_MODES
+from kf_lib_data_ingest.common.stage import (
+    BASIC_VALIDATION,
+    ADVANCED_VALIDATION
+)
 from kf_lib_data_ingest.etl.ingest_pipeline import (
     DEFAULT_STAGES_TO_RUN_STR,
     VALID_STAGES_TO_RUN_STRS,
@@ -19,22 +22,26 @@ from kf_lib_data_ingest.etl.ingest_pipeline import (
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 DEFAULT_LOG_LEVEL_NAME = logging._levelToName.get(DEFAULT_LOG_LEVEL)
-DEFAULT_VALIDATION_MODE = VALIDATION_MODES[1]
+DEFAULT_VALIDATION_MODE = ADVANCED_VALIDATION
 VALIDATION_MODE_OPT = {
     "args": ("--validation_mode",),
     "kwargs": {
         "default": DEFAULT_VALIDATION_MODE,
-        "type": click.Choice(VALIDATION_MODES),
+        "type": click.Choice([BASIC_VALIDATION, ADVANCED_VALIDATION]),
         "help": (
             "Does not apply if --no_validate CLI flag is present. "
-            "The `basic` mode runs validation faster but may not find 100% of "
-            "the errors if the data contains implied connections between "
-            "entity types (e.g. You have a file that relates participants to "
-            "source genomic files and a file that relates participants to "
-            "biospecimens, instead of a file which relates participants "
-            "directly to biospecimens). The `advanced` mode runs validation "
-            "slower but is guarenteed to find all errors even if your data "
-            "has implied connections."
+            f"The `{BASIC_VALIDATION}` mode runs validation faster but is not "
+            f"as thorough. The {ADVANCED_VALIDATION} mode takes into account "
+            "implied relationships in the data and is able to resolve "
+            "ambiguities or report the ambiguities if they cannot be resolved."
+            "\nFor example, you have a file that relates participants and "
+            "specimens, and a file that relates participants and genomic files."
+            "This means your specimens have implied connections to their "
+            f"genomic files through the participants. In {ADVANCED_VALIDATION}"
+            "mode, the validator may be able to resolve these implied "
+            f"connections and report that all specimens are validly linked to "
+            f"genomic files. In {BASIC_VALIDATION} mode, the validator will "
+            "report that all specimens are missing links to genomic files."
         ),
     },
 }
@@ -322,7 +329,7 @@ def validate(file_or_dir, validation_mode=DEFAULT_VALIDATION_MODE):
         )
     )
     try:
-        if validation_mode == VALIDATION_MODES[0]:
+        if validation_mode == BASIC_VALIDATION:
             include_implicit = False
         else:
             include_implicit = True
