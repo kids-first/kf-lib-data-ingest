@@ -10,6 +10,7 @@ import click
 
 from kf_lib_data_ingest.app import settings
 from kf_lib_data_ingest.config import DEFAULT_LOG_LEVEL, DEFAULT_TARGET_URL
+from kf_lib_data_ingest.common.stage import VALIDATION_MODES
 from kf_lib_data_ingest.etl.ingest_pipeline import (
     DEFAULT_STAGES_TO_RUN_STR,
     VALID_STAGES_TO_RUN_STRS,
@@ -18,6 +19,25 @@ from kf_lib_data_ingest.etl.ingest_pipeline import (
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 DEFAULT_LOG_LEVEL_NAME = logging._levelToName.get(DEFAULT_LOG_LEVEL)
+DEFAULT_VALIDATION_MODE = VALIDATION_MODES[1]
+VALIDATION_MODE_OPT = {
+    "args": ("--validation_mode",),
+    "kwargs": {
+        "default": DEFAULT_VALIDATION_MODE,
+        "type": click.Choice(VALIDATION_MODES),
+        "help": (
+            "Does not apply if --no_validate CLI flag is present. "
+            "The `basic` mode runs validation faster but may not find 100% of "
+            "the errors if the data contains implied connections between "
+            "entity types (e.g. You have a file that relates participants to "
+            "source genomic files and a file that relates participants to "
+            "biospecimens, instead of a file which relates participants "
+            "directly to biospecimens). The `advanced` mode runs validation "
+            "slower but is guarenteed to find all errors even if your data "
+            "has implied connections."
+        ),
+    },
+}
 
 
 def common_args_options(func):
@@ -114,6 +134,19 @@ def common_args_options(func):
         help=log_help_txt,
     )(func)
 
+    # Disable data validation
+    func = click.option(
+        "--no_validate",
+        default=False,
+        is_flag=True,
+        help="A flag to skip data validation during ingestion",
+    )(func)
+
+    # Validation mode
+    func = click.option(
+        *VALIDATION_MODE_OPT["args"], **VALIDATION_MODE_OPT["kwargs"]
+    )(func)
+
     return func
 
 
@@ -147,6 +180,8 @@ def ingest(
     dry_run,
     resume_from,
     no_warehouse,
+    no_validate,
+    validation_mode,
 ):
     """
     Run the Kids First data ingest pipeline.
@@ -175,8 +210,11 @@ def ingest(
     else:
         app_settings = settings.load()
 
-    if kwargs.pop("no_warehouse", None):
+    if kwargs.pop("no_warehouse"):
         os.environ[app_settings.SECRETS.WAREHOUSE_DB_URL] = ""
+
+    if kwargs.pop("no_validate"):
+        kwargs["validation_mode"] = None
 
     kwargs.pop("app_settings_filepath", None)
     kwargs["auth_configs"] = app_settings.AUTH_CONFIGS
@@ -192,17 +230,7 @@ def ingest(
         f'starting in "{app_settings.APP_MODE}" mode'
     )
 
-    perfection = pipeline.run()
-
-    logger = logging.getLogger(__name__)
-    if perfection:
-        logger.info("✅ Ingest pipeline passed validation!")
-    else:
-        logger.error(
-            "❌ Ingest pipeline failed validation! "
-            f"See {pipeline.log_file_path} for details"
-        )
-        sys.exit(1)
+    pipeline.run()
 
 
 @cli.command()
@@ -218,6 +246,8 @@ def test(
     use_async,
     resume_from,
     no_warehouse,
+    no_validate,
+    validation_mode,
 ):
     """
     Run the Kids First data ingest pipeline in dry_run mode (--dry_run=True)
@@ -234,11 +264,13 @@ def test(
     file or a path to a directory which contains a file called
     `ingest_package_config_path.py`
     """
-
     # Make kwargs from options
     frame = inspect.currentframe()
     args, _, _, values = inspect.getargvalues(frame)
     kwargs = {arg: values[arg] for arg in args[1:]}
+
+    if kwargs.pop("no_validate"):
+        kwargs["validation_mode"] = None
 
     kwargs["dry_run"] = True
     ctx.invoke(ingest, **kwargs)
@@ -267,20 +299,45 @@ def create_new_ingest(dest_dir=None):
     "file_or_dir",
     type=click.Path(exists=True, file_okay=True, dir_okay=True),
 )
-@click.option(
-    "--exclude_implicit",
-    default=False,
-    is_flag=True,
-)
-def validate(file_or_dir, exclude_implicit=False):
-    # TODO
+@click.option(*VALIDATION_MODE_OPT["args"], **VALIDATION_MODE_OPT["kwargs"])
+def validate(file_or_dir, validation_mode=DEFAULT_VALIDATION_MODE):
+    """
+    Validate files and write validation reports to
+    a subdirectory, `validation_results`, in the current working directory
+
+    \b
+    Arguments:
+        \b
+        file_or_dir - the path to the file or directory of files to validate
+    """
     from kf_lib_data_ingest.common.io import path_to_file_list
     from kf_lib_data_ingest.validation.validation import Validator
 
-    # Convert file_or_dir to file_paths
-    Validator().validate(
-        path_to_file_list(file_or_dir), include_implicit=(not exclude_implicit)
+    success = False
+    v = Validator(
+        output_dir=os.path.abspath(
+            os.path.join(
+                os.path.dirname(file_or_dir), 'validation_results'
+            )
+        )
     )
+    try:
+        if validation_mode == VALIDATION_MODES[0]:
+            include_implicit = False
+        else:
+            include_implicit = True
+
+        success = v.validate(
+            path_to_file_list(file_or_dir), include_implicit=include_implicit
+        )
+    except Exception as e:
+        v.logger.exception(str(e))
+
+    if success:
+        v.logger.info("✅ Data validation passed!")
+    else:
+        v.logger.error("❌ Data validation failed!")
+        sys.exit(1)
 
 
 cli.add_command(ingest)
