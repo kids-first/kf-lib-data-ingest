@@ -210,18 +210,15 @@ class IngestStage(ABC):
         else:
             include_implicit = True
 
-        self.validation_success = (
-            Validator(
-                output_dir=os.path.dirname(self._validation_results_filepath()),
-                setup_logger=False
-            )
-            .validate(
-                path_to_file_list(self.stage_cache_dir, recursive=False),
-                include_implicit=include_implicit,
-                report_kwargs=report_kwargs
-            )
+        self.validation_success = Validator(
+            output_dir=os.path.dirname(self._validation_results_filepath()),
+            setup_logger=False,
+        ).validate(
+            path_to_file_list(self.stage_cache_dir, recursive=False),
+            include_implicit=include_implicit,
+            report_kwargs=report_kwargs,
         )
         if self.validation_success:
-            self.logger.info(f'✅ {self.stage_type.__name__} passed validation!')
+            self.logger.info(f"✅ {self.stage_type.__name__} passed validation!")
         else:
-            self.logger.info(f'❌ {self.stage_type.__name__} failed validatoin!')
+            self.logger.info(f"❌ {self.stage_type.__name__} failed validatoin!")

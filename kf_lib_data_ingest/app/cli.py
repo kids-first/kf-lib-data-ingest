@@ -316,9 +316,7 @@ def validate(file_or_dir, validation_mode=DEFAULT_VALIDATION_MODE):
     success = False
     v = Validator(
         output_dir=os.path.abspath(
-            os.path.join(
-                os.path.dirname(file_or_dir), 'validation_results'
-            )
+            os.path.join(os.path.dirname(file_or_dir), "validation_results")
         )
     )
     try:

@@ -33,7 +33,7 @@ def _valid_stages_to_run_strs():
     for i in range(len(DEFAULT_STAGES_TO_RUN_STR)):
         s = DEFAULT_STAGES_TO_RUN_STR[i:]
         for j in range(len(s)):
-            valid_run_strs.append(s[0: j + 1])
+            valid_run_strs.append(s[0 : j + 1])
     return valid_run_strs
 
 
@@ -249,11 +249,11 @@ class DataIngestPipeline(object):
                 # Run stage operation and validate stage output
                 if stage.stage_type in self.stages_to_run:
                     self.stages_to_run.remove(stage.stage_type)
-                    title = f'📓 Data Validation Report: `{self.study}`'
+                    title = f"📓 Data Validation Report: `{self.study}`"
                     output = stage.run(
                         output,
                         validation_mode=self.validation_mode,
-                        report_kwargs={'md': {'title': title}}
+                        report_kwargs={"md": {"title": title}},
                     )
 
                 # Load cached output and validation results
@@ -287,9 +287,7 @@ class DataIngestPipeline(object):
             if all_passed:
                 self.logger.info("✅ Ingest passed validation!")
             else:
-                self.logger.error(
-                    "⚠️  Ingest failed validation! "
-                )
+                self.logger.error("⚠️  Ingest failed validation! ")
 
         except Exception as e:
             self.logger.exception(str(e))

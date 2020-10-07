@@ -4,7 +4,7 @@ import logging
 
 from kf_lib_data_ingest.common.io import read_df, write_json
 from kf_lib_data_ingest.validation.data_validator import (
-    Validator as DataValidator
+    Validator as DataValidator,
 )
 
 VALIDATION_OUTPUT_DIR = "validation_results"
@@ -26,7 +26,7 @@ def check_results(results):
     :returns: whether validation passed or not
     """
 
-    return all([not r['errors'] for r in results['validation']])
+    return all([not r["errors"] for r in results["validation"]])
 
 
 class Validator(object):
@@ -68,9 +68,9 @@ class Validator(object):
             for file_path in filepath_list:
                 try:
                     df_dict[file_path] = read_df(file_path)
-                    self.logger.info(f'Loaded file: {file_path}')
+                    self.logger.info(f"Loaded file: {file_path}")
                 except Exception:
-                    self.logger.info(f'Skipped file: {file_path}')
+                    self.logger.info(f"Skipped file: {file_path}")
                     continue
 
             # Do validation
