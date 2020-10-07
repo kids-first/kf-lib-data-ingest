@@ -84,7 +84,7 @@ results = {
                         ("PARTICIPANT|ID", "P1"): ["fp.csv"],
                     },
                 }
-            ]
+            ],
         },
         # Attribute test example 1 - Success
         {

@@ -151,10 +151,10 @@ def test_build_reports(tmpdir, info_caplog):
     for rp in report_paths:
         assert os.path.isfile(rp)
         fn, ext = os.path.splitext(rp)
-        if ext == '.md':
-            with open(rp, 'r') as md_file:
+        if ext == ".md":
+            with open(rp, "r") as md_file:
                 assert md_file.read()
-        elif ext == '.tsv':
+        elif ext == ".tsv":
             df = None
             try:
                 df = read_df(rp)

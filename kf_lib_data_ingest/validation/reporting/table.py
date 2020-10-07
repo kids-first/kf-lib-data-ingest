@@ -156,7 +156,7 @@ class TableReportBuilder(AbstractReportBuilder):
                 formatted_locations = defaultdict(set)
                 for (typ, val), files in error["locations"].items():
                     for f in files:
-                        formatted_locations[f].add(f'`{val}`')
+                        formatted_locations[f].add(f"`{val}`")
 
                 row_dicts.append(
                     {

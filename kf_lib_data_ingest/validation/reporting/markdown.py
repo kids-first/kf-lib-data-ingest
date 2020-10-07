@@ -145,6 +145,7 @@ class MarkdownReportBuilder(AbstractReportBuilder):
         Helper method for _tests_section_md. Convert single test result dict
         into markdown formatted str
         """
+
         def _style(val):
             """
             Style string val to make it stand out in a markdown doc
@@ -268,11 +269,9 @@ class MarkdownReportBuilder(AbstractReportBuilder):
             # Rollup errors into 1 line when a large enough % of from_nodes are
             # linked to 0 to_nodes (e.g. All PARTICIPANT.ID are linked to [])
             if (
-                (error_count >= ERROR_COUNT_THRESHOLD) and
-                (error_fraction >= ERROR_FRAC_THRESHOLD) and
-                all(
-                    [not e["to"] for e in rd["errors"]]
-                )
+                (error_count >= ERROR_COUNT_THRESHOLD)
+                and (error_fraction >= ERROR_FRAC_THRESHOLD)
+                and all([not e["to"] for e in rd["errors"]])
             ):
                 err_rollup = True
                 error_rows = [
