@@ -19,8 +19,11 @@ from kf_lib_data_ingest.validation.reporting.base import (
 DEFAULT_REPORT_TITLE = "📓 Data Validation Report"
 RESULTS_FILENAME = "validation_results.md"
 REPLACE_PIPE = "."
-ERROR_FRAC_THRESHOLD = .50
-ERROR_COUNT_THRESHOLD = 50
+REL_TEST = "relationship"
+ATTR_TEST = "attribute"
+GAP_TEST = "gaps"
+ERROR_FRAC_THRESHOLD = 0.50
+ERROR_COUNT_THRESHOLD = 20
 
 
 class MarkdownReportBuilder(AbstractReportBuilder):
@@ -41,9 +44,9 @@ class MarkdownReportBuilder(AbstractReportBuilder):
         :param title: Report title
         :type title: str
         """
-        self.counts = results['counts']
-        self.files_validated = results['files_validated']
-        self.results = results['validation']
+        self.counts = results["counts"]
+        self.files_validated = results["files_validated"]
+        self.results = results["validation"]
 
         output = []
         output.append(f"# {title}")
@@ -52,11 +55,11 @@ class MarkdownReportBuilder(AbstractReportBuilder):
         output.append("\n##  #️⃣  Counts")
         output.append(self._counts_md(results))
         output.append("\n## 🚦 Relationship Tests")
-        output.append(self._tests_section_md(results, "relationship"))
+        output.append(self._tests_section_md(results, REL_TEST))
         output.append("\n## 🚦 Gap Tests")
-        output.append(self._tests_section_md(results, "gap"))
+        output.append(self._tests_section_md(results, GAP_TEST))
         output.append("\n## 🚦 Attribute Value Tests")
-        output.append(self._tests_section_md(results, "attribute"))
+        output.append(self._tests_section_md(results, ATTR_TEST))
         output.append("\n## 🚦 Count Tests")
         output.append(self._tests_section_md(results, "count"))
         output = "\n".join(output)
@@ -84,11 +87,11 @@ class MarkdownReportBuilder(AbstractReportBuilder):
         header = (
             f"{RESULT_TO_EMOJI.get(self._result_code(result_dict))} "
             f'{result_dict["description"]}'
-        ).replace('|', REPLACE_PIPE)
+        ).replace("|", REPLACE_PIPE)
 
         # Make test header stand out for tests that ran
-        if result_dict['is_applicable']:
-            header = f'#### {header}'
+        if result_dict["is_applicable"]:
+            header = f"#### {header}"
 
         return header
 
@@ -114,9 +117,7 @@ class MarkdownReportBuilder(AbstractReportBuilder):
             if r["type"] != test_type:
                 continue
 
-            self.logger.debug(
-                f"Building results for {r['description']}"
-            )
+            self.logger.debug(f"Building results for {r['description']}")
             # Build markdown for each test result
             test_markdowns[self._result_code(r)].append(
                 self._result_to_md(r, test_type)
@@ -144,8 +145,6 @@ class MarkdownReportBuilder(AbstractReportBuilder):
         Helper method for _tests_section_md. Convert single test result dict
         into markdown formatted str
         """
-        test_markdown = []
-
         def _style(val):
             """
             Style string val to make it stand out in a markdown doc
@@ -159,7 +158,61 @@ class MarkdownReportBuilder(AbstractReportBuilder):
             """
             return _style(REPLACE_PIPE.join(t))
 
+        def _format_errors(result_dict, include_node_type=False):
+            """
+            Transform error dicts into formatted error strings
+            Return list of error row dicts for DataFrame
+            """
+            errors = []
+            for e in result_dict["errors"]:
+                prefix = f"{tuple_to_str(e['from'])} is linked to "
+                if e["to"]:
+                    suffix = []
+                    for to_node in e["to"]:
+                        if include_node_type:
+                            suffix.append(tuple_to_str(to_node))
+                        else:
+                            suffix.append(_style(to_node[1]))
+
+                else:
+                    suffix = f"0 {_style(rd['inputs']['to'])}"
+
+                errors.append({"Errors": f"{prefix} {suffix}"})
+            return errors
+
+        def _format_locations(result_dict, include_node_type=False):
+            """
+            Transform location dicts into formatted location strings
+            Return list of location row dicts for DataFrame
+            """
+            locs = defaultdict(set)
+            # -- File locations --
+            # Organize error values by file they were found in
+            for e in result_dict["errors"]:
+                for (typ, val), files in e["locations"].items():
+                    for f in files:
+                        if include_node_type:
+                            val = tuple_to_str((typ, val))
+                        else:
+                            val = _style(val)
+                        locs[f].add(val)
+
+            # Rollup locations - if number of error values in a file ==
+            # number of total errors for the test, then don't list out every
+            # error value in that file
+            loc_rows = []
+            for loc, vals in locs.items():
+                if len(vals) == len(rd["errors"]):
+                    val_str = "This file contains all errors in the **Errors** table above."
+                else:
+                    val_str = ",".join(sorted(vals))
+                loc_rows.append(
+                    {"Location": os.path.basename(loc), "Values": val_str}
+                )
+            return loc_rows
+
         # Add test header - [result emoji] [test description]
+        test_markdown = []
         test_markdown.append("")
         test_markdown.append(self._test_header(rd))
         test_markdown.append("")
@@ -175,99 +228,77 @@ class MarkdownReportBuilder(AbstractReportBuilder):
                 f'but expected: {_style(rd["errors"]["expected"])}'
             )
 
-        elif test_type == "attribute":
+        elif test_type == ATTR_TEST:
             test_markdown.append(
                 pandas.DataFrame(
                     [
                         {
                             "Location": os.path.basename(file_path),
-                            "Bad Values": ','.join(
+                            "Bad Values": ",".join(
                                 sorted([_style(v) for v in bad_vals])
-                            )
+                            ),
                         }
                         for file_path, bad_vals in rd["errors"].items()
                     ]
                 ).to_markdown(index=False)
             )
+        elif test_type == GAP_TEST:
+            # Errors
+            test_markdown.append(
+                pandas.DataFrame(
+                    _format_errors(rd, include_node_type=True)
+                ).to_markdown(index=False)
+            )
+            test_markdown.append("")
+            # File locations
+            test_markdown.append(
+                pandas.DataFrame(_format_locations(rd, include_node_type=True))
+                .sort_values(by="Location")
+                .to_markdown(index=False)
+            )
 
-        elif test_type == "gap":
-            # TODO
-            pass
-
-        elif test_type == "relationship":
-            errors = []
-            locs = defaultdict(set)
-
+        elif test_type == REL_TEST:
             # -- Errors --
             err_rollup = False
-            from_type = rd['inputs']['from']
-            to_type = rd['inputs']['to']
-            error_fraction = len(rd['errors']) / self.counts[from_type]
+            from_type = rd["inputs"]["from"]
+            to_type = rd["inputs"]["to"]
+            error_count = len(rd["errors"])
+            error_fraction = error_count / self.counts[from_type]
 
             # Rollup errors into 1 line when a large enough % of from_nodes are
             # linked to 0 to_nodes (e.g. All PARTICIPANT.ID are linked to [])
             if (
-                error_fraction >= ERROR_FRAC_THRESHOLD and
-                all([not e['to'] for e in errors])
+                (error_count >= ERROR_COUNT_THRESHOLD) and
+                (error_fraction >= ERROR_FRAC_THRESHOLD) and
+                all(
+                    [not e["to"] for e in rd["errors"]]
+                )
             ):
                 err_rollup = True
-                if error_fraction == 1:
-                    prefix = 'All'
-                else:
-                    prefix = f"More than {error_fraction * 100} of "
-
-                errors.append(
+                error_rows = [
                     {
-                        "Errors": f"{prefix} {self.counts[from_type]} "
+                        "Errors": f"At least {error_fraction * 100} % of "
+                        f"{self.counts[from_type]} "
                         f"{_style(from_type)} in the dataset "
                         f"are linked to 0 {_style(to_type)}"
                     }
-                )
+                ]
             # Create formatted error strings
             else:
-                for e in rd["errors"]:
-                    prefix = f"{tuple_to_str(e['from'])} is linked to "
-                    if e["to"]:
-                        suffix = [f"{_style(to_node[1])}" for to_node in e["to"]]
-                    else:
-                        suffix = f"0 {_style(rd['inputs']['to'])}"
-
-                    errors.append({"Errors": f"{prefix} {suffix}"})
+                error_rows = _format_errors(rd)
 
             test_markdown.append(
-                pandas.DataFrame(errors).to_markdown(index=False)
+                pandas.DataFrame(error_rows).to_markdown(index=False)
             )
 
             # -- File locations --
-            # Organize error values by file they were found in
-            for e in rd['errors']:
-                for (typ, val), files in e["locations"].items():
-                    for f in files:
-                        locs[f].add(f'{_style(val)}')
-
-            # Rollup locations - if number of error values in a file ==
-            # number of total errors for the test, then don't list out every
-            # error value in that file
-            loc_rows = []
-            for loc, vals in locs.items():
-                if len(vals) == len(rd['errors']):
-                    val_str = 'File contains all error values in **Errors** table above.'
-                else:
-                    val_str = ','.join(sorted(vals))
-                loc_rows.append(
-                    {
-                        'Location': os.path.basename(loc),
-                        'Values': val_str
-                    }
-                )
-
-            # Don't show file locations when there are too many errors and
-            # we've rolled up the errors into a 1 line error statement
+            # Only show file locations when we have not rolled up the
+            # errors into a 1 line error statement
             if not err_rollup:
                 test_markdown.append("")
                 test_markdown.append(
-                    pandas.DataFrame(loc_rows)
-                    .sort_values(by='Location')
+                    pandas.DataFrame(_format_locations(rd))
+                    .sort_values(by="Location")
                     .to_markdown(index=False)
                 )
 
@@ -288,8 +319,9 @@ class MarkdownReportBuilder(AbstractReportBuilder):
                     {"Entity": typ, "Count": count}
                     for typ, count in results["counts"].items()
                 ]
-            ).replace(r"\|", REPLACE_PIPE, regex=True)
-            .sort_values('Count', ascending=False)
+            )
+            .replace(r"\|", REPLACE_PIPE, regex=True)
+            .sort_values("Count", ascending=False)
             .to_markdown(index=False)
         )
 
@@ -311,15 +343,12 @@ class MarkdownReportBuilder(AbstractReportBuilder):
             files[d].add(fn)
 
         for d, file_names in files.items():
-            output.append(f'**{d}**\n')
+            output.append(f"**{d}**\n")
             output.append(
-                pandas.DataFrame(
-                    [
-                        {'Files': fn}
-                        for fn in file_names
-                    ]
-                ).sort_values(by='Files').to_markdown(index=False)
+                pandas.DataFrame([{"Files": fn} for fn in file_names])
+                .sort_values(by="Files")
+                .to_markdown(index=False)
             )
-            output.append('')
+            output.append("")
 
         return "\n".join(output)
