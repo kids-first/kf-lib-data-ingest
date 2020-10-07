@@ -4,9 +4,7 @@ kf_lib_data_ingest.validation.data_validator.py
 """
 
 results = {
-    "counts": {
-        "PARTICIPANT|ID": 10, "BIOSPECIMEN|ID": 20, "FAMILY|ID": 1
-    },
+    "counts": {"PARTICIPANT|ID": 10, "BIOSPECIMEN|ID": 20, "FAMILY|ID": 1},
     "files_validated": ["foo.txt", "bar.txt"],
     "validation": [
         # Relationship test example 1 - entity relation test
@@ -18,10 +16,7 @@ results = {
             # True means the test ran
             # False means the test did not run
             "is_applicable": True,
-            "inputs": {
-                "from": "BIOSPECIMEN|ID",
-                "to": "PARTICIPANT|ID"
-            },
+            "inputs": {"from": "BIOSPECIMEN|ID", "to": "PARTICIPANT|ID"},
             # Format for `errors` when type = relationship
             "errors": [
                 {
@@ -53,10 +48,7 @@ results = {
             "type": "relationship",
             "description": "Every PARTICIPANT|ID must have 1 Gender",
             "is_applicable": True,
-            "inputs": {
-                "from": "PARTICIPANT|ID",
-                "to": "PARTICIPANT|GENDER"
-            },
+            "inputs": {"from": "PARTICIPANT|ID", "to": "PARTICIPANT|GENDER"},
             "errors": [
                 {
                     "from": ("PARTICIPANT|ID", "P2"),
@@ -77,15 +69,29 @@ results = {
                 },
             ],
         },
+        {
+            "type": "gaps",
+            "inputs": {},
+            "description": "All resolved links are hierarchically direct",
+            "is_applicable": True,
+            "errors": [
+                {
+                    "from": ("GENOMIC_FILE|URL_LIST", "['s1.txt']"),
+                    "to": [("PARTICIPANT|ID", "P2"), ("PARTICIPANT|ID", "P1")],
+                    "locations": {
+                        ("GENOMIC_FILE|URL_LIST", "['s1.txt']"): ["fg.csv"],
+                        ("PARTICIPANT|ID", "P2"): ["fp.csv"],
+                        ("PARTICIPANT|ID", "P1"): ["fp.csv"],
+                    },
+                }
+            ]
+        },
         # Attribute test example 1 - Success
         {
             "type": "relationship",
             "description": "Every PARTICIPANT|ID must have 1 FAMILY|ID",
             "is_applicable": True,
-            "inputs": {
-                "from": "PARTICIPANT|ID",
-                "to": "FAMILY|ID"
-            },
+            "inputs": {"from": "PARTICIPANT|ID", "to": "FAMILY|ID"},
             "errors": [],
         },
         # Attribute test example 2 - Failed
@@ -93,9 +99,7 @@ results = {
             "type": "attribute",
             "description": "PARTICIPANT|GENDER must be one of: Male, Female",
             "is_applicable": True,
-            "inputs": {
-                "from": "PARTICIPANT|GENDER"
-            },
+            "inputs": {"from": "PARTICIPANT|GENDER"},
             # Format for `errors` when type = attribute
             # A key must be a file path str and its value must be a
             # set of invalid values
@@ -106,9 +110,7 @@ results = {
             "type": "attribute",
             "description": "BIOSPECIMEN|VOLUME_ML must be >= 0 mL",
             "is_applicable": True,
-            "inputs": {
-                "from": "BIOSPECIMEN|VOLUME_ML"
-            },
+            "inputs": {"from": "BIOSPECIMEN|VOLUME_ML"},
             "errors": {"foo.txt": {-12123}, "bar.txt": {-1}},
         },
         # Attribute test example 4 - Did not run
@@ -116,9 +118,7 @@ results = {
             "type": "attribute",
             "description": "BIOSPECIMEN|ANALYTE_TYPE must be one of {DNA, RNA}",
             "is_applicable": False,
-            "inputs": {
-                "from": "BIOSPECIMEN|ANALYTE_TYPE"
-            },
+            "inputs": {"from": "BIOSPECIMEN|ANALYTE_TYPE"},
             "errors": {},
         },
         # Count test example 1 - Success
@@ -126,9 +126,7 @@ results = {
             "type": "count",
             "description": "FAMILY|ID: Found == Expected",
             "is_applicable": True,
-            "inputs": {
-                "from": "FAMILY|ID"
-            },
+            "inputs": {"from": "FAMILY|ID"},
             "errors": {},
         },
         # Count test example 2 - Failed
@@ -136,9 +134,7 @@ results = {
             "type": "count",
             "description": "PARTICIPANT|ID: Found == Expected",
             "is_applicable": True,
-            "inputs": {
-                "from": "PARTICIPANT|ID"
-            },
+            "inputs": {"from": "PARTICIPANT|ID"},
             # Format for `errors` when type = count
             "errors": {"expected": 10, "found": 20},
         },
@@ -147,9 +143,7 @@ results = {
             "type": "count",
             "description": "BIOSPECIMEN|ID: Found == Expected",
             "is_applicable": False,
-            "inputs": {
-                "from": "BIOSPECIMEN|ID"
-            },
+            "inputs": {"from": "BIOSPECIMEN|ID"},
             "errors": {},
         },
     ],
