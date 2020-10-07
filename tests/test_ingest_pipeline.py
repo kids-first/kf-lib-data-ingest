@@ -4,7 +4,12 @@ import shutil
 import pytest
 from click.testing import CliRunner
 
-from conftest import COMMAND_LINE_ERROR_CODE, TEST_DATA_DIR, delete_dir
+from conftest import (
+    TEST_INGEST_CONFIG as SIMPLE_STUDY_CONFIG,
+    COMMAND_LINE_ERROR_CODE,
+    TEST_DATA_DIR,
+    delete_dir,
+)
 from kf_lib_data_ingest.app import cli
 from kf_lib_data_ingest.config import VERSION
 from kf_lib_data_ingest.etl.ingest_pipeline import (
@@ -15,9 +20,6 @@ from kf_lib_data_ingest.etl.ingest_pipeline import (
 
 TEST_STUDY_CONFIG = os.path.join(
     TEST_DATA_DIR, "test_study", "ingest_package_config.py"
-)
-SIMPLE_STUDY_CONFIG = os.path.join(
-    TEST_DATA_DIR, "simple_study", "ingest_package_config.py"
 )
 
 
@@ -115,32 +117,30 @@ def test_ingest_cmd_missing_required_args():
 
 
 @pytest.mark.parametrize(
-    "cli_cmd, arg_list",
+    "cli_cmd, arg_list, expected_code",
     [
-        (cli.test, [SIMPLE_STUDY_CONFIG, "--log_level", "debug"]),
+        (cli.test, [SIMPLE_STUDY_CONFIG, "--no_validate"], 0),
+        (cli.test, [SIMPLE_STUDY_CONFIG, "--validation_mode", "advanced"], 0),
+        (cli.test, [SIMPLE_STUDY_CONFIG, "--log_level", "debug"], 0),
         (
             cli.ingest,
             [SIMPLE_STUDY_CONFIG, "--dry_run", "--log_level", "debug"],
+            0,
         ),
     ],
 )
-def test_ingest_cmds(cli_cmd, arg_list):
+def test_ingest_cmds(cli_cmd, arg_list, expected_code):
     """
     Test ingest and test CLI commands - guided transform
     """
     runner = CliRunner()
     result = runner.invoke(cli_cmd, arg_list)
-    assert result.exit_code == 0
+    assert result.exit_code == expected_code
 
     assert "BEGIN data ingestion" in result.output
     assert "END data ingestion" in result.output
     assert "version" in result.output
     assert f"{VERSION}" in result.output
-
-    # Make sure that post-extract validation runs
-    # TODO
-
-    assert "DRY RUN" in result.output
 
 
 def test_ingest_no_transform_module(tmpdir):

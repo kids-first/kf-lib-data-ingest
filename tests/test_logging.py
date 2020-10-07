@@ -138,7 +138,7 @@ def test_log_exceptions(ingest_pipeline):
     )
     with open(log_filepath, "r") as logfile:
         lines = logfile.readlines()
-        assert "Exiting" in lines[-1]
+        assert "Ingest pipeline did not complete execution" in lines[-1]
         assert "Exception: Exception" in lines[-2]
 
 

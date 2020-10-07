@@ -83,6 +83,7 @@ def make_ingest_pipeline(
     log_dir=None,
     overwrite_log=None,
     auth_configs=None,
+    validation_mode=None,
 ):
     """
     Create ingest pipeline as test dependency
@@ -104,6 +105,7 @@ def make_ingest_pipeline(
         overwrite_log=overwrite_log,
         dry_run=True,
         auth_configs=auth_configs,
+        validation_mode=validation_mode,
     )
 
 

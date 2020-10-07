@@ -2,12 +2,71 @@ import glob
 import os
 
 import pytest
+import pandas
 from deepdiff import DeepDiff
+from click.testing import CliRunner
+
+from kf_lib_data_ingest.app import cli
+from kf_lib_data_ingest.common.concept_schema import CONCEPT
+from kf_lib_data_ingest.common import constants
 from kf_lib_data_ingest.common.io import read_df
 from kf_lib_data_ingest.common.misc import import_module_from_file
-from kf_lib_data_ingest.validation.data_validator import NA, Validator
+from kf_lib_data_ingest.validation.data_validator import (
+    NA,
+    Validator as DataValidator
+)
+from kf_lib_data_ingest.validation.default_hierarchy import DH
 
 from conftest import TEST_DATA_DIR
+
+
+@pytest.fixture(scope='session')
+def valid_df():
+    """
+    A pandas.DataFrame which passes data validation
+    """
+    # Identifiers
+    df = pandas.DataFrame(
+        {
+            col: [f'{col[0:2]}{i}' for i in range(5)]
+            for col in DH.nodes()
+            if col.endswith('ID')
+        }
+    )
+    # Other required attributes
+    attr = {
+        CONCEPT.BIOSPECIMEN.ANALYTE: lambda row: 'DNA',
+        CONCEPT.GENOMIC_FILE.HARMONIZED: lambda row: True,
+        CONCEPT.GENOMIC_FILE.REFERENCE_GENOME: (
+            lambda row: constants.SEQUENCING.REFERENCE_GENOME.GRCH38
+        ),
+        CONCEPT.GENOMIC_FILE.URL_LIST: (
+            lambda row: row[CONCEPT.GENOMIC_FILE.ID]
+        ),
+        CONCEPT.SEQUENCING.STRATEGY: (
+            lambda row: constants.SEQUENCING.STRATEGY.WGS
+        ),
+        CONCEPT.SEQUENCING.PAIRED_END: (
+            lambda row: constants.COMMON.NOT_REPORTED
+        )
+    }
+    for col, func in attr.items():
+        df[col] = df.apply(func, axis=1)
+
+    return df
+
+
+def test_validate_cmd(tmpdir, valid_df):
+    """
+    Test validate CLI command
+    """
+    # Create test data
+    temp_dir = tmpdir.mkdir("empty")
+    valid_df.to_csv(os.path.join(temp_dir, 'data.tsv'), sep='\t', index=False)
+
+    runner = CliRunner()
+    result = runner.invoke(cli.validate, [str(temp_dir)])
+    assert result.exit_code == 0
 
 
 def diff(desc, a, b):
@@ -45,7 +104,7 @@ def verify_test_results(base, reference):
 
 
 def verify_df_dict(df_dict, reference, test_hierarchy):
-    results = Validator(test_hierarchy).validate(df_dict)
+    results = DataValidator(test_hierarchy).validate(df_dict)
     assert sorted(results["files_validated"]) == sorted(df_dict.keys())
     verify_counts(results["counts"], reference.counts)
     verify_test_results(results["validation"], reference.validation)
