@@ -66,6 +66,16 @@ class Validator(object):
         """
         Validate a set of tabular files containing a standardized set of
         columns and write validation report(s) to disk
+
+        :param filepath_list: List of paths of files to validate
+        :type filepath_list: list
+        :param include_implicit: whether to account for implied connections
+        :type include_implicit: bool
+        :param report_kwargs: Keyword arguments for each report builder
+        Forwarded to Validator._build_report
+        :type report_kwargs: dict
+
+        :returns: boolean indicating whether validation passed
         """
         try:
             # File paths to dict of DataFrames

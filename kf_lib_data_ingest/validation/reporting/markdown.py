@@ -20,8 +20,9 @@ DEFAULT_REPORT_TITLE = "📓 Data Validation Report"
 RESULTS_FILENAME = "validation_results.md"
 REPLACE_PIPE = "."
 REL_TEST = "relationship"
-ATTR_TEST = "attribute"
 GAP_TEST = "gaps"
+ATTR_TEST = "attribute"
+COUNT_TEST = "count"
 ERROR_FRAC_THRESHOLD = 0.50
 ERROR_COUNT_THRESHOLD = 20
 
@@ -98,7 +99,7 @@ class MarkdownReportBuilder(AbstractReportBuilder):
     def _tests_section_md(self, results, test_type):
         """
         Create markdown section containing test results for a given
-        test type: [count | attribute | relationship | gap]
+        test type: [COUNT_TEST | ATTR_TEST | REL_TEST | GAP_TEST]
 
         :param results: See sample_validation_results.py for `results` format
         :type results: list of dicts
@@ -142,8 +143,8 @@ class MarkdownReportBuilder(AbstractReportBuilder):
 
     def _result_to_md(self, rd, test_type):
         """
-        Helper method for _tests_section_md. Convert single test result dict
-        into markdown formatted str
+        Helper method for _tests_section_md
+        Convert single test result dict into markdown formatted text
         """
 
         def _style(val):
