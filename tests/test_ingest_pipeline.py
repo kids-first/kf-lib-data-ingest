@@ -117,25 +117,24 @@ def test_ingest_cmd_missing_required_args():
 
 
 @pytest.mark.parametrize(
-    "cli_cmd, arg_list, expected_code",
+    "cli_cmd, arg_list",
     [
-        (cli.test, [SIMPLE_STUDY_CONFIG, "--no_validate"], 0),
-        (cli.test, [SIMPLE_STUDY_CONFIG, "--validation_mode", "advanced"], 0),
-        (cli.test, [SIMPLE_STUDY_CONFIG, "--log_level", "debug"], 0),
+        (cli.test, [SIMPLE_STUDY_CONFIG, "--no_validate"]),
+        (cli.test, [SIMPLE_STUDY_CONFIG, "--validation_mode", "advanced"]),
+        (cli.test, [SIMPLE_STUDY_CONFIG, "--log_level", "debug"]),
         (
             cli.ingest,
-            [SIMPLE_STUDY_CONFIG, "--dry_run", "--log_level", "debug"],
-            0,
+            [SIMPLE_STUDY_CONFIG, "--dry_run", "--log_level", "debug"]
         ),
     ],
 )
-def test_ingest_cmds(cli_cmd, arg_list, expected_code):
+def test_ingest_cmds(cli_cmd, arg_list):
     """
     Test ingest and test CLI commands - guided transform
     """
     runner = CliRunner()
     result = runner.invoke(cli_cmd, arg_list)
-    assert result.exit_code == expected_code
+    assert result.exit_code == 0
 
     assert "BEGIN data ingestion" in result.output
     assert "END data ingestion" in result.output
