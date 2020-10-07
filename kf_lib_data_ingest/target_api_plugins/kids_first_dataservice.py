@@ -266,11 +266,14 @@ class Biospecimen:
 
     @staticmethod
     def build_key(record):
-        assert None is not record[CONCEPT.BIOSPECIMEN_GROUP.ID]
+        biospecimen_group_id = record.get(
+            CONCEPT.BIOSPECIMEN_GROUP.ID, record.get(CONCEPT.BIOSPECIMEN.ID)
+        )
+        assert None is not biospecimen_group_id
         assert None is not record[CONCEPT.BIOSPECIMEN.ID]
         assert record[CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID]
         return record.get(CONCEPT.BIOSPECIMEN.UNIQUE_KEY) or join(
-            record[CONCEPT.BIOSPECIMEN_GROUP.ID], record[CONCEPT.BIOSPECIMEN.ID]
+            biospecimen_group_id, record[CONCEPT.BIOSPECIMEN.ID]
         )
 
     @staticmethod
@@ -278,7 +281,9 @@ class Biospecimen:
         return {
             "kf_id": get_target_id_from_record(Biospecimen, record),
             "participant_id": get_target_id_from_record(Participant, record),
-            "external_sample_id": record.get(CONCEPT.BIOSPECIMEN_GROUP.ID),
+            "external_sample_id": record.get(
+                CONCEPT.BIOSPECIMEN_GROUP.ID, record.get(CONCEPT.BIOSPECIMEN.ID)
+            ),
             "external_aliquot_id": record.get(CONCEPT.BIOSPECIMEN.ID),
             "sequencing_center_id": record.get(
                 CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID
