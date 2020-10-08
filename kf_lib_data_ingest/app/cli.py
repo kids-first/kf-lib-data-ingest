@@ -276,9 +276,6 @@ def test(
     args, _, _, values = inspect.getargvalues(frame)
     kwargs = {arg: values[arg] for arg in args[1:]}
 
-    if kwargs.pop("no_validate"):
-        kwargs["validation_mode"] = None
-
     kwargs["dry_run"] = True
     ctx.invoke(ingest, **kwargs)
 
