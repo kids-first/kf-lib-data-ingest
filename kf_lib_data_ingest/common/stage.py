@@ -9,6 +9,7 @@ from kf_lib_data_ingest.validation.validation import (
     Validator,
     check_results,
     RESULTS_FILENAME,
+    VALIDATION_OUTPUT_DIR,
 )
 
 BASIC_VALIDATION = "basic"
@@ -28,6 +29,10 @@ class IngestStage(ABC):
 
         self.logger = logging.getLogger(type(self).__name__)
         self.validation_success = True
+        self.validation_output_dir = os.path.join(
+            self.stage_cache_dir or "",
+            VALIDATION_OUTPUT_DIR,
+        )
 
     @property
     def stage_type(self):
@@ -119,9 +124,7 @@ class IngestStage(ABC):
         """
         Path to validation results file
         """
-        return os.path.join(
-            self.stage_cache_dir, "validation_results", RESULTS_FILENAME
-        )
+        return os.path.join(self.validation_output_dir, RESULTS_FILENAME)
 
     def _log_run(func):
         """

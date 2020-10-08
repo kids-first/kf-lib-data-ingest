@@ -131,8 +131,7 @@ class AbstractReportBuilder(ABC):
         else:
             paths = [path]
 
-        for p in paths:
-            self.logger.info(f"Wrote validation report file: {p}")
+        self.logger.info(f"Wrote validation report file(s):\n{pformat(paths)}")
 
         return paths
 

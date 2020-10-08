@@ -289,6 +289,17 @@ class DataIngestPipeline(object):
             else:
                 self.logger.error("⚠️  Ingest failed validation! ")
 
+            report_file_paths = [
+                os.path.join(root, file)
+                for stage in self.stages.values()
+                for root, dirs, files in os.walk(stage.validation_output_dir)
+                for file in files
+                if not file.startswith(".")
+            ]
+            self.logger.info(
+                f"See validation report files:\n{pformat(report_file_paths)}"
+            )
+
         except Exception as e:
             self.logger.exception(str(e))
             self.logger.error(

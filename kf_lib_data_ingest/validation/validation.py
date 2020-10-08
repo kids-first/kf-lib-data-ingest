@@ -48,6 +48,7 @@ class Validator(object):
         self.output_dir = output_dir or os.path.join(
             os.getcwd(), VALIDATION_OUTPUT_DIR
         )
+        self.report_file_paths = []
         os.makedirs(self.output_dir, exist_ok=True)
 
         if init_logger:
@@ -98,7 +99,9 @@ class Validator(object):
             self.logger.info(f"Wrote validation results json to: {p}")
 
             # Build and write validation reports to disk
-            self._build_report(results, report_kwargs=report_kwargs)
+            self.report_file_paths = self._build_report(
+                results, report_kwargs=report_kwargs
+            )
 
             return check_results(results)
 
