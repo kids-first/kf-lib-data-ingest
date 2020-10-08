@@ -18,7 +18,10 @@ from kf_lib_data_ingest.validation.data_validator import (
 from kf_lib_data_ingest.validation.default_hierarchy import DH
 from kf_lib_data_ingest.validation.validation import Validator
 from kf_lib_data_ingest.validation.reporting import sample_validation_results
-
+from kf_lib_data_ingest.common.type_safety import (
+    assert_safe_type,
+    assert_all_safe_type,
+)
 from conftest import TEST_DATA_DIR
 
 
@@ -139,6 +142,9 @@ def test_build_reports(tmpdir, info_caplog):
     """
     Test validation report building in kf_lib_data_ingest.validation.reporting
     """
+    # Test format of validation results
+    _validate_result_schema(sample_validation_results.results)
+
     # Test normal case with sample validation results
     path = tmpdir.mkdir("validation_results")
     report_paths = Validator(output_dir=path)._build_report(
@@ -161,3 +167,60 @@ def test_build_reports(tmpdir, info_caplog):
             except Exception:
                 assert False
             assert (df is not None) and (not df.empty)
+
+
+def _validate_result_schema(results):
+    """
+    Validate structure and format of validation test result dicts
+    """
+    req_keys = {"counts", "files_validated", "validation"}
+    req_result_keys = {
+        "type",
+        "description",
+        "is_applicable",
+        "errors",
+        "inputs",
+    }
+
+    assert_safe_type(results["counts"], dict)
+    assert_safe_type(results["files_validated"], list)
+    assert_safe_type(results["validation"], list)
+
+    # Check for top level required keys by attempting to access all
+    # expected keys
+    for k in req_keys:
+        results[k]
+
+    # Check for validation result dict required keys by attempting to
+    # access all expected keyss
+    for r in results["validation"]:
+        for k in req_result_keys:
+            r[k]
+
+        # Check types
+        assert_safe_type(r["type"], str)
+        assert_safe_type(r["description"], str)
+        assert_safe_type(r["is_applicable"], bool)
+        assert_safe_type(r["errors"], list, dict)
+
+        # -- Check error dicts --
+        # Ensure error dicts follow expected structure by attempting to
+        # access all keys and values. Catch any exception, log that there
+        # was a validation error in the validation result's error dict,
+        # re-raise the original exception
+        errs = r["errors"]
+        if r["type"] == "relationship":
+            for e in errs:
+                t, v = e["from"]
+                if e["to"]:
+                    for to_node in e["to"]:
+                        t1, v1 = to_node
+                for (t2, v2), files in e["locations"].items():
+                    pass
+        elif r["type"] == "attribute":
+            assert_all_safe_type(errs.keys(), str)
+            assert_all_safe_type(errs.values(), set)
+
+        elif r["type"] == "count":
+            assert_all_safe_type(errs.keys(), str)
+            assert_all_safe_type(errs.values(), int)

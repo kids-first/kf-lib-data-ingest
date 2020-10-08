@@ -223,7 +223,7 @@ class MarkdownReportBuilder(AbstractReportBuilder):
             return "\n".join(test_markdown)
 
         # Add test errors and locations
-        if test_type == "count":
+        if test_type == COUNT_TEST:
             test_markdown.append(
                 f'Found: {_style(rd["errors"]["found"])} '
                 f'but expected: {_style(rd["errors"]["expected"])}'
