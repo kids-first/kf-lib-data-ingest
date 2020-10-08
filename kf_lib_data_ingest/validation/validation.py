@@ -5,7 +5,7 @@ import logging
 from kf_lib_data_ingest.common.type_safety import assert_safe_type
 from kf_lib_data_ingest.common.io import read_df, write_json
 from kf_lib_data_ingest.validation.data_validator import (
-    Validator as DataValidator
+    Validator as DataValidator,
 )
 from kf_lib_data_ingest.validation.reporting.table import TableReportBuilder
 from kf_lib_data_ingest.validation.reporting.markdown import (
@@ -84,9 +84,9 @@ class Validator(object):
             for file_path in filepath_list:
                 try:
                     df_dict[file_path] = read_df(file_path)
-                    self.logger.info(f'Loaded file: {file_path}')
+                    self.logger.info(f"Loaded file: {file_path}")
                 except Exception:
-                    self.logger.info(f'Skipped file: {file_path}')
+                    self.logger.info(f"Skipped file: {file_path}")
                     continue
 
             # Do validation

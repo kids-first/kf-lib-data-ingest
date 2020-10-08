@@ -124,7 +124,7 @@ def test_ingest_cmd_missing_required_args():
         (cli.test, [SIMPLE_STUDY_CONFIG, "--log_level", "debug"]),
         (
             cli.ingest,
-            [SIMPLE_STUDY_CONFIG, "--dry_run", "--log_level", "debug"]
+            [SIMPLE_STUDY_CONFIG, "--dry_run", "--log_level", "debug"],
         ),
     ],
 )

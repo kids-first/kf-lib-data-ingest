@@ -13,7 +13,7 @@ from kf_lib_data_ingest.common.io import read_df
 from kf_lib_data_ingest.common.misc import import_module_from_file
 from kf_lib_data_ingest.validation.data_validator import (
     NA,
-    Validator as DataValidator
+    Validator as DataValidator,
 )
 from kf_lib_data_ingest.validation.default_hierarchy import DH
 from kf_lib_data_ingest.validation.validation import Validator
@@ -25,7 +25,7 @@ from kf_lib_data_ingest.common.type_safety import (
 from conftest import TEST_DATA_DIR
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def valid_df():
     """
     A pandas.DataFrame which passes data validation
@@ -33,14 +33,14 @@ def valid_df():
     # Identifiers
     df = pandas.DataFrame(
         {
-            col: [f'{col[0:2]}{i}' for i in range(5)]
+            col: [f"{col[0:2]}{i}" for i in range(5)]
             for col in DH.nodes()
-            if col.endswith('ID')
+            if col.endswith("ID")
         }
     )
     # Other required attributes
     attr = {
-        CONCEPT.BIOSPECIMEN.ANALYTE: lambda row: 'DNA',
+        CONCEPT.BIOSPECIMEN.ANALYTE: lambda row: "DNA",
         CONCEPT.GENOMIC_FILE.HARMONIZED: lambda row: True,
         CONCEPT.GENOMIC_FILE.REFERENCE_GENOME: (
             lambda row: constants.SEQUENCING.REFERENCE_GENOME.GRCH38
@@ -53,7 +53,7 @@ def valid_df():
         ),
         CONCEPT.SEQUENCING.PAIRED_END: (
             lambda row: constants.COMMON.NOT_REPORTED
-        )
+        ),
     }
     for col, func in attr.items():
         df[col] = df.apply(func, axis=1)
@@ -67,7 +67,7 @@ def test_validate_cmd(tmpdir, valid_df):
     """
     # Create test data
     temp_dir = tmpdir.mkdir("empty")
-    valid_df.to_csv(os.path.join(temp_dir, 'data.tsv'), sep='\t', index=False)
+    valid_df.to_csv(os.path.join(temp_dir, "data.tsv"), sep="\t", index=False)
 
     runner = CliRunner()
     result = runner.invoke(cli.validate, [str(temp_dir)])

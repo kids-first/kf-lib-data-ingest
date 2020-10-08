@@ -11,8 +11,9 @@ from kf_lib_data_ingest.validation.validation import (
     RESULTS_FILENAME,
     VALIDATION_OUTPUT_DIR,
 )
-BASIC_VALIDATION = 'basic'
-ADVANCED_VALIDATION = 'advanced'
+
+BASIC_VALIDATION = "basic"
+ADVANCED_VALIDATION = "advanced"
 
 
 class IngestStage(ABC):
@@ -229,6 +230,6 @@ class IngestStage(ABC):
             report_kwargs=report_kwargs,
         )
         if self.validation_success:
-            self.logger.info(f'✅ {self.stage_type.__name__} passed validation!')
+            self.logger.info(f"✅ {self.stage_type.__name__} passed validation!")
         else:
-            self.logger.info(f'❌ {self.stage_type.__name__} failed validatoin!')
+            self.logger.info(f"❌ {self.stage_type.__name__} failed validatoin!")
