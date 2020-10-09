@@ -61,6 +61,5 @@ def test_ingest_template_study(caplog, tmpdir):
         cli.ingest, [study_dir, "--dry_run", "--log_level", "debug"]
     )
     assert result.exit_code == 0
-    assert "EXPECTED COUNT CHECKS" in caplog.text
     assert "END data ingestion"
     assert os.path.isdir(os.path.join(study_dir, "output"))

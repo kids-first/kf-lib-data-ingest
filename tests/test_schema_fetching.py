@@ -47,7 +47,7 @@ def test_get_kf_schema(caplog, tmpdir, target_api_config, **kwargs):
     Test retrieval when server is up and no cached schema exists
     Test retrieval when servier is down and cached schema exists
     """
-    # Setup mock responses
+    # Set up mock responses
     mock = kwargs["mock"]
     mock.get(schema_url, json=mock_dataservice_schema)
 

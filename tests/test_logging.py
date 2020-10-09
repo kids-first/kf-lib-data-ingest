@@ -45,7 +45,7 @@ def test_log_dir(tmpdir):
     ingest_pipeline.run()
 
     # User supplied log dir should exist
-    assert len(os.listdir(log_dir)) == 2
+    assert len(os.listdir(log_dir)) == 1
 
 
 def test_overwrite_log(ingest_pipeline):
@@ -56,22 +56,21 @@ def test_overwrite_log(ingest_pipeline):
 
     # Check for default log files
     ingest_pipeline.run()
-    assert len(os.listdir(log_dir)) == 2
+    assert len(os.listdir(log_dir)) == 1
     assert os.path.isfile(ingest_pipeline.log_file_path) is True
 
     # No new files should be created
     ingest_pipeline.run()
-    assert len(os.listdir(log_dir)) == 2
+    assert len(os.listdir(log_dir)) == 1
 
     # Test that new logs are created on each pipeline with overwrite_false
     ip = make_ingest_pipeline(overwrite_log=False)
-    assert len(os.listdir(log_dir)) == 3
     ip.run()
-    assert len(os.listdir(log_dir)) == 4
+    assert len(os.listdir(log_dir)) == 2
+
     ip = make_ingest_pipeline(overwrite_log=False)
-    assert len(os.listdir(log_dir)) == 5
     ip.run()
-    assert len(os.listdir(log_dir)) == 6
+    assert len(os.listdir(log_dir)) == 3
 
 
 def test_log_level(ingest_pipeline):
@@ -139,7 +138,7 @@ def test_log_exceptions(ingest_pipeline):
     )
     with open(log_filepath, "r") as logfile:
         lines = logfile.readlines()
-        assert "Exiting" in lines[-1]
+        assert "Ingest pipeline did not complete execution" in lines[-1]
         assert "Exception: Exception" in lines[-2]
 
 

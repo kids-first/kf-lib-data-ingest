@@ -2,11 +2,18 @@ import logging
 import os
 import time
 from abc import ABC, abstractmethod
-from collections import defaultdict
 from functools import wraps
 
-from kf_lib_data_ingest.common.concept_schema import concept_attr_from
-from kf_lib_data_ingest.common.io import read_json, write_json
+from kf_lib_data_ingest.common.io import path_to_file_list, read_json
+from kf_lib_data_ingest.validation.validation import (
+    Validator,
+    check_results,
+    RESULTS_FILENAME,
+    VALIDATION_OUTPUT_DIR,
+)
+
+BASIC_VALIDATION = "basic"
+ADVANCED_VALIDATION = "advanced"
 
 
 class IngestStage(ABC):
@@ -21,6 +28,11 @@ class IngestStage(ABC):
             self.stage_cache_dir = None
 
         self.logger = logging.getLogger(type(self).__name__)
+        self.validation_success = True
+        self.validation_output_dir = os.path.join(
+            self.stage_cache_dir or "",
+            VALIDATION_OUTPUT_DIR,
+        )
 
     @property
     def stage_type(self):
@@ -50,6 +62,18 @@ class IngestStage(ABC):
                 f'"{self.stage_cache_dir}" does not exist'
             )
         else:
+            # Read and evaluate cached validation results
+            fp = self._validation_results_filepath()
+            try:
+                results = read_json(fp)
+                self.validation_success = check_results(results)
+            except FileNotFoundError:
+                self.logger.info(
+                    f"Validation results file: {fp} not found for "
+                    f"stage: {type(self).__name__}"
+                )
+
+            # Read stage output
             return self._read_output()
 
     def write_output(self, output):
@@ -96,6 +120,12 @@ class IngestStage(ABC):
         """
         pass
 
+    def _validation_results_filepath(self):
+        """
+        Path to validation results file
+        """
+        return os.path.join(self.validation_output_dir, RESULTS_FILENAME)
+
     def _log_run(func):
         """
         Decorator to log the ingest stage's run
@@ -131,34 +161,12 @@ class IngestStage(ABC):
 
         return wrapper
 
-    def _concept_discovery_filepath(self):
-        """
-        Location of stage run output's discovered counts file
-        """
-        return os.path.join(
-            self.ingest_output_dir,
-            self.stage_type.__name__ + "_concept_discovery.json",
-        )
-
-    def write_concept_counts(self):
-        """
-        Write concept discovery dict to disk
-        """
-        fp = self._concept_discovery_filepath()
-        self.logger.debug(f"Writing discovered counts to {fp}")
-        write_json(self.concept_discovery_dict, fp)
-
-    def read_concept_counts(self):
-        """
-        Read concept discovery dict from disk
-        """
-        fp = self._concept_discovery_filepath()
-        self.logger.debug(f"Reading discovered counts from {fp}")
-        self.concept_discovery_dict = read_json(fp)
-
     @_log_run
     def run(self, *args, **kwargs):
         # Validate run parameters
+        vmode = kwargs.pop("validation_mode", None)
+        report_kwargs = kwargs.pop("report_kwargs", {})
+        assert vmode in [None, BASIC_VALIDATION, ADVANCED_VALIDATION]
         self._validate_run_parameters(*args, **kwargs)
 
         # Execute data ingest stage
@@ -167,56 +175,61 @@ class IngestStage(ABC):
         # Write output of stage to disk
         self.write_output(output)
 
-        # Write data for accounting to disk
-        self.logger.info("Counting what we got")
-        self.concept_discovery_dict = self._postrun_concept_discovery(output)
-        self.logger.info("Done counting what we got")
-        if self.concept_discovery_dict:
-            # Undefault any defaultdicts. Defaultdicts are slightly dangerous
-            # to pass downstream to someone else's custom test code where they
-            # might accidentally add things while looking for keys.
-            self.concept_discovery_dict = {
-                k: dict(v)
-                for k, v in self.concept_discovery_dict.items()
-                if v is not None
-            }
-            self.write_concept_counts()
+        # Run validation and write results to disk
+        self._postrun_validation(
+            validation_mode=vmode, report_kwargs=report_kwargs
+        )
+
         return output
 
-    def _postrun_concept_discovery(self, df_dict):
+    def _postrun_validation(self, validation_mode=None, report_kwargs={}):
         """
-        Builds a dict which stores all unique standard concept attributes (e.g.
-        each PARTICIPANT.ID) found in the stage output mapped to lists of the
-        places they appear
+        Post run validation.
 
-        dict template
-        {
-            'sources': {
-                a_key: {  # e.g. PARTICIPANT.ID
-                    a1: [f1, f2],  # e.g. PARTICIPANT.ID==a1 in files f1 & f2
-                    ...
-                },
-                ...
-            }
-        }
+        If validation_mode = None, do not run validation.
 
-        :param df_dict: a dict of DataFrames returned by the _run() method
-        :return: a dict where concept values map to a list of the sources
-        containing them
-        :rtype: dict
+        If validation_mode = BASIC_VALIDATION, validation runs faster but is
+        not as thorough.
+
+        If validation_mode = ADVANCED_VALIDATION, validation takes into account
+        implied relationships in the data and is able to resolve
+        ambiguities or report the ambiguities if they cannot be resolved.
+
+        For example, you have a file that relates participants and  specimens,
+        and a file that relates participants and genomic files.
+        This means your specimens have implied connections to their genomic
+        files through the participants.
+
+        In ADVANCED_VALIDATION mode, the validator may be able to resolve these
+        implied connections and report that all specimens are validly linked to
+        genomic files. In BASIC_VALIDATION mode, the validator will report
+        that all specimens are missing links to genomic files.
+
+        :param validation_mode: validation mode
+        :return: whether or not validation passed
+        :rtype: bool
         """
-        sources = defaultdict(lambda: defaultdict(set))
-        # Skip columns which might be set artificially
-        skip = ["VISIBLE"]
-        for df_name, df in df_dict.items():
-            cols = [c for c in df.columns if concept_attr_from(c) not in skip]
-            self.logger.info(
-                f"Doing concept discovery for DataFrame {df_name} in "
-                f"{type(self).__name__} output"
-            )
-            for key in cols:
-                sk = sources[key]
-                for val in df[key]:
-                    sk[val].add(df_name)
+        if not validation_mode:
+            return True
 
-        return {"sources": sources}
+        self.logger.info(
+            f"Running validation on {type(self).__name__} output files ..."
+        )
+
+        if validation_mode == BASIC_VALIDATION:
+            include_implicit = False
+        else:
+            include_implicit = True
+
+        self.validation_success = Validator(
+            output_dir=os.path.dirname(self._validation_results_filepath()),
+            init_logger=False,
+        ).validate(
+            path_to_file_list(self.stage_cache_dir, recursive=False),
+            include_implicit=include_implicit,
+            report_kwargs=report_kwargs,
+        )
+        if self.validation_success:
+            self.logger.info(f"✅ {self.stage_type.__name__} passed validation!")
+        else:
+            self.logger.info(f"❌ {self.stage_type.__name__} failed validatoin!")

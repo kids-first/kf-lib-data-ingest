@@ -4,7 +4,12 @@ import shutil
 import pytest
 from click.testing import CliRunner
 
-from conftest import COMMAND_LINE_ERROR_CODE, TEST_DATA_DIR, delete_dir
+from conftest import (
+    TEST_INGEST_CONFIG as SIMPLE_STUDY_CONFIG,
+    COMMAND_LINE_ERROR_CODE,
+    TEST_DATA_DIR,
+    delete_dir,
+)
 from kf_lib_data_ingest.app import cli
 from kf_lib_data_ingest.config import VERSION
 from kf_lib_data_ingest.etl.ingest_pipeline import (
@@ -15,9 +20,6 @@ from kf_lib_data_ingest.etl.ingest_pipeline import (
 
 TEST_STUDY_CONFIG = os.path.join(
     TEST_DATA_DIR, "test_study", "ingest_package_config.py"
-)
-SIMPLE_STUDY_CONFIG = os.path.join(
-    TEST_DATA_DIR, "simple_study", "ingest_package_config.py"
 )
 
 
@@ -68,7 +70,7 @@ def test_valid_ingest_subset_stages(
                     DEFAULT_STAGES_TO_RUN_STR[idx]
                 )
                 assert (
-                    f"Loading previously cached output and concept counts "
+                    f"Loading previously cached output "
                     f"from {prev_name}" in result.output
                 ) == should_exist
 
@@ -117,6 +119,8 @@ def test_ingest_cmd_missing_required_args():
 @pytest.mark.parametrize(
     "cli_cmd, arg_list",
     [
+        (cli.test, [SIMPLE_STUDY_CONFIG, "--no_validate"]),
+        (cli.test, [SIMPLE_STUDY_CONFIG, "--validation_mode", "advanced"]),
         (cli.test, [SIMPLE_STUDY_CONFIG, "--log_level", "debug"]),
         (
             cli.ingest,
@@ -136,13 +140,6 @@ def test_ingest_cmds(cli_cmd, arg_list):
     assert "END data ingestion" in result.output
     assert "version" in result.output
     assert f"{VERSION}" in result.output
-
-    # Make sure that post-extract counts run
-    assert "Begin Basic Stage Output Validation" in result.output
-    assert "'BIOSPECIMEN|ID': 16," in result.output
-    assert "| BIOSPECIMEN|ID |         16 |      16 | ✅" in result.output
-
-    assert "DRY RUN" in result.output
 
 
 def test_ingest_no_transform_module(tmpdir):

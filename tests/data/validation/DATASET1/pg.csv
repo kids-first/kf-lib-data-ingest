@@ -1,0 +1,4 @@
+PARTICIPANT|ID,GENOMIC_FILE|URL_LIST
+P4,['foo/s5.txt']
+P9,['foo/s9.txt']
+P10,['foo/s11.txt']

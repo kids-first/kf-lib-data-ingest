@@ -1,4 +1,3 @@
-import contextlib
 import inspect
 import logging
 import os
@@ -7,9 +6,6 @@ from pprint import pformat
 
 import pytest
 
-import kf_lib_data_ingest.etl.stage_analyses as stage_analyses
-from kf_lib_data_ingest.common.concept_schema import UNIQUE_ID_ATTR
-from kf_lib_data_ingest.common.misc import timestamp
 from kf_lib_data_ingest.common.type_safety import assert_safe_type
 from kf_lib_data_ingest.common.warehousing import (
     init_study_db,
@@ -19,7 +15,7 @@ from kf_lib_data_ingest.config import DEFAULT_TARGET_URL, VERSION
 from kf_lib_data_ingest.etl.configuration.ingest_package_config import (
     IngestPackageConfig,
 )
-from kf_lib_data_ingest.etl.configuration.log import setup_logger
+from kf_lib_data_ingest.etl.configuration.log import init_logger
 from kf_lib_data_ingest.etl.extract.extract import ExtractStage
 from kf_lib_data_ingest.etl.load.load import LoadStage
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
@@ -61,9 +57,10 @@ class DataIngestPipeline(object):
         stages_to_run_str=DEFAULT_STAGES_TO_RUN_STR,
         resume_from=None,
         db_url_env_key=None,
+        validation_mode=None,
     ):
         """
-        Setup data ingest pipeline. Create the config object and setup logging
+        Set up data ingest pipeline. Create the config object and logger
 
         :param ingest_package_config_path: Path to config file containing all
         parameters for data ingest.
@@ -96,12 +93,14 @@ class DataIngestPipeline(object):
         assert_safe_type(stages_to_run_str, str)
         assert_safe_type(resume_from, None, str)
         assert_safe_type(db_url_env_key, None, str)
+        assert_safe_type(validation_mode, None, str)
         stages_to_run_str = stages_to_run_str.lower()
         self._validate_stages_to_run_str(stages_to_run_str)
 
         self.data_ingest_config = IngestPackageConfig(
             ingest_package_config_path
         )
+        self.study = self.data_ingest_config.study
         self.ingest_config_dir = os.path.dirname(
             self.data_ingest_config.config_filepath
         )
@@ -116,6 +115,7 @@ class DataIngestPipeline(object):
         self.resume_from = resume_from
         self.stages_to_run = {CODE_TO_STAGE_MAP[c] for c in stages_to_run_str}
         self.warehouse_db_url = os.environ.get(db_url_env_key or "")
+        self.validation_mode = validation_mode
 
         # Get log params from ingest_package_config
         log_dir = log_dir or self.data_ingest_config.log_dir
@@ -132,18 +132,13 @@ class DataIngestPipeline(object):
         if log_level:
             log_kwargs["log_level"] = log_level
 
-        # Setup logger
-        self.log_file_path = setup_logger(log_dir, **log_kwargs)
+        # Set up logger
+        self.log_file_path = init_logger(log_dir, **log_kwargs)
         self.logger = logging.getLogger(type(self).__name__)
 
-        head, tail = os.path.split(self.log_file_path)
-        self.counts_file_path = os.path.join(head, "counts_for_" + tail)
-
-        # Remove the previous counts file. This isn't important. I just don't
-        # want the previous run's file sitting around until the new one gets
-        # written. - Avi
-        with contextlib.suppress(FileNotFoundError):
-            os.remove(self.counts_file_path)
+        # Validation
+        if not validation_mode:
+            self.logger.warning("Ingest will run with validation disabled!")
 
         # Log args, kwargs
         frame = inspect.currentframe()
@@ -229,7 +224,6 @@ class DataIngestPipeline(object):
         self.logger.info("BEGIN data ingestion.")
         self.stages = {}
         all_passed = True
-        all_messages = []
 
         # Top level exception handler
         # Catch exception, log it to file and console, and exit
@@ -252,26 +246,22 @@ class DataIngestPipeline(object):
 
                 self.stages[stage.stage_type] = stage
 
-                # Execute/run stage
+                # Run stage operation and validate stage output
                 if stage.stage_type in self.stages_to_run:
                     self.stages_to_run.remove(stage.stage_type)
+                    title = f"📓 Data Validation Report: `{self.study}`"
+                    output = stage.run(
+                        output,
+                        validation_mode=self.validation_mode,
+                        report_kwargs={"md": {"title": title}},
+                    )
 
-                    output = stage.run(output)
-
-                    # Standard stage output validation
-                    if stage.concept_discovery_dict:
-                        passed, messages = self.check_stage_counts(stage)
-                        all_passed = passed and all_passed
-                        all_messages.extend(messages)
-
-                # Load cached output and concept counts
+                # Load cached output and validation results
                 else:
                     self.logger.info(
-                        "Loading previously cached output and concept counts "
-                        f"from {stage_name}"
+                        "Loading previously cached output " f"from {stage_name}"
                     )
                     output = stage.read_output()
-                    stage.read_concept_counts()
 
                 if self.warehouse_db_url and isinstance(
                     stage, (TransformStage, ExtractStage)
@@ -288,101 +278,41 @@ class DataIngestPipeline(object):
                         self.logger.info(
                             f"Loaded {schema}.{df_name} in {study_id} warehouse."
                         )
-            self._log_count_results(all_passed, all_messages)
 
             # Run user defined data validation tests
-            all_passed = self.user_defined_tests() and all_passed
+            all_passed = self.user_defined_tests() and all(
+                [stage.validation_success for stage in self.stages.values()]
+            )
+
+            if all_passed:
+                self.logger.info("✅ Ingest passed validation!")
+            else:
+                self.logger.error("⚠️  Ingest failed validation! ")
+
+            report_file_paths = [
+                os.path.join(root, file)
+                for stage in self.stages.values()
+                for root, dirs, files in os.walk(stage.validation_output_dir)
+                for file in files
+                if not file.startswith(".")
+            ]
+            self.logger.info(
+                f"See validation report files:\n{pformat(report_file_paths)}"
+            )
 
         except Exception as e:
             self.logger.exception(str(e))
-            self.logger.info("Exiting.")
+            self.logger.error(
+                "❌ Ingest pipeline did not complete execution! "
+                f"See {self.log_file_path} for details"
+            )
             sys.exit(1)
+        else:
+            self.logger.info("✅ Ingest pipeline completed execution!")
 
         # Log the end of the run
         self.logger.info("END data ingestion")
         return all_passed
-
-    def _log_count_results(self, all_passed, messages):
-        if all_passed:
-            summary = "✅ Count Analysis Passed!\n"
-        else:
-            summary = "❌ Count Analysis Failed!\n"
-
-        self.logger.info(summary + f"See {self.counts_file_path} for details")
-
-        summary += (
-            "Ingest package: "
-            f"{self.data_ingest_config.config_filepath}\n"
-            f"Completed at: {timestamp()}"
-        )
-        header = [
-            "======================\n"
-            "COUNT ANALYSIS RESULTS\n"
-            "======================",
-            summary,
-        ]
-        doc = "\n\n".join(header + messages)
-        with open(self.counts_file_path, "w") as cfp:
-            cfp.write(doc)
-        self.logger.debug(doc)
-
-    def check_stage_counts(self, stage):
-        """
-        Do some standard basic stage output tests like assessing whether there
-        are as many unique values discovered for a given key as anticipated and
-        also whether any values were lost between Extract and Transform.
-        """
-        stage_name = stage.stage_type.__name__
-        stage.logger.info("Begin Basic Stage Output Validation")
-        discovery_sources = stage.concept_discovery_dict.get("sources")
-
-        all_messages = [stage_name + "\n" + "=" * len(stage_name)]
-
-        # Missing data
-        if not discovery_sources:
-            stage.logger.info("❌ Discovery Data Sources Not Found")
-            return False, all_messages
-
-        passed_all = True
-
-        # Do stage counts validation
-        passed, messages = stage_analyses.check_counts(
-            discovery_sources, self.data_ingest_config.expected_counts
-        )
-        all_messages.extend(messages)
-
-        passed_all = passed_all and passed
-
-        # Compare stage counts to make sure we didn't lose values between
-        # Extract and Transform
-        if stage.stage_type == TransformStage:
-            extract_disc = self.stages[ExtractStage].concept_discovery_dict
-            if extract_disc and extract_disc.get("sources"):
-                passed, messages = stage_analyses.compare_counts(
-                    ExtractStage.__name__,
-                    extract_disc["sources"],
-                    TransformStage.__name__,
-                    {
-                        k: v
-                        for k, v in discovery_sources.items()
-                        if (
-                            # only use UNIQUE KEYs if they're from Extract
-                            (UNIQUE_ID_ATTR not in k)
-                            or (k in extract_disc["sources"])
-                        )
-                    },
-                )
-                passed_all = passed_all and passed
-                all_messages.extend(messages)
-            else:
-                # Missing data
-                passed_all = False
-                stage.logger.info(
-                    "❌ No ExtractStage Discovery Data Sources To Compare"
-                )
-        stage.logger.info("End Basic Stage Output Validation")
-
-        return passed_all, all_messages
 
     def user_defined_tests(self):
         """
