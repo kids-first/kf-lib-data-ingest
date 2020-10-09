@@ -73,11 +73,12 @@ class CONCEPT:
         IS_AFFECTED_UNDER_STUDY = None
         SPECIES = None
         ENROLLMENT_AGE_DAYS = None
+        LAST_CONTACT_AGE_DAYS = None
 
         class ENROLLMENT_AGE(QuantityMixin):
             pass
 
-        class LAST_CONTACT(QuantityMixin):
+        class LAST_CONTACT_AGE(QuantityMixin):
             pass
 
     class OUTCOME(PropertyMixin):

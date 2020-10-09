@@ -1,8 +1,6 @@
 from dateutil.parser import parse as parsedate
-
 from kf_lib_data_ingest.common import constants
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
-
 
 MIN_AGE_DAYS = 0
 # Max value chosen due to HIPAA de-identification standard
@@ -15,6 +13,12 @@ NULL_VALUES = {
     constants.COMMON.NOT_APPLICABLE,
     constants.COMMON.UNKNOWN,
     constants.COMMON.NOT_AVAILABLE,
+}
+
+AGE_UNITS = {
+    constants.AGE.UNITS.DAYS,
+    constants.AGE.UNITS.MONTHS,
+    constants.AGE.UNITS.YEARS,
 }
 
 
@@ -35,7 +39,7 @@ def try_wrap(func):
     return inner
 
 
-check_age = (
+check_age_days = (
     f"must be a number x such that {MIN_AGE_DAYS} <= x <= {MAX_AGE_DAYS}.",
     try_wrap(lambda x: (int(x) >= MIN_AGE_DAYS) and (int(x) <= MAX_AGE_DAYS)),
 )
@@ -57,6 +61,7 @@ check_non_negative = (
     try_wrap(lambda x: int(x) >= 0),
 )
 
+
 INPUT_VALIDATION = {
     # PARTICIPANT
     CONCEPT.PARTICIPANT.RACE: {
@@ -68,7 +73,9 @@ INPUT_VALIDATION = {
         constants.COMMON.OTHER,
         constants.RACE.MULTIPLE,
     },
-    CONCEPT.PARTICIPANT.ENROLLMENT_AGE_DAYS: check_age,
+    CONCEPT.PARTICIPANT.ENROLLMENT_AGE_DAYS: check_age_days,
+    CONCEPT.PARTICIPANT.ENROLLMENT_AGE.VALUE: check_positive,
+    CONCEPT.PARTICIPANT.ENROLLMENT_AGE.UNITS: AGE_UNITS,
     CONCEPT.PARTICIPANT.ETHNICITY: {
         constants.ETHNICITY.HISPANIC,
         constants.ETHNICITY.NON_HISPANIC,
@@ -92,8 +99,13 @@ INPUT_VALIDATION = {
         constants.CONSENT_TYPE.DS_CHD_IRB,
         constants.CONSENT_TYPE.GRU,
     },
+    CONCEPT.PARTICIPANT.LAST_CONTACT_AGE_DAYS: check_age_days,
+    CONCEPT.PARTICIPANT.LAST_CONTACT_AGE.VALUE: check_positive,
+    CONCEPT.PARTICIPANT.LAST_CONTACT_AGE.UNITS: AGE_UNITS,
     # BIOSPECIMEN
-    CONCEPT.BIOSPECIMEN.EVENT_AGE_DAYS: check_age,
+    CONCEPT.BIOSPECIMEN.EVENT_AGE_DAYS: check_age_days,
+    CONCEPT.BIOSPECIMEN.EVENT_AGE.VALUE: check_positive,
+    CONCEPT.BIOSPECIMEN.EVENT_AGE.UNITS: AGE_UNITS,
     CONCEPT.BIOSPECIMEN.ANALYTE: {
         constants.SEQUENCING.ANALYTE.DNA,
         constants.SEQUENCING.ANALYTE.RNA,
@@ -154,7 +166,9 @@ INPUT_VALIDATION = {
     CONCEPT.GENOMIC_FILE.SIZE: check_non_negative,
     # INVESTIGATOR
     # OUTCOME
-    CONCEPT.OUTCOME.EVENT_AGE_DAYS: check_age,
+    CONCEPT.OUTCOME.EVENT_AGE_DAYS: check_age_days,
+    CONCEPT.OUTCOME.EVENT_AGE.VALUE: check_positive,
+    CONCEPT.OUTCOME.EVENT_AGE.UNITS: AGE_UNITS,
     CONCEPT.OUTCOME.DISEASE_RELATED: {
         constants.OUTCOME.DISEASE_RELATED.YES,
         constants.OUTCOME.DISEASE_RELATED.NO,
@@ -164,7 +178,9 @@ INPUT_VALIDATION = {
         constants.OUTCOME.VITAL_STATUS.DEAD,
     },
     # PHENOTYPE
-    CONCEPT.PHENOTYPE.EVENT_AGE_DAYS: check_age,
+    CONCEPT.PHENOTYPE.EVENT_AGE_DAYS: check_age_days,
+    CONCEPT.PHENOTYPE.EVENT_AGE.VALUE: check_positive,
+    CONCEPT.PHENOTYPE.EVENT_AGE.UNITS: AGE_UNITS,
     CONCEPT.PHENOTYPE.OBSERVED: {
         constants.PHENOTYPE.OBSERVED.YES,
         constants.PHENOTYPE.OBSERVED.NO,
