@@ -20,6 +20,13 @@ class COMMON:
     FALSE = "False"
 
 
+class AGE:
+    class UNITS:
+        DAYS = "Days"
+        MONTHS = "Months"
+        YEARS = "Years"
+
+
 class FILE:
     class HASH:
         MD5 = "MD5"
