@@ -1,4 +1,5 @@
 """
+Version 1
 Module for loading the transform output into the dataservice. It converts the
 merged source data into complete message payloads according to a given API
 specification, and then sends those messages to the target server.
@@ -47,6 +48,7 @@ class LoadStage(IngestStage):
         use_async=False,
         dry_run=False,
         resume_from=None,
+        clear_cache=False,
     ):
         """
         :param target_api_config_path: path to the target service API config
@@ -67,6 +69,10 @@ class LoadStage(IngestStage):
             then switch to normal loading. Does not overrule the dry_run flag.
             Value may be a full ID or an initial substring (e.g. 'BS', 'BS_')
         :type resume_from: str, optional
+        :param clear_cache: Clear the identifier cache file before loading,
+            defaults to False. Equivalent to deleting the file manually. Ignored
+            when using resume_from, because that needs the cache to be effective.
+        :type clear_cache: bool, optional
         """
         super().__init__(cache_dir)
         self.target_api_config = TargetAPIConfig(target_api_config_path)
@@ -92,8 +98,14 @@ class LoadStage(IngestStage):
 
         if not os.path.isfile(self.uid_cache_filepath):
             self.logger.info(
-                "Target UID cache file not found so a new one will be created:"
+                "Target identifier cache file not found so a new one will be created:"
                 f" {self.uid_cache_filepath}"
+            )
+        elif clear_cache and not self.resume_from:
+            os.remove(self.uid_cache_filepath)
+            self.logger.info(
+                "Not resuming a previous run, so the identifier cache file at "
+                f"{self.uid_cache_filepath} has been cleared."
             )
 
         # Two-stage (RAM + disk) cache
@@ -204,17 +216,34 @@ class LoadStage(IngestStage):
         :return: the target service ID
         :rtype: str
         """
+        # check if target ID is given
         tic = record.get(entity_class.target_id_concept)
-
         if tic and (tic != constants.COMMON.NOT_REPORTED):
             return tic
-        else:
-            try:
-                return self._get_target_id_from_key(
-                    entity_class.class_name, entity_class.build_key(record)
-                )
-            except AssertionError:
-                return None
+
+        # check the cache
+        try:
+            return self._get_target_id_from_key(
+                entity_class.class_name, entity_class.build_key(record)
+            )
+        except AssertionError:
+            return None
+
+    def _do_target_submit(self, entity_class, body):
+        """Shim for target API submission across loader versions"""
+        return self.target_api_config.submit(
+            self.target_url, entity_class, body
+        )
+
+    def _do_target_get_key(self, entity_class, record):
+        """Shim for target API key building across loader versions"""
+        return entity_class.build_key(record)
+
+    def _do_target_get_entity(self, entity_class, record, keystring):
+        """Shim for target API entity building across loader versions"""
+        return entity_class.build_entity(
+            record, keystring, self._get_target_id_from_record
+        )
 
     def _read_output(self):
         pass  # TODO
@@ -265,9 +294,7 @@ class LoadStage(IngestStage):
             )
         else:
             # send to the target service
-            target_id = self.target_api_config.submit(
-                self.target_url, entity_class, body
-            )
+            target_id = self._do_target_submit(entity_class, body)
 
             # cache source_ID:target_ID lookup
             self._store_target_id_for_key(
@@ -357,22 +384,24 @@ class LoadStage(IngestStage):
 
                 for record in transformed_records:
                     try:
-                        unique_key = entity_class.build_key(record)
+                        key_components = self._do_target_get_key(
+                            entity_class, record
+                        )
+                        keystr = str(key_components)
                     except Exception:
                         # no new key, no new entity
                         continue
 
-                    if (not unique_key) or (
-                        unique_key
-                        in self.seen_entities[entity_class.class_name]
+                    if (not key_components) or (
+                        keystr in self.seen_entities[entity_class.class_name]
                     ):
                         # no new key, no new entity
                         continue
 
-                    self.seen_entities[entity_class.class_name].add(unique_key)
+                    self.seen_entities[entity_class.class_name].add(keystr)
 
-                    payload = entity_class.build_entity(
-                        record, unique_key, self._get_target_id_from_record
+                    payload = self._do_target_get_entity(
+                        entity_class, record, keystr
                     )
 
                     if self.use_async and not self.resume_from:
@@ -381,11 +410,11 @@ class LoadStage(IngestStage):
                                 self._load_entity,
                                 entity_class,
                                 payload,
-                                unique_key,
+                                keystr,
                             )
                         )
                     else:
-                        self._load_entity(entity_class, payload, unique_key)
+                        self._load_entity(entity_class, payload, keystr)
 
                 if self.use_async:
                     for f in concurrent.futures.as_completed(futures):

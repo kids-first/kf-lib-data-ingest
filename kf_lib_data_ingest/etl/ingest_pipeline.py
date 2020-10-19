@@ -17,11 +17,15 @@ from kf_lib_data_ingest.etl.configuration.ingest_package_config import (
 )
 from kf_lib_data_ingest.etl.configuration.log import init_logger
 from kf_lib_data_ingest.etl.extract.extract import ExtractStage
-from kf_lib_data_ingest.etl.load.load import LoadStage
+from kf_lib_data_ingest.etl.load.load_shim import LoadStage
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
 from kf_lib_data_ingest.etl.transform.transform import TransformStage
 
-CODE_TO_STAGE_MAP = {"e": ExtractStage, "t": TransformStage, "l": LoadStage}
+CODE_TO_STAGE_MAP = {
+    "e": "ExtractStage",
+    "t": "GuidedTransformStage",
+    "l": "LoadStage",
+}
 
 
 def _valid_stages_to_run_strs():
@@ -58,6 +62,7 @@ class DataIngestPipeline(object):
         resume_from=None,
         db_url_env_key=None,
         validation_mode=None,
+        clear_cache=False,
     ):
         """
         Set up data ingest pipeline. Create the config object and logger
@@ -80,6 +85,10 @@ class DataIngestPipeline(object):
         :param overwrite_log: Override whether to persist the previous log,
         defaults to None (don't override)
         :type overwrite_log: bool, optional
+        :param clear_cache: Clear the identifier cache file before loading,
+            defaults to False. Equivalent to deleting the file manually. Ignored
+            when using resume_from, because that needs the cache to be effective.
+        :type clear_cache: bool, optional
         """
 
         assert_safe_type(ingest_package_config_path, str)
@@ -94,6 +103,7 @@ class DataIngestPipeline(object):
         assert_safe_type(resume_from, None, str)
         assert_safe_type(db_url_env_key, None, str)
         assert_safe_type(validation_mode, None, str)
+        assert_safe_type(clear_cache, bool)
         stages_to_run_str = stages_to_run_str.lower()
         self._validate_stages_to_run_str(stages_to_run_str)
 
@@ -116,6 +126,7 @@ class DataIngestPipeline(object):
         self.stages_to_run = {CODE_TO_STAGE_MAP[c] for c in stages_to_run_str}
         self.warehouse_db_url = os.environ.get(db_url_env_key or "")
         self.validation_mode = validation_mode
+        self.clear_cache = clear_cache
 
         # Get log params from ingest_package_config
         log_dir = log_dir or self.data_ingest_config.log_dir
@@ -214,6 +225,7 @@ class DataIngestPipeline(object):
             use_async=self.use_async,
             dry_run=self.dry_run,
             resume_from=self.resume_from,
+            clear_cache=self.clear_cache,
         )
 
     def run(self):
@@ -244,11 +256,11 @@ class DataIngestPipeline(object):
                 if not self.stages_to_run:
                     break
 
-                self.stages[stage.stage_type] = stage
+                self.stages[stage_name] = stage
 
                 # Run stage operation and validate stage output
-                if stage.stage_type in self.stages_to_run:
-                    self.stages_to_run.remove(stage.stage_type)
+                if stage_name in self.stages_to_run:
+                    self.stages_to_run.remove(stage_name)
                     title = f"📓 Data Validation Report: `{self.study}`"
                     output = stage.run(
                         output,

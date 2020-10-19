@@ -11,22 +11,6 @@ from kf_lib_data_ingest.etl.configuration.target_api_config import (
 )
 
 
-def test_submit_function_presence():
-    # submit needs to be a function with the proper signature
-    tac = TargetAPIConfig(os.path.join(TEST_DATA_DIR, "bad_api.py"))
-
-    tac.submit = lambda host, entity_class, body: host
-    tac._validate()
-
-    with pytest.raises(ConfigValidationError):
-        tac.submit = lambda x: x
-        tac._validate()
-
-    with pytest.raises(ConfigValidationError):
-        tac.submit = 5
-        tac._validate()
-
-
 def test_all_targets():
     # all_targets needs to exist as a list populated by valid classes
     tac = TargetAPIConfig(os.path.join(TEST_DATA_DIR, "bad_api.py"))
@@ -46,6 +30,10 @@ def test_all_targets():
 def test_class_validation():
     # target classes must have the correct form
     tac = TargetAPIConfig(os.path.join(TEST_DATA_DIR, "bad_api.py"))
+
+    tac.all_targets = [tac.F]
+    with pytest.raises(ConfigValidationError) as errF:
+        tac._validate()
 
     tac.all_targets = [tac.E]
     with pytest.raises(ConfigValidationError) as errE:
@@ -74,20 +62,20 @@ def test_class_validation():
     tac.all_targets = [tac.Good]
     tac._validate()
 
-    assert 6 == len(
-        {str(e.value) for e in [errE, errD, errC, errB, errA, err5]}
+    assert 7 == len(
+        {str(e.value) for e in [errF, errE, errD, errC, errB, errA, err5]}
     )
 
     t0 = tac.all_targets[0]
 
     # class methods need the right arguments
 
-    tmp = t0.build_key
-    t0.build_key = lambda x: x
+    tmp = t0.get_key_components
+    t0.get_key_components = lambda x: x
     with pytest.raises(ConfigValidationError) as err6:
         tac._validate()
 
-    t0.build_key = tmp
+    t0.get_key_components = tmp
     tac._validate()
 
     tmp = t0.build_entity

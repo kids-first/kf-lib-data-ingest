@@ -232,4 +232,4 @@ class IngestStage(ABC):
         if self.validation_success:
             self.logger.info(f"✅ {self.stage_type.__name__} passed validation!")
         else:
-            self.logger.info(f"❌ {self.stage_type.__name__} failed validatoin!")
+            self.logger.info(f"❌ {self.stage_type.__name__} failed validation!")

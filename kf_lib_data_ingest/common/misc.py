@@ -7,12 +7,28 @@ import re
 import time
 from itertools import tee
 
-from pandas import isnull
-
+from kf_lib_data_ingest.common import constants
 from kf_lib_data_ingest.common.type_safety import (
     assert_all_safe_type,
     assert_safe_type,
 )
+from pandas import isnull
+
+
+def flexible_age(record, days_concept, generic_concept):
+    age = record.get(days_concept)
+    units = record.get(generic_concept.UNITS)
+    value = record.get(generic_concept.VALUE)
+
+    if (age is None) and (units is not None) and (value is not None):
+        if units == constants.AGE.UNITS.DAYS:
+            age = int(value)
+        elif units == constants.AGE.UNITS.MONTHS:
+            age = int(value * 30.44)
+        elif units == constants.AGE.UNITS.YEARS:
+            age = int(value * 365.25)
+
+    return age
 
 
 def clean_walk(start_dir):

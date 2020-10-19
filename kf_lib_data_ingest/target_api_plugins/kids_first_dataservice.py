@@ -9,135 +9,163 @@ See etl.configuration.target_api_config docstring for more details on the
 requirements for format and content.
 """
 from d3b_utils.requests_retry import Session
-from requests import RequestException
-
 from kf_lib_data_ingest.common import constants
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
-from kf_lib_data_ingest.common.misc import str_to_obj, upper_camel_case
+from kf_lib_data_ingest.common.misc import (
+    flexible_age,
+    str_to_obj,
+    upper_camel_case,
+)
 from kf_lib_data_ingest.network.utils import get_open_api_v2_schema
+from kf_utils.dataservice.scrape import yield_kfids
+from requests import RequestException
+
+LOADER_VERSION = 2
 
 
-def indexd_hashes(dictstr):
-    return {
-        k.lower().replace("-", ""): v for k, v in str_to_obj(dictstr).items()
-    }
+def drop_none(body):
+    return {k: v for k, v in body.items() if v is not None}
 
 
-def join(*args):
-    """
-    Joins args using periods.
-    This is used when making compound unique keys from record data.
-
-    :return: `".".join([str(a) for a in args])`
-    :rtype: str
-    """
-    return "|".join([str(a) for a in args])
+def not_none(val):
+    assert val is not None
+    return val
 
 
 class Investigator:
     class_name = "investigator"
-    api_path = "/investigators"
+    api_path = "investigators"
     target_id_concept = CONCEPT.INVESTIGATOR.TARGET_SERVICE_ID
-    id_fields = {"kf_id"}
+    service_id_fields = {"kf_id"}
 
-    @staticmethod
-    def build_key(record):
-        assert None is not record[CONCEPT.INVESTIGATOR.NAME]
-        assert None is not record[CONCEPT.INVESTIGATOR.INSTITUTION]
-        return record.get(CONCEPT.INVESTIGATOR.UNIQUE_KEY) or join(
-            record[CONCEPT.INVESTIGATOR.NAME],
-            record[CONCEPT.INVESTIGATOR.INSTITUTION],
-        )
-
-    @staticmethod
-    def build_entity(record, key, get_target_id_from_record):
+    @classmethod
+    def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "kf_id": get_target_id_from_record(Investigator, record),
-            "external_id": key,
-            "name": record.get(CONCEPT.INVESTIGATOR.NAME),
-            "institution": record.get(CONCEPT.INVESTIGATOR.INSTITUTION),
+            "external_id": record.get(CONCEPT.INVESTIGATOR.ID),
+            "name": not_none(record[CONCEPT.INVESTIGATOR.NAME]),
+            "institution": not_none(record[CONCEPT.INVESTIGATOR.INSTITUTION]),
+        }
+
+    @classmethod
+    def query_target_ids(cls, host, key_components):
+        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+
+    @classmethod
+    def build_entity(cls, record, get_target_id_from_record):
+        secondary_components = {
+            "kf_id": get_target_id_from_record(cls, record),
             "visible": record.get(CONCEPT.INVESTIGATOR.VISIBLE),
         }
+        return {
+            **cls.get_key_components(record, get_target_id_from_record),
+            **secondary_components,
+        }
+
+    @classmethod
+    def submit(cls, host, body):
+        return submit(host, cls, body)
 
 
 class Study:
     class_name = "study"
-    api_path = "/studies"
+    api_path = "studies"
     target_id_concept = CONCEPT.STUDY.TARGET_SERVICE_ID
-    id_fields = {"kf_id", "investigator_id"}
+    service_id_fields = {"kf_id", "investigator_id"}
 
-    @staticmethod
-    def build_key(record):
-        assert None is not record[CONCEPT.STUDY.ID]
-        return record.get(CONCEPT.STUDY.UNIQUE_KEY) or join(
-            record[CONCEPT.STUDY.ID]
-        )
-
-    @staticmethod
-    def build_entity(record, key, get_target_id_from_record):
+    @classmethod
+    def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "kf_id": get_target_id_from_record(Study, record),
-            "external_id": key,
+            "data_access_authority": not_none(record[CONCEPT.STUDY.AUTHORITY]),
+            "external_id": not_none(record[CONCEPT.STUDY.ID]),
+        }
+
+    @classmethod
+    def query_target_ids(cls, host, key_components):
+        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+
+    @classmethod
+    def build_entity(cls, record, get_target_id_from_record):
+        secondary_components = {
+            "kf_id": get_target_id_from_record(cls, record),
             "investigator_id": get_target_id_from_record(Investigator, record),
             "name": record.get(CONCEPT.STUDY.NAME),
             "short_name": record.get(CONCEPT.STUDY.SHORT_NAME),
             "version": record.get(CONCEPT.STUDY.VERSION),
-            "data_access_authority": record.get(CONCEPT.STUDY.AUTHORITY),
             "release_status": record.get(CONCEPT.STUDY.RELEASE_STATUS),
             "attribution": record.get(CONCEPT.STUDY.ATTRIBUTION),
             "category": record.get(CONCEPT.STUDY.CATEGORY),
             "visible": record.get(CONCEPT.STUDY.VISIBLE),
         }
+        return {
+            **cls.get_key_components(record, get_target_id_from_record),
+            **secondary_components,
+        }
+
+    @classmethod
+    def submit(cls, host, body):
+        return submit(host, cls, body)
 
 
 class Family:
     class_name = "family"
-    api_path = "/families"
+    api_path = "families"
     target_id_concept = CONCEPT.FAMILY.TARGET_SERVICE_ID
-    id_fields = {"kf_id"}
+    service_id_fields = {"kf_id"}
 
-    @staticmethod
-    def build_key(record):
-        assert None is not record[CONCEPT.FAMILY.ID]
-        return record.get(CONCEPT.FAMILY.UNIQUE_KEY) or join(
-            record[CONCEPT.FAMILY.ID]
-        )
-
-    @staticmethod
-    def build_entity(record, key, get_target_id_from_record):
+    @classmethod
+    def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "kf_id": get_target_id_from_record(Family, record),
-            "external_id": key,
+            "external_id": not_none(record[CONCEPT.FAMILY.ID]),
+        }
+
+    @classmethod
+    def query_target_ids(cls, host, key_components):
+        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+
+    @classmethod
+    def build_entity(cls, record, get_target_id_from_record):
+        secondary_components = {
+            "kf_id": get_target_id_from_record(cls, record),
             "visible": record.get(CONCEPT.FAMILY.VISIBLE),
         }
+        return {
+            **cls.get_key_components(record, get_target_id_from_record),
+            **secondary_components,
+        }
+
+    @classmethod
+    def submit(cls, host, body):
+        return submit(host, cls, body)
 
 
 class Participant:
     class_name = "participant"
-    api_path = "/participants"
+    api_path = "participants"
     target_id_concept = CONCEPT.PARTICIPANT.TARGET_SERVICE_ID
-    id_fields = {"kf_id", "family_id"}
+    service_id_fields = {"kf_id", "family_id"}
 
-    @staticmethod
-    def build_key(record):
-        assert None is not record[CONCEPT.PARTICIPANT.ID]
-        return record.get(CONCEPT.PARTICIPANT.UNIQUE_KEY) or join(
-            record[CONCEPT.PARTICIPANT.ID]
-        )
+    @classmethod
+    def get_key_components(cls, record, get_target_id_from_record):
+        return {
+            "study_id": not_none(record[CONCEPT.STUDY.ID]),
+            "external_id": not_none(record[CONCEPT.PARTICIPANT.ID]),
+        }
 
-    @staticmethod
-    def build_entity(record, key, get_target_id_from_record):
+    @classmethod
+    def query_target_ids(cls, host, key_components):
+        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+
+    @classmethod
+    def build_entity(cls, record, get_target_id_from_record):
         # family foreign key is optional
         try:
             family_id = get_target_id_from_record(Family, record)
         except Exception:
             family_id = None
 
-        return {
-            "kf_id": get_target_id_from_record(Participant, record),
-            "study_id": record[CONCEPT.STUDY.ID],
+        secondary_components = {
+            "kf_id": get_target_id_from_record(cls, record),
             "family_id": family_id,
-            "external_id": key,
             "is_proband": record.get(CONCEPT.PARTICIPANT.IS_PROBAND),
             "ethnicity": record.get(CONCEPT.PARTICIPANT.ETHNICITY),
             "gender": record.get(CONCEPT.PARTICIPANT.GENDER),
@@ -148,56 +176,44 @@ class Participant:
             "species": record.get(CONCEPT.PARTICIPANT.SPECIES),
             "visible": record.get(CONCEPT.PARTICIPANT.VISIBLE),
         }
+        return {
+            **cls.get_key_components(record, get_target_id_from_record),
+            **secondary_components,
+        }
 
-
-def flexible_age(record, days_concept, generic_concept):
-    age = record.get(days_concept)
-    units = record.get(generic_concept.UNITS)
-    value = record.get(generic_concept.VALUE)
-
-    if (age is None) and (units is not None) and (value is not None):
-        if units == constants.AGE.UNITS.DAYS:
-            age = int(value)
-        elif units == constants.AGE.UNITS.MONTHS:
-            age = int(value * 30.44)
-        elif units == constants.AGE.UNITS.YEARS:
-            age = int(value * 365.25)
-
-    return age
+    @classmethod
+    def submit(cls, host, body):
+        return submit(host, cls, body)
 
 
 class Diagnosis:
     class_name = "diagnosis"
-    api_path = "/diagnoses"
+    api_path = "diagnoses"
     target_id_concept = CONCEPT.DIAGNOSIS.TARGET_SERVICE_ID
-    id_fields = {"kf_id", "participant_id"}
+    service_id_fields = {"kf_id", "participant_id"}
 
-    @staticmethod
-    def build_key(record):
-        assert None is not record[CONCEPT.PARTICIPANT.ID]
-        assert None is not record[CONCEPT.DIAGNOSIS.NAME]
-        return record.get(CONCEPT.DIAGNOSIS.UNIQUE_KEY) or join(
-            record[CONCEPT.PARTICIPANT.ID],
-            record[CONCEPT.DIAGNOSIS.NAME],
-            flexible_age(
-                record,
-                CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS,
-                CONCEPT.DIAGNOSIS.EVENT_AGE,
-            ),
-        )
-
-    @staticmethod
-    def build_entity(record, key, get_target_id_from_record):
+    @classmethod
+    def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "kf_id": get_target_id_from_record(Diagnosis, record),
-            "participant_id": get_target_id_from_record(Participant, record),
-            "external_id": key,
+            "participant_id": not_none(
+                get_target_id_from_record(Participant, record)
+            ),
+            "source_text_diagnosis": not_none(record[CONCEPT.DIAGNOSIS.NAME]),
             "age_at_event_days": flexible_age(
                 record,
                 CONCEPT.DIAGNOSIS.EVENT_AGE_DAYS,
                 CONCEPT.DIAGNOSIS.EVENT_AGE,
             ),
-            "source_text_diagnosis": record.get(CONCEPT.DIAGNOSIS.NAME),
+        }
+
+    @classmethod
+    def query_target_ids(cls, host, key_components):
+        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+
+    @classmethod
+    def build_entity(cls, record, get_target_id_from_record):
+        secondary_components = {
+            "kf_id": get_target_id_from_record(cls, record),
             "source_text_tumor_location": record.get(
                 CONCEPT.DIAGNOSIS.TUMOR_LOCATION
             ),
@@ -213,118 +229,125 @@ class Diagnosis:
             "diagnosis_category": record.get(CONCEPT.DIAGNOSIS.CATEGORY),
             "visible": record.get(CONCEPT.DIAGNOSIS.VISIBLE),
         }
+        return {
+            **cls.get_key_components(record, get_target_id_from_record),
+            **secondary_components,
+        }
+
+    @classmethod
+    def submit(cls, host, body):
+        return submit(host, cls, body)
 
 
 class Phenotype:
     class_name = "phenotype"
-    api_path = "/phenotypes"
+    api_path = "phenotypes"
     target_id_concept = CONCEPT.PHENOTYPE.TARGET_SERVICE_ID
-    id_fields = {"kf_id", "participant_id"}
+    service_id_fields = {"kf_id", "participant_id"}
 
-    @staticmethod
-    def build_key(record):
-        assert None is not record[CONCEPT.PARTICIPANT.ID]
-        assert None is not record[CONCEPT.PHENOTYPE.NAME]
-        assert record[CONCEPT.PHENOTYPE.OBSERVED] in {
-            constants.PHENOTYPE.OBSERVED.NO,
-            constants.PHENOTYPE.OBSERVED.YES,
-        }
-        return record.get(CONCEPT.PHENOTYPE.UNIQUE_KEY) or join(
-            record[CONCEPT.PARTICIPANT.ID],
-            record[CONCEPT.PHENOTYPE.NAME],
-            record[
-                CONCEPT.PHENOTYPE.OBSERVED
-            ],  # TODO: WE SHOULD REMOVE OBSERVED
-            flexible_age(
-                record,
-                CONCEPT.PHENOTYPE.EVENT_AGE_DAYS,
-                CONCEPT.PHENOTYPE.EVENT_AGE,
-            ),
-        )
-
-    @staticmethod
-    def build_entity(record, key, get_target_id_from_record):
+    @classmethod
+    def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "kf_id": get_target_id_from_record(Phenotype, record),
-            "participant_id": get_target_id_from_record(Participant, record),
-            "external_id": key,
+            "participant_id": not_none(
+                get_target_id_from_record(Participant, record)
+            ),
+            "source_text_phenotype": not_none(record[CONCEPT.PHENOTYPE.NAME]),
+            "observed": not_none(record[CONCEPT.PHENOTYPE.OBSERVED]),
             "age_at_event_days": flexible_age(
                 record,
                 CONCEPT.PHENOTYPE.EVENT_AGE_DAYS,
                 CONCEPT.PHENOTYPE.EVENT_AGE,
             ),
-            "source_text_phenotype": record.get(CONCEPT.PHENOTYPE.NAME),
+        }
+
+    @classmethod
+    def query_target_ids(cls, host, key_components):
+        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+
+    @classmethod
+    def build_entity(cls, record, get_target_id_from_record):
+        secondary_components = {
+            "kf_id": get_target_id_from_record(cls, record),
             "hpo_id_phenotype": record.get(CONCEPT.PHENOTYPE.HPO_ID),
             "snomed_id_phenotype": record.get(CONCEPT.PHENOTYPE.SNOMED_ID),
-            "observed": record.get(CONCEPT.PHENOTYPE.OBSERVED),
             "visible": record.get(CONCEPT.PHENOTYPE.VISIBLE),
         }
+        return {
+            **cls.get_key_components(record, get_target_id_from_record),
+            **secondary_components,
+        }
+
+    @classmethod
+    def submit(cls, host, body):
+        return submit(host, cls, body)
 
 
 class Outcome:
     class_name = "outcome"
-    api_path = "/outcomes"
+    api_path = "outcomes"
     target_id_concept = CONCEPT.OUTCOME.TARGET_SERVICE_ID
-    id_fields = {"kf_id", "participant_id"}
+    service_id_fields = {"kf_id", "participant_id"}
 
-    @staticmethod
-    def build_key(record):
-        assert None is not record[CONCEPT.PARTICIPANT.ID]
-        assert None is not record[CONCEPT.OUTCOME.VITAL_STATUS]
-        return record.get(CONCEPT.OUTCOME.UNIQUE_KEY) or join(
-            record[CONCEPT.PARTICIPANT.ID],
-            record[CONCEPT.OUTCOME.VITAL_STATUS],
-            flexible_age(
-                record,
-                CONCEPT.OUTCOME.EVENT_AGE_DAYS,
-                CONCEPT.OUTCOME.EVENT_AGE,
-            ),
-        )
-
-    @staticmethod
-    def build_entity(record, key, get_target_id_from_record):
+    @classmethod
+    def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "kf_id": get_target_id_from_record(Outcome, record),
-            "participant_id": get_target_id_from_record(Participant, record),
-            "external_id": key,
+            "participant_id": not_none(
+                get_target_id_from_record(Participant, record)
+            ),
             "age_at_event_days": flexible_age(
                 record,
                 CONCEPT.OUTCOME.EVENT_AGE_DAYS,
                 CONCEPT.OUTCOME.EVENT_AGE,
             ),
-            "vital_status": record.get(CONCEPT.OUTCOME.VITAL_STATUS),
+            "vital_status": not_none(record[CONCEPT.OUTCOME.VITAL_STATUS]),
+        }
+
+    @classmethod
+    def query_target_ids(cls, host, key_components):
+        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+
+    @classmethod
+    def build_entity(cls, record, get_target_id_from_record):
+        secondary_components = {
+            "kf_id": get_target_id_from_record(cls, record),
             "disease_related": record.get(CONCEPT.OUTCOME.DISEASE_RELATED),
             "visible": record.get(CONCEPT.OUTCOME.VISIBLE),
         }
+        return {
+            **cls.get_key_components(record, get_target_id_from_record),
+            **secondary_components,
+        }
+
+    @classmethod
+    def submit(cls, host, body):
+        return submit(host, cls, body)
 
 
 class Biospecimen:
     class_name = "biospecimen"
-    api_path = "/biospecimens"
+    api_path = "biospecimens"
     target_id_concept = CONCEPT.BIOSPECIMEN.TARGET_SERVICE_ID
-    id_fields = {"kf_id", "participant_id"}
+    service_id_fields = {"kf_id", "participant_id"}
 
-    @staticmethod
-    def build_key(record):
-        biospecimen_group_id = record.get(
-            CONCEPT.BIOSPECIMEN_GROUP.ID, record.get(CONCEPT.BIOSPECIMEN.ID)
-        )
-        assert None is not biospecimen_group_id
-        assert None is not record[CONCEPT.BIOSPECIMEN.ID]
-        assert record[CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID]
-        return record.get(CONCEPT.BIOSPECIMEN.UNIQUE_KEY) or join(
-            biospecimen_group_id, record[CONCEPT.BIOSPECIMEN.ID]
-        )
-
-    @staticmethod
-    def build_entity(record, key, get_target_id_from_record):
+    @classmethod
+    def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "kf_id": get_target_id_from_record(Biospecimen, record),
-            "participant_id": get_target_id_from_record(Participant, record),
+            "external_aliquot_id": not_none(record[CONCEPT.BIOSPECIMEN.ID]),
             "external_sample_id": record.get(
-                CONCEPT.BIOSPECIMEN_GROUP.ID, record.get(CONCEPT.BIOSPECIMEN.ID)
+                CONCEPT.BIOSPECIMEN_GROUP.ID,
+                not_none(record[CONCEPT.BIOSPECIMEN.ID]),
             ),
-            "external_aliquot_id": record.get(CONCEPT.BIOSPECIMEN.ID),
+        }
+
+    @classmethod
+    def query_target_ids(cls, host, key_components):
+        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+
+    @classmethod
+    def build_entity(cls, record, get_target_id_from_record):
+        secondary_components = {
+            "kf_id": get_target_id_from_record(cls, record),
+            "participant_id": get_target_id_from_record(Participant, record),
             "sequencing_center_id": record.get(
                 CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID
             ),
@@ -364,26 +387,35 @@ class Biospecimen:
                 CONCEPT.BIOSPECIMEN.SAMPLE_PROCUREMENT
             ),
         }
+        return {
+            **cls.get_key_components(record, get_target_id_from_record),
+            **secondary_components,
+        }
+
+    @classmethod
+    def submit(cls, host, body):
+        return submit(host, cls, body)
 
 
 class GenomicFile:
     class_name = "genomic_file"
-    api_path = "/genomic-files"
+    api_path = "genomic-files"
     target_id_concept = CONCEPT.GENOMIC_FILE.TARGET_SERVICE_ID
-    id_fields = {"kf_id"}
+    service_id_fields = {"kf_id"}
 
-    @staticmethod
-    def build_key(record):
-        assert None is not record[CONCEPT.GENOMIC_FILE.ID]
-        return record.get(CONCEPT.GENOMIC_FILE.UNIQUE_KEY) or join(
-            record[CONCEPT.GENOMIC_FILE.ID]
-        )
+    @classmethod
+    def get_key_components(cls, record, get_target_id_from_record):
+        # FIXME: Temporary until KFDRC file hashes are reliably stable
+        return {"external_id": not_none(record[CONCEPT.GENOMIC_FILE.ID])}
 
-    @staticmethod
-    def build_entity(record, key, get_target_id_from_record):
-        return {
-            "kf_id": get_target_id_from_record(GenomicFile, record),
-            "external_id": key,
+    @classmethod
+    def query_target_ids(cls, host, key_components):
+        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+
+    @classmethod
+    def build_entity(cls, record, get_target_id_from_record):
+        secondary_components = {
+            "kf_id": get_target_id_from_record(cls, record),
             "file_name": record.get(CONCEPT.GENOMIC_FILE.FILE_NAME),
             "file_format": record.get(CONCEPT.GENOMIC_FILE.FILE_FORMAT),
             "data_type": record.get(CONCEPT.GENOMIC_FILE.DATA_TYPE),
@@ -392,7 +424,12 @@ class GenomicFile:
                 record.get(CONCEPT.GENOMIC_FILE.CONTROLLED_ACCESS)
             ),
             "is_harmonized": record.get(CONCEPT.GENOMIC_FILE.HARMONIZED),
-            "hashes": indexd_hashes(record.get(CONCEPT.GENOMIC_FILE.HASH_DICT)),
+            "hashes": {
+                k.lower().replace("-", ""): v
+                for k, v in str_to_obj(
+                    record.get(CONCEPT.GENOMIC_FILE.HASH_DICT)
+                ).items()
+            },
             "size": int(record.get(CONCEPT.GENOMIC_FILE.SIZE)),
             "urls": str_to_obj(record.get(CONCEPT.GENOMIC_FILE.URL_LIST)),
             "acl": str_to_obj(record.get(CONCEPT.GENOMIC_FILE.ACL)),
@@ -401,57 +438,83 @@ class GenomicFile:
             ),
             "visible": record.get(CONCEPT.GENOMIC_FILE.VISIBLE),
         }
+        return {
+            **cls.get_key_components(record, get_target_id_from_record),
+            **secondary_components,
+        }
+
+    @classmethod
+    def submit(cls, host, body):
+        return submit(host, cls, body)
 
 
 class ReadGroup:
     class_name = "read_group"
-    api_path = "/read-groups"
+    api_path = "read-groups"
     target_id_concept = CONCEPT.READ_GROUP.TARGET_SERVICE_ID
-    id_fields = {"kf_id"}
+    service_id_fields = {"kf_id"}
 
-    @staticmethod
-    def build_key(record):
-        assert None is not record[CONCEPT.READ_GROUP.ID]
-        return record.get(CONCEPT.READ_GROUP.UNIQUE_KEY) or join(
-            record[CONCEPT.READ_GROUP.ID]
-        )
-
-    @staticmethod
-    def build_entity(record, key, get_target_id_from_record):
+    @classmethod
+    def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "kf_id": get_target_id_from_record(ReadGroup, record),
-            "external_id": key,
-            "flow_cell": record.get(CONCEPT.READ_GROUP.FLOW_CELL),
-            "lane_number": record.get(CONCEPT.READ_GROUP.LANE_NUMBER),
+            "external_id": record.get(CONCEPT.READ_GROUP.ID),
+            "flow_cell": not_none(record[CONCEPT.READ_GROUP.FLOW_CELL]),
+            "lane_number": not_none(record[CONCEPT.READ_GROUP.LANE_NUMBER]),
+        }
+
+    @classmethod
+    def query_target_ids(cls, host, key_components):
+        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+
+    @classmethod
+    def build_entity(cls, record, get_target_id_from_record):
+        secondary_components = {
+            "kf_id": get_target_id_from_record(cls, record),
             "quality_scale": record.get(CONCEPT.READ_GROUP.QUALITY_SCALE),
             "visible": record.get(CONCEPT.READ_GROUP.VISIBLE),
         }
+        return {
+            **cls.get_key_components(record, get_target_id_from_record),
+            **secondary_components,
+        }
+
+    @classmethod
+    def submit(cls, host, body):
+        return submit(host, cls, body)
 
 
 class SequencingExperiment:
     class_name = "sequencing_experiment"
-    api_path = "/sequencing-experiments"
+    api_path = "sequencing-experiments"
     target_id_concept = CONCEPT.SEQUENCING.TARGET_SERVICE_ID
-    id_fields = {"kf_id"}
+    service_id_fields = {"kf_id"}
 
-    @staticmethod
-    def build_key(record):
-        assert None is not record[CONCEPT.SEQUENCING.ID]
-        return record.get(CONCEPT.SEQUENCING.UNIQUE_KEY) or join(
-            record[CONCEPT.SEQUENCING.ID]
-        )
-
-    @staticmethod
-    def build_entity(record, key, get_target_id_from_record):
+    @classmethod
+    def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "kf_id": get_target_id_from_record(SequencingExperiment, record),
-            "sequencing_center_id": record[
-                CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID
-            ],
-            "external_id": key,
+            "sequencing_center_id": not_none(
+                record[CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID]
+            ),
+            "external_id": record.get(
+                CONCEPT.SEQUENCING.ID,
+                not_none(record[CONCEPT.SEQUENCING.LIBRARY_NAME]),
+            ),
+            "library_name": record.get(
+                CONCEPT.SEQUENCING.LIBRARY_NAME,
+                not_none(record[CONCEPT.SEQUENCING.ID]),
+            ),
+        }
+
+    @classmethod
+    def query_target_ids(cls, host, key_components):
+        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+
+    @classmethod
+    def build_entity(cls, record, get_target_id_from_record):
+        secondary_components = {
+            "kf_id": get_target_id_from_record(cls, record),
             "experiment_date": record.get(CONCEPT.SEQUENCING.DATE),
             "experiment_strategy": record.get(CONCEPT.SEQUENCING.STRATEGY),
-            "library_name": record.get(CONCEPT.SEQUENCING.LIBRARY_NAME),
             "library_strand": record.get(CONCEPT.SEQUENCING.LIBRARY_STRAND),
             "is_paired_end": record.get(CONCEPT.SEQUENCING.PAIRED_END),
             "platform": record.get(CONCEPT.SEQUENCING.PLATFORM),
@@ -463,200 +526,216 @@ class SequencingExperiment:
             "mean_read_length": record.get(CONCEPT.SEQUENCING.MEAN_READ_LENGTH),
             "visible": record.get(CONCEPT.SEQUENCING.VISIBLE),
         }
+        return {
+            **cls.get_key_components(record, get_target_id_from_record),
+            **secondary_components,
+        }
+
+    @classmethod
+    def submit(cls, host, body):
+        return submit(host, cls, body)
 
 
 class FamilyRelationship:
     class_name = "family_relationship"
-    api_path = "/family-relationships"
+    api_path = "family-relationships"
     target_id_concept = CONCEPT.FAMILY_RELATIONSHIP.TARGET_SERVICE_ID
-    id_fields = {"kf_id", "participant1_id", "participant2_id"}
+    service_id_fields = {"kf_id", "participant1_id", "participant2_id"}
 
-    @staticmethod
-    def _pid(record, which, get_target_id_from_record):
-        return get_target_id_from_record(
-            Participant,
-            {
-                CONCEPT.PARTICIPANT.TARGET_SERVICE_ID: record.get(
-                    which.TARGET_SERVICE_ID
-                ),
-                CONCEPT.PARTICIPANT.UNIQUE_KEY: record.get(which.UNIQUE_KEY),
-                CONCEPT.PARTICIPANT.ID: record.get(which.ID),
-            },
-        )
-
-    @staticmethod
-    def build_key(record):
-        p1 = (
-            record.get(CONCEPT.FAMILY_RELATIONSHIP.PERSON1.TARGET_SERVICE_ID)
-            or record.get(CONCEPT.FAMILY_RELATIONSHIP.PERSON1.UNIQUE_KEY)
-            or record.get(CONCEPT.FAMILY_RELATIONSHIP.PERSON1.ID)
-        )
-        p2 = (
-            record.get(CONCEPT.FAMILY_RELATIONSHIP.PERSON2.TARGET_SERVICE_ID)
-            or record.get(CONCEPT.FAMILY_RELATIONSHIP.PERSON2.UNIQUE_KEY)
-            or record.get(CONCEPT.FAMILY_RELATIONSHIP.PERSON2.ID)
-        )
-        assert p1 is not None
-        assert p2 is not None
-        assert (
-            record[CONCEPT.FAMILY_RELATIONSHIP.RELATION_FROM_1_TO_2] is not None
-        )
-        return record.get(CONCEPT.FAMILY_RELATIONSHIP.UNIQUE_KEY) or join(
-            p1,
-            record[
-                CONCEPT.FAMILY_RELATIONSHIP.RELATION_FROM_1_TO_2
-            ],  # TODO: WE SHOULD REMOVE RELATION_FROM_1_TO_2
-            p2,
-        )
-
-    @staticmethod
-    def build_entity(record, key, get_target_id_from_record):
+    @classmethod
+    def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "kf_id": get_target_id_from_record(FamilyRelationship, record),
-            "participant1_id": FamilyRelationship._pid(
-                record,
-                CONCEPT.FAMILY_RELATIONSHIP.PERSON1,
-                get_target_id_from_record,
+            "participant1_id": not_none(
+                get_target_id_from_record(
+                    Participant,
+                    {
+                        CONCEPT.PARTICIPANT.ID: record[
+                            CONCEPT.FAMILY_RELATIONSHIP.PERSON1
+                        ],
+                    },
+                )
             ),
-            "participant2_id": FamilyRelationship._pid(
-                record,
-                CONCEPT.FAMILY_RELATIONSHIP.PERSON2,
-                get_target_id_from_record,
+            "participant2_id": not_none(
+                get_target_id_from_record(
+                    Participant,
+                    {
+                        CONCEPT.PARTICIPANT.ID: record[
+                            CONCEPT.FAMILY_RELATIONSHIP.PERSON2
+                        ],
+                    },
+                )
             ),
-            "external_id": key,
+        }
+
+    @classmethod
+    def query_target_ids(cls, host, key_components):
+        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+
+    @classmethod
+    def build_entity(cls, record, get_target_id_from_record):
+        secondary_components = {
+            "kf_id": get_target_id_from_record(cls, record),
             "participant1_to_participant2_relation": record[
                 CONCEPT.FAMILY_RELATIONSHIP.RELATION_FROM_1_TO_2
             ],
             "visible": record.get(CONCEPT.FAMILY_RELATIONSHIP.VISIBLE),
         }
+        return {
+            **cls.get_key_components(record, get_target_id_from_record),
+            **secondary_components,
+        }
+
+    @classmethod
+    def submit(cls, host, body):
+        return submit(host, cls, body)
 
 
 class BiospecimenGenomicFile:
     class_name = "biospecimen_genomic_file"
-    api_path = "/biospecimen-genomic-files"
+    api_path = "biospecimen-genomic-files"
     target_id_concept = CONCEPT.BIOSPECIMEN_GENOMIC_FILE.TARGET_SERVICE_ID
-    id_fields = {"kf_id", "biospecimen_id", "genomic_file_id"}
+    service_id_fields = {"kf_id", "biospecimen_id", "genomic_file_id"}
 
-    @staticmethod
-    def build_key(record):
-        bs = record.get(Biospecimen.target_id_concept) or Biospecimen.build_key(
-            record
-        )
-        gf = record.get(GenomicFile.target_id_concept) or GenomicFile.build_key(
-            record
-        )
-        assert None is not bs
-        assert None is not gf
-        return record.get(CONCEPT.BIOSPECIMEN_GENOMIC_FILE.UNIQUE_KEY) or join(
-            bs, gf
-        )
-
-    @staticmethod
-    def build_entity(record, key, get_target_id_from_record):
+    @classmethod
+    def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "kf_id": get_target_id_from_record(BiospecimenGenomicFile, record),
-            "external_id": key,
-            "biospecimen_id": get_target_id_from_record(Biospecimen, record),
-            "genomic_file_id": get_target_id_from_record(GenomicFile, record),
+            "biospecimen_id": not_none(
+                get_target_id_from_record(Biospecimen, record)
+            ),
+            "genomic_file_id": not_none(
+                get_target_id_from_record(GenomicFile, record)
+            ),
+        }
+
+    @classmethod
+    def query_target_ids(cls, host, key_components):
+        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+
+    @classmethod
+    def build_entity(cls, record, get_target_id_from_record):
+        secondary_components = {
+            "kf_id": get_target_id_from_record(cls, record),
             "visible": record.get(CONCEPT.BIOSPECIMEN_GENOMIC_FILE.VISIBLE),
         }
+        return {
+            **cls.get_key_components(record, get_target_id_from_record),
+            **secondary_components,
+        }
+
+    @classmethod
+    def submit(cls, host, body):
+        return submit(host, cls, body)
 
 
 class BiospecimenDiagnosis:
     class_name = "biospecimen_diagnosis"
-    api_path = "/biospecimen-diagnoses"
+    api_path = "biospecimen-diagnoses"
     target_id_concept = CONCEPT.BIOSPECIMEN_DIAGNOSIS.TARGET_SERVICE_ID
-    id_fields = {"kf_id", "biospecimen_id", "diagnosis_id"}
+    service_id_fields = {"kf_id", "biospecimen_id", "diagnosis_id"}
 
-    @staticmethod
-    def build_key(record):
-        bs = record.get(Biospecimen.target_id_concept) or Biospecimen.build_key(
-            record
-        )
-        dg = record.get(Diagnosis.target_id_concept) or Diagnosis.build_key(
-            record
-        )
-        assert None is not bs
-        assert None is not dg
-        return record.get(CONCEPT.BIOSPECIMEN_DIAGNOSIS.UNIQUE_KEY) or join(
-            bs, dg
-        )
-
-    @staticmethod
-    def build_entity(record, key, get_target_id_from_record):
+    @classmethod
+    def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "kf_id": get_target_id_from_record(BiospecimenDiagnosis, record),
-            "external_id": key,
-            "biospecimen_id": get_target_id_from_record(Biospecimen, record),
-            "diagnosis_id": get_target_id_from_record(Diagnosis, record),
+            "biospecimen_id": not_none(
+                get_target_id_from_record(Biospecimen, record)
+            ),
+            "diagnosis_id": not_none(
+                get_target_id_from_record(Diagnosis, record)
+            ),
+        }
+
+    @classmethod
+    def query_target_ids(cls, host, key_components):
+        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+
+    @classmethod
+    def build_entity(cls, record, get_target_id_from_record):
+        secondary_components = {
+            "kf_id": get_target_id_from_record(cls, record),
             "visible": record.get(CONCEPT.BIOSPECIMEN_DIAGNOSIS.VISIBLE),
         }
+        return {
+            **cls.get_key_components(record, get_target_id_from_record),
+            **secondary_components,
+        }
+
+    @classmethod
+    def submit(cls, host, body):
+        return submit(host, cls, body)
 
 
 class ReadGroupGenomicFile:
     class_name = "read_group_genomic_file"
-    api_path = "/read-group-genomic-files"
+    api_path = "read-group-genomic-files"
     target_id_concept = CONCEPT.READ_GROUP_GENOMIC_FILE.TARGET_SERVICE_ID
-    id_fields = {"kf_id", "read_group_id", "genomic_file_id"}
+    service_id_fields = {"kf_id", "read_group_id", "genomic_file_id"}
 
-    @staticmethod
-    def build_key(record):
-        rg = record.get(ReadGroup.target_id_concept) or ReadGroup.build_key(
-            record
-        )
-        gf = record.get(GenomicFile.target_id_concept) or GenomicFile.build_key(
-            record
-        )
-        assert None is not rg
-        assert None is not gf
-        return record.get(CONCEPT.READ_GROUP_GENOMIC_FILE.UNIQUE_KEY) or join(
-            rg, gf
-        )
-
-    @staticmethod
-    def build_entity(record, key, get_target_id_from_record):
+    @classmethod
+    def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "kf_id": get_target_id_from_record(ReadGroupGenomicFile, record),
-            "external_id": key,
-            "read_group_id": get_target_id_from_record(ReadGroup, record),
-            "genomic_file_id": get_target_id_from_record(GenomicFile, record),
+            "read_group_id": not_none(
+                get_target_id_from_record(ReadGroup, record)
+            ),
+            "genomic_file_id": not_none(
+                get_target_id_from_record(GenomicFile, record)
+            ),
+        }
+
+    @classmethod
+    def query_target_ids(cls, host, key_components):
+        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+
+    @classmethod
+    def build_entity(cls, record, get_target_id_from_record):
+        secondary_components = {
+            "kf_id": get_target_id_from_record(cls, record),
             "visible": record.get(CONCEPT.READ_GROUP_GENOMIC_FILE.VISIBLE),
         }
+        return {
+            **cls.get_key_components(record, get_target_id_from_record),
+            **secondary_components,
+        }
+
+    @classmethod
+    def submit(cls, host, body):
+        return submit(host, cls, body)
 
 
 class SequencingExperimentGenomicFile:
     class_name = "sequencing_experiment_genomic_file"
-    api_path = "/sequencing-experiment-genomic-files"
+    api_path = "sequencing-experiment-genomic-files"
     target_id_concept = CONCEPT.SEQUENCING_GENOMIC_FILE.TARGET_SERVICE_ID
-    id_fields = {"kf_id", "sequencing_experiment_id", "genomic_file_id"}
+    service_id_fields = {"kf_id", "sequencing_experiment_id", "genomic_file_id"}
 
-    @staticmethod
-    def build_key(record):
-        se = record.get(
-            SequencingExperiment.target_id_concept
-        ) or SequencingExperiment.build_key(record)
-        gf = record.get(GenomicFile.target_id_concept) or GenomicFile.build_key(
-            record
-        )
-        assert None is not se
-        assert None is not gf
-        return record.get(CONCEPT.SEQUENCING_GENOMIC_FILE.UNIQUE_KEY) or join(
-            se, gf
-        )
-
-    @staticmethod
-    def build_entity(record, key, get_target_id_from_record):
+    @classmethod
+    def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "kf_id": get_target_id_from_record(
-                SequencingExperimentGenomicFile, record
+            "sequencing_experiment_id": not_none(
+                get_target_id_from_record(SequencingExperiment, record)
             ),
-            "external_id": key,
-            "sequencing_experiment_id": get_target_id_from_record(
-                SequencingExperiment, record
+            "genomic_file_id": not_none(
+                get_target_id_from_record(GenomicFile, record)
             ),
-            "genomic_file_id": get_target_id_from_record(GenomicFile, record),
+        }
+
+    @classmethod
+    def query_target_ids(cls, host, key_components):
+        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+
+    @classmethod
+    def build_entity(cls, record, get_target_id_from_record):
+        secondary_components = {
+            "kf_id": get_target_id_from_record(cls, record),
             "visible": record.get(CONCEPT.SEQUENCING_GENOMIC_FILE.VISIBLE),
         }
+        return {
+            **cls.get_key_components(record, get_target_id_from_record),
+            **secondary_components,
+        }
+
+    @classmethod
+    def submit(cls, host, body):
+        return submit(host, cls, body)
 
 
 def _PATCH(host, api_path, kf_id, body):
@@ -728,7 +807,7 @@ def coerce_types(host, entity_class, body):
             if properties[k]["type"] == "string":
                 if "date" in k:  # TODO: FIX THE DATASERVICE?
                     ret[k] = None
-                elif k not in entity_class.id_fields:
+                elif k not in entity_class.service_id_fields:
                     ret[k] = constants.COMMON.NOT_REPORTED
                 else:
                     ret[k] = None
@@ -794,5 +873,5 @@ def submit(host, entity_class, body):
         return result["kf_id"]
     else:
         raise RequestException(
-            f"Sent to {api_path}:\n{body}\nGot:\n{resp.text}"
+            f"Sent to /{api_path}:\n{body}\nGot:\n{resp.text}"
         )
