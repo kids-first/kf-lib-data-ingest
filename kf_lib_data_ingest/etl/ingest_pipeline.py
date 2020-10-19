@@ -17,7 +17,7 @@ from kf_lib_data_ingest.etl.configuration.ingest_package_config import (
 )
 from kf_lib_data_ingest.etl.configuration.log import init_logger
 from kf_lib_data_ingest.etl.extract.extract import ExtractStage
-from kf_lib_data_ingest.etl.load.load_shim import LoadStage
+from kf_lib_data_ingest.etl.load.load import LoadStage
 from kf_lib_data_ingest.etl.transform.guided import GuidedTransformStage
 from kf_lib_data_ingest.etl.transform.transform import TransformStage
 

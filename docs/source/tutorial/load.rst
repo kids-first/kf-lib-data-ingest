@@ -43,7 +43,7 @@ be invoked on its own in Python like so:
 .. code-block:: python
 
     from kf_lib_data_ingest.common.io import read_df
-    from kf_lib_data_ingest.etl.load.load_shim import LoadStage
+    from kf_lib_data_ingest.etl.load.load import LoadStage
 
     path_to_my_target_service_plugin = "foo/bar/my_plugin.py"
     target_service_base_url = "https://my_service:8080"

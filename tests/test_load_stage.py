@@ -10,7 +10,7 @@ from kf_lib_data_ingest.common.errors import InvalidIngestStageParameters
 from kf_lib_data_ingest.etl.configuration.base_config import (
     ConfigValidationError,
 )
-from kf_lib_data_ingest.etl.load.load_shim import LoadStage
+from kf_lib_data_ingest.etl.load.load import LoadStage
 
 
 @pytest.fixture(scope="function")
