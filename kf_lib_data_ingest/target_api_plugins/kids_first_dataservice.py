@@ -147,7 +147,7 @@ class Participant:
     @classmethod
     def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "study_id": not_none(record[CONCEPT.STUDY.ID]),
+            "study_id": not_none(record[CONCEPT.STUDY.TARGET_SERVICE_ID]),
             "external_id": not_none(record[CONCEPT.PARTICIPANT.ID]),
         }
 
