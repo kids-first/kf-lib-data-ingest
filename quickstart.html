@@ -389,12 +389,13 @@ from the file you already have):</p>
 </table>
 <p>The extract config file we’re going to use is below. Much more detail on this
 later.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common</span> <span class="kn">import</span> <span class="n">constants</span>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">family_and_phenotype.py</span><a class="headerlink" href="#id3" title="Permalink to this code">¶</a></div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common</span> <span class="kn">import</span> <span class="n">constants</span>
+<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.concept_schema</span> <span class="kn">import</span> <span class="n">CONCEPT</span>
+<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.pandas_utils</span> <span class="kn">import</span> <span class="n">Split</span>
 <span class="kn">from</span> <span class="nn">kf_lib_data_ingest.etl.extract.operations</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.concept_schema</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">CONCEPT</span>
-<span class="p">)</span>
-<span class="kn">import</span> <span class="nn">re</span>
 
 <span class="n">source_data_url</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/master/docs/data/family_and_phenotype.tsv&quot;</span>
 
@@ -480,12 +481,11 @@ later.</p>
 <span class="p">]</span>
 </pre></div>
 </div>
+</div>
 <p>It goes in the <code class="docutils literal notranslate"><span class="pre">extract_configs</span></code> directory like this:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>my_study/
 ├── data/
-│   └── clinical.tsv
 └── extract_configs/
-    ├── extract_config.py
     └── family_and_phenotype.py
 </pre></div>
 </div>
