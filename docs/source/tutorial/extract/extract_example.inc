@@ -54,6 +54,7 @@ The following extract configuration file accomplishes all of those needs
     from kf_lib_data_ingest.common.concept_schema import (
         CONCEPT
     )
+    from kf_lib_data_ingest.common.pandas_utils import Split
     import re
 
     source_data_url = "https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/master/docs/data/family_and_phenotype.tsv"
@@ -160,6 +161,7 @@ Imports!
     from kf_lib_data_ingest.common.concept_schema import (
         CONCEPT
     )
+    from kf_lib_data_ingest.common.pandas_utils import Split
     import re
 
 It's a Python module! Cool! That lets us do all kinds of neat stuff like
