@@ -125,13 +125,20 @@ class MarkdownReportBuilder(AbstractReportBuilder):
 
         # Add test section summary
         test_order_by_outcome = [FAILED, PASSED, NA]
-        summary = " ".join(
-            [
-                f"`{code.title()}: {len(test_markdowns.get(code, []))}`"
-                for code in test_order_by_outcome
-            ]
+        summary_md = self._df_to_markdown(
+            pandas.DataFrame(
+                [
+                    {
+                        "Result": f"**{RESULT_TO_EMOJI.get(error_code)} "
+                        f"{error_code.title()}**",
+                        "# of Tests": len(test_markdowns.get(error_code, [])),
+                    }
+                    for error_code in test_order_by_outcome
+                ]
+            )
         )
-        output.append(f"### {summary}")
+        output.append("### Result Summary")
+        output.append(summary_md)
 
         # Add test markdowns
         for result_code in test_order_by_outcome:
