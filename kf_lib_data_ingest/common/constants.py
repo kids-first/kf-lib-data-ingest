@@ -303,6 +303,11 @@ class CONSENT_TYPE:
     # Disease specific Cardiac Heart Defect
     DS_CHD = "DS-CHD"
     # Disease specific Cardiac Heart Defect
+    HMB_NPU = "HMB-NPU"
+    # Health/Medical/Biomedical (NPU) (HMB-NPU) - Use of this data is
+    # limited to health/medical/biomedical purposes, does not include the
+    # study of population origins or ancestry. Use of the data is limited to
+    # not-for-profit organizations.
     GRU = "GRU"
     # General Research Use
 
