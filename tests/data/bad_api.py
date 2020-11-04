@@ -3,38 +3,55 @@ class A:
 
 
 class B:
-    @staticmethod
-    def build_key():
+    @classmethod
+    def get_key_components(cls):
         pass
 
 
 class C:
-    @staticmethod
-    def build_entity():
+    @classmethod
+    def build_entity(cls):
         pass
 
 
 class D:
-    @staticmethod
-    def build_key():
+    @classmethod
+    def get_key_components(cls):
         pass
 
-    @staticmethod
-    def build_entity():
+    @classmethod
+    def build_entity(cls):
         pass
 
 
 class E:
-    @staticmethod
-    def transform_records_list():
+    @classmethod
+    def transform_records_list(cls):
         pass
 
-    @staticmethod
-    def build_key():
+    @classmethod
+    def get_key_components(cls):
         pass
 
-    @staticmethod
-    def build_entity():
+    @classmethod
+    def build_entity(cls):
+        pass
+
+
+class F:
+    class_name = "bad"
+    target_id_concept = "CONCEPT|FOO|TARGET_SERVICE_ID"
+
+    @classmethod
+    def transform_records_list(cls, records_list):
+        pass
+
+    @classmethod
+    def get_key_components(cls, record, get_target_id_from_record):
+        pass
+
+    @classmethod
+    def build_entity(cls, record, get_target_id_from_record):
         pass
 
 
@@ -42,16 +59,20 @@ class Good:
     class_name = "good"
     target_id_concept = "CONCEPT|FOO|TARGET_SERVICE_ID"
 
-    @staticmethod
-    def transform_records_list(records_list):
+    @classmethod
+    def transform_records_list(cls, records_list):
         pass
 
-    @staticmethod
-    def build_key(record):
+    @classmethod
+    def get_key_components(cls, record, get_target_id_from_record):
         pass
 
-    @staticmethod
-    def build_entity(record, key, get_target_id_from_record):
+    @classmethod
+    def build_entity(cls, record, get_target_id_from_record):
+        pass
+
+    @classmethod
+    def submit(cls, host, body):
         pass
 
 

@@ -3,13 +3,6 @@ import shutil
 
 import pytest
 from click.testing import CliRunner
-
-from conftest import (
-    TEST_INGEST_CONFIG as SIMPLE_STUDY_CONFIG,
-    COMMAND_LINE_ERROR_CODE,
-    TEST_DATA_DIR,
-    delete_dir,
-)
 from kf_lib_data_ingest.app import cli
 from kf_lib_data_ingest.config import VERSION
 from kf_lib_data_ingest.etl.ingest_pipeline import (
@@ -17,6 +10,11 @@ from kf_lib_data_ingest.etl.ingest_pipeline import (
     DEFAULT_STAGES_TO_RUN_STR,
     VALID_STAGES_TO_RUN_STRS,
 )
+from kf_lib_data_ingest.etl.load.load_v2 import LoadStage as LoadV2
+
+from conftest import COMMAND_LINE_ERROR_CODE, TEST_DATA_DIR
+from conftest import TEST_INGEST_CONFIG as SIMPLE_STUDY_CONFIG
+from conftest import delete_dir
 
 TEST_STUDY_CONFIG = os.path.join(
     TEST_DATA_DIR, "test_study", "ingest_package_config.py"
@@ -31,6 +29,11 @@ def simple_study_cfg():
     yield SIMPLE_STUDY_CONFIG
 
     delete_dir(output_dir)
+
+
+def test_version(ingest_pipeline):
+    ingest_pipeline.run()
+    assert isinstance(ingest_pipeline.stages["LoadStage"], LoadV2)
 
 
 @pytest.mark.parametrize("cli_cmd", [cli.test])
@@ -49,10 +52,7 @@ def test_valid_ingest_subset_stages(
     assert "BEGIN data ingestion" in result.output
     assert "END data ingestion" in result.output
     assert result.exit_code == 0
-    pipeline_stage_names = {
-        c: CODE_TO_STAGE_MAP[c].__name__ for c in CODE_TO_STAGE_MAP
-    }
-    pipeline_stage_names["t"] = "GuidedTransformStage"
+    pipeline_stage_names = {c: CODE_TO_STAGE_MAP[c] for c in CODE_TO_STAGE_MAP}
 
     # Check logs
     def check_logs(char_seq, should_exist):

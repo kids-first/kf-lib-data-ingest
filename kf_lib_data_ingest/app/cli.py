@@ -57,21 +57,27 @@ def common_args_options(func):
         type=click.Path(exists=True, file_okay=True, dir_okay=True),
     )(func)
 
+    # Clear the UID cache
+    func = click.option(
+        "--clear_cache",
+        default=False,
+        is_flag=True,
+        help="Clear the identifier cache before loading into the target service.",
+    )(func)
+
     # Disable warehousing
     func = click.option(
         "--no_warehouse",
         default=False,
         is_flag=True,
-        help="A flag to skip sending data to the warehouse db.",
+        help="Skip sending data to the warehouse db.",
     )(func)
 
     # Resume loading from
     func = click.option(
         "--resume_from",
         default=None,
-        help=(
-            "Dry run until a given target ID, and then load starting " "there."
-        ),
+        help=("Dry run until a given target ID, and then load starting there."),
     )(func)
 
     # Multithreaded loading
@@ -80,8 +86,7 @@ def common_args_options(func):
         default=False,
         is_flag=True,
         help=(
-            "A flag specifying whether to use sync or async loading "
-            "into the target service"
+            "Load into the target service using faster asynchronous requests."
         ),
     )(func)
 
@@ -189,6 +194,7 @@ def ingest(
     no_warehouse,
     no_validate,
     validation_mode,
+    clear_cache,
 ):
     """
     Run the Kids First data ingest pipeline.
@@ -255,6 +261,7 @@ def test(
     no_warehouse,
     no_validate,
     validation_mode,
+    clear_cache,
 ):
     """
     Run the Kids First data ingest pipeline in dry_run mode (--dry_run=True)
