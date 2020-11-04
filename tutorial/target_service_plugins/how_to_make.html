@@ -240,8 +240,8 @@ service, target entity builder classes (not instances) of the form:
         class_name = &#39;foo&#39;
         target_id_concept = CONCEPT.FOO.TARGET_SERVICE_ID
 
-        @staticmethod
-        def transform_records_list(records_list):
+        @classmethod
+        def transform_records_list(cls, records_list):
             &#39;&#39;&#39;
             Transforms the given record list into the form needed for this
             class&#39;s build_key and build_entity methods.
@@ -256,30 +256,46 @@ service, target entity builder classes (not instances) of the form:
             &#39;&#39;&#39;
             return new_records_list
 
-        @staticmethod
-        def build_key(record):
+        @classmethod
+        def get_key_components(cls, record, get_target_id_from_record):
             &#39;&#39;&#39;
-            Composes a string that can uniquely identify the given record.
+            Composes a minimal payload subset that uniquely identifies the given record.
 
             :param record: CONCEPT values representing one record of extracted data
             :type record: dict
-            :return: string of record components that uniquely identify the entity
+            :param get_target_id_from_record: a function that, given input arguments
+                (entity_class, record), will return the unique reference identifier
+                assigned by the target service for that entity
+            :type get_target_id_from_record: function
+            :return: body of record components that uniquely identify the entity
                 in the dataset
-            :rtype: str
+            :rtype: object
             :raises: Exception if record is not valid for entity
             &#39;&#39;&#39;
-            return unique_key_composed_from_record
+            return unique_key_components_from_record
 
-        @staticmethod
-        def build_entity(record, key, get_target_id_from_record):
+        @classmethod
+        def query_target_ids(cls, host, key_components):
+            &#39;&#39;&#39;
+            Ask the server for identifiers matching the given unique key components.
+
+            :param host: host url
+            :type host: str
+            :param key_components: return value from get_key_components
+            :type key_components: object
+            :return: all identifiers on the server that match the key components
+            :rtype: list
+            &#39;&#39;&#39;
+            return list_of_target_ids
+
+        @classmethod
+        def build_entity(cls, record, get_target_id_from_record):
             &#39;&#39;&#39;
             Constructs a payload body that can be submitted to the target service
             for the given record.
 
             :param record: CONCEPT values representing one record of extracted data
             :type record: dict
-            :param key: the value returned by the build_key method
-            :type key: str
             :param get_target_id_from_record: a function that, given input arguments
                 (entity_class, record), will return the unique reference identifier
                 assigned by the target service for that entity
@@ -288,6 +304,22 @@ service, target entity builder classes (not instances) of the form:
             &#39;&#39;&#39;
             return payload_body_composed_from_record
 
+        @classmethod
+        def submit(cls, host, body):
+            &#39;&#39;&#39;
+            Negotiate submitting completed entity data to the target service and
+            return the identifier assigned by the server.
+
+            :param host: host url
+            :type host: str
+            :param body: entity body constructed by entity_class.build_entity
+            :return: The target entity reference ID that the service says was
+                created or updated
+            :rtype: str
+            :raise: RequestException on error
+            &#39;&#39;&#39;
+            return unique_identifier_from_the_server_of_the_constructed_entity
+
 The all_targets list will look like this:
 
     all_targets = [
@@ -295,29 +327,8 @@ The all_targets list will look like this:
         ...
     ]
 
-Your target API configuration module must also contain a `submit` function with
-the following signature that sends a ready entity payload to the target service
-and returns the unique identifier of the target entity that was created or
-updated on the target server:
-
-    def submit(host, entity_class, body):
-        &#39;&#39;&#39;
-        Negotiate submitting the data for an entity to the target service.
-
-        :param host: host url
-        :type host: str
-        :param entity_class: which entity class is being sent
-        :type entity_class: class
-        :param body: entity body constructed by entity_class.build_entity
-        :return: The target entity reference ID that the service says was
-            created or updated
-        :rtype: str
-        :raise: RequestException on error
-        &#39;&#39;&#39;
-        ...
-
-Your entity classes and submit function can do anything else you want as long
-as they meet those minimum requirements.
+Your entity classes can do anything else you want as long as they meet those
+minimum requirements.
 </pre></div>
 </div>
 </div>
