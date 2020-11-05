@@ -374,7 +374,7 @@ class LoadStage(IngestStage):
 
                 # guarantee existence of the study ID column
                 for r in transformed_records:
-                    r[CONCEPT.STUDY.ID] = self.study_id
+                    r[CONCEPT.STUDY.TARGET_SERVICE_ID] = self.study_id
 
                 self.counts[entity_class.class_name] = 0
 
