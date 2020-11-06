@@ -40,6 +40,8 @@ class LoadStage(LoadV1):
             return tic
 
         # check the server
+        if self.dry_run:
+            return None
         try:
             tic_list = entity_class.query_target_ids(
                 self.target_url, key_components
