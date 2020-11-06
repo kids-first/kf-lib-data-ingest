@@ -284,6 +284,7 @@ def test(
     kwargs = {arg: values[arg] for arg in args[1:]}
 
     kwargs["dry_run"] = True
+    kwargs["no_warehouse"] = True
     ctx.invoke(ingest, **kwargs)
 
 
