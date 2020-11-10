@@ -10,10 +10,13 @@ from kf_lib_data_ingest.app.settings.base import (
 
 TARGET_API_CONFIG = TARGET_API_CONFIG
 
+KF_SC_TOKEN_CONFIG = {
+    "type": "token",
+    "token_location": "header",
+    "token": os.environ.get(SECRETS.KF_STUDY_CREATOR_API_TOKEN),
+}
+
 AUTH_CONFIGS = {
-    "https://kf-study-creator.kidsfirstdrc.org/download/study": {
-        "type": "token",
-        "token_location": "header",
-        "token": os.environ.get(SECRETS.KF_STUDY_CREATOR_API_TOKEN),
-    },
+    "https://kf-study-creator.kidsfirstdrc.org/download": KF_SC_TOKEN_CONFIG,
+    "https://kf-api-study-creator.kidsfirstdrc.org/download": KF_SC_TOKEN_CONFIG,
 }
