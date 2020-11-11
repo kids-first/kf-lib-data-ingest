@@ -63,14 +63,18 @@ def test_uid_cache(tmpdir):
 
     assert os.path.exists(a1.uid_cache_filepath)
 
-    a1._store_target_id_for_key("entity_type", "entity_unique_key", "target_id")
+    a1._store_target_id_for_key(
+        "entity_type", "entity_unique_key", "target_id", True
+    )
     assert (
         a1._get_target_id_from_key("entity_type", "entity_unique_key")
         == "target_id"
     )
 
     assert os.path.exists(a2.uid_cache_filepath)
-    a2._store_target_id_for_key("entity_type", "entity_unique_key", "target_id")
+    a2._store_target_id_for_key(
+        "entity_type", "entity_unique_key", "target_id", True
+    )
     assert (
         a2._get_target_id_from_key("entity_type", "entity_unique_key")
         == "target_id"
@@ -101,12 +105,16 @@ def test_uid_cache(tmpdir):
     assert os.path.exists(b1.uid_cache_filepath)
     assert os.path.exists(b2.uid_cache_filepath)
 
-    b1._store_target_id_for_key("entity type", "entity unique key", "target_id")
+    b1._store_target_id_for_key(
+        "entity type", "entity unique key", "target_id", True
+    )
     assert (
         b1._get_target_id_from_key("entity type", "entity unique key")
         == "target_id"
     )
-    b2._store_target_id_for_key("entity type", "entity_unique_key", "target id")
+    b2._store_target_id_for_key(
+        "entity type", "entity_unique_key", "target id", True
+    )
     assert (
         b2._get_target_id_from_key("entity type", "entity_unique_key")
         == "target id"
