@@ -183,7 +183,9 @@ class LoadStage(IngestStage):
         self._prime_uid_cache(entity_type)
         return self.uid_cache[entity_type].get(entity_key)
 
-    def _store_target_id_for_key(self, entity_type, entity_key, target_id):
+    def _store_target_id_for_key(
+        self, entity_type, entity_key, target_id, no_db
+    ):
         """
         Cache the relationship between a source unique key and its corresponding
         target service ID.
@@ -194,16 +196,19 @@ class LoadStage(IngestStage):
         :type entity_key: str
         :param target_id: target service ID for this entity
         :type target_id: str
+        :param no_db: only store in the RAM cache, not in the db
+        :type no_db: bool
         """
         self._prime_uid_cache(entity_type)
         if self.uid_cache[entity_type].get(entity_key) != target_id:
             self.uid_cache[entity_type][entity_key] = target_id
-            self.uid_cache_db.execute(
-                f'INSERT OR REPLACE INTO "{entity_type}"'
-                " (unique_id, target_id)"
-                " VALUES (?,?);",
-                (entity_key, target_id),
-            )
+            if not no_db:
+                self.uid_cache_db.execute(
+                    f'INSERT OR REPLACE INTO "{entity_type}"'
+                    " (unique_id, target_id)"
+                    " VALUES (?,?);",
+                    (entity_key, target_id),
+                )
 
     def _get_target_id_from_record(self, entity_class, record):
         """
@@ -287,6 +292,7 @@ class LoadStage(IngestStage):
             else:
                 req_method = "ADD"
                 id_str = f"({unique_key})"
+                target_id = id_str
 
             self.logger.debug(f"Request body preview:\n{pformat(body)}")
             done_msg = (
@@ -295,15 +301,14 @@ class LoadStage(IngestStage):
         else:
             # send to the target service
             target_id = self._do_target_submit(entity_class, body)
-
-            # cache source_ID:target_ID lookup
-            self._store_target_id_for_key(
-                entity_class.class_name, unique_key, target_id
-            )
-
             done_msg = (
                 f"Loaded {entity_class.class_name} {unique_key} --> {target_id}"
             )
+
+        # cache source_ID:target_ID lookup
+        self._store_target_id_for_key(
+            entity_class.class_name, unique_key, target_id, self.dry_run
+        )
 
         # log action
         with count_lock:

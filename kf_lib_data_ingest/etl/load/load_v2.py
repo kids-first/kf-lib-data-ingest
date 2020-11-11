@@ -58,7 +58,10 @@ class LoadStage(LoadV1):
                 tic = tic_list[0]
                 if tic and (tic != constants.COMMON.NOT_REPORTED):
                     self._store_target_id_for_key(
-                        entity_class.class_name, str(key_components), tic
+                        entity_class.class_name,
+                        str(key_components),
+                        tic,
+                        self.dry_run,
                     )
                     return tic
         except Exception:
