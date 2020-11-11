@@ -333,9 +333,9 @@ class Biospecimen:
     def get_key_components(cls, record, get_target_id_from_record):
         return {
             "external_aliquot_id": not_none(record[CONCEPT.BIOSPECIMEN.ID]),
-            "external_sample_id": record.get(
-                CONCEPT.BIOSPECIMEN_GROUP.ID,
-                not_none(record[CONCEPT.BIOSPECIMEN.ID]),
+            "external_sample_id": (
+                record.get(CONCEPT.BIOSPECIMEN_GROUP.ID)
+                or not_none(record[CONCEPT.BIOSPECIMEN.ID])
             ),
         }
 
@@ -495,13 +495,13 @@ class SequencingExperiment:
             "sequencing_center_id": not_none(
                 record[CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID]
             ),
-            "external_id": record.get(
-                CONCEPT.SEQUENCING.ID,
-                not_none(record[CONCEPT.SEQUENCING.LIBRARY_NAME]),
+            "external_id": (
+                record.get(CONCEPT.SEQUENCING.ID)
+                or not_none(record[CONCEPT.SEQUENCING.LIBRARY_NAME])
             ),
-            "library_name": record.get(
-                CONCEPT.SEQUENCING.LIBRARY_NAME,
-                not_none(record[CONCEPT.SEQUENCING.ID]),
+            "library_name": (
+                record.get(CONCEPT.SEQUENCING.LIBRARY_NAME)
+                or not_none(record[CONCEPT.SEQUENCING.ID])
             ),
         }
 
