@@ -11,9 +11,7 @@ from pprint import pformat
 from graph import Graph  # https://github.com/root-11/graph-theory
 from kf_lib_data_ingest.validation.hierarchy import get_full_hierarchy
 from kf_lib_data_ingest.validation.relations import REVERSE_TESTS, TESTS
-from kf_lib_data_ingest.validation.values import INPUT_VALIDATION
-
-NA = ""
+from kf_lib_data_ingest.validation.values import INPUT_VALIDATION, NA
 
 logger = logging.getLogger("DataValidator")
 

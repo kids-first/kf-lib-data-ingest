@@ -2,12 +2,15 @@ from dateutil.parser import parse as parsedate
 from kf_lib_data_ingest.common import constants
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
 
+NA = ""
+
 MIN_AGE_DAYS = 0
 # Max value chosen due to HIPAA de-identification standard
 # Using safe harbor guidelines
 # Equates to 90 years
 MAX_AGE_DAYS = 32872
 NULL_VALUES = {
+    NA,
     constants.COMMON.NOT_REPORTED,
     constants.COMMON.CANNOT_COLLECT,
     constants.COMMON.NOT_APPLICABLE,
@@ -29,7 +32,7 @@ def try_wrap(func):
 
     def inner(x):
         ret = True
-        if x is not None:
+        if x != NA:
             try:
                 ret = func(x)
             except Exception:
