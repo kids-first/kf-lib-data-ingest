@@ -51,13 +51,17 @@ def s3_file():
     """
     mock_s3().start()
     # Create bucket
+    location = "us-west-2"
     client = boto3.client(
         "s3",
-        region_name="eu-west-1",
+        region_name=location,
         aws_access_key_id="fake_access_key",
         aws_secret_access_key="fake_secret_key",
     )
-    client.create_bucket(Bucket=TEST_S3_BUCKET)
+    client.create_bucket(
+        Bucket=TEST_S3_BUCKET,
+        CreateBucketConfiguration={"LocationConstraint": location},
+    )
 
     # Upload file
     client.upload_file(
