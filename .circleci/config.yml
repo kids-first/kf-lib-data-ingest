@@ -3,44 +3,55 @@
 # Check https://circleci.com/docs/2.0/language-python/ for more details
 #
 version: 2
+
+test: &test
+  steps:
+    - checkout
+    - run: |
+        pip install -r dev-requirements.txt
+        pip install .
+        pytest tests --junit-xml test_output/junit.xml
+    - store_test_results:
+        path: test_output
+
 jobs:
-  build:
+  py37:
+    <<: *test
     docker:
-      # specify the version you desire here
-      # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
       - image: circleci/python:3.7
 
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
+  py38:
+    <<: *test
+    docker:
+      - image: circleci/python:3.8
 
-    working_directory: ~/repo
+  py39:
+    <<: *test
+    docker:
+      - image: circleci/python:3.9
 
+  lint:
+    docker:
+      - image: circleci/python:3.7
     steps:
       - checkout
+      - run: |
+          pip install black
+          black --check --line-length 80 kf_lib_data_ingest tests
+      - run: |
+          pip install flake8
+          flake8 --ignore=E501,W503,E203 kf_lib_data_ingest
+          flake8 --ignore=E501,W503,E203 tests
 
-      - run:
-          name: test package installation
-          command: |
-              python3 -m venv package_venv
-              . package_venv/bin/activate
-              pip install .
-              kidsfirst -h
-              rm -rf package_venv
-
-      - run:
-          name: build lib and docs
-          command: ./scripts/build.sh
-
-      - run:
-          name: run tests
-          command: ./scripts/test.sh
-
-      - store_artifacts:
-          path: test-reports
-          destination: test-reports
-
+  docs:
+    docker:
+      - image: circleci/python:3.7
+    steps:
+      - checkout
+      - run: |
+          pip install -r doc-requirements.txt
+          doc8 docs/source
+          make -C docs html
       - add_ssh_keys:
           fingerprints:
               - "64:fd:f9:62:bb:b3:48:56:a4:bb:17:9f:f8:e5:b8:7f"
@@ -50,3 +61,14 @@ jobs:
             if [ $CIRCLE_BRANCH == 'master' ]; then
                 ./scripts/deploy-ghpages.sh
             fi
+
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - py37
+      - py38
+      - py39
+      - lint
+      - docs
