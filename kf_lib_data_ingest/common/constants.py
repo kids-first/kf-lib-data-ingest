@@ -151,7 +151,7 @@ class SEQUENCING:
         class ASHION:
             NAME = "Ashion"
             KF_ID = "SC_0CNMF82N"
-            
+
         class BAYLOR:
             NAME = "Baylor College of Medicine"
             KF_ID = "SC_A1JNZAZH"
