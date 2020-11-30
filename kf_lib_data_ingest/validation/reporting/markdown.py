@@ -14,11 +14,11 @@ from kf_lib_data_ingest.validation.reporting.base import (
     NA,
     PASSED,
     RESULT_TO_EMOJI,
+    RESULTS_FILENAME,
     AbstractReportBuilder,
 )
 
 DEFAULT_REPORT_TITLE = "📓 Data Validation Report"
-RESULTS_FILENAME = "validation_results.md"
 REPLACE_PIPE = "."
 REL_TEST = "relationship"
 GAP_TEST = "gaps"
@@ -88,7 +88,7 @@ class MarkdownReportBuilder(AbstractReportBuilder):
         """
         Write markdown validation report file to disk
         """
-        output_path = os.path.join(self.output_dir, RESULTS_FILENAME)
+        output_path = os.path.join(self.output_dir, RESULTS_FILENAME + ".md")
         with open(output_path, "w") as md_file:
             md_file.write(content)
         return output_path
@@ -377,7 +377,7 @@ class MarkdownReportBuilder(AbstractReportBuilder):
 
         # Encapsulate table in collapsible section if we have too many rows
         if len(df) >= ROW_LIMIT:
-            output.append("<details>")
+            output.append('<details markdown="1">')
             output.append("<summary><b>Click to expand table</b></summary>")
             output.append("")
             output.append(f"{md_table}")

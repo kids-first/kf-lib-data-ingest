@@ -1,20 +1,25 @@
+import logging
 import os
 import sys
-import logging
 
-from kf_lib_data_ingest.common.type_safety import assert_safe_type
 from kf_lib_data_ingest.common.io import read_df, write_json
+from kf_lib_data_ingest.common.type_safety import assert_safe_type
 from kf_lib_data_ingest.validation.data_validator import (
     Validator as DataValidator,
 )
-from kf_lib_data_ingest.validation.reporting.table import TableReportBuilder
+from kf_lib_data_ingest.validation.reporting.html import HtmlReportBuilder
 from kf_lib_data_ingest.validation.reporting.markdown import (
     MarkdownReportBuilder,
 )
+from kf_lib_data_ingest.validation.reporting.table import TableReportBuilder
 
 VALIDATION_OUTPUT_DIR = "validation_results"
 RESULTS_FILENAME = "validation_results.json"
-REPORT_BUILDERS = {"tsv": TableReportBuilder, "md": MarkdownReportBuilder}
+REPORT_BUILDERS = {
+    "tsv": TableReportBuilder,
+    "md": MarkdownReportBuilder,
+    "html": HtmlReportBuilder,
+}
 
 
 def check_results(results):

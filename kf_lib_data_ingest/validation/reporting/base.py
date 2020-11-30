@@ -1,17 +1,17 @@
 """
 Abstract base class for validation report builders
 """
-import os
 import logging
+import os
 from abc import ABC, abstractmethod
 from pprint import pformat
-
 
 SAMPLE_VALIDATION_RESULTS = os.path.abspath("./sample_validation_results.py")
 PASSED = "success"
 FAILED = "fail"
 NA = "did not run"
 RESULT_TO_EMOJI = {PASSED: "✅", FAILED: "❌", NA: "🔘"}
+RESULTS_FILENAME = "validation_results"
 
 
 class AbstractReportBuilder(ABC):
