@@ -19,7 +19,7 @@ from kf_lib_data_ingest.common.pandas_utils import (  # noqa: F401
     get_col,
     safe_pandas_replace,
 )
-from kf_lib_data_ingest.common.type_safety import assert_safe_type, function
+from kf_lib_data_ingest.common.type_safety import assert_safe_type
 
 
 def df_map(m):
@@ -35,7 +35,7 @@ def df_map(m):
     :param m: A function to apply to a DataFrame
     :return: A function that applies the specified m operation
     """
-    assert_safe_type(m, function)
+    assert_safe_type(m, callable)
 
     def df_map_func(df):
         new_df = m(df.copy())
@@ -77,11 +77,11 @@ def value_map(m, in_col, out_col):
     populate
     :return: A function that applies the specified m operation
     """
-    assert_safe_type(m, function, dict, str)
+    assert_safe_type(m, callable, dict, str)
 
     def value_map_func(df):
         new_df = DataFrame()
-        if function(m):
+        if callable(m):
             new_df[out_col] = get_col(df, in_col).apply(m)
         elif isinstance(m, str):
             new_df[out_col] = safe_pandas_replace(
@@ -107,7 +107,7 @@ def row_map(m, out_col):
         populate
     :return: A function that applies the specified m operation
     """
-    assert_safe_type(m, function)
+    assert_safe_type(m, callable)
 
     def row_map_func(df):
         new_df = DataFrame()
@@ -153,7 +153,7 @@ def column_map(m, in_col, out_col):
         populate
     :return: A function that applies the specified m operation
     """
-    assert_safe_type(m, function)
+    assert_safe_type(m, callable)
 
     def column_map_func(df):
         new_df = DataFrame()
@@ -192,7 +192,7 @@ def melt_map(var_name, map_for_vars, value_name, map_for_values):
         value_map operation
     """
     assert_safe_type(map_for_vars, dict)
-    assert_safe_type(map_for_values, dict, function)
+    assert_safe_type(map_for_values, dict, callable)
 
     def melt_map_func(df):
         new_df = DataFrame()

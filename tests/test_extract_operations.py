@@ -55,7 +55,7 @@ def test_df_map():
     Test that df_map returns a df and doesn't modify the original.
     """
     # tests passing allowed and disallowed types
-    _test_map_allowed_types(operations.df_map, {function})
+    _test_map_allowed_types(operations.df_map, {function, callable})
 
     # verify that df_map doesn't modify the original df
     func = operations.df_map(lambda df: df)
@@ -90,7 +90,7 @@ def test_value_map():
     # tests passing allowed and disallowed types
     _test_map_allowed_types(
         operations.value_map,
-        {function, dict, str},
+        {function, callable, dict, str},
         in_col="COL_A",
         out_col="OUT_COL",
     )
@@ -118,7 +118,9 @@ def test_value_map():
 
 def test_row_map():
     # tests passing allowed and disallowed types
-    _test_map_allowed_types(operations.row_map, {function}, out_col="OUT_COL")
+    _test_map_allowed_types(
+        operations.row_map, {function, callable}, out_col="OUT_COL"
+    )
 
     func = operations.row_map(lambda row: 5, "OUT_COL")
     assert func(df).equals(pandas.DataFrame({"OUT_COL": [5, 5, 5]}))
@@ -145,7 +147,10 @@ def test_constant_map():
 def test_column_map():
     # tests passing allowed and disallowed types
     _test_map_allowed_types(
-        operations.column_map, {function}, in_col="COL_A", out_col="OUT_COL"
+        operations.column_map,
+        {function, callable},
+        in_col="COL_A",
+        out_col="OUT_COL",
     )
 
     in_df = bigger_df.copy()
@@ -167,7 +172,7 @@ def test_melt_map():
     # tests passing allowed and disallowed types
     for k, v in type_exemplars:
         for j, w in type_exemplars:
-            if (v not in {dict}) or (w not in {dict, function}):
+            if (v not in {dict}) or (w not in {dict, function, callable}):
                 with pytest.raises(TypeError):
                     operations.melt_map("VAR_COL", k, "VAL_COL", j)
             else:

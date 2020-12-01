@@ -5,8 +5,8 @@ Values Embedded in Other Values
 Scenario
 ========
 
-You have a column of file names that super secretly also contain other values
-like specimen ID and sequencing library.
+You have a column of file names that secretly also contain other values like
+specimen ID and sequencing library.
 
 .. csv-table::
     :header: "File Name"

@@ -13,6 +13,8 @@ If you will be developing ingest packages for Kids First study datasets,
 then this section will also explain where source data files should live
 (not on your computer!) and how to access them.
 
+.. _Tutorial-App-Settings:
+
 App Settings
 ============
 

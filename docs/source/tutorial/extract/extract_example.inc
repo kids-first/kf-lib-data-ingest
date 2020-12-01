@@ -14,28 +14,23 @@ Here's an example source data file:
 -----------------------------------
 
 .. csv-table:: family_and_phenotype.tsv
+    :header-rows: 2
     :delim: tab
-    :url: https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/master/docs/data/family_and_phenotype.tsv
+    :file: ../../../data/family_and_phenotype.tsv
 
-You can `download/copy this file
-<https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/master/docs/data/family_and_phenotype.tsv>`_
-if you want to view it directly or test local data file loading instead of
-remote as you go through this tutorial.
-
-In order to ingest this data into the Kids First ecosystem, we need to:
------------------------------------------------------------------------
+In order to ingest this data into the Kids First ecosystem, we will need to:
+----------------------------------------------------------------------------
 
 * Ignore everything marked with [ignore], meaning our table actually starts at
   the second row and second column
-* Convert the column headers into a standardized set of conepts that the
+* Convert the column headers into a standardized set of concepts that the
   toolchain can understand. The values are defined in the Standard Concept
   Schema located in
   ``kf_lib_data_ingest.common.concept_schema.CONCEPT``
 * Unify the formats of the participant IDs and the mother/father IDs
 * Convert the M and F in the gender column to standardized values for
-  Male/Female, because we want to use standard constant codes wherever
-  possible. Our constants are located in
-  ``kf_lib_data_ingest.common.constants``
+  Male/Female found in ``kf_lib_data_ingest.common.constants``, because we want
+  to use standard constant codes wherever possible.
 * Split delimited specimens apart into their own rows
 * Convert age (hrs) to age in days
 * Reshape the CLEFT_EGO, CLEFT_ID, and EXTRA_EARDRUM columns into observation
@@ -50,12 +45,13 @@ The following extract configuration file accomplishes all of those needs
 .. literalinclude:: family_and_phenotype.py
    :caption: family_and_phenotype.py
 
-It goes in the extract_configs directory like this::
+First, download :download:`family_and_phenotype.py<family_and_phenotype.py>`
+and put it in the extract_configs directory like this::
 
     my_study/
-    ├── data
-    └── extract_configs
-        └── family_and_phenotype.py
+    └── ingest_package_1/
+        └── extract_configs/
+           └── family_and_phenotype.py
 
 Now let's break down how it works...
 
@@ -70,8 +66,9 @@ Imports!
     from kf_lib_data_ingest.common.pandas_utils import Split
     from kf_lib_data_ingest.etl.extract.operations import *
 
-It's a Python module! Cool! That lets us do all kinds of neat stuff like
-import predefined constants and functions.
+It's a Python module! Cool! That lets us do all kinds of neat stuff like import
+predefined constants and functions and use arbitrarily complex function code to
+process our data.
 
 .. _Fetching-the-Data:
 
@@ -89,8 +86,8 @@ fetch it.
 Supported protocol prefixes are:
 ``file://``, ``s3://``, ``http://``, ``https://``
 
-For files stored by the Kids First Study Creator, see the
-:ref:`Tutorial-Study-Creator` tutorial.
+For files stored by the Kids First Data Tracker, see the
+":ref:`Tutorial-Study-Creator`" tutorial.
 
 If you downloaded the test data file and want to load your local copy instead
 of from a remote server, you would use:
@@ -111,14 +108,15 @@ Reading the file
 
 Extract tries to automatically pick the right pandas file reader for the given
 file extension (read_json for json files, read_csv for csv/tsv, read_excel for
-excel files). To pass keyword arguments to the chosen file reader, we define a
-dict called ``source_data_read_params`` which corresponds with the
-Python pandas IO parameters described in
+excel files), but sometimes the reader needs guidance from input parameters. To
+pass keyword parameters to the file reader, we define a dict called
+``source_data_read_params`` which corresponds with the Python pandas IO
+parameters described in
 http://pandas.pydata.org/pandas-docs/stable/user_guide/io.html
 
 The example data file contains tab-separated values (hence the filename ending
-with ".tsv") with a non-standard layout where we need to ignore the first row.
-For demonstration purposes we're also ignoring the first column.
+with ".tsv") with a non-standard layout where we need to ignore the first row
+and the first column.
 
 If the data had had the simplest layout (the column headers being on the first
 row, etc), then it would get loaded correctly by default without needing any

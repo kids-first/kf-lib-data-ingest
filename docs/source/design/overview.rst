@@ -42,5 +42,6 @@ described.
    value_principles
    extract_mapping
    transform
-   warehousing
    load
+   warehousing
+   logs

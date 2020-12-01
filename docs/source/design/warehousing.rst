@@ -36,9 +36,20 @@ The technical requirements for warehousing are:
 Local Environment Configuration
 ===============================
 
-In your local environment, set a variable called ``KF_WAREHOUSE_DB_URL``
-containing a complete login URL, including username and password if needed,
-that can be used for calling ``CREATE DATABASE`` on the server, like this::
+In your local environment, set a variable named according to the definition of
+``SECRETS.WAREHOUSE_DB_URL`` in the :ref:`application settings
+configuration<Tutorial-App-Settings>` to equal a complete login URL, including
+username and password if needed, that can be used for calling ``CREATE
+DATABASE`` on the server.
+
+As shown here from ``app/settings/base.py``, the variable is named
+``KF_WAREHOUSE_DB_URL`` by default.
+
+.. literalinclude:: ../../../kf_lib_data_ingest/app/settings/base.py
+  :pyobject: SECRETS
+  :emphasize-lines: 4
+
+So we would set ``KF_WAREHOUSE_DB_URL`` in our shell environment::
 
     export KF_WAREHOUSE_DB_URL=postgresql://<username>:<password>@<address>:<port>/postgres
 
@@ -51,12 +62,14 @@ If this variable is set, the ingest system will use the designated server as a
 central warehouse. If this environment variable is not set, then it will skip
 warehousing.
 
-CLI Temporary Disabling
-=======================
+.. _DisablingWarehousing:
 
-If you don't want to use the warehouse during a run for any reason, the
-``--no_warehouse`` command line argument will make the system treat the
-``KF_WAREHOUSE_DB_URL`` environment variable as not set.
+Temporarily Disabling Warehousing
+=================================
+
+If for any reason you don't want to use the warehouse during a run (for example
+if you're just testing), the ``--no_warehouse`` command line argument will skip
+the warehousing steps.
 
 Storage Layout
 ==============

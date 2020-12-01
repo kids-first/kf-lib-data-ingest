@@ -25,5 +25,6 @@ do:
     )
 
 Keep in mind that ``in_col`` arguments in the :ref:`operations list
-<Extract-Mapping>` can only read from the primary source data file referenced
-by :ref:`source_data_url<Fetching-the-Data>`.
+<Extract-Mapping>` can only read from either the primary source data file
+referenced by :ref:`source_data_url<Fetching-the-Data>` or the DataFrame
+returned by the :ref:`do_after_read<Extract-Preprocessing>` function.

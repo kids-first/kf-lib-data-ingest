@@ -10,7 +10,5 @@ python setup.py install_egg_info
 pip install -e .
 pip install -r doc-requirements.txt
 
-cd docs
-doc8 source
-make html
-cd -
+doc8 docs/source
+make -C docs html
