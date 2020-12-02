@@ -5,15 +5,16 @@ Produces a human friendly markdown based validation report
 Extends kf_lib_data_ingest.validation.reporting.base.AbstractReportBuilder
 """
 import os
+import re
 from collections import defaultdict
-import pandas
 
+import pandas
 from kf_lib_data_ingest.validation.reporting.base import (
-    AbstractReportBuilder,
-    RESULT_TO_EMOJI,
-    PASSED,
     FAILED,
     NA,
+    PASSED,
+    RESULT_TO_EMOJI,
+    AbstractReportBuilder,
 )
 
 DEFAULT_REPORT_TITLE = "📓 Data Validation Report"
@@ -24,6 +25,23 @@ GAP_TEST = "gaps"
 ATTR_TEST = "attribute"
 COUNT_TEST = "count"
 ROW_LIMIT = 20
+
+
+def md_clean(val, not_inside_backticks=False):
+    if isinstance(val, str):
+        if not_inside_backticks:
+            backtick_groups = re.split("`", val)
+            if len(backtick_groups) == 1:
+                return md_clean(val)
+            for i, v in list(enumerate(backtick_groups))[::2]:
+                backtick_groups[i] = md_clean(v)
+            return "`".join(backtick_groups)
+        else:
+            return re.sub(r"([\\\`\*\_\{\}\[\]\(\)\#\+\-\.\!])", r"\\\1", val)
+    elif isinstance(val, list):
+        return [md_clean(v, not_inside_backticks) for v in val]
+    else:
+        return val
 
 
 class MarkdownReportBuilder(AbstractReportBuilder):
@@ -52,7 +70,7 @@ class MarkdownReportBuilder(AbstractReportBuilder):
         output.append(f"# {title}")
         output.append("## 📂 Files Validated")
         output.append(self._files_md(results))
-        output.append("\n##  #️⃣  Counts")
+        output.append("\n## #️⃣ Counts")
         output.append(self._counts_md(results))
         output.append("\n## 🚦 Relationship Tests")
         output.append(self._tests_section_md(results, REL_TEST))
@@ -84,10 +102,17 @@ class MarkdownReportBuilder(AbstractReportBuilder):
 
         :returns: markdown formatted str
         """
-        header = (
-            f"{RESULT_TO_EMOJI.get(self._result_code(result_dict))} "
-            f'{result_dict["description"]}'
-        ).replace("|", REPLACE_PIPE)
+        header = md_clean(
+            re.sub(
+                r"'(.*?)'",
+                r'`"\1"`',
+                (
+                    f"{RESULT_TO_EMOJI.get(self._result_code(result_dict))} "
+                    f'{result_dict["description"]}'
+                ),
+            ).replace("|", REPLACE_PIPE),
+            True,
+        )
 
         # Make test header stand out for tests that ran
         if result_dict["is_applicable"]:
@@ -153,12 +178,16 @@ class MarkdownReportBuilder(AbstractReportBuilder):
         Convert single test result dict into markdown formatted text
         """
 
-        def _style(val):
+        def _style(val, with_quotes=False):
             """
             Style string val to make it stand out in a markdown doc
             Replace | char with .
             """
-            return f'`{str(val).replace("|", REPLACE_PIPE)}`'
+            valstr = str(val).replace("|", REPLACE_PIPE)
+            if with_quotes:
+                return f'`"{valstr}"`'
+            else:
+                return f"`{valstr}`"
 
         def tuple_to_str(t):
             """
@@ -185,7 +214,7 @@ class MarkdownReportBuilder(AbstractReportBuilder):
                 else:
                     suffix = f"0 {_style(rd['inputs']['to'])}"
 
-                errors.append({"Errors": f"{prefix} {suffix}"})
+                errors.append({"Errors": md_clean(f"{prefix} {suffix}", True)})
             return errors
 
         def _format_locations(result_dict, include_node_type=False):
@@ -203,7 +232,7 @@ class MarkdownReportBuilder(AbstractReportBuilder):
                             val = tuple_to_str((typ, val))
                         else:
                             val = _style(val)
-                        locs[f].add(val)
+                        locs[f].add(md_clean(val, True))
 
             loc_rows = []
             for loc, vals in locs.items():
@@ -215,7 +244,10 @@ class MarkdownReportBuilder(AbstractReportBuilder):
                 else:
                     val_str = ",".join(sorted(vals))
                 loc_rows.append(
-                    {"Locations": os.path.basename(loc), "Values": val_str}
+                    {
+                        "Locations": md_clean(os.path.basename(loc)),
+                        "Values": val_str,
+                    }
                 )
             return loc_rows
 
@@ -242,14 +274,21 @@ class MarkdownReportBuilder(AbstractReportBuilder):
                     pandas.DataFrame(
                         [
                             {
-                                "Locations": os.path.basename(file_path),
-                                "Bad Values": ",".join(
-                                    sorted([_style(v) for v in bad_vals])
+                                "Locations": md_clean(
+                                    os.path.basename(file_path)
+                                ),
+                                "Bad Values": md_clean(
+                                    ",".join(
+                                        sorted(
+                                            [_style(v, True) for v in bad_vals]
+                                        )
+                                    ),
+                                    True,
                                 ),
                             }
                             for file_path, bad_vals in rd["errors"].items()
                         ]
-                    ),
+                    )
                 )
             )
         elif test_type == GAP_TEST:
@@ -258,7 +297,7 @@ class MarkdownReportBuilder(AbstractReportBuilder):
                 self._df_to_markdown(
                     pandas.DataFrame(
                         _format_errors(rd, include_node_type=True)
-                    ).sort_values(by="Errors"),
+                    ).sort_values(by="Errors")
                 )
             )
             # File locations
@@ -266,7 +305,7 @@ class MarkdownReportBuilder(AbstractReportBuilder):
                 self._df_to_markdown(
                     pandas.DataFrame(
                         _format_locations(rd, include_node_type=True)
-                    ).sort_values(by="Locations"),
+                    ).sort_values(by="Locations")
                 )
             )
 
@@ -296,7 +335,7 @@ class MarkdownReportBuilder(AbstractReportBuilder):
 
             test_markdown.append(
                 self._df_to_markdown(
-                    pandas.DataFrame(error_rows).sort_values(by="Errors"),
+                    pandas.DataFrame(error_rows).sort_values(by="Errors")
                 )
             )
 
@@ -313,13 +352,13 @@ class MarkdownReportBuilder(AbstractReportBuilder):
 
             test_markdown.append(
                 self._df_to_markdown(
-                    pandas.DataFrame(location_rows).sort_values(by="Locations"),
+                    pandas.DataFrame(location_rows).sort_values(by="Locations")
                 )
             )
 
         return "\n".join(test_markdown)
 
-    def _df_to_markdown(self, df, **to_markdown_kwargs):
+    def _df_to_markdown(self, df):
         """
         Transform pandas.DataFrame into markdown text. If number of DataFrame
         rows is >= ROW_LIMIT, encapsulate the table in a collapsible markdown
@@ -329,18 +368,12 @@ class MarkdownReportBuilder(AbstractReportBuilder):
         :param table_name: optional name of table to include in collapsible
         summary
         :type table_name: str,
-        :param to_markdown_kwargs: Keyword args forwarded to
-        pandas.DataFrame.to_markdown
-        :type to_markdown_kwargs: dict
-
         :returns: markdown formatted string
         """
         output = []
 
         # DataFrame to markdown table
-        if "index" not in to_markdown_kwargs:
-            to_markdown_kwargs["index"] = False
-        md_table = df.to_markdown(**to_markdown_kwargs)
+        md_table = df.to_markdown(index=False)
 
         # Encapsulate table in collapsible section if we have too many rows
         if len(df) >= ROW_LIMIT:
@@ -374,7 +407,8 @@ class MarkdownReportBuilder(AbstractReportBuilder):
                 ]
             )
             .replace(r"\|", REPLACE_PIPE, regex=True)
-            .sort_values(by="Count", ascending=False),
+            .sort_values(by="Count", ascending=False)
+            .applymap(md_clean)
         )
 
     def _files_md(self, results):
@@ -397,12 +431,10 @@ class MarkdownReportBuilder(AbstractReportBuilder):
         for d, file_names in files.items():
             output.append("<br>")
             output.append("")
-            output.append(f"**{d}**")
+            output.append(f"**{md_clean(d)}**")
             output.append(
                 self._df_to_markdown(
-                    pandas.DataFrame(
-                        [{"Files": fn} for fn in file_names]
-                    ).sort_values(by="Files"),
+                    pandas.DataFrame({"Files": md_clean(sorted(file_names))})
                 )
             )
             output.append("")
