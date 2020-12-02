@@ -15,10 +15,11 @@ import os
 from collections import defaultdict
 
 import pandas
+from kf_lib_data_ingest.validation.reporting.base import (
+    RESULTS_FILENAME,
+    AbstractReportBuilder,
+)
 
-from kf_lib_data_ingest.validation.reporting.base import AbstractReportBuilder
-
-RESULTS_FILENAME = "validation_results.tsv"
 TYPE_COUNTS_FILENAME = "type_counts.tsv"
 FILES_VALIDATED_FILENAME = "files_validated.tsv"
 
@@ -58,7 +59,7 @@ class TableReportBuilder(AbstractReportBuilder):
                         "details",
                     ]
                 ],
-                RESULTS_FILENAME,
+                RESULTS_FILENAME + ".tsv",
             )
         )
         # Type counts table
