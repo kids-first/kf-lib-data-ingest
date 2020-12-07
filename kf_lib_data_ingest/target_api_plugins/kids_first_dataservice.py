@@ -115,6 +115,7 @@ class Family:
     @classmethod
     def get_key_components(cls, record, get_target_id_from_record):
         return {
+            "study_id": not_none(record[CONCEPT.STUDY.TARGET_SERVICE_ID]),
             "external_id": not_none(record[CONCEPT.FAMILY.ID]),
         }
 
@@ -332,6 +333,9 @@ class Biospecimen:
     @classmethod
     def get_key_components(cls, record, get_target_id_from_record):
         return {
+            "participant_id": not_none(
+                get_target_id_from_record(Participant, record)
+            ),
             "external_aliquot_id": not_none(record[CONCEPT.BIOSPECIMEN.ID]),
             "external_sample_id": (
                 record.get(CONCEPT.BIOSPECIMEN_GROUP.ID)
@@ -347,7 +351,6 @@ class Biospecimen:
     def build_entity(cls, record, get_target_id_from_record):
         secondary_components = {
             "kf_id": get_target_id_from_record(cls, record),
-            "participant_id": get_target_id_from_record(Participant, record),
             "sequencing_center_id": record.get(
                 CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID
             ),
@@ -406,7 +409,10 @@ class GenomicFile:
     @classmethod
     def get_key_components(cls, record, get_target_id_from_record):
         # FIXME: Temporary until KFDRC file hashes are reliably stable
-        return {"external_id": not_none(record[CONCEPT.GENOMIC_FILE.ID])}
+        return {
+            "study_id": not_none(record[CONCEPT.STUDY.TARGET_SERVICE_ID]),
+            "external_id": not_none(record[CONCEPT.GENOMIC_FILE.ID]),
+        }
 
     @classmethod
     def query_target_ids(cls, host, key_components):
@@ -457,6 +463,7 @@ class ReadGroup:
     @classmethod
     def get_key_components(cls, record, get_target_id_from_record):
         return {
+            "study_id": not_none(record[CONCEPT.STUDY.TARGET_SERVICE_ID]),
             "external_id": record.get(CONCEPT.READ_GROUP.ID),
             "flow_cell": not_none(record[CONCEPT.READ_GROUP.FLOW_CELL]),
             "lane_number": not_none(record[CONCEPT.READ_GROUP.LANE_NUMBER]),
