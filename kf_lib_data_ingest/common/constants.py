@@ -112,6 +112,7 @@ class GENOMIC_FILE:
         SVS = "svs"
         TBI = "tbi"
         VCF = "vcf"
+        HTML = "html"
 
 
 class READ_GROUP:
