@@ -157,7 +157,7 @@ class SEQUENCING:
             NAME = "Baylor College of Medicine"
             KF_ID = "SC_A1JNZAZH"
 
-        class BC_CANCER_ANGECY:
+        class BC_CANCER_AGENCY:
             NAME = "British Columbia Cancer Agency Genome Sciences Centre"
             KF_ID = "SC_FN7NH453"
 
