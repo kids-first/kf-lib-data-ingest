@@ -856,7 +856,8 @@ def coerce_types(host, entity_class, body):
 
     ret = {}
     for k, v in body.items():
-        if properties[k].get("readOnly"):  # e.g. modified_at/created_at
+        if (k not in properties) or properties[k].get("readOnly"):
+            # e.g. modified_at/created_at
             continue
         elif (v is None) or (v == ""):
             if properties[k]["type"] == "string":
