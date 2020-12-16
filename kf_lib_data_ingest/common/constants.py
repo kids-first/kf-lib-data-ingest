@@ -58,6 +58,7 @@ class SPECIMEN:
         BLOOD_DRAW = "Blood Draw"
         SUBTOTAL_RESECTION = "Subtotal Resection"
         TOTAL_RESECTION = "Gross Total Resection"
+        BONE_MARROW_ASPIRATION = "Bone Marrow Aspiration"
 
     class ANATOMY_SITE:
         BONE_MARROW = "Bone Marrow"
