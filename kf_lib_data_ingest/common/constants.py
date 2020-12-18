@@ -214,6 +214,10 @@ class SEQUENCING:
             NAME = "National Cancer Institute, Khan Lab"
             KF_ID = "SC_F6RZ51K9"
 
+        class SICKKIDS:
+            NAME = "SickKids"
+            KF_ID = "SC_9WMJKQ1X"
+
         class SIDRA:
             NAME = "Genomic Clinical Core at Sidra Medical and Research Center"
             KF_ID = "SC_KE2ASNJM"
