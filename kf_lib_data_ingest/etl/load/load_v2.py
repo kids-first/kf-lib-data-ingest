@@ -7,10 +7,18 @@ specification, and then sends those messages to the target server.
 from pprint import pformat
 
 from kf_lib_data_ingest.common import constants
-from kf_lib_data_ingest.etl.load.load_v1 import LoadStage as LoadV1
+from kf_lib_data_ingest.etl.load.load_v1 import LoadStage as LoadBase
 
 
-class LoadStage(LoadV1):
+class LoadStage(LoadBase):
+    def __init__(self, *args, query_url="", **kwargs):
+        """
+        :param query_url: Alternative API query URL instead of asking the load target
+        :type query_url: str, optional
+        """
+        super().__init__(*args, **kwargs)
+        self.query_url = query_url
+
     def _get_target_id_from_record(self, entity_class, record):
         """
         Find the target service ID for the given record and entity class.
@@ -40,11 +48,11 @@ class LoadStage(LoadV1):
             return tic
 
         # check the server
-        if self.dry_run:
+        if self.dry_run and not self.query_url:
             return None
         try:
             tic_list = entity_class.query_target_ids(
-                self.target_url, key_components
+                self.query_url or self.target_url, key_components
             )
             if tic_list:
                 if len(tic_list) > 1:
