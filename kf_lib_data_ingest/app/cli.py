@@ -57,12 +57,28 @@ def common_args_options(func):
         type=click.Path(exists=True, file_okay=True, dir_okay=True),
     )(func)
 
+    func = click.option(
+        "-q",
+        "--query_url",
+        default="",
+        help=(
+            "Service URL that unique identifiers will be queried from during"
+            " loading if not in the local cache (defaults to the load"
+            " target URL)."
+        ),
+    )(func)
+
     # Clear the UID cache
     func = click.option(
         "--clear_cache",
         default=False,
         is_flag=True,
-        help="Clear the identifier cache before loading into the target service.",
+        help=(
+            "Clear the local identifier cache before loading into the target"
+            " service. This should always be safe unless it's the only location"
+            " where the target identifiers are stored (i.e. they've been"
+            " temporarily erased from the target service)."
+        ),
     )(func)
 
     # Disable warehousing
@@ -86,7 +102,10 @@ def common_args_options(func):
         default=False,
         is_flag=True,
         help=(
-            "Load into the target service using faster asynchronous requests."
+            "Load into the target service using multiple asynchronous requests"
+            " at a time instead of only one request at a time."
+            " This is potentially much faster, but consequently puts much more"
+            " strain on the target service."
         ),
     )(func)
 
@@ -195,6 +214,7 @@ def ingest(
     no_validate,
     validation_mode,
     clear_cache,
+    query_url,
 ):
     """
     Run the Kids First data ingest pipeline.
@@ -262,6 +282,7 @@ def test(
     no_validate,
     validation_mode,
     clear_cache,
+    query_url,
 ):
     """
     Run the Kids First data ingest pipeline in dry_run mode (--dry_run=True)

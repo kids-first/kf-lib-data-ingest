@@ -63,6 +63,7 @@ class DataIngestPipeline(object):
         db_url_env_key=None,
         validation_mode=None,
         clear_cache=False,
+        query_url="",
     ):
         """
         Set up data ingest pipeline. Create the config object and logger
@@ -89,6 +90,8 @@ class DataIngestPipeline(object):
             defaults to False. Equivalent to deleting the file manually. Ignored
             when using resume_from, because that needs the cache to be effective.
         :type clear_cache: bool, optional
+        :param query_url: Alternative API query URL instead of asking the load target
+        :type query_url: str, optional
         """
 
         assert_safe_type(ingest_package_config_path, str)
@@ -104,6 +107,7 @@ class DataIngestPipeline(object):
         assert_safe_type(db_url_env_key, None, str)
         assert_safe_type(validation_mode, None, str)
         assert_safe_type(clear_cache, bool)
+        assert_safe_type(query_url, str)
         stages_to_run_str = stages_to_run_str.lower()
         self._validate_stages_to_run_str(stages_to_run_str)
 
@@ -127,6 +131,7 @@ class DataIngestPipeline(object):
         self.warehouse_db_url = os.environ.get(db_url_env_key or "")
         self.validation_mode = validation_mode
         self.clear_cache = clear_cache
+        self.query_url = query_url
 
         # Get log params from ingest_package_config
         log_dir = log_dir or self.data_ingest_config.log_dir
@@ -226,6 +231,7 @@ class DataIngestPipeline(object):
             dry_run=self.dry_run,
             resume_from=self.resume_from,
             clear_cache=self.clear_cache,
+            query_url=self.query_url,
         )
 
     def run(self):
