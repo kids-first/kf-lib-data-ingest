@@ -54,7 +54,7 @@ def http_get_file(url, dest_obj, **kwargs):
             success_msg += f" with original file name {filename}"
         else:
             # Header did not provide filename
-            logging.warning(
+            logger.warning(
                 f"{url} returned unhelpful or missing "
                 "Content-Disposition header "
                 f"{content_disposition}. "
