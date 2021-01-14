@@ -114,6 +114,7 @@ class GENOMIC_FILE:
         TBI = "tbi"
         VCF = "vcf"
         HTML = "html"
+        MAF = "maf"
 
 
 class READ_GROUP:
