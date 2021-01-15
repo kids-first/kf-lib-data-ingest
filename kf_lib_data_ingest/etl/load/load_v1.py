@@ -6,15 +6,12 @@ specification, and then sends those messages to the target server.
 """
 import concurrent.futures
 import json
-import logging
 import os
+import sqlite3
 from collections import defaultdict
 from pprint import pformat
 from threading import Lock, current_thread, main_thread
 from urllib.parse import urlparse
-
-from pandas import DataFrame
-from sqlite3worker import Sqlite3Worker, sqlite3worker
 
 from kf_lib_data_ingest.common import constants
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
@@ -32,9 +29,10 @@ from kf_lib_data_ingest.etl.configuration.base_config import (
 from kf_lib_data_ingest.etl.configuration.target_api_config import (
     TargetAPIConfig,
 )
+from pandas import DataFrame
 
-sqlite3worker.LOGGER.setLevel(logging.WARNING)
 count_lock = Lock()
+cache_lock = Lock()
 
 
 class LoadStage(IngestStage):
@@ -110,7 +108,11 @@ class LoadStage(IngestStage):
 
         # Two-stage (RAM + disk) cache
         self.uid_cache = defaultdict(dict)
-        self.uid_cache_db = Sqlite3Worker(self.uid_cache_filepath)
+        self.uid_cache_db = sqlite3.connect(
+            self.uid_cache_filepath,
+            isolation_level=None,
+            check_same_thread=False,
+        )
 
     def _validate_entities(self, entities_to_load, msg):
         """
@@ -180,8 +182,9 @@ class LoadStage(IngestStage):
         :param entity_key: source unique key for this entity
         :type entity_key: str
         """
-        self._prime_uid_cache(entity_type)
-        return self.uid_cache[entity_type].get(entity_key)
+        with cache_lock:
+            self._prime_uid_cache(entity_type)
+            return self.uid_cache[entity_type].get(entity_key)
 
     def _store_target_id_for_key(
         self, entity_type, entity_key, target_id, no_db
@@ -199,16 +202,17 @@ class LoadStage(IngestStage):
         :param no_db: only store in the RAM cache, not in the db
         :type no_db: bool
         """
-        self._prime_uid_cache(entity_type)
-        if self.uid_cache[entity_type].get(entity_key) != target_id:
-            self.uid_cache[entity_type][entity_key] = target_id
-            if not no_db:
-                self.uid_cache_db.execute(
-                    f'INSERT OR REPLACE INTO "{entity_type}"'
-                    " (unique_id, target_id)"
-                    " VALUES (?,?);",
-                    (entity_key, target_id),
-                )
+        with cache_lock:
+            self._prime_uid_cache(entity_type)
+            if self.uid_cache[entity_type].get(entity_key) != target_id:
+                self.uid_cache[entity_type][entity_key] = target_id
+                if not no_db:
+                    self.uid_cache_db.execute(
+                        f'INSERT OR REPLACE INTO "{entity_type}"'
+                        " (unique_id, target_id)"
+                        " VALUES (?,?);",
+                        (entity_key, target_id),
+                    )
 
     def _get_target_id_from_record(self, entity_class, record):
         """
