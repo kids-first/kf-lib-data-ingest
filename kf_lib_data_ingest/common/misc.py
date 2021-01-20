@@ -205,7 +205,7 @@ def clean_up_df(df):
 
     return df.applymap(
         lambda x: convert_to_downcasted_str(x, replace_na=True, na=None)
-    )
+    ).drop_duplicates()
 
 
 def obj_attrs_to_dict(cls):
