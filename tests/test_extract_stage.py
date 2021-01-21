@@ -60,6 +60,14 @@ def rectify_cols_and_datatypes(A, B):
     )
 
 
+def test_empty_read():
+    """complain if we read an empty DF"""
+    es = ExtractStage("", os.path.join(study_1, "extract_configs"))
+    es.extract_configs[0].do_after_read = lambda x: pandas.DataFrame()
+    with pytest.raises(ConfigValidationError):
+        es.run()
+
+
 def test_extracts():
     for study_dir, study_configs in expected_results.items():
         extract_configs = list(study_configs.keys())
