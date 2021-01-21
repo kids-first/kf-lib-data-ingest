@@ -8,8 +8,9 @@ First Dataservice)
 See etl.configuration.target_api_config docstring for more details on the
 requirements for format and content.
 """
+import logging
+
 from d3b_utils.requests_retry import Session
-from pandas import DataFrame
 from kf_lib_data_ingest.common import constants
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
 from kf_lib_data_ingest.common.misc import (
@@ -19,7 +20,10 @@ from kf_lib_data_ingest.common.misc import (
 )
 from kf_lib_data_ingest.network.utils import get_open_api_v2_schema
 from kf_utils.dataservice.scrape import yield_kfids
+from pandas import DataFrame
 from requests import RequestException
+
+logger = logging.getLogger(__name__)
 
 LOADER_VERSION = 2
 
@@ -844,7 +848,7 @@ json_type_casts = {
 
 def coerce_types(host, entity_class, body):
     if not swagger_cache:
-        swagger = get_open_api_v2_schema(host)
+        swagger = get_open_api_v2_schema(host, logger=logger)
         defs = swagger["definitions"]
         for c in all_targets:
             n = c.class_name
@@ -874,7 +878,22 @@ def coerce_types(host, entity_class, body):
                 # Don't include it so that the server applies default behavior.
                 continue
         else:
-            ret[k] = json_type_casts.get(properties[k]["type"], lambda x: x)(v)
+            v = json_type_casts.get(properties[k]["type"], lambda x: x)(v)
+            if properties[k]["type"] == "integer":
+                try:
+                    max_value = (
+                        2 ** (int(properties[k]["format"][-2:]) - 1)
+                    ) - 1
+                    if v > max_value:
+                        logger.warning(
+                            f"The server indicates that {entity_class.class_name}"
+                            f" field {k} may have maximum value {max_value}, but"
+                            f" {v} was given. This instance will be set to None."
+                        )
+                        v = None
+                except Exception:
+                    pass
+            ret[k] = v
 
     return ret
 
