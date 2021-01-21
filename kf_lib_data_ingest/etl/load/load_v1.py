@@ -260,10 +260,27 @@ class LoadStage(IngestStage):
     def _write_output(self, output):
         pass  # TODO
 
-    def _load_entity(self, entity_class, body, unique_key):
+    def _load_entity(self, entity_class, record):
         """
         Prepare a single entity for submission to the target service.
         """
+        try:
+            key_components = self._do_target_get_key(entity_class, record)
+            unique_key = str(key_components)
+        except Exception:
+            # no new key, no new entity
+            return
+
+        if (not key_components) or (
+            unique_key in self.seen_entities[entity_class.class_name]
+        ):
+            # no new key, no new entity
+            return
+
+        self.seen_entities[entity_class.class_name].add(unique_key)
+
+        body = self._do_target_get_entity(entity_class, record, unique_key)
+
         if current_thread() is not main_thread():
             current_thread().name = f"{entity_class.class_name} {unique_key}"
 
@@ -392,38 +409,16 @@ class LoadStage(IngestStage):
                     futures = []
 
                 for record in transformed_records:
-                    try:
-                        key_components = self._do_target_get_key(
-                            entity_class, record
-                        )
-                        keystr = str(key_components)
-                    except Exception:
-                        # no new key, no new entity
-                        continue
-
-                    if (not key_components) or (
-                        keystr in self.seen_entities[entity_class.class_name]
-                    ):
-                        # no new key, no new entity
-                        continue
-
-                    self.seen_entities[entity_class.class_name].add(keystr)
-
-                    payload = self._do_target_get_entity(
-                        entity_class, record, keystr
-                    )
-
                     if self.use_async and not self.resume_from:
                         futures.append(
                             ex.submit(
                                 self._load_entity,
                                 entity_class,
-                                payload,
-                                keystr,
+                                record,
                             )
                         )
                     else:
-                        self._load_entity(entity_class, payload, keystr)
+                        self._load_entity(entity_class, record)
 
                 if self.use_async:
                     for f in concurrent.futures.as_completed(futures):

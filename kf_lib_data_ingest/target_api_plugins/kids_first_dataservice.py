@@ -8,6 +8,8 @@ First Dataservice)
 See etl.configuration.target_api_config docstring for more details on the
 requirements for format and content.
 """
+from threading import Lock
+
 from d3b_utils.requests_retry import Session
 from pandas import DataFrame
 from kf_lib_data_ingest.common import constants
@@ -840,17 +842,19 @@ json_type_casts = {
     "number": float,
     "object": str_to_obj,
 }
+swag = Lock()
 
 
 def coerce_types(host, entity_class, body):
-    if not swagger_cache:
-        swagger = get_open_api_v2_schema(host)
-        defs = swagger["definitions"]
-        for c in all_targets:
-            n = c.class_name
-            uccn = upper_camel_case(n)
-            if uccn in defs:
-                swagger_cache[n] = defs[uccn]
+    with swag:
+        if not swagger_cache:
+            swagger = get_open_api_v2_schema(host)
+            defs = swagger["definitions"]
+            for c in all_targets:
+                n = c.class_name
+                uccn = upper_camel_case(n)
+                if uccn in defs:
+                    swagger_cache[n] = defs[uccn]
 
     properties = swagger_cache[entity_class.class_name]["properties"]
 
