@@ -368,6 +368,19 @@ class ExtractStage(IngestStage):
                     f" : {str(e)}"
                 )
 
+            if len(df_in.index) == 0:
+                fnames = []
+                if extract_config.source_data_read_func:
+                    fnames.append("source_data_read_func")
+                if extract_config.do_after_read:
+                    fnames.append("do_after_read")
+                msg = "Source DataFrame is empty."
+                if fnames:
+                    suffix = "s" if (len(fnames) > 1) else ""
+                    fnames = " and ".join(fnames)
+                    msg = f"{msg} Check your {fnames} function{suffix}."
+                raise ConfigValidationError(msg)
+
             self.logger.debug(f"Read DataFrame with dimensions {df_in.shape}")
             self.logger.debug(f"Column headers are: {list(df_in.columns)}")
 
