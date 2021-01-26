@@ -11,9 +11,10 @@ from kf_lib_data_ingest.etl.configuration.target_api_config import (
 )
 
 
-def test_all_targets():
+@pytest.mark.parametrize("bad_api", ["bad_v2api.py", "bad_v1api.py"])
+def test_all_targets(bad_api):
     # all_targets needs to exist as a list populated by valid classes
-    tac = TargetAPIConfig(os.path.join(TEST_DATA_DIR, "bad_api.py"))
+    tac = TargetAPIConfig(os.path.join(TEST_DATA_DIR, bad_api))
 
     tac.all_targets = [tac.Good]
     tac._validate()
@@ -27,9 +28,10 @@ def test_all_targets():
         tac._validate()
 
 
-def test_class_validation():
+@pytest.mark.parametrize("bad_api", ["bad_v2api.py", "bad_v1api.py"])
+def test_class_validation(bad_api):
     # target classes must have the correct form
-    tac = TargetAPIConfig(os.path.join(TEST_DATA_DIR, "bad_api.py"))
+    tac = TargetAPIConfig(os.path.join(TEST_DATA_DIR, bad_api))
 
     tac.all_targets = [tac.F]
     with pytest.raises(ConfigValidationError) as errF:
@@ -66,32 +68,22 @@ def test_class_validation():
         {str(e.value) for e in [errF, errE, errD, errC, errB, errA, err5]}
     )
 
-    t0 = tac.all_targets[0]
-
     # class methods need the right arguments
-
-    tmp = t0.get_key_components
-    t0.get_key_components = lambda x: x
+    tac.all_targets = [tac.AlmostGood]
     with pytest.raises(ConfigValidationError) as err6:
         tac._validate()
 
-    t0.get_key_components = tmp
-    tac._validate()
-
-    tmp = t0.build_entity
-    t0.build_entity = lambda a, b, c: a
+    tac.all_targets = [tac.AlmostAlmostGood]
     with pytest.raises(ConfigValidationError) as err7:
         tac._validate()
-
-    t0.build_entity = tmp
-    tac._validate()
 
     assert str(err6.value) != str(err7.value)
 
 
-def test_validate_function():
+@pytest.mark.parametrize("bad_api", ["bad_v2api.py", "bad_v1api.py"])
+def test_validate_function(bad_api):
     # if a validate function exists, make sure it runs
-    tac = TargetAPIConfig(os.path.join(TEST_DATA_DIR, "bad_api.py"))
+    tac = TargetAPIConfig(os.path.join(TEST_DATA_DIR, bad_api))
 
     tac._validate()
 
