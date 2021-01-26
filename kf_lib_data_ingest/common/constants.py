@@ -251,6 +251,10 @@ class SEQUENCING:
             NAME = "Yale"
             KF_ID = "SC_31W52VNX"
 
+        class FREDHUTCH:
+            NAME = "Fred Hutchinson Cancer Research Center"
+            KF_ID = "SC_8JXH42X1"
+
     class STRATEGY:
         LINKED_WGS = "Linked-Read WGS (10x Chromium)"
         MRNA = "miRNA-Seq"
