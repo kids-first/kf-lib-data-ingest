@@ -848,6 +848,11 @@ json_type_casts = {
 swag = Lock()
 
 
+# The dataservice lies to us sometimes about how big ints can be
+# so we're going to keep track ourselves
+seen_overmax_int = {}
+
+
 def coerce_types(host, entity_class, body):
     with swag:
         if not swagger_cache:
@@ -883,19 +888,23 @@ def coerce_types(host, entity_class, body):
         else:
             v = json_type_casts.get(properties[k]["type"], lambda x: x)(v)
             if properties[k]["type"] == "integer":
-                try:
-                    max_value = (
-                        2 ** (int(properties[k]["format"][-2:]) - 1)
-                    ) - 1
-                    if v > max_value:
-                        logger.warning(
-                            f"The server indicates that {entity_class.class_name}"
-                            f" field {k} may have maximum value {max_value}, but"
-                            f" {v} was given. This instance will be set to None."
-                        )
-                        v = None
-                except Exception:
-                    pass
+                if entity_class.class_name not in seen_overmax_int:
+                    seen_overmax_int[entity_class.class_name] = set()
+                if k not in seen_overmax_int[entity_class.class_name]:
+                    try:
+                        max_value = (
+                            2 ** (int(properties[k]["format"][-2:]) - 1)
+                        ) - 1
+                        if v > max_value:
+                            logger.info(
+                                f"The server indicates that {entity_class.class_name}"
+                                f" field {k} may have maximum value {max_value}, but"
+                                f" {v} was given. If the next request fails,"
+                                " this might be why."
+                            )
+                            seen_overmax_int[entity_class.class_name].add(k)
+                    except Exception:
+                        pass
             ret[k] = v
 
     return ret
