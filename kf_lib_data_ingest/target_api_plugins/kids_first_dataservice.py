@@ -395,6 +395,10 @@ class Biospecimen:
             "method_of_sample_procurement": record.get(
                 CONCEPT.BIOSPECIMEN.SAMPLE_PROCUREMENT
             ),
+            "dbgap_consent_code": record.get(
+                CONCEPT.BIOSPECIMEN.DBGAP_CONSENT_CODE
+            ),
+            "consent_type": record.get(CONCEPT.BIOSPECIMEN.CONSENT_TYPE),
         }
         return {
             **cls.get_key_components(record, get_target_id_from_record),
