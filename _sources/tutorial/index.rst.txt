@@ -1,13 +1,13 @@
 .. _how_to:
 
-######
-How To
-######
+########
+Tutorial
+########
 
 The quickstart example uses a simple dataset and is primarily intended to show
 a user how to run the ingest pipeline and view basic outputs. This tutorial
-uses a more complex study dataset and steps through each ingest stage in much
-more depth.
+uses a more complex study dataset and steps through each ingest stage in more
+depth.
 
 In this tutorial we will cover (not necessarily in this order):
 
@@ -29,12 +29,10 @@ In this tutorial we will cover (not necessarily in this order):
 
    app.rst
    ingest_package.rst
-   package_setup.rst
-   debugging.rst
    extract/index.rst
+   testing.rst
    extract/challenge_scenarios/index.rst
    study_creator.rst
-   package_testing.rst
    transform.rst
    target_service_plugins/index.rst
    load.rst

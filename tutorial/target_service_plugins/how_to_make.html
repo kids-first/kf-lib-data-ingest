@@ -21,10 +21,9 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
@@ -96,15 +95,13 @@
 <li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../design/overview.html">Design Overview</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../index.html">How To</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Tutorial</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../app.html">Kids First Ingest App</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../ingest_package.html">Ingest Package Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../package_setup.html">New Ingest Package Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../debugging.html">Debugging and Developing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ingest_package.html">New Ingest Package Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../extract/index.html">Extract Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../testing.html">Testing Your Ingest Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../extract/challenge_scenarios/index.html">Common Challenges when Extracting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../package_testing.html">Testing Your Ingest Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../transform.html">Transform Stage</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Target Service Plugins</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Making a Target Service Plugin</a><ul>
@@ -166,7 +163,7 @@
     
       <li><a href="../../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="../index.html">How To</a> &raquo;</li>
+          <li><a href="../index.html">Tutorial</a> &raquo;</li>
         
           <li><a href="index.html">Target Service Plugins</a> &raquo;</li>
         
@@ -203,26 +200,45 @@ of the service.</p>
 target servers. Seeing what they look like in their entirety may be helpful in
 understanding what we’re trying to make:</p>
 <ul>
-<li><p class="first">Plugin for loading data into the Kids First FHIR server:</p>
-<p><a class="reference external" href="https://github.com/kids-first/kf-model-fhir/tree/master/kf_model_fhir/ingest_plugin">https://github.com/kids-first/kf-model-fhir/tree/master/kf_model_fhir/ingest_plugin</a></p>
+<li><div class="line-block">
+<div class="line">Plugin for loading data into the Kids First FHIR server:</div>
+<div class="line"><a class="reference external" href="https://github.com/kids-first/kf-model-fhir/tree/master/kf_model_fhir/ingest_plugin">https://github.com/kids-first/kf-model-fhir/tree/master/kf_model_fhir/ingest_plugin</a></div>
+</div>
 </li>
-<li><p class="first">Plugin for loading data into the Kids First non-FHIR Dataservice:</p>
-<p><a class="reference external" href="https://github.com/kids-first/kf-lib-data-ingest/blob/master/kf_lib_data_ingest/target_api_plugins/kids_first_dataservice.py">https://github.com/kids-first/kf-lib-data-ingest/blob/master/kf_lib_data_ingest/target_api_plugins/kids_first_dataservice.py</a></p>
+<li><div class="line-block">
+<div class="line">Plugin for loading data into the Kids First non-FHIR Dataservice:</div>
+<div class="line"><a class="reference external" href="https://github.com/kids-first/kf-lib-data-ingest/blob/master/kf_lib_data_ingest/target_api_plugins/kids_first_dataservice.py">https://github.com/kids-first/kf-lib-data-ingest/blob/master/kf_lib_data_ingest/target_api_plugins/kids_first_dataservice.py</a></div>
+</div>
 </li>
 </ul>
 </div>
 <div class="section" id="the-parts-of-a-target-service-plugin">
 <h2>The Parts of a Target Service Plugin<a class="headerlink" href="#the-parts-of-a-target-service-plugin" title="Permalink to this headline">¶</a></h2>
+<p>The target service plugin API has gone through multiple revisions. This
+documentation only describes the latest version of the plugin API (currently
+version 2). These are identified by defining a variable <code class="docutils literal notranslate"><span class="pre">LOADER_VERSION</span> <span class="pre">=</span> <span class="pre">2</span></code>
+in the plugin body. Plugins that don’t define this variable are assumed to use
+version 1 of the plugin interface for backwards compatibility.</p>
 <p><strong>Target service plugins have two parts:</strong></p>
-<ol class="arabic simple">
-<li><strong>The list of entity builder classes</strong><ul>
-<li>These classes are responsible for converting lists of records into
-payloads that can be submitted to the target service. Putting them into a
-list lets us indicate which order to load them in.</li>
+<ol class="arabic">
+<li><p><strong>The plugin API version identifier</strong></p>
+<ul>
+<li><div class="line-block">
+<div class="line">As described above, after version 1, plugins must indicate which version
+of the plugin API they conform to by defining a variable
+<code class="docutils literal notranslate"><span class="pre">LOADER_VERSION</span> <span class="pre">=</span> <span class="pre">&lt;version</span> <span class="pre">number&gt;</span></code> in the plugin body.</div>
+<div class="line">Example: <code class="docutils literal notranslate"><span class="pre">LOADER_VERSION</span> <span class="pre">=</span> <span class="pre">2</span></code></div>
+</div>
+</li>
 </ul>
 </li>
-<li><strong>The submit function</strong><ul>
-<li>This negotiates sending the payload to the target service.</li>
+<li><p><strong>The list of entity builder classes</strong></p>
+<ul class="simple">
+<li><p>These classes are responsible for converting lists of records into
+entity payloads, querying the target server for existing entities that
+have the same key components, and submitting completed payloads to the
+target service. Putting the builder classes into a list lets us indicate
+which order to load entities in.</p></li>
 </ul>
 </li>
 </ol>
@@ -333,72 +349,72 @@ minimum requirements.
 </div>
 <div class="section" id="example">
 <h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="example-target-service">
-<h3>Example Target Service<a class="headerlink" href="#example-target-service" title="Permalink to this headline">¶</a></h3>
-<p>Say that you have a service with the following API specification
-for submitting Participant data:</p>
+<p>Say that you have a hypothetical service with the following specification for
+submitting Participant data:</p>
 <img alt="HTTP POST API specification for submitting new participants" src="../../_images/example_target_api.png" />
-</div>
 <div class="section" id="example-entity-builder-class">
 <h3>Example Entity Builder Class<a class="headerlink" href="#example-entity-builder-class" title="Permalink to this headline">¶</a></h3>
-<p>This class tells the Load stage how to build a participant from extracted data</p>
+<p>This class tells the Load stage how to build our hypothetical participants from
+extracted data:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.concept_schema</span> <span class="kn">import</span> <span class="n">CONCEPT</span>
+<span class="kn">import</span> <span class="nn">requests</span>
 
 <span class="k">class</span> <span class="nc">Participant</span><span class="p">:</span>
     <span class="n">class_name</span> <span class="o">=</span> <span class="s2">&quot;participant&quot;</span>
     <span class="n">target_id_concept</span> <span class="o">=</span> <span class="n">CONCEPT</span><span class="o">.</span><span class="n">PARTICIPANT</span><span class="o">.</span><span class="n">TARGET_SERVICE_ID</span>
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">build_key</span><span class="p">(</span><span class="n">record</span><span class="p">):</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_key_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">record</span><span class="p">,</span> <span class="n">get_target_id_from_record</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">record</span><span class="p">[</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">STUDY</span><span class="o">.</span><span class="n">TARGET_SERVICE_ID</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="k">assert</span> <span class="n">record</span><span class="p">[</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PARTICIPANT</span><span class="o">.</span><span class="n">ID</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PARTICIPANT</span><span class="o">.</span><span class="n">UNIQUE_KEY</span><span class="p">)</span>
-            <span class="ow">or</span> <span class="n">record</span><span class="p">[</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PARTICIPANT</span><span class="o">.</span><span class="n">ID</span><span class="p">]</span>
-        <span class="p">)</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">build_entity</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">get_target_id_from_record</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;study_link&quot;</span><span class="p">:</span> <span class="n">record</span><span class="p">[</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">STUDY</span><span class="o">.</span><span class="n">ID</span><span class="p">],</span>
+            <span class="s2">&quot;study_link&quot;</span><span class="p">:</span> <span class="n">record</span><span class="p">[</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">STUDY</span><span class="o">.</span><span class="n">TARGET_SERVICE_ID</span><span class="p">],</span>
+            <span class="s2">&quot;external_id&quot;</span><span class="p">:</span> <span class="n">record</span><span class="p">[</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PARTICIPANT</span><span class="o">.</span><span class="n">ID</span><span class="p">],</span>
+        <span class="p">}</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">query_target_ids</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">key_components</span><span class="p">):</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">/participants&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">key_components</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()]</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">build_entity</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">record</span><span class="p">,</span> <span class="n">get_target_id_from_record</span><span class="p">):</span>
+        <span class="n">secondary_components</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">get_target_id_from_record</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">record</span><span class="p">),</span>
             <span class="s2">&quot;family_link&quot;</span><span class="p">:</span> <span class="n">get_target_id_from_record</span><span class="p">(</span><span class="n">Family</span><span class="p">,</span> <span class="n">record</span><span class="p">),</span>
-            <span class="s2">&quot;external_id&quot;</span><span class="p">:</span> <span class="n">key</span><span class="p">,</span>
             <span class="s2">&quot;sex&quot;</span><span class="p">:</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PARTICIPANT</span><span class="o">.</span><span class="n">SEX</span><span class="p">),</span>
-            <span class="s2">&quot;race&quot;</span><span class="p">:</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PARTICIPANT</span><span class="o">.</span><span class="n">RACE</span><span class="p">),</span>
+            <span class="s2">&quot;race&quot;</span><span class="p">:</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PARTICIPANT</span><span class="o">.</span><span class="n">RACE</span><span class="p">)</span>
             <span class="s2">&quot;ethnicity&quot;</span><span class="p">:</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PARTICIPANT</span><span class="o">.</span><span class="n">ETHNICITY</span><span class="p">)</span>
         <span class="p">}</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="o">**</span><span class="bp">cls</span><span class="o">.</span><span class="n">get_key_components</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">get_target_id_from_record</span><span class="p">),</span>
+            <span class="o">**</span><span class="n">secondary_components</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">submit</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">/participants&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">body</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="ow">in</span> <span class="p">{</span><span class="mi">200</span><span class="p">,</span> <span class="mi">201</span><span class="p">}:</span>
+            <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">requests</span><span class="o">.</span><span class="n">RequestException</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Sent to </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="si">{</span><span class="n">body</span><span class="si">}</span><span class="se">\n</span><span class="s2">Got:</span><span class="se">\n</span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="example-list">
-<h3>Example List<a class="headerlink" href="#example-list" title="Permalink to this headline">¶</a></h3>
-<p>This tells the Load stage which order to load things in (You probably don’t
-want to submit biospecimens before submitting participants if biospecimens
-reference participants). In this example there’s only one entry because we’re
-only defining the builder for participants, but you will probably have many.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">all_targets</span> <span class="o">=</span> <span class="p">[</span>
+<div class="section" id="example-target-service-plugin">
+<h3>Example Target Service Plugin<a class="headerlink" href="#example-target-service-plugin" title="Permalink to this headline">¶</a></h3>
+<p>In this example there’s only one entry in the <code class="docutils literal notranslate"><span class="pre">all_targets</span></code> list because
+we only defined a builder for participants, but you will probably have many.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">example_participant_builder</span> <span class="kn">import</span> <span class="n">Participant</span>
+
+<span class="n">LOADER_VERSION</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="n">all_targets</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">Participant</span>
 <span class="p">]</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="example-submit-function">
-<h3>Example Submit Function<a class="headerlink" href="#example-submit-function" title="Permalink to this headline">¶</a></h3>
-<p>This tells the Load stage how to send things to the target service and knows
-how to get the service’s object identifier from the response.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">d3b_utils.requests_retry</span> <span class="kn">import</span> <span class="n">Session</span>
-
-<span class="n">endpoints</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">Participant</span><span class="p">:</span> <span class="s2">&quot;/participants&quot;</span>
-<span class="p">}</span>
-
-<span class="k">def</span> <span class="nf">submit</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">entity_class</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
-    <span class="n">resp</span> <span class="o">=</span> <span class="n">Session</span><span class="p">()</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">host</span><span class="si">}{</span><span class="n">endpoints</span><span class="p">[</span><span class="n">entity_class</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">body</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="ow">in</span> <span class="p">{</span><span class="mi">200</span><span class="p">,</span> <span class="mi">201</span><span class="p">}:</span>
-        <span class="k">return</span> <span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;results&quot;</span><span class="p">][</span><span class="s2">&quot;kf_id&quot;</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">RequestException</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Sent to </span><span class="si">{</span><span class="n">resp</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="si">{</span><span class="n">body</span><span class="si">}</span><span class="se">\n</span><span class="s2">Got:</span><span class="se">\n</span><span class="si">{</span><span class="n">resp</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
 </pre></div>
 </div>
 </div>

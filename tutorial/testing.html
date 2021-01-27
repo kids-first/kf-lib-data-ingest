@@ -1,0 +1,363 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Testing Your Ingest Package &mdash; Kids First Data Ingest Libraries  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Common Challenges when Extracting" href="extract/challenge_scenarios/index.html" />
+    <link rel="prev" title="Extract Stage" href="extract/index.html" />
+    <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
+ 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Design Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorial</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="app.html">Kids First Ingest App</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ingest_package.html">New Ingest Package Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extract/index.html">Extract Stage</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Testing Your Ingest Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-test-cli-command">The <code class="docutils literal notranslate"><span class="pre">test</span></code> CLI Command</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-validation">Data Validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run-subsets-of-the-pipeline">Run Subsets of the Pipeline</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="extract/challenge_scenarios/index.html">Common Challenges when Extracting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transform.html">Transform Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="target_service_plugins/index.html">Target Service Plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="load.html">Understanding the Load Stage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developer.html">Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Kids First Data Ingest Libraries</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Tutorial</a> &raquo;</li>
+        
+      <li>Testing Your Ingest Package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/tutorial/testing.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="testing-your-ingest-package">
+<span id="tutorial-package-testing"></span><h1>Testing Your Ingest Package<a class="headerlink" href="#testing-your-ingest-package" title="Permalink to this headline">¶</a></h1>
+<p>At this point, your ingest package should have the source data file and extract
+config that came with the package template along with the additional extract
+configuration family_and_phenotype.py from <a class="reference internal" href="extract/index.html#extract-example"><span class="std std-ref">Example Extract Configuration</span></a>.</p>
+<p>It should look something like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>my_study/
+└── ingest_package_1/
+    ├── data
+    │   └── clinical.tsv
+    ├── extract_configs
+    │   ├── extract_config.py
+    │   └── family_and_phenotype.py
+    ├── ingest_package_config.py
+    └── transform_module.py
+</pre></div>
+</div>
+<p>Before we go any further in the tutorial, let’s explore how to test your ingest
+package.</p>
+<div class="section" id="the-test-cli-command">
+<h2>The <code class="docutils literal notranslate"><span class="pre">test</span></code> CLI Command<a class="headerlink" href="#the-test-cli-command" title="Permalink to this headline">¶</a></h2>
+<p>The ingest application has a secondary <code class="docutils literal notranslate"><span class="pre">test</span></code> command in addition to the
+<code class="docutils literal notranslate"><span class="pre">ingest</span></code> command. Under the hood, the <code class="docutils literal notranslate"><span class="pre">test</span></code> command is really just an
+alias for:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ kidsfirst ingest --dry_run --no_warehouse
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">--dry_run</span></code> flag says to process your ingest package without actually
+sending anything to the target service. This will help you determine whether
+your ingest package runs correctly before you try to load your study data into
+the target service.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--no_warehouse</span></code> flag says to skip sending intermediate stage data to a
+remote warehouse database for storage and sharing.</p>
+<p>We’ll use that <code class="docutils literal notranslate"><span class="pre">test</span></code> command throughout this section:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ kidsfirst test &lt;ingest package&gt;
+</pre></div>
+</div>
+</div>
+<div class="section" id="data-validation">
+<h2>Data Validation<a class="headerlink" href="#data-validation" title="Permalink to this headline">¶</a></h2>
+<p>Whenever you run an ingest package, data validation tests will automatically
+determine whether the output of each stage matches a predefined set of
+relationship and value expectations.</p>
+<p>The analysis has a basic understanding of the internal hierarchical
+relationships captured by the data model of our target service (participants
+are grouped into families, biospecimens come from individual participants, etc)
+as well as constraints on the values that each data field can have (e.g. age
+can’t be negative).</p>
+<p>It will try to evaluate your stage results according to its set of rules and
+generate reports about what tests passed or failed. Failing a test doesn’t
+necessarily mean that something is wrong, just that the validator’s pre-set
+expectations were not met.</p>
+<p>Let’s see what happens if you run:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ kidsfirst test my_study/ingest_package_1
+</pre></div>
+</div>
+<p>Near the end of the log, you should see something like this:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>DataIngestPipeline - Thread: MainThread - ERROR - ⚠️ Ingest failed validation!
+DataIngestPipeline - Thread: MainThread - INFO - See validation report files:
+[
+    ... a bunch of files here ...
+]
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">⚠️</span> <span class="pre">Ingest</span> <span class="pre">failed</span> <span class="pre">validation!</span></code> means that the output of one of our stages
+didn’t align with the library’s pre-set expectations. That could indicate a
+mistake in your configuration, or it could be fine. It’s up to you to inspect
+the <code class="docutils literal notranslate"><span class="pre">validation_results.*</span></code> files for each stage and decide based on your
+circumstances.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Stage output files named <code class="docutils literal notranslate"><span class="pre">validation_results.*</span></code> all contain the same
+information just in different formats, so you only need to look at your
+preferred one for each stage.</p>
+</div>
+<p>Open <code class="docutils literal notranslate"><span class="pre">/output/ExtractStage/validation_results/validation_results.html</span></code> in
+your web browser to see if we can identify what the code is complaining
+about. It should look something like this:</p>
+<img alt="../_images/validation_relationships_alert.png" src="../_images/validation_relationships_alert.png" />
+<p>So is the big red ❌ ok there or not?</p>
+<p>If we look back at our data from clinical.tsv and family_and_phenotype.tsv, we
+can see that it just doesn’t have any genomic file information in it. So our
+existing configuration files aren’t doing anything wrong, but in this case we
+know that we will need to find genomic file data somewhere to link to our
+specimen data.</p>
+<p>Now scroll down further in the file until you get to the Value Tests section,
+and you should see another reported error:</p>
+<img alt="../_images/validation_attributes_alert.png" src="../_images/validation_attributes_alert.png" />
+<p>Here it’s saying that our extracted Biospecimen Analyte data doesn’t match our
+designated set of valid options. We must change our extract config for the
+indicated data file.</p>
+<p>We need to update the analyte operation in
+<code class="docutils literal notranslate"><span class="pre">extract_configs/extract_config.py</span></code>. Currently it says</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">keep_map</span><span class="p">(</span><span class="n">in_col</span><span class="o">=</span><span class="s2">&quot;analyte&quot;</span><span class="p">,</span> <span class="n">out_col</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">BIOSPECIMEN</span><span class="o">.</span><span class="n">ANALYTE</span><span class="p">),</span>
+</pre></div>
+</div>
+<p>but we need to map from the bad values to good values. So change that to:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">value_map</span><span class="p">(</span>
+    <span class="n">in_col</span><span class="o">=</span><span class="s2">&quot;analyte&quot;</span><span class="p">,</span>
+    <span class="n">out_col</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">BIOSPECIMEN</span><span class="o">.</span><span class="n">ANALYTE</span><span class="p">,</span>
+    <span class="n">m</span><span class="o">=</span><span class="p">{</span>
+        <span class="c1"># these are regex patterns, so we must escape the parentheses</span>
+        <span class="sa">r</span><span class="s2">&quot;dna \(1\)&quot;</span><span class="p">:</span> <span class="n">constants</span><span class="o">.</span><span class="n">SEQUENCING</span><span class="o">.</span><span class="n">ANALYTE</span><span class="o">.</span><span class="n">DNA</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;rna \(2\)&quot;</span><span class="p">:</span> <span class="n">constants</span><span class="o">.</span><span class="n">SEQUENCING</span><span class="o">.</span><span class="n">ANALYTE</span><span class="o">.</span><span class="n">RNA</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">),</span>
+</pre></div>
+</div>
+<p>Run the test command one more time and you should now see that the attribute
+value test for biospecimen analytes is no longer failing.</p>
+</div>
+<div class="section" id="run-subsets-of-the-pipeline">
+<h2>Run Subsets of the Pipeline<a class="headerlink" href="#run-subsets-of-the-pipeline" title="Permalink to this headline">¶</a></h2>
+<p>As you develop your ingest package, you will likely run into scenarios where
+you don’t want to run the entire ingest pipeline.</p>
+<p>The CLI allows you to run a subset of the ingest stages to make development
+easier. The <code class="docutils literal notranslate"><span class="pre">--stages</span></code> option takes any subsequence of the ingest
+stage-code/char sequence: <code class="docutils literal notranslate"><span class="pre">etl</span></code>. A subsequence must not contain gaps.</p>
+<p>For example:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ kidsfirst test my_study --stages=e  # will only run the extract stage
+$ kidsfirst test my_study --stages=t  # will only run the transform stage
+$ kidsfirst test my_study --stages=et # will run extract then transform
+$ kidsfirst test my_study --stages=te # is out of order and invalid
+$ kidsfirst test my_study --stages=el # has a gap and is invalid
+</pre></div>
+</div>
+<p>Note that when running an ingest stage via the <code class="docutils literal notranslate"><span class="pre">--stages</span></code> option,
+the output from the previous stage must exist, otherwise an error will occur.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="extract/challenge_scenarios/index.html" class="btn btn-neutral float-right" title="Common Challenges when Extracting" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="extract/index.html" class="btn btn-neutral float-left" title="Extract Stage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Kids First
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

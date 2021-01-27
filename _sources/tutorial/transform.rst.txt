@@ -23,9 +23,9 @@ code, and return type for ``transform_function``.
 
 Let's take a look:
 
-.. literalinclude:: ../../../kf_lib_data_ingest/templates/my_study/transform_module.py
+.. literalinclude:: ../../../kf_lib_data_ingest/templates/my_ingest_package/transform_module.py
    :language: python
-   :caption: my_study/transform_module.py
+   :caption: my_study/ingest_package_1/transform_module.py
 
 The ``transform_function`` method has only one argument, the ``mapped_df_dict``
 which is a dict of extract config file paths and the corresponding Pandas
@@ -48,12 +48,13 @@ There are a few important things to note in the commented-out example code:
    itself
 3. We do **not** use the ``Pandas.merge`` method to merge the DataFrames
 
-Outer Merge
-^^^^^^^^^^^
+Merge Strategy
+^^^^^^^^^^^^^^
 
-You will likely NEVER want to inner merge/join your DataFrames since this will
+You will likely never want to inner merge/join your DataFrames since this will
 result in a DataFrame with records that only match in both DataFrames. This may
-cause you to lose records.
+cause you to lose records. You may sometimes want to left/right join, however,
+depending on circumstances.
 
 Use concept schema to reference columns
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

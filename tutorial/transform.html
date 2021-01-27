@@ -21,10 +21,9 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -37,7 +36,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Target Service Plugins" href="target_service_plugins/index.html" />
-    <link rel="prev" title="Testing Your Ingest Package" href="package_testing.html" />
+    <link rel="prev" title="Source Data stored by the Kids First Data Tracker" href="study_creator.html" />
     <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
  
 </head>
@@ -96,18 +95,16 @@
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Design Overview</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">How To</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorial</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="app.html">Kids First Ingest App</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ingest_package.html">Ingest Package Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="package_setup.html">New Ingest Package Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="debugging.html">Debugging and Developing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ingest_package.html">New Ingest Package Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extract/index.html">Extract Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing.html">Testing Your Ingest Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extract/challenge_scenarios/index.html">Common Challenges when Extracting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="package_testing.html">Testing Your Ingest Package</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Transform Stage</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#guided-transform-module">Guided Transform Module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#outer-merge">Outer Merge</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#merge-strategy">Merge Strategy</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#use-concept-schema-to-reference-columns">Use concept schema to reference columns</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#avoid-pandas-merge-use-ingest-library-s-pandas-utils-py">Avoid Pandas.merge - use ingest library’s pandas_utils.py</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#optional-return-more-than-1-dataframe">Optional - Return more than 1 DataFrame</a></li>
@@ -167,7 +164,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="index.html">How To</a> &raquo;</li>
+          <li><a href="index.html">Tutorial</a> &raquo;</li>
         
       <li>Transform Stage</li>
     
@@ -192,8 +189,8 @@
 <span id="tutorial-transform-stage"></span><h1>Transform Stage<a class="headerlink" href="#transform-stage" title="Permalink to this headline">¶</a></h1>
 <p>The transform stage does one major thing:</p>
 <ol class="arabic simple">
-<li>Merge extracted tables together so that the data needed for generating
-complete target entities from the extracted data is properly connected.</li>
+<li><p>Merge extracted tables together so that the data needed for generating
+complete target entities from the extracted data is properly connected.</p></li>
 </ol>
 <div class="section" id="guided-transform-module">
 <h2>Guided Transform Module<a class="headerlink" href="#guided-transform-module" title="Permalink to this headline">¶</a></h2>
@@ -206,7 +203,7 @@ have a <cite>transform_module.py</cite> file with the correct method signature, 
 code, and return type for <code class="docutils literal notranslate"><span class="pre">transform_function</span></code>.</p>
 <p>Let’s take a look:</p>
 <div class="literal-block-wrapper docutils container" id="id1">
-<div class="code-block-caption"><span class="caption-text">my_study/transform_module.py</span><a class="headerlink" href="#id1" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text">my_study/ingest_package_1/transform_module.py</span><a class="headerlink" href="#id1" title="Permalink to this code">¶</a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Auto-generated transform module</span>
 
@@ -285,16 +282,17 @@ columns.</p>
 appropriately according to the function docstring shown above.</p>
 <p>There are a few important things to note in the commented-out example code:</p>
 <ol class="arabic simple">
-<li>We outer merge DataFrames so that we don’t lose data</li>
-<li>We use CONCEPT.PARTICIPANT.ID, not the string “PARTICIPANT|ID”
-itself</li>
-<li>We do <strong>not</strong> use the <code class="docutils literal notranslate"><span class="pre">Pandas.merge</span></code> method to merge the DataFrames</li>
+<li><p>We outer merge DataFrames so that we don’t lose data</p></li>
+<li><p>We use CONCEPT.PARTICIPANT.ID, not the string “PARTICIPANT|ID”
+itself</p></li>
+<li><p>We do <strong>not</strong> use the <code class="docutils literal notranslate"><span class="pre">Pandas.merge</span></code> method to merge the DataFrames</p></li>
 </ol>
-<div class="section" id="outer-merge">
-<h3>Outer Merge<a class="headerlink" href="#outer-merge" title="Permalink to this headline">¶</a></h3>
-<p>You will likely NEVER want to inner merge/join your DataFrames since this will
+<div class="section" id="merge-strategy">
+<h3>Merge Strategy<a class="headerlink" href="#merge-strategy" title="Permalink to this headline">¶</a></h3>
+<p>You will likely never want to inner merge/join your DataFrames since this will
 result in a DataFrame with records that only match in both DataFrames. This may
-cause you to lose records.</p>
+cause you to lose records. You may sometimes want to left/right join, however,
+depending on circumstances.</p>
 </div>
 <div class="section" id="use-concept-schema-to-reference-columns">
 <h3>Use concept schema to reference columns<a class="headerlink" href="#use-concept-schema-to-reference-columns" title="Permalink to this headline">¶</a></h3>
@@ -313,10 +311,10 @@ result from doing multiple sequential merges on partially-overlapping data.</p>
 <p>It also has a keyword argument called <cite>with_merge_detail_dfs</cite> that will output
 3 additional DataFrames useful for debugging:</p>
 <ol class="arabic simple">
-<li>a DataFrame of rows that matched in both the left and right
-DataFrames (equivalent to the DataFrame returned by an inner merge)</li>
-<li>a DataFrame of rows that were ONLY in the left DataFrame</li>
-<li>a DataFrame of rows that were ONLY in the right DataFrame</li>
+<li><p>a DataFrame of rows that matched in both the left and right
+DataFrames (equivalent to the DataFrame returned by an inner merge)</p></li>
+<li><p>a DataFrame of rows that were ONLY in the left DataFrame</p></li>
+<li><p>a DataFrame of rows that were ONLY in the right DataFrame</p></li>
 </ol>
 <p>If you need to do a non-outer merge, you should use the <code class="docutils literal notranslate"><span class="pre">merge_wo_duplicates</span></code>
 method, which is what provides <code class="docutils literal notranslate"><span class="pre">outer_merge</span></code>’s automatic hole-filling
@@ -333,8 +331,8 @@ particular target concepts.</p>
 specifically named after a particular target concept, with its value set to the
 DataFrame containing the data to build instances of that target concept.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">To further understand this, read: <a class="reference internal" href="load.html#tutorial-load-stage-expects"><span class="std std-ref">What the Load Stage Expects</span></a></p>
+<p class="admonition-title">Note</p>
+<p>To further understand this, read: <a class="reference internal" href="load.html#tutorial-load-stage-expects"><span class="std std-ref">What the Load Stage Expects</span></a></p>
 </div>
 <p>For example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.concept_schema</span> <span class="kn">import</span> <span class="n">CONCEPT</span>
@@ -389,7 +387,7 @@ that the GuidedTransformStage began and ended.</p>
         <a href="target_service_plugins/index.html" class="btn btn-neutral float-right" title="Target Service Plugins" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="package_testing.html" class="btn btn-neutral float-left" title="Testing Your Ingest Package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="study_creator.html" class="btn btn-neutral float-left" title="Source Data stored by the Kids First Data Tracker" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -21,10 +21,9 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -36,8 +35,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="How To" href="../tutorial/index.html" />
-    <link rel="prev" title="Remote Warehousing" href="warehousing.html" />
+    <link rel="next" title="Remote Warehousing" href="warehousing.html" />
+    <link rel="prev" title="Transform Stage" href="transform.html" />
     <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
  
 </head>
@@ -99,11 +98,12 @@
 <li class="toctree-l2"><a class="reference internal" href="value_principles.html">Value Principles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extract_mapping.html">Extract Mapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="transform.html">Transform Stage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="warehousing.html">Remote Warehousing</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Load Stage Design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="warehousing.html">Remote Warehousing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logs.html">Logs</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html">How To</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developer.html">Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
 </ul>
@@ -187,80 +187,104 @@ implement the logic for sending those payloads to the target service.</p>
 <img alt="Diagram showing how the load stage hooks into target service plugins" src="../_images/load_stage.svg" /><p><strong>The plugin includes a builder class for each kind of entity that it wants to
 send to the target service.</strong></p>
 <p>Each builder class implements methods for the following behaviors:</p>
-<ol class="arabic simple">
-<li>(optional) <strong>Transform the given records list into whatever new record
-format the entity builder needs</strong>.</li>
-<li>(soon to be optional) <strong>Compose a unique keystring from the entity’s primary
-constituent elements</strong>. This is used internally for caching identifiers
-assigned by the target service (received from the target service as part of
-the response for sending an entity payload) so that they can be repeatably
-assigned to the same entities again. (Target services often don’t do this
-themselves.)</li>
-<li><strong>Build a message payload that will be sent to the server to populate a new
-(or updated) entity of its type</strong>. The unique keystrings generated in the
-previous steps are passed to this method as well so that they can be
-included as part of the payload if desired.</li>
+<ol class="arabic">
+<li><p>(optional) Transform the given records list into whatever new record
+format the entity builder needs.</p></li>
+<li><p>Compose the entity’s uniquely identifying primary elements.</p>
+<blockquote>
+<div><p>This is used for querying a local cache or the target service to fetch the
+identifier of an existing entity that has the given values, if one exists,
+so that entities can be repeatably identified for updates. (Target
+services often don’t do this equivalent entity replacement themselves.)</p>
+</div></blockquote>
+</li>
+<li><p>Query the target service for the target identifier of the entity with the
+the same primary elements.</p>
+<blockquote>
+<div><p>If no entry exists in the local cache, we have to query the target server
+for guidance so that entities can be repeatedly identified for updates.</p>
+</div></blockquote>
+</li>
+<li><p>Build a complete message payload that will be sent to the server to
+populate a new (or updated) entity of its type.</p></li>
 </ol>
 <p>For more details, read <a class="reference internal" href="../tutorial/target_service_plugins/how_to_make.html#tutorial-make-target-service-plugin"><span class="std std-ref">Making a Target Service Plugin</span></a></p>
 <hr class="docutils" />
-<p><strong>A Note on the ID Cache</strong></p>
-<p>It may be easier to understand the purpose of the ID cache and
-unique keys with an example.</p>
+<p><strong>A note on Unique Entity Identification</strong></p>
+<p>It may be easier to understand the concept and purpose of uniquely identifying
+components with an example.</p>
 <p>Given the record:</p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="25%" />
-<col width="25%" />
-<col width="25%" />
-<col width="25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">PARTICIPANT.ID</th>
-<th class="head">PHENOTYPE.NAME</th>
-<th class="head">PHENOTYPE.EVENT_AGE_DAYS</th>
-<th class="head">PHENOTYPE.OBSERVED</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>STUDY.TARGET_SERVICE_ID</p></th>
+<th class="head"><p>PARTICIPANT.ID</p></th>
+<th class="head"><p>PARTICIPANT.AGE</p></th>
+<th class="head"><p>PARTICIPANT.SEX</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>P1</td>
-<td>Cleft Ear</td>
-<td>765</td>
-<td>Positive</td>
+<tbody>
+<tr class="row-even"><td><p>SD_12345678</p></td>
+<td><p>P1</p></td>
+<td><p>17</p></td>
+<td><p>Male</p></td>
 </tr>
 </tbody>
 </table>
-<p>The unique keystring for the phenotype observation in this record could be:
-<code class="docutils literal notranslate"><span class="pre">&quot;p1__cleft-ear__765&quot;</span></code>. (Assume that participant P1 is not Schrödinger’s cat
-and can only be either positive or negative for that characteristic at that
-time, but not both simultaneously.)</p>
-<p>And, after submission to the target service, the returned identifier for the
-phenotype observation entity might be something like: <code class="docutils literal notranslate"><span class="pre">&quot;PH_00001111&quot;</span></code>.</p>
-<p>The ingest library will internally create an entry in an ID cache for the
-current target service URL which associates this unique key with its target
-identifier like this:</p>
-<table border="1" class="docutils">
+<p>We might wish to compose a participant entity that looks like:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="nt">&quot;study_id&quot;</span><span class="p">:</span> <span class="s2">&quot;SD_12345678&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;external_id&quot;</span><span class="p">:</span> <span class="s2">&quot;P1&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;age&quot;</span><span class="p">:</span> <span class="mi">17</span><span class="p">,</span>
+    <span class="nt">&quot;sex&quot;</span><span class="p">:</span> <span class="s2">&quot;Male&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Because we know that every participant external ID is guaranteed to be unique
+within a study and that age and sex are merely characteristic observations of
+the participant that can be updated later, the uniquely identifying components
+for this participant would be: <code class="docutils literal notranslate"><span class="pre">{&quot;study_id&quot;:</span> <span class="pre">&quot;SD_12345678&quot;,</span> <span class="pre">&quot;external_id&quot;:</span>
+<span class="pre">&quot;P1&quot;}</span></code>.</p>
+<p>Any future corrections to the participant’s age or sex should be
+associated with the same entry. So how do we ensure that?</p>
+<p>Let’s say that, after submission to the target service, the returned identifier
+for the participant entity is: <code class="docutils literal notranslate"><span class="pre">&quot;PT_00001111&quot;</span></code>. The ingest library will
+internally create an association in a local cache file relating the unique key
+components with the resulting target identifier like this:</p>
+<table class="docutils align-default">
 <colgroup>
-<col width="57%" />
-<col width="43%" />
+<col style="width: 77%" />
+<col style="width: 23%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head" colspan="2">phenotypes</th>
+<thead>
+<tr class="row-odd"><th class="head" colspan="2"><p>participants</p></th>
 </tr>
-<tr class="row-even"><th class="head">Unique Key</th>
-<th class="head">Target ID</th>
+<tr class="row-even"><th class="head"><p>Unique Components</p></th>
+<th class="head"><p>Target ID</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-odd"><td>p1__cleft-ear__765</td>
-<td>PH_00001111</td>
+<tbody>
+<tr class="row-odd"><td><p>{“study_id”: “SD_12345678”, “external_id”: “P1”}</p></td>
+<td><p>PT_00001111</p></td>
 </tr>
 </tbody>
 </table>
-<p>Then whenever the ingest library sees a record in the source data with the
-unique key components above, it will always associate the resulting phenotype
-observation with the unique keystring <code class="docutils literal notranslate"><span class="pre">&quot;p1__cleft-ear__765&quot;</span></code> which will
-always point to the phenotype observation entity in the target service
-identified by <code class="docutils literal notranslate"><span class="pre">&quot;PH_00001111&quot;</span></code>.</p>
+<p>If the ingest library later encounters a record in the source data with the
+same unique components, it can:</p>
+<ol class="arabic simple">
+<li><p>Check the local cache for a known identifer.</p></li>
+<li><p>If no related entry exists in the local cache, query the target service for
+the identifer of the entity with the same key values.</p></li>
+</ol>
+<p>That way we can update characteristics of existing entities without knowing in
+advance how the target service identifies them, and it should always be safe to
+erase the local cache at the expense of performance (additional network
+roundtrips).</p>
 </div>
 
 
@@ -271,10 +295,10 @@ identified by <code class="docutils literal notranslate"><span class="pre">&quot
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../tutorial/index.html" class="btn btn-neutral float-right" title="How To" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="warehousing.html" class="btn btn-neutral float-right" title="Remote Warehousing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="warehousing.html" class="btn btn-neutral float-left" title="Remote Warehousing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="transform.html" class="btn btn-neutral float-left" title="Transform Stage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

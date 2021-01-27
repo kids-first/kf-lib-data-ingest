@@ -21,10 +21,9 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -96,7 +95,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design/overview.html">Design Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/index.html">How To</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/index.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developer.html">Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a></li>
 </ul>
@@ -165,16 +164,30 @@
             
   <div class="section" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<p>Install <code class="docutils literal notranslate"><span class="pre">psycopg2</span></code>. This can’t be straightforwardly done with pip on all platforms (see e.g. <a class="reference external" href="https://web.archive.org/web/20190908200859/https://stackoverflow.com/questions/26288042/error-installing-psycopg2-library-not-found-for-lssl">https://web.archive.org/web/20190908200859/https://stackoverflow.com/questions/26288042/error-installing-psycopg2-library-not-found-for-lssl</a>), so we leave it as an exercise for the reader.</p>
-<p>Install the current release of <code class="docutils literal notranslate"><span class="pre">kf-lib-data-ingest</span></code> with <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install -e git+https://github.com/kids-first/kf-lib-data-ingest.git#egg=kf-lib-data-ingest
+<p>Install <code class="docutils literal notranslate"><span class="pre">psycopg2</span></code>. For the purposes of using this library, you might be able
+to safely run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install psycopg2-binary
 </pre></div>
 </div>
-<p>Run the CLI to use the library:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ kidsfirst ingest /path/to/ingest_package_config.py
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you plan to ingest without <a class="reference internal" href="design/warehousing.html#warehousing"><span class="std std-ref">remote warehousing</span></a>, then you won’t need psycopg2.</p>
+<p>See: <a class="reference internal" href="design/warehousing.html#disablingwarehousing"><span class="std std-ref">Temporarily Disabling Warehousing</span></a>.</p>
+</div>
+<p>If a precompiled binary for psycopg2 doesn’t exist for your platform, or
+if you prefer not to use one, installation with pip may not be straightforward
+everywhere (see e.g.
+<a class="reference external" href="https://web.archive.org/web/20190908200859/https://stackoverflow.com/questions/26288042/error-installing-psycopg2-library-not-found-for-lssl">https://web.archive.org/web/20190908200859/https://stackoverflow.com/questions/26288042/error-installing-psycopg2-library-not-found-for-lssl</a>),
+so we leave it as an exercise for the reader.</p>
+<p>Install the latest release of <code class="docutils literal notranslate"><span class="pre">kf-lib-data-ingest</span></code> with <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install git+https://github.com/kids-first/kf-lib-data-ingest.git@latest-release
 </pre></div>
 </div>
-<p>Run <code class="docutils literal notranslate"><span class="pre">kidsfirst</span> <span class="pre">-h</span></code> to see all subcommands and descriptions or run
+<p>Or install the latest development changes:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install git+https://github.com/kids-first/kf-lib-data-ingest.git
+</pre></div>
+</div>
+<p>Now you can run <code class="docutils literal notranslate"><span class="pre">kidsfirst</span> <span class="pre">-h</span></code> to see all subcommands and descriptions or run
 <code class="docutils literal notranslate"><span class="pre">kidsfirst</span> <span class="pre">&lt;command&gt;</span> <span class="pre">-h</span></code> to see help for subcommands.</p>
 </div>
 

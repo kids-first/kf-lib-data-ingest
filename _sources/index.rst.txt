@@ -5,18 +5,6 @@
 
 Library Code Repository: https://github.com/kids-first/kf-lib-data-ingest
 
-.. toctree::
-   :caption: Table of Contents
-   :maxdepth: 2
-
-   self
-   install
-   quickstart
-   design/overview.rst
-   tutorial/index.rst
-   developer
-   reference/index.rst
-
 ********
 Overview
 ********
@@ -45,13 +33,12 @@ The library comes with a built-in command-line-interface-based (CLI) app
 which is the primary user interface for executing the ingest pipeline.
 Most users will use this app to create new ingest packages, test packages,
 and ingest Kids First study datasets into the Kids First Data Service.
-The Kids First Data Service is the only supported target service at this point.
 
 Ingest Packages
 ===============
 
-In order to use this library to ingest a study, users must create an ingest
-package which contains all of the necessary configuration defining basic ingest
+In order to use this library to ingest a study, users must create ingest
+packages which contain all of the necessary configuration defining basic ingest
 input parameters and also how to extract and transform data.
 
 Ingest Pipeline
@@ -66,19 +53,25 @@ Ingest Pipeline
 Users
 -----
 
-Users of the ingest system will likely fall into 2 categories:
+Users of the ingest system will likely fall into 3 categories:
 
 1. **Ingest Operator**
 
-   - Will never create a new study ingest package
    - Will likely just be running existing ingest packages
    - May need to learn how to modify configuration by inspection of existing
      ingest package configurations
 
 2. **Ingest Package Developer**
 
-   - Runs ingest packages
    - Understands how to create new ingest packages and modify existing ones
+   - Knows Python well and likely knows Pandas fairly well
+
+3. **Target Service Plugin Developer**
+
+   - Understands the intricacies of how to query and submit data to their
+     target service
+   - Understands the Load process and plugin API defined in this documentation
+     and explored in existing target service plugins
    - Knows Python well and likely knows Pandas fairly well
 
 Inputs
@@ -111,15 +104,19 @@ Extract Stage
 
 The extract stage does the following:
 
-1. **Retrieve** - Retrieve the source data files, whether they are local or
-   remote, and read them into memory
-2. **Select** - Extract the desired subset of data from the source data files
-3. **Clean**- Clean the source data (remove trailing whitespaces, etc)
-4. **Map** - Map the cleaned data to a set of standard Kids First attributes
+#. **Retrieve** - Fetch the source data files, local or remote, and read them
+   into memory
+#. **Select** - Extract the desired subset of data from the source data files
+#. **Clean** - Clean the source data (remove trailing spaces, select
+   substrings, etc)
+#. **Map** - Map the cleaned data to a set of standard Kids First attributes
    and values
 
 The standard set of attributes and values are defined in the Kids First
-Standard Concept Schema. See <TODO> for more details.
+Standard Concept Schema. (See `kf_lib_data_ingest/common/concept_schema.py
+<https://github.com/kids-first/kf-lib-data-ingest/blob/master/kf_lib_data_ingest/common/concept_schema.py>`_
+and `kf_lib_data_ingest/common/constants.py
+<https://github.com/kids-first/kf-lib-data-ingest/blob/master/kf_lib_data_ingest/common/constants.py>`_)
 
 Extract stage output might look like this:
 
@@ -133,78 +130,37 @@ Extract stage output might look like this:
 Transform Stage
 ---------------
 
-The transform stage converts the clean and standardized data into a form that
-closely resembles what is expected by the target database or service.
+Using a user-defined transform function, the transform stage combines the
+individual tables created by the Extract Stage into a new set of "records"
+tables where each table row contains all of the information for an instance of
+a real world entity or event.
 
-These are the main steps performed by transform stage:
+**Example:** If one of your extracted files contains participant age and
+consent information, and another extracted file contains participant race and
+ethnicity information, join the two tables on the participant ID column to
+produce a new participant records table that contains age, consent, race, and
+ethnicity for your participants.
 
-1. **Merge Extract Stage tables into unified form**
-
-    If in guided transform mode, the Transform Stage will apply the
-    user-defined transform function. This function specifies how the individual
-    tables from the Extract Stage should be merged into a single table.
-
-2. **Create unique identifiers for concepts**
-
-    For most concepts, the contributor of the data provides their own IDs to
-    uniquely identify the concept within a dataset. But for some, such as
-    diagnosis and phenotype observation events, an event ID isn't typically
-    provided.
-
-    The Transform Stage will create its own unique identifiers and assign one
-    to every concept instance. Most unique identifiers just equate to the ID
-    provided by the data contributor, while others are created from a
-    combination of values (e.g. diagnosis event = participant ID + diagnosis
-    name + participant age at event).
-
-3. **Convert from standard form to target form**
-
-    Next, the Transform Stage emits target entity instance dicts.
-
-    Properties in the unified form (standard concept attributes) are converted
-    to target concept properties using the Kids First target API configuration
-    file.
-
-4. **Apply common cleaning for the target service**
-
-    This includes actions like filling in leftover null or unknown values with
-    standard values (Not Reported, Unknown, etc).
-
-
-Transform stage output might look like this:
-
-.. code-block:: json
-
-    {
-        "participant": [
-            {
-                "endpoint": "/participants",
-                "id": "P001",
-                "links": {
-                    "family_id": "f1",
-                    "study_id": null
-                },
-                "properties": {
-                    "affected_status": "Not Reported",
-                    "consent_type": "GRU",
-                    "ethnicity": "Not Reported",
-                    "external_id": "1",
-                    "gender": "Female",
-                    "is_proband": "True",
-                    "race": "Not Reported",
-                    "visible": "Not Reported"
-                }
-            }
-        ]
-    }
-
-
+**Example:** If half of your specimens are recorded in one file, and the other
+half are recorded in another file, concatenate the extracted tables from those
+two files together to produce one unified specimen records table.
 
 Load Stage
 ----------
 
-At this point, the data is in a form that is almost ready to be submitted to
-the target service. The Load Stage will build the target payloads and either
-POST or PATCH them to the target service.
+The Load Stage builds target entity payloads from the records emitted by the
+transform stage, determines whether each entity already exists in the target
+service by its uniquely identifying components, and then submits each completed
+entity payload to the target service.
 
-Head to :ref:`how_to` to get started with data ingestion!
+.. toctree::
+   :caption: Table of Contents
+   :maxdepth: 2
+
+   self
+   install
+   quickstart
+   design/overview.rst
+   tutorial/index.rst
+   developer
+   reference/index.rst

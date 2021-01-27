@@ -21,10 +21,9 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -95,7 +94,7 @@
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design/overview.html">Design Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/index.html">How To</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/index.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developer.html">Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a></li>
 </ul>
@@ -165,50 +164,6 @@
   <img alt="Kids First Data Ingest Library" src="_images/logo.png" />
 <hr class="docutils" />
 <p>Library Code Repository: <a class="reference external" href="https://github.com/kids-first/kf-lib-data-ingest">https://github.com/kids-first/kf-lib-data-ingest</a></p>
-<div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Table of Contents</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#generate-a-new-ingest-package">Generate a new ingest package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#modify-a-template-extract-config">Modify a template extract config</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#debugging">Debugging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#modify-the-transform-module">Modify the Transform module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#run-the-ingest-pipeline">Run the ingest pipeline</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="design/overview.html">Design Overview</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="design/value_principles.html">Value Principles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="design/extract_mapping.html">Extract Mapping</a></li>
-<li class="toctree-l2"><a class="reference internal" href="design/transform.html">Transform Stage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="design/warehousing.html">Remote Warehousing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="design/load.html">Load Stage Design</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/index.html">How To</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/app.html">Kids First Ingest App</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/ingest_package.html">Ingest Package Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/package_setup.html">New Ingest Package Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/debugging.html">Debugging and Developing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/extract/index.html">Extract Stage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/extract/challenge_scenarios/index.html">Common Challenges when Extracting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/package_testing.html">Testing Your Ingest Package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/transform.html">Transform Stage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/target_service_plugins/index.html">Target Service Plugins</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/load.html">Understanding the Load Stage</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="developer.html">Developers</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="developer.html#set-up-development-environment">Set Up Development Environment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developer.html#run-unit-tests">Run Unit Tests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developer.html#build-documentation">Build Documentation</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a></li>
-</ul>
-</div>
 <div class="section" id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
 <p>The Kids First Data Ingest Library is both an ETL (extract, transform, load)
@@ -230,36 +185,44 @@ framework for data wrangling tasks. See &lt;TODO&gt; for details.</p>
 <p>The library comes with a built-in command-line-interface-based (CLI) app
 which is the primary user interface for executing the ingest pipeline.
 Most users will use this app to create new ingest packages, test packages,
-and ingest Kids First study datasets into the Kids First Data Service.
-The Kids First Data Service is the only supported target service at this point.</p>
+and ingest Kids First study datasets into the Kids First Data Service.</p>
 </div>
 <div class="section" id="ingest-packages">
 <h2>Ingest Packages<a class="headerlink" href="#ingest-packages" title="Permalink to this headline">¶</a></h2>
-<p>In order to use this library to ingest a study, users must create an ingest
-package which contains all of the necessary configuration defining basic ingest
+<p>In order to use this library to ingest a study, users must create ingest
+packages which contain all of the necessary configuration defining basic ingest
 input parameters and also how to extract and transform data.</p>
 </div>
 <div class="section" id="ingest-pipeline">
 <h2>Ingest Pipeline<a class="headerlink" href="#ingest-pipeline" title="Permalink to this headline">¶</a></h2>
-<div class="figure" id="id1">
+<div class="figure align-default" id="id1">
 <a class="reference external image-reference" href="_images/ingest-pipeline.png"><img alt="Ingest Pipeline Overview" src="_images/ingest-pipeline.png" /></a>
-<p class="caption"><span class="caption-text">Overview of the ingest pipeline</span></p>
+<p class="caption"><span class="caption-text">Overview of the ingest pipeline</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </div>
 <div class="section" id="users">
 <h3>Users<a class="headerlink" href="#users" title="Permalink to this headline">¶</a></h3>
-<p>Users of the ingest system will likely fall into 2 categories:</p>
+<p>Users of the ingest system will likely fall into 3 categories:</p>
 <ol class="arabic simple">
-<li><strong>Ingest Operator</strong><ul>
-<li>Will never create a new study ingest package</li>
-<li>Will likely just be running existing ingest packages</li>
-<li>May need to learn how to modify configuration by inspection of existing
-ingest package configurations</li>
+<li><p><strong>Ingest Operator</strong></p>
+<ul class="simple">
+<li><p>Will likely just be running existing ingest packages</p></li>
+<li><p>May need to learn how to modify configuration by inspection of existing
+ingest package configurations</p></li>
 </ul>
 </li>
-<li><strong>Ingest Package Developer</strong><ul>
-<li>Runs ingest packages</li>
-<li>Understands how to create new ingest packages and modify existing ones</li>
-<li>Knows Python well and likely knows Pandas fairly well</li>
+<li><p><strong>Ingest Package Developer</strong></p>
+<ul class="simple">
+<li><p>Understands how to create new ingest packages and modify existing ones</p></li>
+<li><p>Knows Python well and likely knows Pandas fairly well</p></li>
+</ul>
+</li>
+<li><p><strong>Target Service Plugin Developer</strong></p>
+<ul class="simple">
+<li><p>Understands the intricacies of how to query and submit data to their
+target service</p></li>
+<li><p>Understands the Load process and plugin API defined in this documentation
+and explored in existing target service plugins</p></li>
+<li><p>Knows Python well and likely knows Pandas fairly well</p></li>
 </ul>
 </li>
 </ol>
@@ -267,35 +230,35 @@ ingest package configurations</li>
 <div class="section" id="inputs">
 <h3>Inputs<a class="headerlink" href="#inputs" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><strong>Local or remote source data files</strong></li>
-<li><strong>Configuration files</strong></li>
+<li><p><strong>Local or remote source data files</strong></p></li>
+<li><p><strong>Configuration files</strong></p></li>
 </ul>
 <p>Source data files might look like this:</p>
-<table border="1" class="docutils" id="id2">
+<table class="docutils align-default" id="id2">
 <caption><span class="caption-text">data.tsv</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
 <colgroup>
-<col width="33%" />
-<col width="33%" />
-<col width="33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">p id</th>
-<th class="head">gender</th>
-<th class="head">sample id</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>p id</p></th>
+<th class="head"><p>gender</p></th>
+<th class="head"><p>sample id</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>PID001</td>
-<td>f</td>
-<td>SS001</td>
+<tbody>
+<tr class="row-even"><td><p>PID001</p></td>
+<td><p>f</p></td>
+<td><p>SS001</p></td>
 </tr>
-<tr class="row-odd"><td>PID002</td>
-<td>female</td>
-<td>SS002</td>
+<tr class="row-odd"><td><p>PID002</p></td>
+<td><p>female</p></td>
+<td><p>SS002</p></td>
 </tr>
-<tr class="row-even"><td>PID003</td>
-<td>m</td>
-<td>SS003</td>
+<tr class="row-even"><td><p>PID003</p></td>
+<td><p>m</p></td>
+<td><p>SS003</p></td>
 </tr>
 </tbody>
 </table>
@@ -303,128 +266,121 @@ ingest package configurations</li>
 <div class="section" id="outputs">
 <h3>Outputs<a class="headerlink" href="#outputs" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><strong>Ingest log</strong> - A log file containing runtime details of an executed ingest
-job</li>
-<li><strong>Serialized stage output</strong> - The output of each stage execution in a
-serializable form written to disk</li>
+<li><p><strong>Ingest log</strong> - A log file containing runtime details of an executed ingest
+job</p></li>
+<li><p><strong>Serialized stage output</strong> - The output of each stage execution in a
+serializable form written to disk</p></li>
 </ul>
 </div>
 <div class="section" id="extract-stage">
 <h3>Extract Stage<a class="headerlink" href="#extract-stage" title="Permalink to this headline">¶</a></h3>
 <p>The extract stage does the following:</p>
 <ol class="arabic simple">
-<li><strong>Retrieve</strong> - Retrieve the source data files, whether they are local or
-remote, and read them into memory</li>
-<li><strong>Select</strong> - Extract the desired subset of data from the source data files</li>
-<li><strong>Clean</strong>- Clean the source data (remove trailing whitespaces, etc)</li>
-<li><strong>Map</strong> - Map the cleaned data to a set of standard Kids First attributes
-and values</li>
+<li><p><strong>Retrieve</strong> - Fetch the source data files, local or remote, and read them
+into memory</p></li>
+<li><p><strong>Select</strong> - Extract the desired subset of data from the source data files</p></li>
+<li><p><strong>Clean</strong> - Clean the source data (remove trailing spaces, select
+substrings, etc)</p></li>
+<li><p><strong>Map</strong> - Map the cleaned data to a set of standard Kids First attributes
+and values</p></li>
 </ol>
 <p>The standard set of attributes and values are defined in the Kids First
-Standard Concept Schema. See &lt;TODO&gt; for more details.</p>
+Standard Concept Schema. (See <a class="reference external" href="https://github.com/kids-first/kf-lib-data-ingest/blob/master/kf_lib_data_ingest/common/concept_schema.py">kf_lib_data_ingest/common/concept_schema.py</a>
+and <a class="reference external" href="https://github.com/kids-first/kf-lib-data-ingest/blob/master/kf_lib_data_ingest/common/constants.py">kf_lib_data_ingest/common/constants.py</a>)</p>
 <p>Extract stage output might look like this:</p>
-<table border="1" class="docutils" id="id3">
+<table class="docutils align-default" id="id3">
 <caption><span class="caption-text">data.tsv</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
 <colgroup>
-<col width="33%" />
-<col width="33%" />
-<col width="33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">CONCEPT.PARTICIPANT.ID</th>
-<th class="head">CONCEPT.PARTICIPANT.GENDER</th>
-<th class="head">CONCEPT.BIOSPECIMEN.ID</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>CONCEPT.PARTICIPANT.ID</p></th>
+<th class="head"><p>CONCEPT.PARTICIPANT.GENDER</p></th>
+<th class="head"><p>CONCEPT.BIOSPECIMEN.ID</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>PID001</td>
-<td>Female</td>
-<td>SS001</td>
+<tbody>
+<tr class="row-even"><td><p>PID001</p></td>
+<td><p>Female</p></td>
+<td><p>SS001</p></td>
 </tr>
-<tr class="row-odd"><td>PID002</td>
-<td>Female</td>
-<td>SS002</td>
+<tr class="row-odd"><td><p>PID002</p></td>
+<td><p>Female</p></td>
+<td><p>SS002</p></td>
 </tr>
-<tr class="row-even"><td>PID003</td>
-<td>Male</td>
-<td>SS003</td>
+<tr class="row-even"><td><p>PID003</p></td>
+<td><p>Male</p></td>
+<td><p>SS003</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="transform-stage">
 <h3>Transform Stage<a class="headerlink" href="#transform-stage" title="Permalink to this headline">¶</a></h3>
-<p>The transform stage converts the clean and standardized data into a form that
-closely resembles what is expected by the target database or service.</p>
-<p>These are the main steps performed by transform stage:</p>
-<ol class="arabic">
-<li><p class="first"><strong>Merge Extract Stage tables into unified form</strong></p>
-<blockquote>
-<div><p>If in guided transform mode, the Transform Stage will apply the
-user-defined transform function. This function specifies how the individual
-tables from the Extract Stage should be merged into a single table.</p>
-</div></blockquote>
-</li>
-<li><p class="first"><strong>Create unique identifiers for concepts</strong></p>
-<blockquote>
-<div><p>For most concepts, the contributor of the data provides their own IDs to
-uniquely identify the concept within a dataset. But for some, such as
-diagnosis and phenotype observation events, an event ID isn’t typically
-provided.</p>
-<p>The Transform Stage will create its own unique identifiers and assign one
-to every concept instance. Most unique identifiers just equate to the ID
-provided by the data contributor, while others are created from a
-combination of values (e.g. diagnosis event = participant ID + diagnosis
-name + participant age at event).</p>
-</div></blockquote>
-</li>
-<li><p class="first"><strong>Convert from standard form to target form</strong></p>
-<blockquote>
-<div><p>Next, the Transform Stage emits target entity instance dicts.</p>
-<p>Properties in the unified form (standard concept attributes) are converted
-to target concept properties using the Kids First target API configuration
-file.</p>
-</div></blockquote>
-</li>
-<li><p class="first"><strong>Apply common cleaning for the target service</strong></p>
-<blockquote>
-<div><p>This includes actions like filling in leftover null or unknown values with
-standard values (Not Reported, Unknown, etc).</p>
-</div></blockquote>
-</li>
-</ol>
-<p>Transform stage output might look like this:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-    <span class="nt">&quot;participant&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="p">{</span>
-            <span class="nt">&quot;endpoint&quot;</span><span class="p">:</span> <span class="s2">&quot;/participants&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;P001&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;links&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="nt">&quot;family_id&quot;</span><span class="p">:</span> <span class="s2">&quot;f1&quot;</span><span class="p">,</span>
-                <span class="nt">&quot;study_id&quot;</span><span class="p">:</span> <span class="kc">null</span>
-            <span class="p">},</span>
-            <span class="nt">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="nt">&quot;affected_status&quot;</span><span class="p">:</span> <span class="s2">&quot;Not Reported&quot;</span><span class="p">,</span>
-                <span class="nt">&quot;consent_type&quot;</span><span class="p">:</span> <span class="s2">&quot;GRU&quot;</span><span class="p">,</span>
-                <span class="nt">&quot;ethnicity&quot;</span><span class="p">:</span> <span class="s2">&quot;Not Reported&quot;</span><span class="p">,</span>
-                <span class="nt">&quot;external_id&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
-                <span class="nt">&quot;gender&quot;</span><span class="p">:</span> <span class="s2">&quot;Female&quot;</span><span class="p">,</span>
-                <span class="nt">&quot;is_proband&quot;</span><span class="p">:</span> <span class="s2">&quot;True&quot;</span><span class="p">,</span>
-                <span class="nt">&quot;race&quot;</span><span class="p">:</span> <span class="s2">&quot;Not Reported&quot;</span><span class="p">,</span>
-                <span class="nt">&quot;visible&quot;</span><span class="p">:</span> <span class="s2">&quot;Not Reported&quot;</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-    <span class="p">]</span>
-<span class="p">}</span>
-</pre></div>
-</div>
+<p>Using a user-defined transform function, the transform stage combines the
+individual tables created by the Extract Stage into a new set of “records”
+tables where each table row contains all of the information for an instance of
+a real world entity or event.</p>
+<p><strong>Example:</strong> If one of your extracted files contains participant age and
+consent information, and another extracted file contains participant race and
+ethnicity information, join the two tables on the participant ID column to
+produce a new participant records table that contains age, consent, race, and
+ethnicity for your participants.</p>
+<p><strong>Example:</strong> If half of your specimens are recorded in one file, and the other
+half are recorded in another file, concatenate the extracted tables from those
+two files together to produce one unified specimen records table.</p>
 </div>
 <div class="section" id="load-stage">
 <h3>Load Stage<a class="headerlink" href="#load-stage" title="Permalink to this headline">¶</a></h3>
-<p>At this point, the data is in a form that is almost ready to be submitted to
-the target service. The Load Stage will build the target payloads and either
-POST or PATCH them to the target service.</p>
-<p>Head to <a class="reference internal" href="tutorial/index.html#how-to"><span class="std std-ref">How To</span></a> to get started with data ingestion!</p>
+<p>The Load Stage builds target entity payloads from the records emitted by the
+transform stage, determines whether each entity already exists in the target
+service by its uniquely identifying components, and then submits each completed
+entity payload to the target service.</p>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#generate-a-new-ingest-package">Generate a new ingest package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#test">Test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#add-another-extract-config">Add another extract config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#modify-the-transform-module">Modify the Transform module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#test-again">Test Again</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="design/overview.html">Design Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="design/value_principles.html">Value Principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="design/extract_mapping.html">Extract Mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="design/transform.html">Transform Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="design/load.html">Load Stage Design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="design/warehousing.html">Remote Warehousing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="design/logs.html">Logs</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/index.html">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/app.html">Kids First Ingest App</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/ingest_package.html">New Ingest Package Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/extract/index.html">Extract Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/testing.html">Testing Your Ingest Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/extract/challenge_scenarios/index.html">Common Challenges when Extracting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/transform.html">Transform Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/target_service_plugins/index.html">Target Service Plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/load.html">Understanding the Load Stage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="developer.html#set-up-development-environment">Set Up Development Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developer.html#run-unit-tests">Run Unit Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developer.html#build-documentation">Build Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a></li>
+</ul>
+</div>
 </div>
 </div>
 </div>

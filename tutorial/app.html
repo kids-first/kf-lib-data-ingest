@@ -21,10 +21,9 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -36,8 +35,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Ingest Package Configuration" href="ingest_package.html" />
-    <link rel="prev" title="How To" href="index.html" />
+    <link rel="next" title="New Ingest Package Setup" href="ingest_package.html" />
+    <link rel="prev" title="Tutorial" href="index.html" />
     <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
  
 </head>
@@ -96,7 +95,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Design Overview</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">How To</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorial</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Kids First Ingest App</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#app-settings">App Settings</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#authorization-configs">Authorization Configs</a></li>
@@ -105,13 +104,11 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="ingest_package.html">Ingest Package Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="package_setup.html">New Ingest Package Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="debugging.html">Debugging and Developing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ingest_package.html">New Ingest Package Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extract/index.html">Extract Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing.html">Testing Your Ingest Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extract/challenge_scenarios/index.html">Common Challenges when Extracting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="package_testing.html">Testing Your Ingest Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="transform.html">Transform Stage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="target_service_plugins/index.html">Target Service Plugins</a></li>
 <li class="toctree-l2"><a class="reference internal" href="load.html">Understanding the Load Stage</a></li>
@@ -164,7 +161,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="index.html">How To</a> &raquo;</li>
+          <li><a href="index.html">Tutorial</a> &raquo;</li>
         
       <li>Kids First Ingest App</li>
     
@@ -195,7 +192,7 @@ us tailor usage of the library for specific projects.</p>
 then this section will also explain where source data files should live
 (not on your computer!) and how to access them.</p>
 <div class="section" id="app-settings">
-<h2>App Settings<a class="headerlink" href="#app-settings" title="Permalink to this headline">¶</a></h2>
+<span id="tutorial-app-settings"></span><h2>App Settings<a class="headerlink" href="#app-settings" title="Permalink to this headline">¶</a></h2>
 <p>App settings include configuration that applies to a group of ingest packages
 which are all part of the same project.</p>
 <p>Each app settings file is a Python module, and all app settings files live in
@@ -203,11 +200,11 @@ the <code class="docutils literal notranslate"><span class="pre">kf_lib_data_ing
 imported from <code class="docutils literal notranslate"><span class="pre">base.py</span></code>.</p>
 <p>App level settings currently include but are not limited to:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">TARGET_API_CONFIG</span></code> the path to the target API configuration module
+<li><p><code class="docutils literal notranslate"><span class="pre">TARGET_API_CONFIG</span></code> the path to the target API configuration module
 which specifies how to transform data into a form expected by the target
-service</li>
-<li><code class="docutils literal notranslate"><span class="pre">AUTH_CONFIGS</span></code> dict, which specifies what authentication parameters to use
-when fetching remote source data files that require authentication.</li>
+service</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AUTH_CONFIGS</span></code> dict, which specifies what authentication parameters to use
+when fetching remote source data files that require authentication.</p></li>
 </ul>
 <p>Here’s what an example app settings file looks like:</p>
 <div class="literal-block-wrapper docutils container" id="id1">
@@ -257,8 +254,8 @@ when fetching remote source data files that require authentication.</li>
 deployment. The deployment mode can be controlled by the <code class="docutils literal notranslate"><span class="pre">KF_INGEST_APP_MODE</span></code>
 environment variable.</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">KF_INGEST_APP_MODE=production</span></code> -&gt; loads settings from <code class="docutils literal notranslate"><span class="pre">production.py</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">KF_INGEST_APP_MODE=development</span></code> -&gt; loads settings from <code class="docutils literal notranslate"><span class="pre">development.py</span></code></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">KF_INGEST_APP_MODE=production</span></code> -&gt; loads settings from <code class="docutils literal notranslate"><span class="pre">production.py</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">KF_INGEST_APP_MODE=development</span></code> -&gt; loads settings from <code class="docutils literal notranslate"><span class="pre">development.py</span></code></p></li>
 </ul>
 <div class="section" id="development-mode">
 <h4>Development Mode<a class="headerlink" href="#development-mode" title="Permalink to this headline">¶</a></h4>
@@ -295,10 +292,10 @@ settings file via the <code class="docutils literal notranslate"><span class="pr
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="ingest_package.html" class="btn btn-neutral float-right" title="Ingest Package Configuration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="ingest_package.html" class="btn btn-neutral float-right" title="New Ingest Package Setup" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral float-left" title="How To" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Tutorial" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

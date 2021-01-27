@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Debugging and Developing &mdash; Kids First Data Ingest Libraries  documentation</title>
+  <title>Logs &mdash; Kids First Data Ingest Libraries  documentation</title>
   
 
   
@@ -21,10 +21,9 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -36,8 +35,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Extract Stage" href="extract/index.html" />
-    <link rel="prev" title="New Ingest Package Setup" href="package_setup.html" />
+    <link rel="next" title="Tutorial" href="../tutorial/index.html" />
+    <link rel="prev" title="Remote Warehousing" href="warehousing.html" />
     <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
  
 </head>
@@ -95,26 +94,20 @@
 <li class="toctree-l1"><a class="reference internal" href="../index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Design Overview</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">How To</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="app.html">Kids First Ingest App</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ingest_package.html">Ingest Package Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="package_setup.html">New Ingest Package Setup</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Debugging and Developing</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#run-subsets-of-the-pipeline">Run Subsets of the Pipeline</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#stage-outputs">Stage Outputs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ingest-log">Ingest Log</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="extract/index.html">Extract Stage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extract/challenge_scenarios/index.html">Common Challenges when Extracting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="package_testing.html">Testing Your Ingest Package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="overview.html">Design Overview</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="value_principles.html">Value Principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extract_mapping.html">Extract Mapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="transform.html">Transform Stage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="target_service_plugins/index.html">Target Service Plugins</a></li>
-<li class="toctree-l2"><a class="reference internal" href="load.html">Understanding the Load Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="load.html">Load Stage Design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="warehousing.html">Remote Warehousing</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Logs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ingest-log">Ingest Log</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#stage-outputs">Stage Outputs</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developer.html">Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
 </ul>
@@ -162,15 +155,15 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="index.html">How To</a> &raquo;</li>
+          <li><a href="overview.html">Design Overview</a> &raquo;</li>
         
-      <li>Debugging and Developing</li>
+      <li>Logs</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/tutorial/debugging.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/design/logs.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -183,32 +176,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="debugging-and-developing">
-<h1>Debugging and Developing<a class="headerlink" href="#debugging-and-developing" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="run-subsets-of-the-pipeline">
-<h2>Run Subsets of the Pipeline<a class="headerlink" href="#run-subsets-of-the-pipeline" title="Permalink to this headline">¶</a></h2>
-<p>As you develop your ingest package, you will likely run into scenarios where
-you do not want to run the entire ingest pipeline.</p>
-<p>The CLI allows you to run a subset of the ingest stages to make development
-easier. The <code class="docutils literal notranslate"><span class="pre">--stages</span></code> option takes any subsequence of the ingest
-stage-code/char sequence: <code class="docutils literal notranslate"><span class="pre">etl</span></code>. A subsequence must not contain gaps.</p>
-<p>For example:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ kidsfirst test my_study --stages=e  # will only run the extract stage
-$ kidsfirst test my_study --stages=t  # will only run the transform stage
-$ kidsfirst test my_study --stages=et # will run extract then transform
-$ kidsfirst test my_study --stages=te # is out of order and invalid
-$ kidsfirst test my_study --stages=el # has a gap and is invalid
-</pre></div>
-</div>
-<p>Note that when running an ingest stage via the <code class="docutils literal notranslate"><span class="pre">--stages</span></code> option,
-the output from the previous stage must exist, otherwise an error will occur.</p>
-</div>
-<div class="section" id="stage-outputs">
-<h2>Stage Outputs<a class="headerlink" href="#stage-outputs" title="Permalink to this headline">¶</a></h2>
-<p>Every ingest stage has the option to write its output to a directory that
-follows this path pattern:
-<code class="docutils literal notranslate"><span class="pre">&lt;ingest</span> <span class="pre">package</span> <span class="pre">dir&gt;/output/&lt;name</span> <span class="pre">of</span> <span class="pre">stage&gt;</span></code></p>
-</div>
+  <div class="section" id="logs">
+<h1>Logs<a class="headerlink" href="#logs" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="ingest-log">
 <h2>Ingest Log<a class="headerlink" href="#ingest-log" title="Permalink to this headline">¶</a></h2>
 <p>The ingest pipeline logs messages to the console and also writes the same
@@ -222,7 +191,12 @@ is <code class="docutils literal notranslate"><span class="pre">overwrite_log=Tr
 called <code class="docutils literal notranslate"><span class="pre">ingest.log</span></code> that gets overwritten each time the ingest pipeline
 runs. If <code class="docutils literal notranslate"><span class="pre">overwrite_log=False</span></code>, then a new log file will be written each time
 the ingest pipeline runs, and it will follow this naming pattern:
-<code class="docutils literal notranslate"><span class="pre">ingest_&lt;ISO</span> <span class="pre">8601</span> <span class="pre">formatted</span> <span class="pre">timestamp&gt;.log</span></code></p>
+<code class="docutils literal notranslate"><span class="pre">ingest_&lt;ISO</span> <span class="pre">8601</span> <span class="pre">timestamp&gt;.log</span></code></p>
+</div>
+<div class="section" id="stage-outputs">
+<h2>Stage Outputs<a class="headerlink" href="#stage-outputs" title="Permalink to this headline">¶</a></h2>
+<p>Ingest stages also write their own output to a directory that follows this path
+pattern: <code class="docutils literal notranslate"><span class="pre">&lt;ingest</span> <span class="pre">package</span> <span class="pre">dir&gt;/output/&lt;stage&gt;</span></code></p>
 </div>
 </div>
 
@@ -234,10 +208,10 @@ the ingest pipeline runs, and it will follow this naming pattern:
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="extract/index.html" class="btn btn-neutral float-right" title="Extract Stage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../tutorial/index.html" class="btn btn-neutral float-right" title="Tutorial" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="package_setup.html" class="btn btn-neutral float-left" title="New Ingest Package Setup" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="warehousing.html" class="btn btn-neutral float-left" title="Remote Warehousing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

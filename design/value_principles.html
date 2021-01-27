@@ -21,10 +21,9 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -103,11 +102,12 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="extract_mapping.html">Extract Mapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="transform.html">Transform Stage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="warehousing.html">Remote Warehousing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="load.html">Load Stage Design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="warehousing.html">Remote Warehousing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logs.html">Logs</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html">How To</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developer.html">Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
 </ul>
@@ -180,32 +180,32 @@
 <span id="id1"></span><h1>Value Principles<a class="headerlink" href="#value-principles" title="Permalink to this headline">¶</a></h1>
 <p>The ingest library operates on a few key principles:</p>
 <ul class="simple">
-<li>All data can be unambiguously represented as a set of tables where values in
-the same table row are fundamentally linked to each other.</li>
-<li>Some values act as identifiers of a thing, and some values act as attributes
-of an identified thing.</li>
-<li>Which thing is identified by an identifier is unambiguous.</li>
-<li>Relationships between identified things and their attributes and between
-different identified things are unambiguous.</li>
-<li>Each column represents something different.</li>
-<li>All occurrences of a particular identifier across all tables identify the
-same thing.</li>
+<li><p>All data can be unambiguously represented as a set of tables where values in
+the same table row are fundamentally linked to each other.</p></li>
+<li><p>Some values act as identifiers of a thing, and some values act as attributes
+of an identified thing.</p></li>
+<li><p>Which thing is identified by an identifier is unambiguous.</p></li>
+<li><p>Relationships between identified things and their attributes and between
+different identified things are unambiguous.</p></li>
+<li><p>Each column represents something different.</p></li>
+<li><p>All occurrences of a particular identifier across all tables identify the
+same thing.</p></li>
 </ul>
 <div class="section" id="practical-implications">
 <h2>Practical Implications<a class="headerlink" href="#practical-implications" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Relationships between values may span across multiple tables.</li>
-<li>Attributes of a thing need not be in the same table as the identifier(s) of
+<li><p>Relationships between values may transitively span across multiple tables.</p></li>
+<li><p>Attributes of a thing need not be in the same table as the identifier(s) of
 the thing as long as there is an unambiguous path via some other linked
-thing.</li>
-<li>No more than one value per cell.</li>
-<li>Every cell value stands on its own, without secret reference to other cell
+thing.</p></li>
+<li><p>A table cell may contain no more than one value.</p></li>
+<li><p>Every cell value stands on its own, without secret reference to other cell
 values, and can be fully understood based exclusively on the column header
-and an optional data dictionary.</li>
-<li>The relationship between two column entries (in the same row) must be the
-same regardless of the row.</li>
-<li>Table normalization or denormalization doesn’t matter, but full
-denormalization may not be possible or practical.</li>
+and an optional data dictionary.</p></li>
+<li><p>The relationship between two column entries (in the same row) must be the
+same regardless of the row.</p></li>
+<li><p>Table normalization or denormalization doesn’t matter, but full
+denormalization may not be possible or practical.</p></li>
 </ul>
 </div>
 <div class="section" id="the-analyst-s-challenge">

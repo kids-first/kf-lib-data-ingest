@@ -21,10 +21,9 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -36,8 +35,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Load Stage Design" href="load.html" />
-    <link rel="prev" title="Transform Stage" href="transform.html" />
+    <link rel="next" title="Logs" href="logs.html" />
+    <link rel="prev" title="Load Stage Design" href="load.html" />
     <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
  
 </head>
@@ -99,18 +98,19 @@
 <li class="toctree-l2"><a class="reference internal" href="value_principles.html">Value Principles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extract_mapping.html">Extract Mapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="transform.html">Transform Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="load.html">Load Stage Design</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Remote Warehousing</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#warehouse-server-requirements">Warehouse Server Requirements</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#local-environment-configuration">Local Environment Configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#cli-temporary-disabling">CLI Temporary Disabling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#temporarily-disabling-warehousing">Temporarily Disabling Warehousing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#storage-layout">Storage Layout</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#lifecycle">Lifecycle</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="load.html">Load Stage Design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logs.html">Logs</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html">How To</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developer.html">Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
 </ul>
@@ -191,45 +191,57 @@ modifying the results of an ingest.</p>
 <h2>Warehouse Server Requirements<a class="headerlink" href="#warehouse-server-requirements" title="Permalink to this headline">¶</a></h2>
 <p>The technical requirements for warehousing are:</p>
 <ol class="arabic simple">
-<li>A database server that supports namespace schemas (ask your group
-administrator if one has already been set up)<ul>
-<li>PostgreSQL will work</li>
-<li>MySQL will <strong>not</strong> work</li>
+<li><p>A database server that supports namespace schemas (ask your group
+administrator if one has already been set up)</p>
+<ul class="simple">
+<li><p>PostgreSQL will work</p></li>
+<li><p>MySQL will <strong>not</strong> work</p></li>
 </ul>
 </li>
-<li>An account on the database server with sufficient access permissions to
+<li><p>An account on the database server with sufficient access permissions to
 invoke <code class="docutils literal notranslate"><span class="pre">CREATE</span> <span class="pre">DATABASE</span></code>, <code class="docutils literal notranslate"><span class="pre">CREATE</span> <span class="pre">SCHEMA</span></code>, <code class="docutils literal notranslate"><span class="pre">DROP</span> <span class="pre">SCHEMA</span></code>,
-<code class="docutils literal notranslate"><span class="pre">CREATE</span> <span class="pre">TABLE</span></code>, <code class="docutils literal notranslate"><span class="pre">DROP</span> <span class="pre">TABLE</span></code>, and <code class="docutils literal notranslate"><span class="pre">INSERT</span></code></li>
-<li>The power of friendship</li>
+<code class="docutils literal notranslate"><span class="pre">CREATE</span> <span class="pre">TABLE</span></code>, <code class="docutils literal notranslate"><span class="pre">DROP</span> <span class="pre">TABLE</span></code>, and <code class="docutils literal notranslate"><span class="pre">INSERT</span></code></p></li>
+<li><p>The power of friendship</p></li>
 </ol>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Connection details for the warehouse used for ingesting Kids First studies
+<p class="admonition-title">Note</p>
+<p>Connection details for the warehouse used for ingesting Kids First studies
 can be found at <a class="reference external" href="https://github.com/d3b-center/clinical-data-flow/tree/master/warehouse">https://github.com/d3b-center/clinical-data-flow/tree/master/warehouse</a></p>
 </div>
 </div>
 <div class="section" id="local-environment-configuration">
 <h2>Local Environment Configuration<a class="headerlink" href="#local-environment-configuration" title="Permalink to this headline">¶</a></h2>
-<p>In your local environment, set a variable called <code class="docutils literal notranslate"><span class="pre">KF_WAREHOUSE_DB_URL</span></code>
-containing a complete login URL, including username and password if needed,
-that can be used for calling <code class="docutils literal notranslate"><span class="pre">CREATE</span> <span class="pre">DATABASE</span></code> on the server, like this:</p>
+<p>In your local environment, set a variable named according to the definition of
+<code class="docutils literal notranslate"><span class="pre">SECRETS.WAREHOUSE_DB_URL</span></code> in the <a class="reference internal" href="../tutorial/app.html#tutorial-app-settings"><span class="std std-ref">application settings
+configuration</span></a> to equal a complete login URL, including
+username and password if needed, that can be used for calling <code class="docutils literal notranslate"><span class="pre">CREATE</span>
+<span class="pre">DATABASE</span></code> on the server.</p>
+<p>As shown here from <code class="docutils literal notranslate"><span class="pre">app/settings/base.py</span></code>, the variable is named
+<code class="docutils literal notranslate"><span class="pre">KF_WAREHOUSE_DB_URL</span></code> by default.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SECRETS</span><span class="p">:</span>
+    <span class="n">KF_STUDY_CREATOR_API_TOKEN</span> <span class="o">=</span> <span class="s2">&quot;KF_STUDY_CREATOR_API_TOKEN&quot;</span>
+    <span class="n">KF_SC_INGEST_APP_CLIENT_SECRET</span> <span class="o">=</span> <span class="s2">&quot;KF_SC_INGEST_APP_CLIENT_SECRET&quot;</span>
+<span class="hll">    <span class="n">WAREHOUSE_DB_URL</span> <span class="o">=</span> <span class="s2">&quot;KF_WAREHOUSE_DB_URL&quot;</span>
+</span></pre></div>
+</div>
+<p>So we would set <code class="docutils literal notranslate"><span class="pre">KF_WAREHOUSE_DB_URL</span></code> in our shell environment:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">KF_WAREHOUSE_DB_URL</span><span class="o">=</span><span class="n">postgresql</span><span class="p">:</span><span class="o">//&lt;</span><span class="n">username</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">password</span><span class="o">&gt;@&lt;</span><span class="n">address</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">port</span><span class="o">&gt;/</span><span class="n">postgres</span>
 </pre></div>
 </div>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">PostgreSQL requires all connections to go directly to a database regardless
+<p class="admonition-title">Note</p>
+<p>PostgreSQL requires all connections to go directly to a database regardless
 of what you’re doing, so we use the default “postgres” database for this.</p>
 </div>
 <p>If this variable is set, the ingest system will use the designated server as a
 central warehouse. If this environment variable is not set, then it will skip
 warehousing.</p>
 </div>
-<div class="section" id="cli-temporary-disabling">
-<h2>CLI Temporary Disabling<a class="headerlink" href="#cli-temporary-disabling" title="Permalink to this headline">¶</a></h2>
-<p>If you don’t want to use the warehouse during a run for any reason, the
-<code class="docutils literal notranslate"><span class="pre">--no_warehouse</span></code> command line argument will make the system treat the
-<code class="docutils literal notranslate"><span class="pre">KF_WAREHOUSE_DB_URL</span></code> environment variable as not set.</p>
+<div class="section" id="temporarily-disabling-warehousing">
+<span id="disablingwarehousing"></span><h2>Temporarily Disabling Warehousing<a class="headerlink" href="#temporarily-disabling-warehousing" title="Permalink to this headline">¶</a></h2>
+<p>If for any reason you don’t want to use the warehouse during a run (for example
+if you’re just testing), the <code class="docutils literal notranslate"><span class="pre">--no_warehouse</span></code> command line argument will skip
+the warehousing steps.</p>
 </div>
 <div class="section" id="storage-layout">
 <h2>Storage Layout<a class="headerlink" href="#storage-layout" title="Permalink to this headline">¶</a></h2>
@@ -256,10 +268,10 @@ replaced.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="load.html" class="btn btn-neutral float-right" title="Load Stage Design" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="logs.html" class="btn btn-neutral float-right" title="Logs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="transform.html" class="btn btn-neutral float-left" title="Transform Stage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="load.html" class="btn btn-neutral float-left" title="Load Stage Design" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

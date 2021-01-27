@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Ingest Package Configuration &mdash; Kids First Data Ingest Libraries  documentation</title>
+  <title>New Ingest Package Setup &mdash; Kids First Data Ingest Libraries  documentation</title>
   
 
   
@@ -21,10 +21,9 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -36,7 +35,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="New Ingest Package Setup" href="package_setup.html" />
+    <link rel="next" title="Extract Stage" href="extract/index.html" />
     <link rel="prev" title="Kids First Ingest App" href="app.html" />
     <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
  
@@ -96,15 +95,16 @@
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../design/overview.html">Design Overview</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">How To</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorial</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="app.html">Kids First Ingest App</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Ingest Package Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="package_setup.html">New Ingest Package Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="debugging.html">Debugging and Developing</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">New Ingest Package Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ingest-package-components">Ingest Package Components</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="extract/index.html">Extract Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing.html">Testing Your Ingest Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extract/challenge_scenarios/index.html">Common Challenges when Extracting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="package_testing.html">Testing Your Ingest Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="transform.html">Transform Stage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="target_service_plugins/index.html">Target Service Plugins</a></li>
 <li class="toctree-l2"><a class="reference internal" href="load.html">Understanding the Load Stage</a></li>
@@ -157,9 +157,9 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="index.html">How To</a> &raquo;</li>
+          <li><a href="index.html">Tutorial</a> &raquo;</li>
         
-      <li>Ingest Package Configuration</li>
+      <li>New Ingest Package Setup</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -178,56 +178,59 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="ingest-package-configuration">
-<h1>Ingest Package Configuration<a class="headerlink" href="#ingest-package-configuration" title="Permalink to this headline">¶</a></h1>
-<p>Each study that needs to be ingested will have a single directory that contains
-all of the configuration needed by the ingest pipeline to extract, transform,
-and load the study into a target data store or service.</p>
-<p>The ingest package contains three components:</p>
-<ol class="arabic simple">
-<li><dl class="first docutils">
-<dt>A top-level configuration file called <code class="docutils literal notranslate"><span class="pre">ingest_package_config.py</span></code></dt>
-<dd>This defines study metadata such as the study’s target ID as well as paths
-to the other two components and logging parameters.
-It will look something like:</dd>
-</dl>
-</li>
-</ol>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">study</span> <span class="o">=</span> <span class="s1">&#39;SD_ME0WME0W&#39;</span>
+  <div class="section" id="new-ingest-package-setup">
+<h1>New Ingest Package Setup<a class="headerlink" href="#new-ingest-package-setup" title="Permalink to this headline">¶</a></h1>
+<p>Each study that needs to be ingested will have a single outer directory and one
+or more inner directories that each contain the configuration files needed by
+the ingest pipeline to extract, transform, and load parts of the study into a
+target data store or service. The inner directories are known as the ingest
+packages.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We want to have an outer directory for each study, because we often need
+multiple ingest packages to complete an entire study for
+practical/logistical reasons.</p>
+</div>
+<p>Create an outer directory for <code class="docutils literal notranslate"><span class="pre">my_study</span></code> and inside it a new ingest package
+named <code class="docutils literal notranslate"><span class="pre">ingest_package_1</span></code>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ kidsfirst new --dest_dir=my_study/ingest_package_1
+</pre></div>
+</div>
+<p>This will generate a minimal study directory for you that looks like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>my_study/
+└── ingest_package_1/
+    ├── ingest_package_config.py
+    ├── transform_module.py
+    ├── data
+    │   └── clinical.tsv
+    └── extract_configs/
+        └── extract_config.py
+</pre></div>
+</div>
+<div class="section" id="ingest-package-components">
+<h2>Ingest Package Components<a class="headerlink" href="#ingest-package-components" title="Permalink to this headline">¶</a></h2>
+<p>Each ingest package contains three components:</p>
+<p>1. A top-level configuration file called <code class="docutils literal notranslate"><span class="pre">ingest_package_config.py</span></code>. This
+defines study metadata such as the study’s target ID as well as paths to the
+other two components and logging parameters. It will look something like:</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">study</span> <span class="o">=</span> <span class="s1">&#39;SD_ME0WME0W&#39;</span>
 <span class="n">extract_config_dir</span> <span class="o">=</span> <span class="s1">&#39;extract_configs&#39;</span>
 <span class="n">transform_function_path</span> <span class="o">=</span> <span class="s1">&#39;transform_module.py&#39;</span>
 <span class="n">log_level</span> <span class="o">=</span> <span class="s1">&#39;debug&#39;</span>
 <span class="n">overwrite_log</span> <span class="o">=</span> <span class="kc">True</span>
 </pre></div>
 </div>
-<ol class="arabic simple" start="2">
-<li><dl class="first docutils">
-<dt>A directory of <cite>Extract Configuration</cite> files</dt>
-<dd>These files define how the extract stage interprets each of the data files
+</div></blockquote>
+<p>2. A directory of <cite>Extract Configuration</cite> files.
+These files define how the extract stage interprets each of the data files
 provided by the investigator. These are described in the
-<a class="reference internal" href="extract/index.html#tutorial-extract-stage"><span class="std std-ref">Extract Stage</span></a> section.</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>(optional) A guided <cite>Transform Module</cite> file</dt>
-<dd>This is used by the transform stage and replaces automatic graph-based
+<a class="reference internal" href="extract/index.html#tutorial-extract-stage"><span class="std std-ref">Extract Stage</span></a> section.</p>
+<p>3. A guided <cite>Transform Module</cite> file.
+This is used by the transform stage and replaces automatic graph-based
 transformation with a predictable set of user-programmed operations. This
-is described in the <a class="reference internal" href="transform.html#tutorial-transform-stage"><span class="std std-ref">Transform Stage</span></a> section.</dd>
-</dl>
-</li>
-</ol>
-<p>Your ingest package directory for a study would look something like this:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>my_study/
-├── ingest_package_config.py
-├── extract_configs/
-│   ├── one_file_extract_config.py
-│   ├── another_file_extract_config.py
-│   └── ...
-└── transform_module.py
-</pre></div>
+is described in the <a class="reference internal" href="transform.html#tutorial-transform-stage"><span class="std std-ref">Transform Stage</span></a> section.</p>
 </div>
-<p>Ok, let’s head on over to <a class="reference internal" href="package_setup.html#tutorial-package-setup"><span class="std std-ref">New Ingest Package Setup</span></a> to start building
-the study.</p>
 </div>
 
 
@@ -238,7 +241,7 @@ the study.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="package_setup.html" class="btn btn-neutral float-right" title="New Ingest Package Setup" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="extract/index.html" class="btn btn-neutral float-right" title="Extract Stage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="app.html" class="btn btn-neutral float-left" title="Kids First Ingest App" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

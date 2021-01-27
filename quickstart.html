@@ -21,10 +21,9 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -96,22 +95,14 @@
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#generate-a-new-ingest-package">Generate a new ingest package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#modify-a-template-extract-config">Modify a template extract config</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#debugging">Debugging</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#run-single-stage">Run single stage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#view-ingest-log">View ingest log</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#view-single-stage-output">View single stage output</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#test">Test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#add-another-extract-config">Add another extract config</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#modify-the-transform-module">Modify the Transform module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#run-the-ingest-pipeline">Run the ingest pipeline</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#the-warehouse-server">The Warehouse Server</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#test-again">Test Again</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="design/overview.html">Design Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/index.html">How To</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/index.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developer.html">Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a></li>
 </ul>
@@ -183,213 +174,367 @@
 <p>If you want to get up and running quickly with creating an ingest package
 and running it, then the quick start guide is the best place to start. It’s ok
 if you do not understand what each of the steps are doing. The tutorial
-section goes through the exact same demonstration as the quickstart, but
-it includes detailed explanations for each step.</p>
+section goes through the exact same demonstration, but it includes detailed
+explanations for each step.</p>
 <div class="section" id="generate-a-new-ingest-package">
 <h2>Generate a new ingest package<a class="headerlink" href="#generate-a-new-ingest-package" title="Permalink to this headline">¶</a></h2>
-<p>Each study that needs to be ingested will have a single directory that contains
-all of the configuration needed by the ingest pipeline to extract, transform,
-and load the study into a target data store or service. This is known as the
-ingest package.</p>
-<p>The first thing to do after installing the ingest library CLI
-is to create a new ingest package named <code class="docutils literal notranslate"><span class="pre">my_study</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ kidsfirst new --dest_dir=my_study
+<p>Each study that needs to be ingested will have a single outer directory and one
+or more inner directories that each contain the configuration files needed by
+the ingest pipeline to extract, transform, and load parts of the study into a
+target data store or service. The inner directories are known as the ingest
+packages.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We want to have an outer directory for each study, because we often need
+multiple ingest packages to complete an entire study for
+practical/logistical reasons.</p>
+</div>
+<p>The first thing to do after installing the ingest library CLI is to create an
+outer directory for a study named <code class="docutils literal notranslate"><span class="pre">my_study</span></code> and inside it a new ingest
+package named <code class="docutils literal notranslate"><span class="pre">ingest_package_1</span></code>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ kidsfirst new --dest_dir=my_study/ingest_package_1
 </pre></div>
 </div>
-<p>We can run it and test to make sure everything works by using the following
-command</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ kidsfirst test my_study
-</pre></div>
-</div>
-<p>The logs on your screen should indicate a successful test run like this:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>======================================== 1 passed in 0.12s ============================================================
-2020-02-18 17:40:36,039 - DataIngestPipeline - Thread: MainThread - INFO - ✅ User defined data validation tests passed
-2020-02-18 17:40:36,039 - DataIngestPipeline - Thread: MainThread - INFO - END data ingestion
-2020-02-18 17:40:36,039 - kf_lib_data_ingest.app.cli - Thread: MainThread - INFO - ✅ Ingest pipline passed validation!
-</pre></div>
-</div>
-<p>So far your ingest package is pretty basic. It has 1 source data file and
+<p>Your new ingest package is extremely basic. It has 1 test source data file and
 the Python modules needed to extract, clean, and transform the data for the
-target service. If you inspect it, it will look like this:</p>
+target service. If you look inside it, it will look like this:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>my_study/
-├── ingest_package_config.py
-├── transform_module.py
-├── data/
-│   └── clinical.tsv
-├── extract_configs/
-│   └── extract_config.py
-└── tests/
-    ├── conftest.py
-    └── test_custom_counts.py
+└── ingest_package_1/
+    ├── ingest_package_config.py
+    ├── transform_module.py
+    ├── data/
+    │   └── clinical.tsv
+    ├── extract_configs/
+    │   └── extract_config.py
+    └── tests/
+        ├── conftest.py
+        └── test_custom_counts.py
 </pre></div>
 </div>
-</div>
-<div class="section" id="modify-a-template-extract-config">
-<h2>Modify a template extract config<a class="headerlink" href="#modify-a-template-extract-config" title="Permalink to this headline">¶</a></h2>
-<p>An extract config file does 3 things to the source data:</p>
-<ol class="arabic simple">
-<li>Select or extract the desired subset of data from the source data</li>
-<li>Clean the selected data (remove trailing whitespaces, etc)</li>
-<li>Map the cleaned data’s attributes and values to Kids First entity attributes
-and acceptable values.</li>
-</ol>
-<p>We’re going to create an additional extract config to extract data from the
-following source data file (different
-from the file you already have):</p>
-<table border="1" class="docutils" id="id2">
-<caption><span class="caption-text">family_and_phenotype.tsv</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+<p>And the included test data looks like</p>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">my_study/ingest_package_1/data/clinical.tsv</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
 <colgroup>
-<col width="9%" />
-<col width="9%" />
-<col width="9%" />
-<col width="9%" />
-<col width="9%" />
-<col width="9%" />
-<col width="9%" />
-<col width="9%" />
-<col width="9%" />
-<col width="9%" />
-<col width="9%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>[ignore]</td>
-<td>[ignore]</td>
-<td>[ignore]</td>
-<td>[ignore]</td>
-<td>[ignore]</td>
-<td>[ignore]</td>
-<td>[ignore]</td>
-<td>[ignore]</td>
-<td>[ignore]</td>
-<td>[ignore]</td>
-<td>[ignore]</td>
+<thead>
+<tr class="row-odd"><th class="head"><p>family</p></th>
+<th class="head"><p>subject</p></th>
+<th class="head"><p>sample</p></th>
+<th class="head"><p>analyte</p></th>
+<th class="head"><p>diagnosis</p></th>
+<th class="head"><p>gender</p></th>
 </tr>
-<tr class="row-even"><td>[ignore]</td>
-<td>participant</td>
-<td>mother</td>
-<td>father</td>
-<td>gender</td>
-<td>specimens</td>
-<td>age (hrs)</td>
-<td>CLEFT_EGO</td>
-<td>CLEFT_ID</td>
-<td>age (hrs)</td>
-<td>EXTRA_EARDRUM</td>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>f1</p></td>
+<td><p>PID001</p></td>
+<td><p>SP001A</p></td>
+<td><p>dna (1)</p></td>
+<td><p>flu</p></td>
+<td><p>Female</p></td>
 </tr>
-<tr class="row-odd"><td>[ignore]</td>
-<td>PID001</td>
-<td>2</td>
-<td>3</td>
-<td>F</td>
-<td>SP001A,SP001B</td>
-<td>4</td>
-<td>TRUE</td>
-<td>FALSE</td>
-<td>4</td>
-<td>FALSE</td>
+<tr class="row-odd"><td><p>f1</p></td>
+<td><p>PID001</p></td>
+<td><p>SP001B</p></td>
+<td><p>rna (2)</p></td>
+<td><p>cold</p></td>
+<td><p>Female</p></td>
 </tr>
-<tr class="row-even"><td>[ignore]</td>
-<td>PID002</td>
-<td>&#160;</td>
-<td>&#160;</td>
-<td>&#160;</td>
-<td>SP002A; SP002B</td>
-<td>435</td>
-<td>TRUE</td>
-<td>FALSE</td>
-<td>435</td>
-<td>FALSE</td>
+<tr class="row-even"><td><p>f1</p></td>
+<td><p>PID002</p></td>
+<td><p>SP002A</p></td>
+<td><p>dna (1)</p></td>
+<td><p>flu</p></td>
+<td><p>Female</p></td>
 </tr>
-<tr class="row-odd"><td>[ignore]</td>
-<td>PID003</td>
-<td>&#160;</td>
-<td>&#160;</td>
-<td>&#160;</td>
-<td>SP003A;SP003B</td>
-<td>34</td>
-<td>TRUE</td>
-<td>FALSE</td>
-<td>34</td>
-<td>FALSE</td>
+<tr class="row-odd"><td><p>f1</p></td>
+<td><p>PID002</p></td>
+<td><p>SP002B</p></td>
+<td><p>rna (2)</p></td>
+<td><p>cold</p></td>
+<td><p>Female</p></td>
 </tr>
-<tr class="row-even"><td>[ignore]</td>
-<td>PID004</td>
-<td>5</td>
-<td>6</td>
-<td>M</td>
-<td>SP004A; SP004B</td>
-<td>4</td>
-<td>TRUE</td>
-<td>TRUE</td>
-<td>4</td>
-<td>FALSE</td>
+<tr class="row-even"><td><p>f1</p></td>
+<td><p>PID003</p></td>
+<td><p>SP003A</p></td>
+<td><p>dna (1)</p></td>
+<td><p>flu</p></td>
+<td><p>Male</p></td>
 </tr>
-<tr class="row-odd"><td>[ignore]</td>
-<td>PID005</td>
-<td>&#160;</td>
-<td>&#160;</td>
-<td>&#160;</td>
-<td>SP005A, SP005B</td>
-<td>345</td>
-<td>TRUE</td>
-<td>TRUE</td>
-<td>34</td>
-<td>FALSE</td>
+<tr class="row-odd"><td><p>f1</p></td>
+<td><p>PID003</p></td>
+<td><p>SP003B</p></td>
+<td><p>rna (2)</p></td>
+<td><p>cold</p></td>
+<td><p>Male</p></td>
 </tr>
-<tr class="row-even"><td>[ignore]</td>
-<td>PID006</td>
-<td>&#160;</td>
-<td>&#160;</td>
-<td>&#160;</td>
-<td>SP006</td>
-<td>34</td>
-<td>TRUE</td>
-<td>TRUE</td>
-<td>43545</td>
-<td>FALSE</td>
+<tr class="row-even"><td><p>f2</p></td>
+<td><p>PID004</p></td>
+<td><p>SP004A</p></td>
+<td><p>dna (1)</p></td>
+<td><p>flu</p></td>
+<td><p>Male</p></td>
 </tr>
-<tr class="row-odd"><td>[ignore]</td>
-<td>PID007</td>
-<td>8</td>
-<td>9</td>
-<td>M</td>
-<td>SP007</td>
-<td>34</td>
-<td>TRUE</td>
-<td>FALSE</td>
-<td>5</td>
-<td>TRUE</td>
+<tr class="row-odd"><td><p>f2</p></td>
+<td><p>PID004</p></td>
+<td><p>SP004B</p></td>
+<td><p>rna (2)</p></td>
+<td><p>cold</p></td>
+<td><p>Male</p></td>
 </tr>
-<tr class="row-even"><td>[ignore]</td>
-<td>PID008</td>
-<td>&#160;</td>
-<td>&#160;</td>
-<td>&#160;</td>
-<td>SP008A,SP008B</td>
-<td>43545</td>
-<td>TRUE</td>
-<td>TRUE</td>
-<td>52</td>
-<td>TRUE</td>
+<tr class="row-even"><td><p>f2</p></td>
+<td><p>PID005</p></td>
+<td><p>SP005A</p></td>
+<td><p>dna (1)</p></td>
+<td><p>flu</p></td>
+<td><p>Female</p></td>
 </tr>
-<tr class="row-odd"><td>[ignore]</td>
-<td>PID009</td>
-<td>&#160;</td>
-<td>&#160;</td>
-<td>&#160;</td>
-<td>SP009A,SP009B</td>
-<td>5</td>
-<td>FALSE</td>
-<td>TRUE</td>
-<td>25</td>
-<td>TRUE</td>
+<tr class="row-odd"><td><p>f2</p></td>
+<td><p>PID005</p></td>
+<td><p>SP005B</p></td>
+<td><p>rna (2)</p></td>
+<td><p>flu</p></td>
+<td><p>Female</p></td>
+</tr>
+<tr class="row-even"><td><p>f3</p></td>
+<td><p>PID006</p></td>
+<td><p>SP006</p></td>
+<td><p>rna (2)</p></td>
+<td><p>flu</p></td>
+<td><p>Male</p></td>
+</tr>
+<tr class="row-odd"><td><p>f3</p></td>
+<td><p>PID007</p></td>
+<td><p>SP007</p></td>
+<td><p>rna (2)</p></td>
+<td><p>flu</p></td>
+<td><p>Male</p></td>
+</tr>
+<tr class="row-even"><td><p>f3</p></td>
+<td><p>PID008</p></td>
+<td><p>SP008A</p></td>
+<td><p>dna (1)</p></td>
+<td><p>flu</p></td>
+<td><p>Female</p></td>
+</tr>
+<tr class="row-odd"><td><p>f3</p></td>
+<td><p>PID008</p></td>
+<td><p>SP008B</p></td>
+<td><p>rna (2)</p></td>
+<td><p>flu</p></td>
+<td><p>Female</p></td>
+</tr>
+<tr class="row-even"><td><p>f3</p></td>
+<td><p>PID009</p></td>
+<td><p>SP009A</p></td>
+<td><p>dna (1)</p></td>
+<td><p>flu</p></td>
+<td><p>Male</p></td>
+</tr>
+<tr class="row-odd"><td><p>f3</p></td>
+<td><p>PID009</p></td>
+<td><p>SP009B</p></td>
+<td><p>rna (2)</p></td>
+<td><p>flu</p></td>
+<td><p>Male</p></td>
 </tr>
 </tbody>
 </table>
-<p>The extract config file we’re going to use is below. Much more detail on this
-later.</p>
-<div class="literal-block-wrapper docutils container" id="id3">
-<div class="code-block-caption"><span class="caption-text">family_and_phenotype.py</span><a class="headerlink" href="#id3" title="Permalink to this code">¶</a></div>
+</div>
+<div class="section" id="test">
+<h2>Test<a class="headerlink" href="#test" title="Permalink to this headline">¶</a></h2>
+<p>We can make sure everything works with the <code class="docutils literal notranslate"><span class="pre">test</span></code> command:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ kidsfirst test my_study/ingest_package_1 --no_validate
+</pre></div>
+</div>
+<p>The logs on your screen should indicate a successful unvalidated test run.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ kidsfirst test my_study/ingest_package_1 --no_validate
+2020-11-27 11:39:26,161 - DataIngestPipeline - Thread: MainThread - WARNING - Ingest will run with validation disabled!
+...
+2020-11-27 11:39:26,575 - DataIngestPipeline - Thread: MainThread - INFO - Ingest skipped validation!
+2020-11-27 11:39:26,575 - DataIngestPipeline - Thread: MainThread - INFO - ✅ Ingest pipeline completed execution!
+2020-11-27 11:39:26,575 - DataIngestPipeline - Thread: MainThread - INFO - END data ingestion
+</pre></div>
+</div>
+<p>If you scroll up through the log output, you should see that it pretends to
+load families, participants, diagnoses, and biospecimens from clinical.tsv.</p>
+</div>
+<div class="section" id="add-another-extract-config">
+<h2>Add another extract config<a class="headerlink" href="#add-another-extract-config" title="Permalink to this headline">¶</a></h2>
+<p>We’re going to create a second extract config to extract data from the
+following source data (different from the file you already have and stored in
+the cloud):</p>
+<table class="docutils align-default" id="id3">
+<caption><span class="caption-text">family_and_phenotype.tsv</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>[ignore]</p></th>
+<th class="head"><p>[ignore]</p></th>
+<th class="head"><p>[ignore]</p></th>
+<th class="head"><p>[ignore]</p></th>
+<th class="head"><p>[ignore]</p></th>
+<th class="head"><p>[ignore]</p></th>
+<th class="head"><p>[ignore]</p></th>
+<th class="head"><p>[ignore]</p></th>
+<th class="head"><p>[ignore]</p></th>
+<th class="head"><p>[ignore]</p></th>
+<th class="head"><p>[ignore]</p></th>
+</tr>
+<tr class="row-even"><th class="head"><p>[ignore]</p></th>
+<th class="head"><p>participant</p></th>
+<th class="head"><p>mother</p></th>
+<th class="head"><p>father</p></th>
+<th class="head"><p>gender</p></th>
+<th class="head"><p>specimens</p></th>
+<th class="head"><p>age (hrs)</p></th>
+<th class="head"><p>CLEFT_EGO</p></th>
+<th class="head"><p>CLEFT_ID</p></th>
+<th class="head"><p>age (hrs)</p></th>
+<th class="head"><p>EXTRA_EARDRUM</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-odd"><td><p>[ignore]</p></td>
+<td><p>PID001</p></td>
+<td><p>2</p></td>
+<td><p>3</p></td>
+<td><p>F</p></td>
+<td><p>SP001A,SP001B</p></td>
+<td><p>4</p></td>
+<td><p>TRUE</p></td>
+<td><p>FALSE</p></td>
+<td><p>4</p></td>
+<td><p>FALSE</p></td>
+</tr>
+<tr class="row-even"><td><p>[ignore]</p></td>
+<td><p>PID002</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>SP002A; SP002B</p></td>
+<td><p>435</p></td>
+<td><p>TRUE</p></td>
+<td><p>FALSE</p></td>
+<td><p>435</p></td>
+<td><p>FALSE</p></td>
+</tr>
+<tr class="row-odd"><td><p>[ignore]</p></td>
+<td><p>PID003</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>SP003A;SP003B</p></td>
+<td><p>34</p></td>
+<td><p>TRUE</p></td>
+<td><p>FALSE</p></td>
+<td><p>34</p></td>
+<td><p>FALSE</p></td>
+</tr>
+<tr class="row-even"><td><p>[ignore]</p></td>
+<td><p>PID004</p></td>
+<td><p>5</p></td>
+<td><p>6</p></td>
+<td><p>M</p></td>
+<td><p>SP004A; SP004B</p></td>
+<td><p>4</p></td>
+<td><p>TRUE</p></td>
+<td><p>TRUE</p></td>
+<td><p>4</p></td>
+<td><p>FALSE</p></td>
+</tr>
+<tr class="row-odd"><td><p>[ignore]</p></td>
+<td><p>PID005</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>SP005A, SP005B</p></td>
+<td><p>345</p></td>
+<td><p>TRUE</p></td>
+<td><p>TRUE</p></td>
+<td><p>34</p></td>
+<td><p>FALSE</p></td>
+</tr>
+<tr class="row-even"><td><p>[ignore]</p></td>
+<td><p>PID006</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>SP006</p></td>
+<td><p>34</p></td>
+<td><p>TRUE</p></td>
+<td><p>TRUE</p></td>
+<td><p>43545</p></td>
+<td><p>FALSE</p></td>
+</tr>
+<tr class="row-odd"><td><p>[ignore]</p></td>
+<td><p>PID007</p></td>
+<td><p>8</p></td>
+<td><p>9</p></td>
+<td><p>M</p></td>
+<td><p>SP007</p></td>
+<td><p>34</p></td>
+<td><p>TRUE</p></td>
+<td><p>FALSE</p></td>
+<td><p>5</p></td>
+<td><p>TRUE</p></td>
+</tr>
+<tr class="row-even"><td><p>[ignore]</p></td>
+<td><p>PID008</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>SP008A,SP008B</p></td>
+<td><p>43545</p></td>
+<td><p>TRUE</p></td>
+<td><p>TRUE</p></td>
+<td><p>52</p></td>
+<td><p>TRUE</p></td>
+</tr>
+<tr class="row-odd"><td><p>[ignore]</p></td>
+<td><p>PID009</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>SP009A,SP009B</p></td>
+<td><p>5</p></td>
+<td><p>FALSE</p></td>
+<td><p>TRUE</p></td>
+<td><p>25</p></td>
+<td><p>TRUE</p></td>
+</tr>
+</tbody>
+</table>
+<p>Download the extract configuration for this new data
+<a class="reference download internal" download="" href="_downloads/0e9d418c30dd6481f9e51ae418dccadb/family_and_phenotype.py"><code class="xref download docutils literal notranslate"><span class="pre">family_and_phenotype.py</span></code></a>
+and put it in <code class="docutils literal notranslate"><span class="pre">my_study/ingest_package_1/extract_configs</span></code> like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>my_study/
+└── ingest_package_1/
+    └── extract_configs/
+       └── family_and_phenotype.py
+</pre></div>
+</div>
+<p>The full tutorial has a detailed explanation of what this file does, but for
+now the file should look like this:</p>
+<div class="literal-block-wrapper docutils container" id="id4">
+<div class="code-block-caption"><span class="caption-text">my_study/ingest_package_1/extract_configs/family_and_phenotype.py</span><a class="headerlink" href="#id4" title="Permalink to this code">¶</a></div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common</span> <span class="kn">import</span> <span class="n">constants</span>
 <span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.concept_schema</span> <span class="kn">import</span> <span class="n">CONCEPT</span>
@@ -481,43 +626,17 @@ later.</p>
 </pre></div>
 </div>
 </div>
-<p>It goes in the <code class="docutils literal notranslate"><span class="pre">extract_configs</span></code> directory like this:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>my_study/
-├── data/
-└── extract_configs/
-    └── family_and_phenotype.py
-</pre></div>
-</div>
-</div>
-<div class="section" id="debugging">
-<h2>Debugging<a class="headerlink" href="#debugging" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="run-single-stage">
-<h3>Run single stage<a class="headerlink" href="#run-single-stage" title="Permalink to this headline">¶</a></h3>
-<p>The entire ingest pipeline consists of the familiar ETL steps (extract,
-transform, and load). The package allows any logical subset of these three
-stages to be executed instead (output from the previous stages must exist in
-order for extract or transform to be run). This can be done using the
-<code class="docutils literal notranslate"><span class="pre">--stages</span></code> argument with a subset of the char sequence <code class="docutils literal notranslate"><span class="pre">etl</span></code>.</p>
-</div>
-<div class="section" id="view-ingest-log">
-<h3>View ingest log<a class="headerlink" href="#view-ingest-log" title="Permalink to this headline">¶</a></h3>
-<p>The pipeline logs messages to the console and also stores them in a log file,
-which is by default located at <code class="docutils literal notranslate"><span class="pre">&lt;ingest</span> <span class="pre">package</span> <span class="pre">dir&gt;/logs/ingest.log</span></code>.</p>
-</div>
-<div class="section" id="view-single-stage-output">
-<h3>View single stage output<a class="headerlink" href="#view-single-stage-output" title="Permalink to this headline">¶</a></h3>
-<p>Every ingest stage has the option to write its output to a directory that
-follows this path pattern: <code class="docutils literal notranslate"><span class="pre">&lt;ingest</span> <span class="pre">package</span> <span class="pre">dir&gt;/output/&lt;name</span> <span class="pre">of</span> <span class="pre">stage&gt;</span></code>.</p>
-</div>
 </div>
 <div class="section" id="modify-the-transform-module">
 <h2>Modify the Transform module<a class="headerlink" href="#modify-the-transform-module" title="Permalink to this headline">¶</a></h2>
-<p>Next in the standard ETL sequence is the transform step. This will merge our
-extracted tables together such that the data needed for generating complete
-target entities from our extracted data is properly connected.</p>
-<p>For this demo, this is controlled by the file <code class="docutils literal notranslate"><span class="pre">transform_module.py</span></code>. Check it
-out:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<p>Next we want to merge our extracted tables together to properly connect the
+data needed for generating complete target entities.</p>
+<p>For the quickstart, this will be performed by
+<code class="docutils literal notranslate"><span class="pre">my_study/ingest_package_1/transform_module.py</span></code> which currently looks like
+this:</p>
+<div class="literal-block-wrapper docutils container" id="id5">
+<div class="code-block-caption"><span class="caption-text">my_study/ingest_package_1/transform_module.py</span><a class="headerlink" href="#id5" title="Permalink to this code">¶</a></div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Auto-generated transform module</span>
 
 <span class="sd">Replace the contents of transform_function with your own code</span>
@@ -527,11 +646,12 @@ out:</p>
 <span class="sd">implementing transform_function.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.concept_schema</span> <span class="kn">import</span> <span class="n">CONCEPT</span>
+<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.concept_schema</span> <span class="kn">import</span> <span class="n">CONCEPT</span>  <span class="c1"># noqa F401</span>
+
 <span class="c1"># Use these merge funcs, not pandas.merge</span>
-<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.pandas_utils</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.pandas_utils</span> <span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa F401</span>
     <span class="n">merge_wo_duplicates</span><span class="p">,</span>
-    <span class="n">outer_merge</span>
+    <span class="n">outer_merge</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">kf_lib_data_ingest.config</span> <span class="kn">import</span> <span class="n">DEFAULT_KEY</span>
 
@@ -568,8 +688,8 @@ out:</p>
 <span class="sd">    }</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">mapped_df_dict</span><span class="p">[</span><span class="s2">&quot;extract_config.py&quot;</span><span class="p">]</span>
-
+<span class="hll">    <span class="n">df</span> <span class="o">=</span> <span class="n">mapped_df_dict</span><span class="p">[</span><span class="s2">&quot;extract_config.py&quot;</span><span class="p">]</span>
+</span>
     <span class="c1"># df = outer_merge(</span>
     <span class="c1">#     mapped_df_dict[&#39;extract_config.py&#39;],</span>
     <span class="c1">#     mapped_df_dict[&#39;family_and_phenotype.py&#39;],</span>
@@ -580,34 +700,33 @@ out:</p>
     <span class="k">return</span> <span class="p">{</span><span class="n">DEFAULT_KEY</span><span class="p">:</span> <span class="n">df</span><span class="p">}</span>
 </pre></div>
 </div>
-<p>The interesting part that we need is the block at the bottom that’s commented
-out. Uncomment this block and then run <code class="docutils literal notranslate"><span class="pre">kidsfirst</span> <span class="pre">test</span></code> to perform
-extraction and tranformation.</p>
 </div>
-<div class="section" id="run-the-ingest-pipeline">
-<h2>Run the ingest pipeline<a class="headerlink" href="#run-the-ingest-pipeline" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="the-warehouse-server">
-<h3>The Warehouse Server<a class="headerlink" href="#the-warehouse-server" title="Permalink to this headline">¶</a></h3>
-<p>Data that we ingest is meant to be shared, not stored locally on your machine!
-It’s easy to configure the ingest system to connect to a remote warehousing
-database which will centrally store the relevant data.</p>
-<p>We’re ready to test the ingest package again, and, since we’re just seeing how
-this package works on dummy data, we don’t want
-to actually upload anything to a warehouse. This won’t happen if we use the
-<code class="docutils literal notranslate"><span class="pre">--no_warehouse</span></code> option command, like so:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ kidsfirst test --no_warehouse my_study
+<p>Find the line near the bottom that says (highlighted above)</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">mapped_df_dict</span><span class="p">[</span><span class="s2">&quot;extract_config.py&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>If the ingest package passes validation with the test command and you’re happy
-with the output, you’re ready to ingest the data into your target service using
-the ingest command:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ kidsfirst ingest my_study
+<p>and replace that line with</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">outer_merge</span><span class="p">(</span>
+    <span class="n">mapped_df_dict</span><span class="p">[</span><span class="s1">&#39;extract_config.py&#39;</span><span class="p">],</span>
+    <span class="n">mapped_df_dict</span><span class="p">[</span><span class="s1">&#39;family_and_phenotype.py&#39;</span><span class="p">],</span>
+    <span class="n">on</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">BIOSPECIMEN</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span>
+    <span class="n">with_merge_detail_dfs</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
 </pre></div>
 </div>
-<p>The library defaults to ingesting data into the Kids First Data Service at
-the base url: <code class="docutils literal notranslate"><span class="pre">http://localhost:5000</span></code>. You can change the base URL for this
-service using the <code class="docutils literal notranslate"><span class="pre">--target_url</span></code> CLI option.</p>
+<p>You can also just uncomment the block immediately below it that contains the
+same new code in a Python comment. This now defines <code class="docutils literal notranslate"><span class="pre">df</span></code> as the combination
+of the two data files joined together according to the values in their
+biospecimen identifier columns.</p>
 </div>
+<div class="section" id="test-again">
+<h2>Test Again<a class="headerlink" href="#test-again" title="Permalink to this headline">¶</a></h2>
+<p>Then again run</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ kidsfirst test my_study/ingest_package_1 --no_validate
+</pre></div>
+</div>
+<p>Now you should see that it also pretends to load phenotypes from the new data
+in addition to the rest of the information.</p>
 </div>
 </div>
 

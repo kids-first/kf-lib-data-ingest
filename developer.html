@@ -21,10 +21,9 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -96,7 +95,7 @@
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design/overview.html">Design Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/index.html">How To</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/index.html">Tutorial</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Developers</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#set-up-development-environment">Set Up Development Environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#run-unit-tests">Run Unit Tests</a></li>
@@ -173,23 +172,23 @@
 <div class="section" id="set-up-development-environment">
 <h2>Set Up Development Environment<a class="headerlink" href="#set-up-development-environment" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic">
-<li><p class="first">Git clone the repository:</p>
+<li><p>Git clone the repository:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone git@github.com:kids-first/kf-lib-data-ingest.git
 </pre></div>
 </div>
 </li>
-<li><p class="first">Create and activate virtual environment:</p>
+<li><p>Create and activate virtual environment:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m venv venv
 $ source venv/bin/activate
 </pre></div>
 </div>
 </li>
-<li><p class="first">Install kf-lib-data-ingest along with dependencies:</p>
+<li><p>Install kf-lib-data-ingest along with dependencies:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install -e .
 </pre></div>
 </div>
 </li>
-<li><p class="first">Install dev requirements:</p>
+<li><p>Install dev requirements:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install -r dev-requirements.txt
 </pre></div>
 </div>
@@ -208,19 +207,18 @@ $ source venv/bin/activate
 <p>We use Sphinx to generate the reference documentation. If you would like to
 develop documentation, follow these steps:</p>
 <ol class="arabic">
-<li><p class="first">Install the Python packages needed to build the documentation:</p>
+<li><p>Install the Python packages needed to build the documentation:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install -r doc-requirements.txt
 </pre></div>
 </div>
 </li>
-<li><p class="first">Build the static docs site:</p>
+<li><p>Build the static docs site:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd docs
 $ make html
 </pre></div>
 </div>
 </li>
-<li><p class="first">View the docs by opening <code class="docutils literal notranslate"><span class="pre">docs/build/html/index.html</span></code> in a browser.</p>
-</li>
+<li><p>View the docs by opening <code class="docutils literal notranslate"><span class="pre">docs/build/html/index.html</span></code> in a browser.</p></li>
 </ol>
 </div>
 </div>

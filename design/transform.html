@@ -21,10 +21,9 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -36,7 +35,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Remote Warehousing" href="warehousing.html" />
+    <link rel="next" title="Load Stage Design" href="load.html" />
     <link rel="prev" title="Extract Mapping" href="extract_mapping.html" />
     <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
  
@@ -99,11 +98,12 @@
 <li class="toctree-l2"><a class="reference internal" href="value_principles.html">Value Principles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extract_mapping.html">Extract Mapping</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Transform Stage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="warehousing.html">Remote Warehousing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="load.html">Load Stage Design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="warehousing.html">Remote Warehousing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logs.html">Logs</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html">How To</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developer.html">Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
 </ul>
@@ -174,9 +174,19 @@
             
   <div class="section" id="transform-stage">
 <h1>Transform Stage<a class="headerlink" href="#transform-stage" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li>TBD</li>
-</ul>
+<p>The transform stage is where data from all of the individual extracted source
+files is blended together to form a holistic representation of the study using
+knowledge of the concept associations needed to fully represent entities in
+your data (e.g. Participants, Biospecimens, that sort of thing).</p>
+<p>In this stage you merge the extracted dataframes together into either one large
+denormalized table (the “default” output) or into smaller subset tables where
+each row in a subset table fully represents one entity.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It should be possible to one day fully automate this process according to
+formal rules about how entities relate to each other in your target service,
+but for now that is left as an exercise for the reader.</p>
+</div>
 </div>
 
 
@@ -187,7 +197,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="warehousing.html" class="btn btn-neutral float-right" title="Remote Warehousing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="load.html" class="btn btn-neutral float-right" title="Load Stage Design" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="extract_mapping.html" class="btn btn-neutral float-left" title="Extract Mapping" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

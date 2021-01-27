@@ -21,10 +21,9 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -99,11 +98,12 @@
 <li class="toctree-l2"><a class="reference internal" href="value_principles.html">Value Principles</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Extract Mapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="transform.html">Transform Stage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="warehousing.html">Remote Warehousing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="load.html">Load Stage Design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="warehousing.html">Remote Warehousing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logs.html">Logs</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html">How To</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developer.html">Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
 </ul>
@@ -176,15 +176,17 @@
 <span id="id1"></span><h1>Extract Mapping<a class="headerlink" href="#extract-mapping" title="Permalink to this headline">¶</a></h1>
 <p>The extract process follows the following basic pattern:</p>
 <ol class="arabic simple">
-<li>Read file data into a table with headers.</li>
-<li>Preprocess into new table.</li>
-<li>Look at some subset of data from that table.</li>
-<li>Apply some transformation to the subset.</li>
-<li>Write the result to one or more output columns adhering to the principle of
-<a class="reference internal" href="overview.html#design-overview"><span class="std std-ref">composing a series of simple and unambiguous factual statements</span></a>.</li>
-<li>If not done, go to #3</li>
+<li><p>Read file data into a table with headers.</p></li>
+<li><p>Preprocess the table.</p></li>
+<li><p>Look at some subset of data from the table.</p></li>
+<li><p>Apply some manipulations to the subset.</p></li>
+<li><p>Write the result to one or more output columns adhering to the principle of
+<a class="reference internal" href="overview.html#design-overview"><span class="std std-ref">composing a series of simple and unambiguous factual statements</span></a>.</p></li>
+<li><p>If not done, go to #3</p></li>
 </ol>
 <p>Each iteration of steps 3-5 is called a mapping operation.</p>
+<p>The goal is to map the investigator’s columns to our columns and convert their
+values to our values.</p>
 </div>
 
 
