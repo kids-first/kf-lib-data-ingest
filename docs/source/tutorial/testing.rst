@@ -61,7 +61,10 @@ are grouped into families, biospecimens come from individual participants, etc)
 as well as constraints on the values that each data field can have (e.g. age
 can't be negative).
 
-It will try to evaluate
+It will try to evaluate your stage results according to its set of rules and
+generate reports about what tests passed or failed. Failing a test doesn't
+necessarily mean that something is wrong, just that the validator's pre-set
+expectations were not met.
 
 Let's see what happens if you run:
 

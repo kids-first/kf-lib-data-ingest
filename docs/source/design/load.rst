@@ -25,23 +25,30 @@ send to the target service.**
 
 Each builder class implements methods for the following behaviors:
 
-#. (optional) **Transform the given records list into whatever new record
-   format the entity builder needs**.
-#. **Compose the entity's uniquely identifying primary elements**. This is used
-   for querying identifiers assigned by the target service so that they can be
-   repeatably assigned to the same entities again. (Target services often don't
-   do this equivalent entity replacement themselves.)
-#. **Build a complete message payload that will be sent to the server to
-   populate a new (or updated) entity of its type**.
+#. (optional) Transform the given records list into whatever new record
+   format the entity builder needs.
+#. Compose the entity's uniquely identifying primary elements.
+
+    This is used for querying a local cache or the target service to fetch the
+    identifier of an existing entity that has the given values, if one exists,
+    so that entities can be repeatably identified for updates. (Target
+    services often don't do this equivalent entity replacement themselves.)
+#. Query the target service for the target identifier of the entity with the
+   the same primary elements.
+
+    If no entry exists in the local cache, we have to query the target server
+    for guidance so that entities can be repeatedly identified for updates.
+#. Build a complete message payload that will be sent to the server to
+   populate a new (or updated) entity of its type.
 
 For more details, read :ref:`Tutorial-Make-Target-Service-Plugin`
 
 ----
 
-**A Note on the ID Cache**
+**A note on Unique Entity Identification**
 
-It may be easier to understand the purpose of the unique key components with an
-example.
+It may be easier to understand the concept and purpose of uniquely identifying
+components with an example.
 
 Given the record:
 
@@ -50,17 +57,30 @@ Given the record:
 
    SD_12345678,  P1, 17, Male
 
-The uniquely identifying components for the participant in this record would
-be: ``{"study_id": "SD_12345678", "external_id": "P1"}`` because every
-participant external ID is guaranteed to be unique only within a given study.
-Any future corrections to the participant's age or sex should be associated
-with the same entry.
+We might wish to compose a participant entity that looks like:
+
+.. code:: json
+
+    {
+        "study_id": "SD_12345678",
+        "external_id": "P1",
+        "age": 17,
+        "sex": "Male"
+    }
+
+Because we know that every participant external ID is guaranteed to be unique
+within a study and that age and sex are merely characteristic observations of
+the participant that can be updated later, the uniquely identifying components
+for this participant would be: ``{"study_id": "SD_12345678", "external_id":
+"P1"}``.
+
+Any future corrections to the participant's age or sex should be
+associated with the same entry. So how do we ensure that?
 
 Let's say that, after submission to the target service, the returned identifier
-for the participant entity is something like: ``"PT_00001111"``.
-
-The ingest library will internally create an association relating this unique
-key with its target identifier like this:
+for the participant entity is: ``"PT_00001111"``. The ingest library will
+internally create an association in a local cache file relating the unique key
+components with the resulting target identifier like this:
 
 +------------------------------------------------------------------+
 | participants                                                     |
@@ -70,8 +90,15 @@ key with its target identifier like this:
 | {"study_id": "SD_12345678", "external_id": "P1"} |  PT_00001111  |
 +--------------------------------------------------+---------------+
 
-Then when the ingest library sees a record in the source data with the same
-unique key components, it can always associate the resulting entity in the
-target service with the same target ID. That way we can update characteristics
-of existing participants without locally knowing in advance how the target
-service identifies them.
+If the ingest library later encounters a record in the source data with the
+same unique components, it can:
+
+#. Check the local cache for a known identifer.
+#. If no related entry exists in the local cache, query the target service for
+   the identifer of the entity with the same key values.
+
+That way we can update characteristics of existing entities without knowing in
+advance how the target service identifies them, and it should always be safe to
+erase the local cache at the expense of performance (additional network
+roundtrips).
+

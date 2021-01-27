@@ -17,5 +17,5 @@ The extract process follows the following basic pattern:
 
 Each iteration of steps 3-5 is called a mapping operation.
 
-The goal is to funnel the investigator's columns into our columns and convert
-their values to our values.
+The goal is to map the investigator's columns to our columns and convert their
+values to our values.
