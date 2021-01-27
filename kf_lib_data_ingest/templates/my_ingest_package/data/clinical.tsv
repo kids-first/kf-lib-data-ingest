@@ -1,0 +1,17 @@
+family	subject	sample	analyte	diagnosis	gender
+f1	PID001	SP001A	dna (1)	flu	Female
+f1	PID001	SP001B	rna (2)	cold	Female
+f1	PID002	SP002A	dna (1)	flu	Female
+f1	PID002	SP002B	rna (2)	cold	Female
+f1	PID003	SP003A	dna (1)	flu	Male
+f1	PID003	SP003B	rna (2)	cold	Male
+f2	PID004	SP004A	dna (1)	flu	Male
+f2	PID004	SP004B	rna (2)	cold	Male
+f2	PID005	SP005A	dna (1)	flu	Female
+f2	PID005	SP005B	rna (2)	flu	Female
+f3	PID006	SP006	rna (2)	flu	Male
+f3	PID007	SP007	rna (2)	flu	Male
+f3	PID008	SP008A	dna (1)	flu	Female
+f3	PID008	SP008B	rna (2)	flu	Female
+f3	PID009	SP009A	dna (1)	flu	Male
+f3	PID009	SP009B	rna (2)	flu	Male

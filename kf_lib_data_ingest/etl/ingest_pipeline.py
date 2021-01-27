@@ -153,7 +153,7 @@ class DataIngestPipeline(object):
         self.logger = logging.getLogger(type(self).__name__)
 
         # Validation
-        if not validation_mode:
+        if not self.validation_mode:
             self.logger.warning("Ingest will run with validation disabled!")
 
         # Log args, kwargs
@@ -302,21 +302,26 @@ class DataIngestPipeline(object):
                 [stage.validation_success for stage in self.stages.values()]
             )
 
-            if all_passed:
-                self.logger.info("✅ Ingest passed validation!")
+            if not self.validation_mode:
+                self.logger.info("Ingest skipped validation!")
             else:
-                self.logger.error("⚠️  Ingest failed validation! ")
+                if all_passed:
+                    self.logger.info("✅ Ingest passed validation!")
+                else:
+                    self.logger.error("⚠️ Ingest failed validation! ")
 
-            report_file_paths = [
-                os.path.join(root, file)
-                for stage in self.stages.values()
-                for root, dirs, files in os.walk(stage.validation_output_dir)
-                for file in files
-                if not file.startswith(".")
-            ]
-            self.logger.info(
-                f"See validation report files:\n{pformat(report_file_paths)}"
-            )
+                report_file_paths = [
+                    os.path.join(root, file)
+                    for stage in self.stages.values()
+                    for root, dirs, files in os.walk(
+                        stage.validation_output_dir
+                    )
+                    for file in files
+                    if not file.startswith(".")
+                ]
+                self.logger.info(
+                    f"See validation report files:\n{pformat(report_file_paths)}"
+                )
 
         except Exception as e:
             self.logger.exception(str(e))

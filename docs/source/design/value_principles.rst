@@ -25,13 +25,13 @@ The ingest library operates on a few key principles:
 Practical Implications
 ----------------------
 
-* Relationships between values may span across multiple tables.
+* Relationships between values may transitively span across multiple tables.
 
 * Attributes of a thing need not be in the same table as the identifier(s) of
   the thing as long as there is an unambiguous path via some other linked
   thing.
 
-* No more than one value per cell.
+* A table cell may contain no more than one value.
 
 * Every cell value stands on its own, without secret reference to other cell
   values, and can be fully understood based exclusively on the column header
