@@ -505,17 +505,11 @@ class SequencingExperiment:
     @classmethod
     def get_key_components(cls, record, get_target_id_from_record):
         return {
+            "study_id": not_none(record[CONCEPT.STUDY.TARGET_SERVICE_ID]),
             "sequencing_center_id": not_none(
                 record[CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID]
             ),
-            "external_id": (
-                record.get(CONCEPT.SEQUENCING.ID)
-                or not_none(record[CONCEPT.SEQUENCING.LIBRARY_NAME])
-            ),
-            "library_name": (
-                record.get(CONCEPT.SEQUENCING.LIBRARY_NAME)
-                or not_none(record[CONCEPT.SEQUENCING.ID])
-            ),
+            "external_id": not_none(record[CONCEPT.SEQUENCING.ID]),
         }
 
     @classmethod
@@ -525,6 +519,7 @@ class SequencingExperiment:
     @classmethod
     def build_entity(cls, record, get_target_id_from_record):
         secondary_components = {
+            "library_name": record.get(CONCEPT.SEQUENCING.LIBRARY_NAME),
             "kf_id": get_target_id_from_record(cls, record),
             "experiment_date": record.get(CONCEPT.SEQUENCING.DATE),
             "experiment_strategy": record.get(CONCEPT.SEQUENCING.STRATEGY),
