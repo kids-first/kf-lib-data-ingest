@@ -251,6 +251,8 @@ Your target API configuration module must contain a list named `all_targets`
 which contains, in the order that you want them to be loaded into the target
 service, target entity builder classes (not instances) of the form:
 
+[if LOADER_VERSION == 2]
+
     class Foo:
         class_name = &#39;foo&#39;
         target_id_concept = CONCEPT.FOO.TARGET_SERVICE_ID
@@ -258,10 +260,9 @@ service, target entity builder classes (not instances) of the form:
         @classmethod
         def transform_records_list(cls, records_list):
             &#39;&#39;&#39;
+            [IMPLEMENTATION OPTIONAL]
             Transforms the given record list into the form needed for this
             class&#39;s build_key and build_entity methods.
-
-            Defining this method is optional for your entity builder classes.
 
             :param records_list: list of records coming from the Transform stage
             :type records_list: list of dicts
@@ -274,6 +275,7 @@ service, target entity builder classes (not instances) of the form:
         @classmethod
         def get_key_components(cls, record, get_target_id_from_record):
             &#39;&#39;&#39;
+            [IMPLEMENTATION REQUIRED]
             Composes a minimal payload subset that uniquely identifies the given record.
 
             :param record: CONCEPT values representing one record of extracted data
@@ -292,6 +294,7 @@ service, target entity builder classes (not instances) of the form:
         @classmethod
         def query_target_ids(cls, host, key_components):
             &#39;&#39;&#39;
+            [IMPLEMENTATION OPTIONAL BUT STRONGLY RECOMMENDED]
             Ask the server for identifiers matching the given unique key components.
 
             :param host: host url
@@ -306,6 +309,7 @@ service, target entity builder classes (not instances) of the form:
         @classmethod
         def build_entity(cls, record, get_target_id_from_record):
             &#39;&#39;&#39;
+            [IMPLEMENTATION REQUIRED]
             Constructs a payload body that can be submitted to the target service
             for the given record.
 
@@ -322,6 +326,7 @@ service, target entity builder classes (not instances) of the form:
         @classmethod
         def submit(cls, host, body):
             &#39;&#39;&#39;
+            [IMPLEMENTATION REQUIRED]
             Negotiate submitting completed entity data to the target service and
             return the identifier assigned by the server.
 
@@ -335,6 +340,59 @@ service, target entity builder classes (not instances) of the form:
             &#39;&#39;&#39;
             return unique_identifier_from_the_server_of_the_constructed_entity
 
+[if LOADER_VERSION == 1] [DEPRECATED]
+
+    class Foo:
+        class_name = &#39;foo&#39;
+        target_id_concept = CONCEPT.FOO.TARGET_SERVICE_ID
+
+        @staticmethod
+        def transform_records_list(records_list):
+            &#39;&#39;&#39;
+            [IMPLEMENTATION OPTIONAL]
+            Transforms the given record list into the form needed for this
+            class&#39;s build_key and build_entity methods.
+            Defining this method is optional for your entity builder classes.
+            :param records_list: list of records coming from the Transform stage
+            :type records_list: list of dicts
+            :return: list of reformatted records needed by this class&#39;s build_key
+                and build_entity methods
+            :rtype: list of dicts
+            &#39;&#39;&#39;
+            return new_records_list
+
+        @staticmethod
+        def build_key(record):
+            &#39;&#39;&#39;
+            [IMPLEMENTATION REQUIRED]
+            Composes a string that can uniquely identify the given record.
+            :param record: CONCEPT values representing one record of extracted data
+            :type record: dict
+            :return: string of record components that uniquely identify the entity
+                in the dataset
+            :rtype: str
+            :raises: Exception if record is not valid for entity
+            &#39;&#39;&#39;
+            return unique_key_composed_from_record
+
+        @staticmethod
+        def build_entity(record, key, get_target_id_from_record):
+            &#39;&#39;&#39;
+            [IMPLEMENTATION REQUIRED]
+            Constructs a payload body that can be submitted to the target service
+            for the given record.
+            :param record: CONCEPT values representing one record of extracted data
+            :type record: dict
+            :param key: the value returned by the build_key method
+            :type key: str
+            :param get_target_id_from_record: a function that, given input arguments
+                (entity_class, record), will return the unique reference identifier
+                assigned by the target service for that entity
+            :type get_target_id_from_record: function
+            :return: an entity body ready to send to the target service
+            &#39;&#39;&#39;
+            return payload_body_composed_from_record
+
 The all_targets list will look like this:
 
     all_targets = [
@@ -342,8 +400,29 @@ The all_targets list will look like this:
         ...
     ]
 
-Your entity classes can do anything else you want as long as they meet those
-minimum requirements.
+Your entity classes can do anything else you want as long as they meet these
+requirements.
+
+LOADER_VERSION 1 [DEPRECATED] API modules must also contain a `submit` function
+with the following signature that sends a ready entity payload to the target
+service and returns the unique identifier of the target entity that was created
+or updated on the target server:
+
+    def submit(host, entity_class, body):
+        &#39;&#39;&#39;
+        [IMPLEMENTATION REQUIRED]
+        Negotiate submitting the data for an entity to the target service.
+        :param host: host url
+        :type host: str
+        :param entity_class: which entity class is being sent
+        :type entity_class: class
+        :param body: entity body constructed by entity_class.build_entity
+        :return: The target entity reference ID that the service says was
+            created or updated
+        :rtype: str
+        :raise: RequestException on error
+        &#39;&#39;&#39;
+        ...
 </pre></div>
 </div>
 </div>
