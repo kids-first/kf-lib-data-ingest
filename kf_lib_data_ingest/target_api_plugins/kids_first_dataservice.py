@@ -27,6 +27,7 @@ from requests import RequestException
 logger = logging.getLogger(__name__)
 
 LOADER_VERSION = 2
+DELIMITER = "-"
 
 
 def drop_none(body):
@@ -34,8 +35,22 @@ def drop_none(body):
 
 
 def not_none(val):
-    assert val is not None
+    if val is None:
+        raise ValueError("Missing required value")
     return val
+
+
+def external_id(cls_list, record, get_target_id_from_record):
+    out = []
+    for cls in cls_list:
+        cls_key_dict = cls.get_key_components(
+            record, get_target_id_from_record
+        ).copy()
+        for key in ["study_id", "sequencing_center_id"]:
+            cls_key_dict.pop(key, None)
+        out.extend([str(v) for v in cls_key_dict.values()])
+
+    return DELIMITER.join(out) or None
 
 
 class Investigator:
@@ -339,14 +354,8 @@ class Biospecimen:
     @classmethod
     def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "participant_id": not_none(
-                get_target_id_from_record(Participant, record)
-            ),
+            "study_id": not_none(record[CONCEPT.STUDY.TARGET_SERVICE_ID]),
             "external_aliquot_id": not_none(record[CONCEPT.BIOSPECIMEN.ID]),
-            "external_sample_id": (
-                record.get(CONCEPT.BIOSPECIMEN_GROUP.ID)
-                or not_none(record[CONCEPT.BIOSPECIMEN.ID])
-            ),
         }
 
     @classmethod
@@ -359,6 +368,13 @@ class Biospecimen:
             "kf_id": get_target_id_from_record(cls, record),
             "sequencing_center_id": record.get(
                 CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID
+            ),
+            "participant_id": not_none(
+                get_target_id_from_record(Participant, record)
+            ),
+            "external_sample_id": (
+                record.get(CONCEPT.BIOSPECIMEN_GROUP.ID)
+                or not_none(record[CONCEPT.BIOSPECIMEN.ID])
             ),
             "source_text_tissue_type": record.get(
                 CONCEPT.BIOSPECIMEN.TISSUE_TYPE
@@ -426,6 +442,20 @@ class GenomicFile:
 
     @classmethod
     def build_entity(cls, record, get_target_id_from_record):
+        def size(record):
+            try:
+                return int(record.get(CONCEPT.GENOMIC_FILE.SIZE))
+            except Exception:
+                return None
+
+        def hashes(record):
+            return {
+                k.lower().replace("-", ""): v
+                for k, v in str_to_obj(
+                    record.get(CONCEPT.GENOMIC_FILE.HASH_DICT, {})
+                ).items()
+            }
+
         secondary_components = {
             "kf_id": get_target_id_from_record(cls, record),
             "file_name": record.get(CONCEPT.GENOMIC_FILE.FILE_NAME),
@@ -436,13 +466,8 @@ class GenomicFile:
                 record.get(CONCEPT.GENOMIC_FILE.CONTROLLED_ACCESS)
             ),
             "is_harmonized": record.get(CONCEPT.GENOMIC_FILE.HARMONIZED),
-            "hashes": {
-                k.lower().replace("-", ""): v
-                for k, v in str_to_obj(
-                    record.get(CONCEPT.GENOMIC_FILE.HASH_DICT)
-                ).items()
-            },
-            "size": int(record.get(CONCEPT.GENOMIC_FILE.SIZE)),
+            "hashes": hashes(record),
+            "size": size(record),
             "urls": str_to_obj(record.get(CONCEPT.GENOMIC_FILE.URL_LIST)),
             "acl": str_to_obj(record.get(CONCEPT.GENOMIC_FILE.ACL)),
             "reference_genome": record.get(
@@ -671,6 +696,9 @@ class BiospecimenGenomicFile:
         secondary_components = {
             "kf_id": get_target_id_from_record(cls, record),
             "visible": record.get(CONCEPT.BIOSPECIMEN_GENOMIC_FILE.VISIBLE),
+            "external_id": external_id(
+                [Biospecimen, GenomicFile], record, get_target_id_from_record
+            ),
         }
         return {
             **cls.get_key_components(record, get_target_id_from_record),
@@ -708,6 +736,9 @@ class BiospecimenDiagnosis:
         secondary_components = {
             "kf_id": get_target_id_from_record(cls, record),
             "visible": record.get(CONCEPT.BIOSPECIMEN_DIAGNOSIS.VISIBLE),
+            "external_id": external_id(
+                [Biospecimen, Diagnosis], record, get_target_id_from_record
+            ),
         }
         return {
             **cls.get_key_components(record, get_target_id_from_record),
@@ -745,6 +776,9 @@ class ReadGroupGenomicFile:
         secondary_components = {
             "kf_id": get_target_id_from_record(cls, record),
             "visible": record.get(CONCEPT.READ_GROUP_GENOMIC_FILE.VISIBLE),
+            "external_id": external_id(
+                [ReadGroup, GenomicFile], record, get_target_id_from_record
+            ),
         }
         return {
             **cls.get_key_components(record, get_target_id_from_record),
@@ -782,6 +816,11 @@ class SequencingExperimentGenomicFile:
         secondary_components = {
             "kf_id": get_target_id_from_record(cls, record),
             "visible": record.get(CONCEPT.SEQUENCING_GENOMIC_FILE.VISIBLE),
+            "external_id": external_id(
+                [SequencingExperiment, GenomicFile],
+                record,
+                get_target_id_from_record,
+            ),
         }
         return {
             **cls.get_key_components(record, get_target_id_from_record),
