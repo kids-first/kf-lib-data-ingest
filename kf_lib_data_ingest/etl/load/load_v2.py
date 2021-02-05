@@ -50,12 +50,15 @@ class LoadStage(LoadBase):
         # check the server
         if self.dry_run and not self.query_url:
             return None
+
+        err = False
         try:
             tic_list = entity_class.query_target_ids(
                 self.query_url or self.target_url, key_components
             )
             if tic_list:
                 if len(tic_list) > 1:
+                    err = True
                     raise Exception(
                         "Ambiguous query. Multiple target identifiers found.\n"
                         "Sent:\n"
@@ -73,7 +76,10 @@ class LoadStage(LoadBase):
                     )
                     return tic
         except Exception:
-            return None
+            if err:
+                raise
+
+        return None
 
     def _do_target_submit(self, entity_class, body):
         """Shim for target API submission across loader versions"""

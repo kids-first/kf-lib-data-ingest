@@ -72,7 +72,7 @@ class LoadStage(IngestStage):
             when using resume_from, because that needs the cache to be effective.
         :type clear_cache: bool, optional
         """
-        super().__init__(cache_dir)
+        super().__init__(cache_dir or os.getcwd())
         self.target_api_config = TargetAPIConfig(target_api_config_path)
         self._validate_entities(
             entities_to_load,
@@ -87,7 +87,7 @@ class LoadStage(IngestStage):
 
         target = urlparse(target_url).netloc or urlparse(target_url).path
         self.uid_cache_filepath = os.path.join(
-            cache_dir or os.getcwd(),
+            self.stage_cache_dir,
             #  Every target gets its own cache because they don't share UIDs
             "_".join(multisplit(target, [":", "/"]))
             #  Every study gets its own cache to compartmentalize internal IDs
@@ -266,15 +266,25 @@ class LoadStage(IngestStage):
         """
         try:
             key_components = self._do_target_get_key(entity_class, record)
-            unique_key = str(key_components)
         except Exception:
             # no new key, no new entity
+            key_components = None
+
+        if not key_components:
+            self.logger.debug(
+                f"Skip {entity_class.class_name}. Missing key components. "
+                f"Failed to construct unique key from record:"
+                f"\n{pformat(record)}"
+            )
             return
 
-        if (not key_components) or (
-            unique_key in self.seen_entities[entity_class.class_name]
-        ):
+        unique_key = str(key_components)
+        if unique_key in self.seen_entities[entity_class.class_name]:
             # no new key, no new entity
+            self.logger.debug(
+                f"Skip {entity_class.class_name}. Duplicate record found in "
+                f"data:\n{record}"
+            )
             return
 
         self.seen_entities[entity_class.class_name].add(unique_key)
@@ -379,7 +389,8 @@ class LoadStage(IngestStage):
             for entity_class in self.target_api_config.all_targets:
                 if entity_class.class_name not in self.entities_to_load:
                     self.logger.info(
-                        f"Skipping load of {entity_class.class_name}"
+                        f"Skipping load of {entity_class.class_name}. Not "
+                        "included in ingest package config."
                     )
                     continue
 
@@ -408,6 +419,10 @@ class LoadStage(IngestStage):
                     ex = concurrent.futures.ThreadPoolExecutor()
                     futures = []
 
+                self.logger.info(
+                    f"Found {entity_class.class_name} {len(transformed_records)} "
+                    "records to load."
+                )
                 for record in transformed_records:
                     if self.use_async and not self.resume_from:
                         futures.append(
