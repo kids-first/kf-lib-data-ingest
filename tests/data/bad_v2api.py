@@ -1,3 +1,6 @@
+LOADER_VERSION = 2
+
+
 class A:
     pass
 
@@ -73,6 +76,18 @@ class Good:
 
     @classmethod
     def submit(cls, host, body):
+        pass
+
+
+class AlmostGood(Good):
+    @classmethod
+    def get_key_components(cls, foo):
+        pass
+
+
+class AlmostAlmostGood(AlmostGood):
+    @classmethod
+    def build_entity(cls, foo):
         pass
 
 
