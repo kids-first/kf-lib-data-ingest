@@ -30,7 +30,7 @@ def new_ingest_pkg(dest_dir=None):
     # Create package
     src_dir = os.path.join(TEMPLATES_DIR, INGEST_PKG_TEMPLATE_NAME)
 
-    # Don't overwrite existing study dir
+    # Don't overwrite existing package dir
     try:
         shutil.copytree(src_dir, dest_dir)
     except FileExistsError:

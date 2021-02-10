@@ -8,20 +8,20 @@ def make_prefix(ingest_package_name):
     return f"Ingest:{ingest_package_name}:"
 
 
-def db_study_url(db_maintenance_url, study_id):
-    return urlparse(db_maintenance_url)._replace(path=f"/{study_id}").geturl()
+def db_project_url(db_maintenance_url, project_id):
+    return urlparse(db_maintenance_url)._replace(path=f"/{project_id}").geturl()
 
 
-def init_study_db(db_maintenance_url, study_id, ingest_package_name):
+def init_project_db(db_maintenance_url, project_id, ingest_package_name):
     """
-    Create and/or reset a warehouse database for the given study.
+    Create and/or reset a warehouse database for the given project.
 
     :param db_maintenance_url: Connection URL with login/password for the warehouse db
     :type db_maintenance_url: str
-    :param study_id: Unique identifier for the study
-    :type study_id: str
+    :param project_id: Unique identifier for the project
+    :type project_id: str
     """
-    # create the study database if needed
+    # create the project database if needed
     # (this uses AUTOCOMMIT because CREATE DATABASE won't run in a transaction)
     eng = sqlalchemy.create_engine(
         db_maintenance_url,
@@ -29,15 +29,15 @@ def init_study_db(db_maintenance_url, study_id, ingest_package_name):
         connect_args={"connect_timeout": 5},
     )
     try:
-        eng.execute(f'CREATE DATABASE "{study_id}"')
+        eng.execute(f'CREATE DATABASE "{project_id}"')
     except sqlalchemy.exc.ProgrammingError as e:
         if "already exists" not in str(e):
             raise
     eng.dispose()
 
-    # link to the study database
+    # link to the project database
     eng = sqlalchemy.create_engine(
-        db_study_url(db_maintenance_url, study_id),
+        db_project_url(db_maintenance_url, project_id),
         connect_args={"connect_timeout": 5},
     )
 
@@ -49,9 +49,9 @@ def init_study_db(db_maintenance_url, study_id, ingest_package_name):
     eng.dispose()
 
 
-def persist_df_to_study_db(
+def persist_df_to_project_db(
     db_maintenance_url,
-    study_id,
+    project_id,
     stage_name,
     df,
     table_name,
@@ -61,8 +61,8 @@ def persist_df_to_study_db(
 
     :param db_maintenance_url: Connection URL with login/password for the warehouse db
     :type db_maintenance_url: str
-    :param study_id: Unique identifier for the study
-    :type study_id: str
+    :param project_id: Unique identifier for the project
+    :type project_id: str
     :param stage_name: Name of the current stage
     :type stage_name: str
     :param df: A pandas DataFrame
@@ -70,9 +70,9 @@ def persist_df_to_study_db(
     :param table_name: Name for the new table
     :type table_name: str
     """
-    # link to the study database
+    # link to the project database
     eng = sqlalchemy.create_engine(
-        db_study_url(db_maintenance_url, study_id),
+        db_project_url(db_maintenance_url, project_id),
         connect_args={"connect_timeout": 5},
     )
 

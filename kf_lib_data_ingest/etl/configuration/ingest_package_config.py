@@ -14,15 +14,14 @@ from kf_lib_data_ingest.etl.configuration.base_config import PyModuleConfig
 
 
 class IngestPackageConfig(PyModuleConfig):
-    # TODO
-    # Removal/Exclusion list
+    # TODO: Removal/Exclusion list
     # We periodically get messages from investigators saying that we should
-    # remove/exclude certain items from the dataservice.
-    # ( e.g. https://github.com/kids-first/kf-study-imports/
-    # issues/75#issuecomment-405245066 )
-    # We should be able to store a list of either external IDs and
-    # their types or KFIDs of things to delete from the dataservice if already
-    # there and to prevent from loading subsequently.
+    # remove/exclude certain items from the dataservice. Example:
+    # https://github.com/kids-first/kf-study-imports/issues/75#issuecomment-405245066
+    #
+    # We should be able to store a list of either external IDs and their types
+    # or KFIDs of things to delete from the dataservice if already there and to
+    # prevent from loading subsequently.
 
     def __init__(self, config_path):
         """
@@ -38,6 +37,7 @@ class IngestPackageConfig(PyModuleConfig):
             )
 
         super().__init__(config_path)
+        self.project = self.project or self.study  # historical compatibility
 
         # Directory containing the extract config files
         self.extract_config_dir = os.path.join(
@@ -81,12 +81,8 @@ class IngestPackageConfig(PyModuleConfig):
             )
 
     def _validate(self):
-        assert self.extract_config_dir is not None
         assert_safe_type(self.extract_config_dir, str)
-
-        assert self.study is not None
-        assert_safe_type(self.study, str)
-
-        assert self.target_service_entities is not None
+        project = self.project or self.study  # historical compatibility
+        assert_safe_type(project, str)
         assert_safe_type(self.target_service_entities, list)
         assert_all_safe_type(self.target_service_entities, str)

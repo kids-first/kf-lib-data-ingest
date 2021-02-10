@@ -41,7 +41,7 @@ class LoadStage(IngestStage):
         target_api_config_path,
         target_url,
         entities_to_load,
-        study_id,
+        project_id,
         cache_dir=None,
         use_async=False,
         dry_run=False,
@@ -55,8 +55,8 @@ class LoadStage(IngestStage):
         :type target_url: str
         :param entities_to_load: set of which types of entities to load
         :type entities_to_load: list
-        :param study_id: target ID of the study being loaded
-        :type study_id: str
+        :param project_id: unique ID of the project being loaded
+        :type project_id: str
         :param cache_dir: where to find the ID cache, defaults to None
         :type cache_dir: str, optional
         :param use_async: use asynchronous networking, defaults to False
@@ -82,7 +82,7 @@ class LoadStage(IngestStage):
         self.target_url = target_url
         self.dry_run = dry_run
         self.resume_from = resume_from
-        self.study_id = study_id
+        self.project_id = project_id
         self.use_async = use_async
 
         target = urlparse(target_url).netloc or urlparse(target_url).path
@@ -90,8 +90,8 @@ class LoadStage(IngestStage):
             self.stage_cache_dir,
             #  Every target gets its own cache because they don't share UIDs
             "_".join(multisplit(target, [":", "/"]))
-            #  Every study gets its own cache to compartmentalize internal IDs
-            + "_" + study_id + "_" + DEFAULT_ID_CACHE_FILENAME,
+            #  Every project gets its own cache to compartmentalize internal IDs
+            + "_" + project_id + "_" + DEFAULT_ID_CACHE_FILENAME,
         )
 
         if not os.path.isfile(self.uid_cache_filepath):
@@ -409,9 +409,9 @@ class LoadStage(IngestStage):
                         transformed_records
                     )
 
-                # guarantee existence of the study ID column
+                # guarantee existence of the project unique key column
                 for r in transformed_records:
-                    r[CONCEPT.STUDY.TARGET_SERVICE_ID] = self.study_id
+                    r[CONCEPT.PROJECT.ID] = self.project_id
 
                 self.counts[entity_class.class_name] = 0
 

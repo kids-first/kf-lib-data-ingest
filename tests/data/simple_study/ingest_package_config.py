@@ -30,4 +30,4 @@ expected_counts = {
 }
 
 # TODO - Replace these values with your own valid values!
-study = "SD_ME0WME0W"
+project = "SD_ME0WME0W"

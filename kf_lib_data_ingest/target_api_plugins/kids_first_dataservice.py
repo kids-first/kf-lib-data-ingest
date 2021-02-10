@@ -98,19 +98,27 @@ class Study:
 
     @classmethod
     def get_key_components(cls, record, get_target_id_from_record):
-        return {
-            "data_access_authority": not_none(record[CONCEPT.STUDY.AUTHORITY]),
-            "external_id": not_none(record[CONCEPT.STUDY.ID]),
-        }
+        kfid = record.get(cls.target_id_concept) or record.get(
+            CONCEPT.PROJECT.ID
+        )
+        au = record.get(CONCEPT.STUDY.AUTHORITY)
+        id = record.get(CONCEPT.STUDY.ID)
+        assert (au and id) or kfid
+        return {"kf_id": kfid, "data_access_authority": au, "external_id": id}
 
     @classmethod
     def query_target_ids(cls, host, key_components):
-        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+        kfid = key_components.pop("kf_id", None)
+        if kfid:
+            return [kfid]
+        else:
+            return list(
+                yield_kfids(host, cls.api_path, drop_none(key_components))
+            )
 
     @classmethod
     def build_entity(cls, record, get_target_id_from_record):
         secondary_components = {
-            "kf_id": get_target_id_from_record(cls, record),
             "investigator_id": get_target_id_from_record(Investigator, record),
             "name": record.get(CONCEPT.STUDY.NAME),
             "short_name": record.get(CONCEPT.STUDY.SHORT_NAME),
@@ -139,7 +147,7 @@ class Family:
     @classmethod
     def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "study_id": not_none(record[CONCEPT.STUDY.TARGET_SERVICE_ID]),
+            "study_id": get_target_id_from_record(Study, record),
             "external_id": not_none(record[CONCEPT.FAMILY.ID]),
         }
 
@@ -172,7 +180,7 @@ class Participant:
     @classmethod
     def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "study_id": not_none(record[CONCEPT.STUDY.TARGET_SERVICE_ID]),
+            "study_id": get_target_id_from_record(Study, record),
             "external_id": not_none(record[CONCEPT.PARTICIPANT.ID]),
         }
 
@@ -357,7 +365,7 @@ class Biospecimen:
     @classmethod
     def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "study_id": not_none(record[CONCEPT.STUDY.TARGET_SERVICE_ID]),
+            "study_id": get_target_id_from_record(Study, record),
             "external_aliquot_id": not_none(record[CONCEPT.BIOSPECIMEN.ID]),
         }
 
@@ -435,7 +443,7 @@ class GenomicFile:
     def get_key_components(cls, record, get_target_id_from_record):
         # FIXME: Temporary until KFDRC file hashes are reliably stable
         return {
-            "study_id": not_none(record[CONCEPT.STUDY.TARGET_SERVICE_ID]),
+            "study_id": get_target_id_from_record(Study, record),
             "external_id": not_none(record[CONCEPT.GENOMIC_FILE.ID]),
         }
 
@@ -497,7 +505,7 @@ class ReadGroup:
     @classmethod
     def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "study_id": not_none(record[CONCEPT.STUDY.TARGET_SERVICE_ID]),
+            "study_id": get_target_id_from_record(Study, record),
             "external_id": record.get(CONCEPT.READ_GROUP.ID),
             "flow_cell": not_none(record[CONCEPT.READ_GROUP.FLOW_CELL]),
             "lane_number": not_none(record[CONCEPT.READ_GROUP.LANE_NUMBER]),
@@ -533,7 +541,7 @@ class SequencingExperiment:
     @classmethod
     def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "study_id": not_none(record[CONCEPT.STUDY.TARGET_SERVICE_ID]),
+            "study_id": get_target_id_from_record(Study, record),
             "sequencing_center_id": not_none(
                 record[CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID]
             ),
@@ -592,9 +600,7 @@ class FamilyRelationship:
                 get_target_id_from_record(
                     Participant,
                     {
-                        CONCEPT.STUDY.TARGET_SERVICE_ID: record[
-                            CONCEPT.STUDY.TARGET_SERVICE_ID
-                        ],
+                        CONCEPT.PROJECT.ID: record[CONCEPT.PROJECT.ID],
                         CONCEPT.PARTICIPANT.ID: record[
                             CONCEPT.FAMILY_RELATIONSHIP.PERSON1.ID
                         ],
@@ -605,9 +611,7 @@ class FamilyRelationship:
                 get_target_id_from_record(
                     Participant,
                     {
-                        CONCEPT.STUDY.TARGET_SERVICE_ID: record[
-                            CONCEPT.STUDY.TARGET_SERVICE_ID
-                        ],
+                        CONCEPT.PROJECT.ID: record[CONCEPT.PROJECT.ID],
                         CONCEPT.PARTICIPANT.ID: record[
                             CONCEPT.FAMILY_RELATIONSHIP.PERSON2.ID
                         ],
