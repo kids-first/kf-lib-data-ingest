@@ -117,27 +117,14 @@ class TableReportBuilder(AbstractReportBuilder):
         row_dicts = []
         # Successful tests or tests that did not run
         if not result["errors"]:
-            row_dicts.append(
-                {
-                    "errors": None,
-                    "locations": None,
-                }
-            )
+            row_dicts.append({"errors": None, "locations": None})
         # -- Failed tests --
         elif result["type"] == "count":
-            row_dicts.append(
-                {
-                    "errors": result["errors"],
-                    "locations": None,
-                }
-            )
+            row_dicts.append({"errors": result["errors"], "locations": None})
         elif result["type"] == "attribute":
             for filepath, invalid_values in result["errors"].items():
                 row_dicts.append(
-                    {
-                        "errors": set(invalid_values),
-                        "locations": filepath,
-                    }
+                    {"errors": set(invalid_values), "locations": filepath}
                 )
         elif result["type"] == "relationship":
             for error in result["errors"]:
