@@ -256,7 +256,7 @@ class ExtractStage(IngestStage):
                         "context-appropriate sublists as a safeguard against "
                         "accidental misuse. To learn about the importance of "
                         "nested operation sublists, read "
-                        "https://kids-first.github.io/kf-lib-data-ingest/design/extract_mapping.html#nested-operations-sublists"  # noqa E501
+                        "https://kids-first.github.io/kf-lib-data-ingest/tutorial/extract/index.html#nested-operations-sublists"  # noqa E501
                     )
             else:  # list
                 self.logger.info("Diving into nested operation sublist.")
