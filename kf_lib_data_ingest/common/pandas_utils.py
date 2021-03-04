@@ -165,7 +165,7 @@ def get_col(df, key):
         else:
             return df[key]
     except KeyError as e:
-        raise Exception(
+        raise KeyError(
             f"Column {key} not found in df. Options are: {list(df.columns)}"
         ) from e
 

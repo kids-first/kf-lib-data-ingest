@@ -209,3 +209,74 @@ def test_melt_map():
     )
 
     assert out_df.equals(expected_output)
+
+
+def test_optional():
+    # make sure that optional operations raise differently
+
+    # keep
+    with pytest.raises(KeyError):
+        operations.keep_map("COL_B", "OUT_COL")(df)
+
+    res = operations.keep_map("COL_B", "OUT_COL", optional=True)(df)
+    assert isinstance(res, operations.SkipOptional)
+    assert res.needed_columns == ["COL_B"]
+
+    operations.keep_map("COL_A", "OUT_COL", optional=True)(df)
+
+    # value
+    with pytest.raises(KeyError):
+        operations.value_map(lambda x: x, "COL_B", "OUT_COL")(df)
+
+    res = operations.value_map(lambda x: x, "COL_B", "OUT_COL", optional=True)(
+        df
+    )
+    assert isinstance(res, operations.SkipOptional)
+    assert res.needed_columns == ["COL_B"]
+
+    operations.value_map(lambda x: x, "COL_A", "OUT_COL", optional=True)(df)
+
+    # column
+    with pytest.raises(KeyError):
+        operations.column_map(lambda x: x, "COL_B", "OUT_COL")(df)
+
+    res = operations.column_map(lambda x: x, "COL_B", "OUT_COL", optional=True)(
+        df
+    )
+    assert isinstance(res, operations.SkipOptional)
+    assert res.needed_columns == ["COL_B"]
+
+    operations.column_map(lambda x: x, "COL_A", "OUT_COL", optional=True)(df)
+
+    # melt
+    with pytest.raises(KeyError):
+        operations.melt_map(
+            "VAR_COL",
+            {"COL_B": "NEW_B"},
+            "VAL_COL",
+            lambda x: x * 2,
+        )(df)
+
+    res = operations.melt_map(
+        "VAR_COL",
+        {"COL_B": "NEW_B"},
+        "VAL_COL",
+        lambda x: x * 2,
+        optional=True,
+    )(df)
+    assert isinstance(res, operations.SkipOptional)
+    assert res.needed_columns == ["COL_B"]
+
+    res = operations.melt_map(
+        "VAR_COL",
+        {"COL_B": "NEW_B", "COL_C": "NEW_C"},
+        "VAL_COL",
+        lambda x: x * 2,
+        optional=True,
+    )(df)
+    assert isinstance(res, operations.SkipOptional)
+    assert res.needed_columns == ["COL_B", "COL_C"]
+
+    operations.melt_map(
+        "VAR_COL", {"COL_A": "NEW_A"}, "VAL_COL", lambda x: x * 2, optional=True
+    )(df)

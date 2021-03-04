@@ -240,6 +240,17 @@ class ExtractStage(IngestStage):
             if is_function(op):
                 self._log_operation(op, i + _nth)
                 res = op(df_in)
+                if isinstance(res, extract_operations.SkipOptional):
+                    nc = res.needed_columns
+                    waswere = (
+                        f" '{nc[0]}' was" if len(nc) == 1 else f"s {nc} were"
+                    )
+                    msg = (
+                        f"⚠️ {ordinal(i + _nth)} operation was skipped because"
+                        f" it is marked optional and column{waswere} not found."
+                    )
+                    self.logger.warning(msg)
+                    continue
 
                 # result length must be a whole multiple of the original
                 # length, otherwise we've lost rows
@@ -268,6 +279,9 @@ class ExtractStage(IngestStage):
                 )
 
         self.logger.info("Done with the operations list.")
+
+        if not out_cols:
+            raise Exception("No columns were extracted.")
 
         # the output dataframe length will be the least common multiple of the
         # extracted column lengths

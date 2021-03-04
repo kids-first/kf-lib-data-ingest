@@ -170,7 +170,7 @@ def test_visibility():
         es._obvert_visibility(df_a)
 
 
-def test_operation_length_erors():
+def test_operation_length_errors():
     es = ExtractStage("", "")
     df = pandas.DataFrame({"A": [1, 2], "B": [1, 2]})
 
@@ -186,3 +186,14 @@ def test_operation_length_erors():
     with pytest.raises(ConfigValidationError) as e:
         es._chain_operations(df, op)
     assert "not a multiple" in str(e.value)
+
+
+def test_operation_skipping():
+    es = ExtractStage("", "")
+    df = pandas.DataFrame({"A": [1, 2], "B": [1, 2]})
+
+    op = [
+        column_map(in_col="C", out_col="NAME", m=lambda x: x, optional=True),
+        column_map(in_col="B", out_col="NAME", m=lambda x: x),
+    ]
+    es._chain_operations(df, op)
