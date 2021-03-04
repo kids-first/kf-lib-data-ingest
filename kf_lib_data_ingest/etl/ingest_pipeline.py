@@ -258,6 +258,7 @@ class DataIngestPipeline(object):
 
             # Iterate over all stages in the ingest pipeline
             output = None
+            skipped_operations = []
             for stage in self._iterate_stages():
                 stage_name = type(stage).__name__
                 # No more stages left in list of user specified stages
@@ -275,7 +276,8 @@ class DataIngestPipeline(object):
                         validation_mode=self.validation_mode,
                         report_kwargs={"md": {"title": title}},
                     )
-
+                    if isinstance(stage, ExtractStage):
+                        skipped_operations = stage.messages
                 # Load cached output and validation results
                 else:
                     self.logger.info(
@@ -310,7 +312,7 @@ class DataIngestPipeline(object):
                 if all_passed:
                     self.logger.info("✅ Ingest passed validation!")
                 else:
-                    self.logger.error("⚠️ Ingest failed validation! ")
+                    self.logger.warning("⚠️ Ingest failed validation! ")
 
                 report_file_paths = [
                     os.path.join(root, file)
@@ -333,6 +335,10 @@ class DataIngestPipeline(object):
             )
             sys.exit(1)
         else:
+            if skipped_operations:
+                self.logger.warning("Reminder of skipped extract operations...")
+                self.logger.warning("\n".join(skipped_operations))
+
             self.logger.info("✅ Ingest pipeline completed execution!")
 
         # Log the end of the run
