@@ -43,7 +43,7 @@ other two components and logging parameters. It will look something like:
 
     .. code-block:: python
 
-        study = 'SD_ME0WME0W'
+        project = 'SD_ME0WME0W'
         extract_config_dir = 'extract_configs'
         transform_function_path = 'transform_module.py'
         log_level = 'debug'

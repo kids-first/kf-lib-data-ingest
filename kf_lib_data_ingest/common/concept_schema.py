@@ -31,6 +31,9 @@ class PropertyMixin(object):
 
 
 class CONCEPT:
+    class PROJECT:
+        ID = None
+
     class INVESTIGATOR(PropertyMixin):
         NAME = None
         INSTITUTION = None

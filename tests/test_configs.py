@@ -85,7 +85,7 @@ def test_ingest_package_config(tmpdir):
             "\n".join(
                 [
                     f'extract_config_dir = "{confdir}"',
-                    'study = "SD_12345678"',
+                    'project = "SD_12345678"',
                     "target_service_entities = []",
                 ]
             )

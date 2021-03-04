@@ -67,7 +67,7 @@ class ExtractStage(IngestStage):
         """
         Construct the filepath of the output.
         Something like:
-            <study config dir path>/output_cache/<ingest stage class name>.xxx
+            <project config dir path>/output_cache/<ingest stage class name>.xxx
 
         :return: file location to put/get serialized output for this stage
         :rtype: string

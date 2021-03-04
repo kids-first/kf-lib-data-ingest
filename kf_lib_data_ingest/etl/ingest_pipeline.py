@@ -8,8 +8,8 @@ import pytest
 
 from kf_lib_data_ingest.common.type_safety import assert_safe_type
 from kf_lib_data_ingest.common.warehousing import (
-    init_study_db,
-    persist_df_to_study_db,
+    init_project_db,
+    persist_df_to_project_db,
 )
 from kf_lib_data_ingest.config import DEFAULT_TARGET_URL, VERSION
 from kf_lib_data_ingest.etl.configuration.ingest_package_config import (
@@ -114,7 +114,7 @@ class DataIngestPipeline(object):
         self.data_ingest_config = IngestPackageConfig(
             ingest_package_config_path
         )
-        self.study = self.data_ingest_config.study
+        self.project = self.data_ingest_config.project
         self.ingest_config_dir = os.path.dirname(
             self.data_ingest_config.config_filepath
         )
@@ -225,7 +225,7 @@ class DataIngestPipeline(object):
             self.target_api_config_path,
             self.target_url,
             self.data_ingest_config.target_service_entities,
-            self.data_ingest_config.study,
+            self.data_ingest_config.project,
             cache_dir=self.ingest_output_dir,
             use_async=self.use_async,
             dry_run=self.dry_run,
@@ -248,10 +248,12 @@ class DataIngestPipeline(object):
         try:
             # Initialize database
             if self.warehouse_db_url:
-                study_id = self.data_ingest_config.study
-                init_study_db(self.warehouse_db_url, study_id, self.ingest_name)
+                project_id = self.data_ingest_config.project
+                init_project_db(
+                    self.warehouse_db_url, project_id, self.ingest_name
+                )
                 self.logger.info(
-                    f"Initialized db in warehouse for {study_id} {self.ingest_name}."
+                    f"Initialized db in warehouse for {project_id} {self.ingest_name}."
                 )
 
             # Iterate over all stages in the ingest pipeline
@@ -267,7 +269,7 @@ class DataIngestPipeline(object):
                 # Run stage operation and validate stage output
                 if stage_name in self.stages_to_run:
                     self.stages_to_run.remove(stage_name)
-                    title = f"📓 Data Validation Report: `{self.study}`"
+                    title = f"📓 Data Validation Report: `{self.project}`"
                     output = stage.run(
                         output,
                         validation_mode=self.validation_mode,
@@ -285,16 +287,16 @@ class DataIngestPipeline(object):
                     stage, (TransformStage, ExtractStage)
                 ):
                     for df_name, df in output.items():
-                        schema = persist_df_to_study_db(
+                        schema = persist_df_to_project_db(
                             self.warehouse_db_url,
-                            self.data_ingest_config.study,
+                            self.data_ingest_config.project,
                             stage_name,
                             df,
                             df_name,
                             self.ingest_name,
                         )
                         self.logger.info(
-                            f"Loaded {schema}.{df_name} in {study_id} warehouse."
+                            f"Loaded {schema}.{df_name} in {project_id} warehouse."
                         )
 
             # Run user defined data validation tests

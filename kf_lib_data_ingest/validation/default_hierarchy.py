@@ -5,7 +5,7 @@ from kf_lib_data_ingest.validation.relations import RELATIONS as R
 DEFAULT_HIERARCHY = Graph()
 DH = DEFAULT_HIERARCHY
 
-# ######### Hierarchy edges point --> upwards toward the study root
+# ######### Hierarchy edges point --> upwards toward the concept root
 
 # relationships between identifiers
 

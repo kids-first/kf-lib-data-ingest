@@ -184,7 +184,7 @@ def common_args_options(func):
 @click.group(context_settings=CONTEXT_SETTINGS)
 def cli():
     """
-    A CLI utility for ingesting study data into the Kids First ecosystem.
+    A CLI utility for ingesting tabular data into the Kids First ecosystem.
 
     This method does not need to be implemented. cli is the root group that all
     subcommands will implicitly be part of.
@@ -320,7 +320,7 @@ def test(
 def create_new_ingest(dest_dir=None):
     """
     Create a new ingest package based on the template:
-    kf_lib_data_ingest.factory.templates.study
+    kf_lib_data_ingest.templates.my_ingest_package
     """
     from kf_lib_data_ingest.factory.generate import new_ingest_pkg
 

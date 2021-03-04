@@ -43,7 +43,7 @@ class Validator:
         :param include_implicit: whether to deduce implied connections, default True
         :yield: dict that includes metadata plus a list of test result dicts
         """
-        logger.info("Validating study data")
+        logger.info("Validating project data")
 
         for k, df in dict_of_dataframes.items():
             dict_of_dataframes[k] = df.filter(self.ANCESTOR_LOOKUP).fillna(NA)
@@ -107,10 +107,10 @@ class Validator:
             )
 
     def _build_graph(self, dict_of_dataframes, include_implicit=True):
-        """Construct a graph that represents the study data. Nodes are cells in
-        the data, edges are relationships between cells across rows according
-        to the designated relationship hierarchy among columns (see e.g.
-        default_hierarchy.py).
+        """Construct a graph that represents the tabular data. Nodes are cells
+        in the data, edges are relationships between cells across rows
+        according to the designated relationship hierarchy among columns (see
+        e.g. default_hierarchy.py).
 
         :param dict_of_dataframes: dict with filename keys and dataframe values
         :param include_implicit: whether to deduce implied connections, default True
@@ -370,7 +370,7 @@ class Validator:
         self, graph, dict_of_dataframes, include_implicit=True
     ):
         """Perform tests on the graph to validate which of the hierarchy
-        rules have been broken by the study data.
+        rules have been broken by the data.
 
         :param graph: a graph representation of the data
         :param dict_of_dataframes: dict with filename keys and dataframe values
