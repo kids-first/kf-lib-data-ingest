@@ -52,9 +52,11 @@ class CONCEPT:
 
     class FAMILY_RELATIONSHIP(PropertyMixin):
         class PERSON1(PropertyMixin):
+            GENDER = None
             pass
 
         class PERSON2(PropertyMixin):
+            GENDER = None
             pass
 
         RELATION_FROM_1_TO_2 = None

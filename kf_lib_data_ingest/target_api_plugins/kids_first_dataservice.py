@@ -8,12 +8,15 @@ First Dataservice)
 See etl.configuration.target_api_config docstring for more details on the
 requirements for format and content.
 """
-from threading import Lock
 import logging
+from threading import Lock
 
 from d3b_utils.requests_retry import Session
 from kf_lib_data_ingest.common import constants
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
+from kf_lib_data_ingest.common.family_relationships import (
+    convert_relationships_to_p1p2,
+)
 from kf_lib_data_ingest.common.misc import (
     flexible_age,
     str_to_obj,
@@ -577,44 +580,10 @@ class FamilyRelationship:
 
     @classmethod
     def transform_records_list(cls, records_list):
-        """Convert PID+REL_TO_PROBAND into P1+REL_1_TO_2+P2"""
-        rdf = DataFrame(records_list)
-        if (
-            (CONCEPT.FAMILY_RELATIONSHIP.PERSON1.ID not in rdf)
-            and (CONCEPT.FAMILY_RELATIONSHIP.PERSON2.ID not in rdf)
-            and (CONCEPT.FAMILY_RELATIONSHIP.RELATION_FROM_1_TO_2 not in rdf)
-            and (CONCEPT.PARTICIPANT.RELATIONSHIP_TO_PROBAND in rdf)
-        ):
-            relations = rdf[
-                rdf.columns.intersection(
-                    {
-                        CONCEPT.STUDY.TARGET_SERVICE_ID,
-                        CONCEPT.FAMILY.ID,
-                        CONCEPT.PARTICIPANT.ID,
-                        CONCEPT.PARTICIPANT.RELATIONSHIP_TO_PROBAND,
-                        CONCEPT.FAMILY_RELATIONSHIP.VISIBLE,
-                    }
-                )
-            ].drop_duplicates()
-
-            side1 = relations[
-                relations[CONCEPT.PARTICIPANT.RELATIONSHIP_TO_PROBAND]
-                != constants.RELATIONSHIP.PROBAND
-            ].rename(
-                columns={
-                    CONCEPT.PARTICIPANT.ID: CONCEPT.FAMILY_RELATIONSHIP.PERSON1.ID,
-                    CONCEPT.PARTICIPANT.RELATIONSHIP_TO_PROBAND: CONCEPT.FAMILY_RELATIONSHIP.RELATION_FROM_1_TO_2,
-                }
-            )
-            side2 = relations[
-                relations[CONCEPT.PARTICIPANT.RELATIONSHIP_TO_PROBAND]
-                == constants.RELATIONSHIP.PROBAND
-            ][[CONCEPT.FAMILY.ID, CONCEPT.PARTICIPANT.ID]].rename(
-                columns={
-                    CONCEPT.PARTICIPANT.ID: CONCEPT.FAMILY_RELATIONSHIP.PERSON2.ID,
-                }
-            )
-            return side1.merge(side2).to_dict("records")
+        df = convert_relationships_to_p1p2(
+            DataFrame(records_list), infer_genders=True, bidirect=True
+        )
+        return df.to_dict("records")
 
     @classmethod
     def get_key_components(cls, record, get_target_id_from_record):
