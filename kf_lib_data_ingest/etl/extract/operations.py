@@ -22,6 +22,11 @@ from kf_lib_data_ingest.common.pandas_utils import (  # noqa: F401
 from kf_lib_data_ingest.common.type_safety import assert_safe_type
 
 
+class SkipOptional:
+    def __init__(self, needed_columns):
+        self.needed_columns = needed_columns
+
+
 def df_map(m):
     """
     Wraps the DataFrame mapping operation in a function that takes only a
@@ -46,7 +51,7 @@ def df_map(m):
     return df_map_func
 
 
-def value_map(m, in_col, out_col):
+def value_map(m, in_col, out_col, optional=False):
     """
     Wraps the value mapping operation in a function that takes a DataFrame as
     input and returns a single column DataFrame (plus index).
@@ -81,6 +86,8 @@ def value_map(m, in_col, out_col):
 
     def value_map_func(df):
         new_df = DataFrame()
+        if optional and (in_col not in df):
+            return SkipOptional([in_col])
         if callable(m):
             new_df[out_col] = get_col(df, in_col).apply(m)
         elif isinstance(m, str):
@@ -141,7 +148,7 @@ def constant_map(m, out_col):
     return constant_map_func
 
 
-def column_map(m, in_col, out_col):
+def column_map(m, in_col, out_col, optional=False):
     """
     Wraps the column mapping operation in a function that takes only a
     DataFrame as input.
@@ -157,13 +164,15 @@ def column_map(m, in_col, out_col):
 
     def column_map_func(df):
         new_df = DataFrame()
+        if optional and (in_col not in df):
+            return SkipOptional([in_col])
         new_df[out_col] = m(get_col(df, in_col).copy())
         return new_df
 
     return column_map_func
 
 
-def keep_map(in_col, out_col):
+def keep_map(in_col, out_col, optional=False):
     """
     Shorthand for value_map or column_map with `m=lambda x: x`
 
@@ -172,10 +181,12 @@ def keep_map(in_col, out_col):
         populate
     :return: A function that transfers values from in_col to out_col
     """
-    return column_map(lambda x: x, in_col, out_col)
+    return column_map(lambda x: x, in_col, out_col, optional=optional)
 
 
-def melt_map(var_name, map_for_vars, value_name, map_for_values):
+def melt_map(
+    var_name, map_for_vars, value_name, map_for_values, optional=False
+):
     """
     Wraps the melt mapping operation in a function that takes only a DataFrame
     as input.
@@ -195,6 +206,8 @@ def melt_map(var_name, map_for_vars, value_name, map_for_values):
     assert_safe_type(map_for_values, dict, callable)
 
     def melt_map_func(df):
+        if optional and not all(v in df.columns for v in map_for_vars):
+            return SkipOptional(list(map_for_vars))
         new_df = DataFrame()
         for k, v in map_for_vars.items():
             col_melt_df = DataFrame({v: get_col(df, k)}).melt(

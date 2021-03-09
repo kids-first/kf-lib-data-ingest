@@ -231,6 +231,7 @@ class ExtractStage(IngestStage):
         :return: A pandas dataframe containing extracted mapped data
         :rtype: DataFrame
         """
+        skip_messages = []
         out_cols = defaultdict(lambda: pandas.Series(dtype=object))
         original_length = df_in.index.size
 
@@ -240,6 +241,18 @@ class ExtractStage(IngestStage):
             if is_function(op):
                 self._log_operation(op, i + _nth)
                 res = op(df_in)
+                if isinstance(res, extract_operations.SkipOptional):
+                    nc = res.needed_columns
+                    waswere = (
+                        f" '{nc[0]}' was" if len(nc) == 1 else f"s {nc} were"
+                    )
+                    msg = (
+                        f"⚠️ {ordinal(i + _nth)} operation was skipped because"
+                        f" it is marked optional and column{waswere} not found."
+                    )
+                    skip_messages.append(msg)
+                    self.logger.warning(msg)
+                    continue
 
                 # result length must be a whole multiple of the original
                 # length, otherwise we've lost rows
@@ -260,7 +273,8 @@ class ExtractStage(IngestStage):
                     )
             else:  # list
                 self.logger.info("Diving into nested operation sublist.")
-                res = self._chain_operations(df_in, op, i + _nth, True)
+                res, skip_ms = self._chain_operations(df_in, op, i + _nth, True)
+                skip_messages.extend(skip_ms)
 
             for col_name, col_series in res.iteritems():
                 out_cols[col_name] = out_cols[col_name].append(
@@ -268,6 +282,9 @@ class ExtractStage(IngestStage):
                 )
 
         self.logger.info("Done with the operations list.")
+
+        if not out_cols:
+            raise Exception("No columns were extracted.")
 
         # the output dataframe length will be the least common multiple of the
         # extracted column lengths
@@ -325,7 +342,7 @@ class ExtractStage(IngestStage):
                 else:
                     index = col_index
         df_out.index = index
-        return df_out
+        return df_out, skip_messages
 
     def _run(self, _ignore=None):
         """
@@ -335,6 +352,7 @@ class ExtractStage(IngestStage):
         :rtype: dict
         """
         output = {}
+        self.messages = []
         for extract_config in self.extract_configs:
             self.logger.info(
                 "Extract config: %s", extract_config.config_filepath
@@ -389,7 +407,16 @@ class ExtractStage(IngestStage):
                 return output
 
             # extraction
-            df_out = self._chain_operations(df_in, extract_config.operations)
+            df_out, file_skips = self._chain_operations(
+                df_in, extract_config.operations
+            )
+
+            # record skipped operations
+            if file_skips:
+                self.messages.append(
+                    f"In file {extract_config.config_file_relpath}:"
+                )
+                self.messages.extend(f"\t{s}" for s in file_skips)
 
             # split value lists into separate rows
             df_out = split_df_rows_on_splits(df_out.reset_index()).set_index(
