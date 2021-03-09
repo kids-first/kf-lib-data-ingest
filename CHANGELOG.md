@@ -1,5 +1,21 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.1.0
+
+### Summary
+
+- Emojis: ✨ x3, 🔊 x1, 💚 x1
+- Categories: Additions x4, Ops x1
+
+### New features and changes
+
+- [#582](https://github.com/kids-first/kf-lib-data-ingest/pull/582) - ✨ Allow some extract operations to be optional - [65634102](https://github.com/kids-first/kf-lib-data-ingest/commit/65634102e7cb6f63c7e8c9d3b53f2b2a628e0407) by [fiendish](https://github.com/fiendish)
+- [#580](https://github.com/kids-first/kf-lib-data-ingest/pull/580) - ✨ Enable loading un-preregistered Studies - [45897cda](https://github.com/kids-first/kf-lib-data-ingest/commit/45897cda93ad04b4c35828dfadfefc514e75b833) by [fiendish](https://github.com/fiendish)
+- [#576](https://github.com/kids-first/kf-lib-data-ingest/pull/576) - ✨ Autogenerate family relations - [01bcfb71](https://github.com/kids-first/kf-lib-data-ingest/commit/01bcfb7198eb59e1ab7b0de1d7c894b603041edb) by [fiendish](https://github.com/fiendish)
+- [#578](https://github.com/kids-first/kf-lib-data-ingest/pull/578) - 🔊 Update nested sublists log notice URL - [1b3eeaa5](https://github.com/kids-first/kf-lib-data-ingest/commit/1b3eeaa541717c491537f2c9dc40938db7248366) by [fiendish](https://github.com/fiendish)
+- [#574](https://github.com/kids-first/kf-lib-data-ingest/pull/574) - 💚 Remove requirement for job in testing workflow - [615f935d](https://github.com/kids-first/kf-lib-data-ingest/commit/615f935d58eb603b578f326add4b75d153ae8fce) by [blackdenc](https://github.com/blackdenc)
+
+
 ## Release 1.0.0
 
 ### Summary
