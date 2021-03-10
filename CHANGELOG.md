@@ -1,5 +1,17 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.2.0
+
+### Summary
+
+- Emojis: ✨ x1
+- Categories: Additions x1
+
+### New features and changes
+
+- [#585](https://github.com/kids-first/kf-lib-data-ingest/pull/585) - ✨ Add --version argument - [ababf566](https://github.com/kids-first/kf-lib-data-ingest/commit/ababf5669ebe44e5c52be4ff8ad9f595abbefa7f) by [fiendish](https://github.com/fiendish)
+
+
 ## Release 1.1.0
 
 ### Summary
