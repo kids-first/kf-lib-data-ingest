@@ -44,16 +44,19 @@ def not_none(val):
 
 
 def external_id(cls_list, record, get_target_id_from_record):
-    out = []
-    for cls in cls_list:
-        cls_key_dict = cls.get_key_components(
-            record, get_target_id_from_record
-        ).copy()
-        for key in ["study_id", "sequencing_center_id"]:
-            cls_key_dict.pop(key, None)
-        out.extend([str(v) for v in cls_key_dict.values()])
-
-    return DELIMITER.join(out) or None
+    try:
+        out = []
+        for cls in cls_list:
+            cls_key_dict = cls.get_key_components(
+                record, get_target_id_from_record
+            ).copy()
+            for key in ["study_id", "sequencing_center_id"]:
+                cls_key_dict.pop(key, None)
+            out.extend([str(v) for v in cls_key_dict.values()])
+    except (KeyError, ValueError):
+        return None
+    else:
+        return DELIMITER.join(out) or None
 
 
 class Investigator:
