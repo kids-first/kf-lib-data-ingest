@@ -182,6 +182,7 @@ def common_args_options(func):
 
 
 @click.group(context_settings=CONTEXT_SETTINGS)
+@click.version_option()
 def cli():
     """
     A CLI utility for ingesting tabular data into the Kids First ecosystem.
