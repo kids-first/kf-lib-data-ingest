@@ -1,5 +1,17 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.2.1
+
+### Summary
+
+- Emojis: 🐛 x1
+- Categories: Fixes x1
+
+### New features and changes
+
+- [#587](https://github.com/kids-first/kf-lib-data-ingest/pull/587) - 🐛 Don't error on relation external_id without key fields - [c1f582a6](https://github.com/kids-first/kf-lib-data-ingest/commit/c1f582a6f0aae69e0300748326a9e1d91246746d) by [fiendish](https://github.com/fiendish)
+
+
 ## Release 1.2.0
 
 ### Summary
