@@ -198,7 +198,7 @@ class SEQUENCING:
         class FG:
             NAME = "fg"
             KF_ID = "SC_XXXXXXX2"
-        
+
         class HGT:
             NAME = "Humangenetik Tübingen"
             KF_ID = "SC_75KENA7A"
