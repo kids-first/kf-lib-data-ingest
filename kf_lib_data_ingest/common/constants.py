@@ -199,6 +199,10 @@ class SEQUENCING:
             NAME = "fg"
             KF_ID = "SC_XXXXXXX2"
 
+        class HGT:
+            NAME = "Humangenetik Tübingen"
+            KF_ID = "SC_75KENA7A"
+
         class HUDSON_ALPHA:
             NAME = "HudsonAlpha Institute for Biotechnology"
             KF_ID = "SC_X1N69WJM"
