@@ -1,5 +1,17 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.3.0
+
+### Summary
+
+- Emojis: ✨ x1
+- Categories: Additions x1
+
+### New features and changes
+
+- [#565](https://github.com/kids-first/kf-lib-data-ingest/pull/565) - ✨ Add consent_type and dbgap_consent_code to BS - [e80f9d4d](https://github.com/kids-first/kf-lib-data-ingest/commit/e80f9d4d8abda7fa81e34906960f0466ae013531) by [chris-s-friedman](https://github.com/chris-s-friedman)
+
+
 ## Release 1.2.1
 
 ### Summary
