@@ -10,6 +10,8 @@ from kf_lib_data_ingest.common.misc import convert_to_downcasted_str
 from kf_lib_data_ingest.etl.configuration.base_config import (
     ConfigValidationError,
 )
+from kf_lib_data_ingest.etl.extract.utils import Extractor
+from kf_lib_data_ingest.etl.configuration.extract_config import ExtractConfig
 from kf_lib_data_ingest.etl.extract.extract import ExtractStage
 from kf_lib_data_ingest.etl.extract.operations import column_map
 
@@ -101,6 +103,37 @@ def test_extracts():
             # test for expected equivalence
             A, B = rectify_cols_and_datatypes(expected, extracted)
             pandas.testing.assert_frame_equal(A, B)
+
+
+def test_extractor_bad_inputs():
+    """
+    Test Extractor.extract with bad inputs
+    """
+    # Test bad inputs
+    extractor = Extractor()
+    # Not a DataFrame
+    with pytest.raises(TypeError) as e:
+        extractor.extract("foo", "/path")
+    # Not a valid extract cfg path
+    with pytest.raises(TypeError) as e:
+        extractor.extract(pandas.DataFrame({"a": [1]}), 1)
+    # An empty DataFrame
+    with pytest.raises(Exception) as e:
+        extractor.extract(pandas.DataFrame(), "/path")
+        assert "cannot be empty" in e
+    # An extract config validation error
+    transform_module = os.path.join(study_1, "transform_module.py")
+    with pytest.raises(ConfigValidationError) as e:
+        extractor.extract(pandas.DataFrame({"a": [1]}), transform_module)
+
+    # The do_after_read produces an empty DataFrame
+    es = ExtractStage("", os.path.join(study_1, "extract_configs"))
+    ec = es.extract_configs[0]
+    df = pandas.DataFrame({"a": [i for i in range(2)]})
+    ec.do_after_read = lambda x: pandas.DataFrame()
+
+    with pytest.raises(ConfigValidationError):
+        Extractor().extract(df, ec, apply_after_read_func=True)
 
 
 @requests_mock.Mocker(kw="mock")
