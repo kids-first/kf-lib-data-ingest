@@ -1,7 +1,7 @@
 click==7.1.2
 jsonschema==3.2.0
 pandas>=1.1<2
-PyYAML==5.3.1
+PyYAML==5.4
 boto3>=1.16<2
 xlrd @ git+https://github.com/fiendish/xlrd.git
 openpyxl
