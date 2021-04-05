@@ -1,5 +1,19 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.4.0
+
+### Summary
+
+- Emojis: ✨ x1, ⬆️ x1, 💬 x1
+- Categories: Additions x1, Fixes x1, Ops x1
+
+### New features and changes
+
+- [#592](https://github.com/kids-first/kf-lib-data-ingest/pull/592) - ✨ Standalone Extractor - [96dc2df3](https://github.com/kids-first/kf-lib-data-ingest/commit/96dc2df3100a1ac4cc9bcf48bc14e8c188a7313e) by [znatty22](https://github.com/znatty22)
+- [#594](https://github.com/kids-first/kf-lib-data-ingest/pull/594) - ⬆️ Bump pyyaml from 5.3.1 to 5.4 - [d63cf0d8](https://github.com/kids-first/kf-lib-data-ingest/commit/d63cf0d834dd7cb30fa126b547b2d8a68f157c73) by [dependabot[bot]](https://github.com/apps/dependabot)
+- [#591](https://github.com/kids-first/kf-lib-data-ingest/pull/591) - 💬 Add SC_75KENA7A - [0d5dc422](https://github.com/kids-first/kf-lib-data-ingest/commit/0d5dc42280219781762268f171818f33398c6b87) by [youngnm](https://github.com/youngnm)
+
+
 ## Release 1.3.0
 
 ### Summary
