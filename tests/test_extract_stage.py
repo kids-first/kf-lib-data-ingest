@@ -10,6 +10,8 @@ from kf_lib_data_ingest.common.misc import convert_to_downcasted_str
 from kf_lib_data_ingest.etl.configuration.base_config import (
     ConfigValidationError,
 )
+from kf_lib_data_ingest.etl.extract.utils import Extractor
+from kf_lib_data_ingest.etl.configuration.extract_config import ExtractConfig
 from kf_lib_data_ingest.etl.extract.extract import ExtractStage
 from kf_lib_data_ingest.etl.extract.operations import column_map
 
@@ -103,6 +105,37 @@ def test_extracts():
             pandas.testing.assert_frame_equal(A, B)
 
 
+def test_extractor_bad_inputs():
+    """
+    Test Extractor.extract with bad inputs
+    """
+    # Test bad inputs
+    extractor = Extractor()
+    # Not a DataFrame
+    with pytest.raises(TypeError) as e:
+        extractor.extract("foo", "/path")
+    # Not a valid extract cfg path
+    with pytest.raises(TypeError) as e:
+        extractor.extract(pandas.DataFrame({"a": [1]}), 1)
+    # An empty DataFrame
+    with pytest.raises(Exception) as e:
+        extractor.extract(pandas.DataFrame(), "/path")
+        assert "cannot be empty" in e
+    # An extract config validation error
+    transform_module = os.path.join(study_1, "transform_module.py")
+    with pytest.raises(ConfigValidationError) as e:
+        extractor.extract(
+            pandas.DataFrame({"a": [1]}), ExtractConfig(transform_module)
+        )
+    # The do_after_read produces an empty DataFrame
+    es = ExtractStage("", os.path.join(study_1, "extract_configs"))
+    ec = es.extract_configs[0]
+    df = pandas.DataFrame({"a": [i for i in range(2)]})
+    ec.do_after_read = lambda x: pandas.DataFrame()
+    with pytest.raises(ConfigValidationError):
+        Extractor().extract(df, ec, apply_after_read_func=True)
+
+
 @requests_mock.Mocker(kw="mock")
 def test_bad_file_types(**kwargs):
     es = ExtractStage("", "")
@@ -148,7 +181,7 @@ def test_visibility():
     b = [False, True, None]
 
     df_a = pandas.DataFrame({CONCEPT.FAMILY.HIDDEN: a})
-    es._obvert_visibility(df_a)
+    es.extractor._obvert_visibility(df_a)
 
     assert CONCEPT.FAMILY.VISIBLE in df_a
     assert CONCEPT.FAMILY.HIDDEN in df_a
@@ -156,7 +189,7 @@ def test_visibility():
     assert df_a[CONCEPT.FAMILY.VISIBLE].equals(pandas.Series(b))
 
     df_a = pandas.DataFrame({CONCEPT.FAMILY.VISIBLE: a})
-    es._obvert_visibility(df_a)
+    es.extractor._obvert_visibility(df_a)
 
     assert CONCEPT.FAMILY.VISIBLE in df_a
     assert CONCEPT.FAMILY.HIDDEN in df_a
@@ -167,7 +200,7 @@ def test_visibility():
         {CONCEPT.FAMILY.HIDDEN: a, CONCEPT.FAMILY.VISIBLE: a}
     )
     with pytest.raises(AssertionError):
-        es._obvert_visibility(df_a)
+        es.extractor._obvert_visibility(df_a)
 
 
 def test_operation_length_errors():
@@ -176,15 +209,15 @@ def test_operation_length_errors():
 
     # test too long result not in sublist
     op = [[column_map(in_col="A", out_col="NAME", m=lambda x: x.append(x))]]
-    es._chain_operations(df, op)
+    es.extractor._chain_operations(df, op)
     with pytest.raises(ConfigValidationError) as e:
-        es._chain_operations(df, op[0])
+        es.extractor._chain_operations(df, op[0])
     assert "nested operation sublists" in str(e.value)
 
     # test result not a multiple
     op = [lambda x: pandas.Series([1])]
     with pytest.raises(ConfigValidationError) as e:
-        es._chain_operations(df, op)
+        es.extractor._chain_operations(df, op)
     assert "not a multiple" in str(e.value)
 
 
@@ -196,4 +229,4 @@ def test_operation_skipping():
         column_map(in_col="C", out_col="NAME", m=lambda x: x, optional=True),
         column_map(in_col="B", out_col="NAME", m=lambda x: x),
     ]
-    es._chain_operations(df, op)
+    es.extractor._chain_operations(df, op)
