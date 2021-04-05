@@ -5,7 +5,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Sharing Operations Across Multiple Extracts &mdash; Kids First Data Ingest Libraries  documentation</title>
@@ -89,7 +90,7 @@
               
             
             
-              <p class="caption"><span class="caption-text">Table of Contents</span></p>
+              <p><span class="caption-text">Table of Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../../index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
@@ -188,14 +189,14 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="sharing-operations-across-multiple-extracts">
+  <section id="sharing-operations-across-multiple-extracts">
 <h1>Sharing Operations Across Multiple Extracts<a class="headerlink" href="#sharing-operations-across-multiple-extracts" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="scenario">
+<section id="scenario">
 <h2>Scenario<a class="headerlink" href="#scenario" title="Permalink to this headline">¶</a></h2>
 <p>You have ten data files, and you want to do the same set of extraction
 operations in all of them.</p>
-</div>
-<div class="section" id="solution-with-imports">
+</section>
+<section id="solution-with-imports">
 <h2>Solution with Imports<a class="headerlink" href="#solution-with-imports" title="Permalink to this headline">¶</a></h2>
 <p>In this example solution we would make a shared_operations.py file containing
 whatever set of operations we want to share, and we’ll put it somewhere outside
@@ -236,8 +237,8 @@ extract config) like this:</p>
 <p>If you use the standard Python importer, be careful to not modify
 the imported shared operations list, because it will change everywhere.</p>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

@@ -5,7 +5,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Kids First Ingest App &mdash; Kids First Data Ingest Libraries  documentation</title>
@@ -89,7 +90,7 @@
               
             
             
-              <p class="caption"><span class="caption-text">Table of Contents</span></p>
+              <p><span class="caption-text">Table of Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
@@ -182,7 +183,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="kids-first-ingest-app">
+  <section id="kids-first-ingest-app">
 <span id="tutorial-ingest-app"></span><h1>Kids First Ingest App<a class="headerlink" href="#kids-first-ingest-app" title="Permalink to this headline">¶</a></h1>
 <p>While the ingest library aims to be fairly generic, the built-in ingest app
 is an example of how the library can be used to support specific project(s) or
@@ -191,7 +192,7 @@ us tailor usage of the library for specific projects.</p>
 <p>If you will be developing ingest packages for Kids First study datasets,
 then this section will also explain where source data files should live
 (not on your computer!) and how to access them.</p>
-<div class="section" id="app-settings">
+<section id="app-settings">
 <span id="tutorial-app-settings"></span><h2>App Settings<a class="headerlink" href="#app-settings" title="Permalink to this headline">¶</a></h2>
 <p>App settings include configuration that applies to a group of ingest packages
 which are all part of the same project.</p>
@@ -243,12 +244,12 @@ when fetching remote source data files that require authentication.</p></li>
 </pre></div>
 </div>
 </div>
-<div class="section" id="authorization-configs">
+<section id="authorization-configs">
 <span id="tutorial-authorization-configs"></span><h3>Authorization Configs<a class="headerlink" href="#authorization-configs" title="Permalink to this headline">¶</a></h3>
 <p>TODO</p>
 <img alt="../_images/construction_small.gif" src="../_images/construction_small.gif" />
-</div>
-<div class="section" id="ingest-app-deployment-mode">
+</section>
+<section id="ingest-app-deployment-mode">
 <h3>Ingest App Deployment Mode<a class="headerlink" href="#ingest-app-deployment-mode" title="Permalink to this headline">¶</a></h3>
 <p>There are 2 app settings files, each pertaining to a different mode of
 deployment. The deployment mode can be controlled by the <code class="docutils literal notranslate"><span class="pre">KF_INGEST_APP_MODE</span></code>
@@ -257,7 +258,7 @@ environment variable.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">KF_INGEST_APP_MODE=production</span></code> -&gt; loads settings from <code class="docutils literal notranslate"><span class="pre">production.py</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">KF_INGEST_APP_MODE=development</span></code> -&gt; loads settings from <code class="docutils literal notranslate"><span class="pre">development.py</span></code></p></li>
 </ul>
-<div class="section" id="development-mode">
+<section id="development-mode">
 <h4>Development Mode<a class="headerlink" href="#development-mode" title="Permalink to this headline">¶</a></h4>
 <p>As a Kids First ingest package developer, you will want to make sure your
 environment has the following set: <code class="docutils literal notranslate"><span class="pre">KF_INGEST_APP_MODE=development</span></code></p>
@@ -265,24 +266,24 @@ environment has the following set: <code class="docutils literal notranslate"><s
 include authentication configuration for accessing files via the Kids First
 Study Creator API, the single source of truth for source data files within the
 Kids First ecosystem.</p>
-</div>
-<div class="section" id="production-mode">
+</section>
+<section id="production-mode">
 <h4>Production Mode<a class="headerlink" href="#production-mode" title="Permalink to this headline">¶</a></h4>
 <p>This mode is used when the ingest/test commands are run as part of a CI/CD
 process. It contains authentication configuration that is only used in a CI/CD
 scenario.</p>
 <p>An ingest package developer should never use this mode.</p>
-</div>
-<div class="section" id="cli-option-override">
+</section>
+<section id="cli-option-override">
 <h4>CLI Option Override<a class="headerlink" href="#cli-option-override" title="Permalink to this headline">¶</a></h4>
 <p>As an ingest package developer you should never need to worry about changing
 app level settings. However, if you do need to, you can supply your own
 settings file via the <code class="docutils literal notranslate"><span class="pre">--app_settings</span></code> CLI option. See <code class="docutils literal notranslate"><span class="pre">kidsfirst</span> <span class="pre">ingest</span>
 <span class="pre">--help</span></code> for details.</p>
-</div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
+</section>
 
 
            </div>
