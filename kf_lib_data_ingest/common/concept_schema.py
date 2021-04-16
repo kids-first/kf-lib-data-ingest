@@ -71,6 +71,7 @@ class CONCEPT:
         PROBAND_ID = None
         RELATIONSHIP_TO_PROBAND = None
         GENDER = None
+        SEX = None
         ETHNICITY = None
         RACE = None
         CONSENT_TYPE = None
@@ -102,9 +103,17 @@ class CONCEPT:
         CATEGORY = None
         UBERON_TUMOR_LOCATION_ID = None
         EVENT_AGE_DAYS = None
+        VERIFICATION = None
+
+        class ABATEMENT_EVENT_AGE(QuantityMixin):
+            pass
 
         class EVENT_AGE(QuantityMixin):
             pass
+
+        class ANATOMY_SITE:
+            NAME = None
+            UBERON_ID = None
 
         MONDO_ID = None
         NCIT_ID = None
@@ -116,6 +125,31 @@ class CONCEPT:
         SNOMED_ID = None
         OBSERVED = None
         EVENT_AGE_DAYS = None
+        INTERPRETATION = None
+        VERIFICATION = None
+
+        class ABATEMENT_EVENT_AGE(QuantityMixin):
+            pass
+
+        class EVENT_AGE(QuantityMixin):
+            pass
+
+        class ANATOMY_SITE:
+            NAME = None
+            UBERON_ID = None
+
+    # NOTE: Not yet used by any target service plugin, but needed for
+    # the Data Tracker templates + extract configs used to maximize data
+    # captured from investigators
+    class OBSERVATION(PropertyMixin):
+        NAME = None
+        ONTOLOGY_ONTOBEE_URI = None
+        ONTOLOGY_CODE = None
+        CATEGORY = None
+        INTERPRETATION = None
+        STATUS = None
+        ANATOMY_SITE = None
+        UBERON_ANATOMY_SITE_ID = None
 
         class EVENT_AGE(QuantityMixin):
             pass
@@ -134,6 +168,12 @@ class CONCEPT:
         EVENT_AGE_DAYS = None
 
         class EVENT_AGE(QuantityMixin):
+            pass
+
+        class VOLUME(QuantityMixin):
+            pass
+
+        class CONCENTRATION(QuantityMixin):
             pass
 
         SPATIAL_DESCRIPTOR = None
@@ -163,6 +203,8 @@ class CONCEPT:
         PAIRED_END = None
         LIBRARY_NAME = None
         LIBRARY_STRAND = None
+        LIBRARY_SELECTION = None
+        LIBRARY_PREP = None
         PLATFORM = None
         INSTRUMENT = None
         INSERT_SIZE = None
