@@ -1,5 +1,17 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.4.1
+
+### Summary
+
+- Emojis: 🐛 x1
+- Categories: Fixes x1
+
+### New features and changes
+
+- [#598](https://github.com/kids-first/kf-lib-data-ingest/pull/598) - 🐛 Change ValueError to Exception - [b23eedf1](https://github.com/kids-first/kf-lib-data-ingest/commit/b23eedf1680d13348080d1119f39a0311a98d978) by [Christina-J-Diaz](https://github.com/Christina-J-Diaz)
+
+
 ## Release 1.4.0
 
 ### Summary
