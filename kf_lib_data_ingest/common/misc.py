@@ -128,7 +128,7 @@ def convert_to_downcasted_str(val, replace_na=False, na=None):
         try:
             f_val = float(val)
             i_val = int(f_val)
-        except ValueError:
+        except Exception:
             pass
 
         # Don't automatically change anything with leading zeros
