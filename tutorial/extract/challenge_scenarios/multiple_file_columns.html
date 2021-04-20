@@ -5,8 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
-
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Multiple Columns of The Same Kind of Thing &mdash; Kids First Data Ingest Libraries  documentation</title>
@@ -90,7 +89,7 @@
               
             
             
-              <p><span class="caption-text">Table of Contents</span></p>
+              <p class="caption"><span class="caption-text">Table of Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../../index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
@@ -191,9 +190,9 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <section id="multiple-columns-of-the-same-kind-of-thing">
+  <div class="section" id="multiple-columns-of-the-same-kind-of-thing">
 <h1>Multiple Columns of The Same Kind of Thing<a class="headerlink" href="#multiple-columns-of-the-same-kind-of-thing" title="Permalink to this headline">¶</a></h1>
-<section id="scenario">
+<div class="section" id="scenario">
 <h2>Scenario<a class="headerlink" href="#scenario" title="Permalink to this headline">¶</a></h2>
 <p>You want to extract specimen IDs and file names from data that looks like this:</p>
 <table class="docutils align-default">
@@ -220,8 +219,8 @@
 </tbody>
 </table>
 <p>Note that there are two columns with file names in them.</p>
-</section>
-<section id="correct-output">
+</div>
+<div class="section" id="correct-output">
 <h2>Correct Output<a class="headerlink" href="#correct-output" title="Permalink to this headline">¶</a></h2>
 <table class="docutils align-default">
 <colgroup>
@@ -248,8 +247,8 @@
 </tr>
 </tbody>
 </table>
-</section>
-<section id="solution-with-parallel-column-stacking">
+</div>
+<div class="section" id="solution-with-parallel-column-stacking">
 <h2>Solution with Parallel Column Stacking<a class="headerlink" href="#solution-with-parallel-column-stacking" title="Permalink to this headline">¶</a></h2>
 <p>Use <a class="reference internal" href="../index.html#column-stacking"><span class="std std-ref">Parallel Column Stacking</span></a> to send both of the file columns to “File Name”:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">operations</span> <span class="o">=</span> <span class="p">[</span>
@@ -259,8 +258,8 @@
 <span class="p">]</span>
 </pre></div>
 </div>
-</section>
-<section id="solution-with-multiple-extractions">
+</div>
+<div class="section" id="solution-with-multiple-extractions">
 <h2>Solution with Multiple Extractions<a class="headerlink" href="#solution-with-multiple-extractions" title="Permalink to this headline">¶</a></h2>
 <p>Do separate extractions. One with:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">operations</span> <span class="o">=</span> <span class="p">[</span>
@@ -277,8 +276,8 @@
 </pre></div>
 </div>
 <p>And then stack them later in your Transform function.</p>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

@@ -5,8 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
-
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Data That Only Makes Sense In Relation To Another File &mdash; Kids First Data Ingest Libraries  documentation</title>
@@ -90,7 +89,7 @@
               
             
             
-              <p><span class="caption-text">Table of Contents</span></p>
+              <p class="caption"><span class="caption-text">Table of Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../../index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
@@ -189,14 +188,14 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <section id="data-that-only-makes-sense-in-relation-to-another-file">
+  <div class="section" id="data-that-only-makes-sense-in-relation-to-another-file">
 <h1>Data That Only Makes Sense In Relation To Another File<a class="headerlink" href="#data-that-only-makes-sense-in-relation-to-another-file" title="Permalink to this headline">¶</a></h1>
-<section id="scenario">
+<div class="section" id="scenario">
 <h2>Scenario<a class="headerlink" href="#scenario" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">source_data_url</span></code> gives you access to one data file, but you need to
 access one or more other files to make sense of your source data.</p>
-</section>
-<section id="file-fetching-solution">
+</div>
+<div class="section" id="file-fetching-solution">
 <h2>File Fetching Solution<a class="headerlink" href="#file-fetching-solution" title="Permalink to this headline">¶</a></h2>
 <p>You can access the file fetching methods yourelf to load the data from as many
 secondary files as you want. For instance, for a secondary TSV file, you can
@@ -212,8 +211,8 @@ do:</p>
 <p>Keep in mind that <code class="docutils literal notranslate"><span class="pre">in_col</span></code> arguments in the <a class="reference internal" href="../../../design/extract_mapping.html#extract-mapping"><span class="std std-ref">operations list</span></a> can only read from either the primary source data file
 referenced by <a class="reference internal" href="../index.html#fetching-the-data"><span class="std std-ref">source_data_url</span></a> or the DataFrame
 returned by the <a class="reference internal" href="../index.html#extract-preprocessing"><span class="std std-ref">do_after_read</span></a> function.</p>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

@@ -5,8 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
-
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Testing Your Ingest Package &mdash; Kids First Data Ingest Libraries  documentation</title>
@@ -90,7 +89,7 @@
               
             
             
-              <p><span class="caption-text">Table of Contents</span></p>
+              <p class="caption"><span class="caption-text">Table of Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
@@ -181,7 +180,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <section id="testing-your-ingest-package">
+  <div class="section" id="testing-your-ingest-package">
 <span id="tutorial-package-testing"></span><h1>Testing Your Ingest Package<a class="headerlink" href="#testing-your-ingest-package" title="Permalink to this headline">¶</a></h1>
 <p>At this point, your ingest package should have the source data file and extract
 config that came with the package template along with the additional extract
@@ -200,7 +199,7 @@ configuration family_and_phenotype.py from <a class="reference internal" href="e
 </div>
 <p>Before we go any further in the tutorial, let’s explore how to test your ingest
 package.</p>
-<section id="the-test-cli-command">
+<div class="section" id="the-test-cli-command">
 <h2>The <code class="docutils literal notranslate"><span class="pre">test</span></code> CLI Command<a class="headerlink" href="#the-test-cli-command" title="Permalink to this headline">¶</a></h2>
 <p>The ingest application has a secondary <code class="docutils literal notranslate"><span class="pre">test</span></code> command in addition to the
 <code class="docutils literal notranslate"><span class="pre">ingest</span></code> command. Under the hood, the <code class="docutils literal notranslate"><span class="pre">test</span></code> command is really just an
@@ -218,8 +217,8 @@ remote warehouse database for storage and sharing.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ kidsfirst test &lt;ingest package&gt;
 </pre></div>
 </div>
-</section>
-<section id="data-validation">
+</div>
+<div class="section" id="data-validation">
 <h2>Data Validation<a class="headerlink" href="#data-validation" title="Permalink to this headline">¶</a></h2>
 <p>Whenever you run an ingest package, data validation tests will automatically
 determine whether the output of each stage matches a predefined set of
@@ -291,8 +290,8 @@ indicated data file.</p>
 </div>
 <p>Run the test command one more time and you should now see that the attribute
 value test for biospecimen analytes is no longer failing.</p>
-</section>
-<section id="run-subsets-of-the-pipeline">
+</div>
+<div class="section" id="run-subsets-of-the-pipeline">
 <h2>Run Subsets of the Pipeline<a class="headerlink" href="#run-subsets-of-the-pipeline" title="Permalink to this headline">¶</a></h2>
 <p>As you develop your ingest package, you will likely run into scenarios where
 you don’t want to run the entire ingest pipeline.</p>
@@ -309,8 +308,8 @@ $ kidsfirst test my_study --stages=el # has a gap and is invalid
 </div>
 <p>Note that when running an ingest stage via the <code class="docutils literal notranslate"><span class="pre">--stages</span></code> option,
 the output from the previous stage must exist, otherwise an error will occur.</p>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>
