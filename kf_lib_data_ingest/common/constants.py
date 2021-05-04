@@ -572,7 +572,7 @@ class ETHNICITY:
 class SPECIES:
     DOG = "Canis lupus familiaris"
     FLY = "Drosophila melanogaster"
-    HUMAN = "Homo Sapiens"
+    HUMAN = "Homo sapiens"
     MOUSE = "Mus musculus"
 
 
