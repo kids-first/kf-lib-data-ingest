@@ -1,5 +1,17 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.5.0
+
+### Summary
+
+- Emojis: 💬 x1
+- Categories: Fixes x1
+
+### New features and changes
+
+- [#600](https://github.com/kids-first/kf-lib-data-ingest/pull/600) - 💬 Add Fly and Mouse constants - [e7f7bff9](https://github.com/kids-first/kf-lib-data-ingest/commit/e7f7bff937789a3befa875f6ddd07bbe8889d289) by [liberaliscomputing](https://github.com/liberaliscomputing)
+
+
 ## Release 1.4.1
 
 ### Summary
