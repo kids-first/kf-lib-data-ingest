@@ -25,7 +25,7 @@ class AbstractConfig(ABC):
             ) from e
 
     def __getattr__(self, attr):
-        """ Forward attributes from self.contents """
+        """Forward attributes from self.contents"""
         try:
             try:
                 return self.contents[attr]
@@ -36,12 +36,12 @@ class AbstractConfig(ABC):
 
     @abstractmethod
     def _read_file(self, filepath):
-        """ Should raise a FileNotFoundError exception if file not exists """
+        """Should raise a FileNotFoundError exception if file not exists"""
         pass
 
     @abstractmethod
     def _validate(self, *args, **kwargs):
-        """ Should raise appropriate exception on failed validation """
+        """Should raise appropriate exception on failed validation"""
         pass
 
 
