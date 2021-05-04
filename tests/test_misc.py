@@ -4,6 +4,12 @@ import pandas
 from kf_lib_data_ingest.common.misc import (
     clean_up_df,
     recover_containers_from_df_strings,
+    map_hpo,
+    map_icd10,
+    map_mondo,
+    map_ncit,
+    map_snomed,
+    map_uberon,
 )
 
 
@@ -55,3 +61,97 @@ def test_convert_to_str():
         for i in range(len(df5)):
             if not (col == "c" and ((i == 3) or (i == 4))):
                 assert df5[col][i] == df3[col][i]
+
+
+def test_ontology_code_extraction():
+    """
+    Test the ontology code extraction functions in
+    creator.extract_config.common
+    """
+    codes = {
+        "MONDO": (
+            map_mondo,
+            {
+                "0000109": "MONDO:0000109",
+                "0109": "MONDO:0000109",
+                "109": "MONDO:0000109",
+                "A": None,
+                "12345678": None,
+            },
+        ),
+        "NCIT": (
+            map_ncit,
+            {
+                "C0000100": "NCIT:C0000100",
+                "C0100": "NCIT:C0000100",
+                "C100": "NCIT:C0000100",
+                "1": None,
+                "A": None,
+                "C12345678": None,
+            },
+        ),
+        "HP": (
+            map_hpo,
+            {
+                "0000100": "HP:0000100",
+                "0100": "HP:0000100",
+                "100": "HP:0000100",
+                "A": None,
+                "12345678": None,
+            },
+        ),
+        "HPO": (
+            map_hpo,
+            {
+                "0000100": "HP:0000100",
+                "0100": "HP:0000100",
+                "100": "HP:0000100",
+                "A": None,
+                "12345678": None,
+            },
+        ),
+        "UBERON": (
+            map_uberon,
+            {
+                "0000100": "UBERON:0000100",
+                "0100": "UBERON:0000100",
+                "100": "UBERON:0000100",
+                "A": None,
+                "12345678": None,
+            },
+        ),
+        "SNOMED": (
+            map_snomed,
+            {
+                "0000100": "SNOMED:0000100",
+                "A": None,
+                "12345678": "SNOMED:12345678",
+            },
+        ),
+        "ICD": (
+            map_icd10,
+            {
+                "A12": "ICD10:A12",
+                "A12.1": "ICD10:A12.1",
+                "A13.1114": "ICD10:A13.1114",
+                "A": None,
+                "12345678": None,
+            },
+        ),
+        "ICD10": (
+            map_icd10,
+            {
+                "A12": "ICD10:A12",
+                "A12.1": "ICD10:A12.1",
+                "A13.1114": "ICD10:A13.1114",
+                "A": None,
+                "12345678": None,
+            },
+        ),
+    }
+    for prefix, (mapfunc, values) in codes.items():
+        for v, res in values.items():
+            for w in [v.upper(), v.lower()]:
+                assert mapfunc(w) == res
+                for sep in [":", "_"]:
+                    assert mapfunc(prefix + sep + w) == res

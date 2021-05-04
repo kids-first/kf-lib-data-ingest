@@ -111,10 +111,6 @@ class CONCEPT:
         class EVENT_AGE(QuantityMixin):
             pass
 
-        class ANATOMY_SITE:
-            NAME = None
-            UBERON_ID = None
-
         MONDO_ID = None
         NCIT_ID = None
         ICD_ID = None
@@ -134,13 +130,6 @@ class CONCEPT:
         class EVENT_AGE(QuantityMixin):
             pass
 
-        class ANATOMY_SITE:
-            NAME = None
-            UBERON_ID = None
-
-    # NOTE: Not yet used by any target service plugin, but needed for
-    # the Data Tracker templates + extract configs used to maximize data
-    # captured from investigators
     class OBSERVATION(PropertyMixin):
         NAME = None
         ONTOLOGY_ONTOBEE_URI = None
@@ -170,7 +159,7 @@ class CONCEPT:
         class EVENT_AGE(QuantityMixin):
             pass
 
-        class VOLUME(QuantityMixin):
+        class QUANTITY(QuantityMixin):
             pass
 
         class CONCENTRATION(QuantityMixin):

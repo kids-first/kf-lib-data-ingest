@@ -15,6 +15,92 @@ from kf_lib_data_ingest.common.type_safety import (
 from pandas import isnull
 
 
+def _get_match(
+    prefix_pattern, code_pattern, s, result_prefix, result_zeropad=0
+):
+    """
+    Extract ontology codes from strings
+
+    Coerces values to consistent output formats and allows truncated
+    input numbers, and optional input prefixes. Prefixes can be separated by
+    either : or _, and outputs are given consistent prefixes and zero padding
+    """
+    s = s.strip().upper()
+
+    if prefix_pattern:
+        prefix_pattern = f"(?:{prefix_pattern}[:_])?"
+
+    if re.compile(code_pattern).groups == 0:
+        code_pattern = f"({code_pattern})"
+
+    capture_pattern = f"^{prefix_pattern}{code_pattern}$"
+    assert re.compile(capture_pattern).groups == 1
+
+    match = re.match(capture_pattern, s)
+    if match:
+        return f"{result_prefix}{match.group(1).zfill(result_zeropad)}"
+    else:
+        return None
+
+
+def map_mondo(s):
+    """
+    Extract MONDO (Monarch Disease Ontology) code from a string
+
+    See https://mondo.monarchinitiative.org/ for details on MONDO
+    """
+    return _get_match(r"MONDO", r"[0-9]{1,7}", s, "MONDO:", result_zeropad=7)
+
+
+def map_ncit(s):
+    """
+    Extract NCIT (National Cancer Institute Thesaurus) code from a string
+
+    See https://ncithesaurus.nci.nih.gov/ncitbrowser/ for details on NCIT
+    """
+    return _get_match(r"NCIT", r"C([0-9]{1,7})", s, "NCIT:C", result_zeropad=7)
+
+
+def map_icd10(s):
+    """
+    Extract ICD10 (International Classification of Diseases) code from a string
+
+    See https://bioportal.bioontology.org/ontologies/ICD10 for details on
+    ICD10
+    """
+    return _get_match(
+        r"ICD(?:10)?", r"[A-TV-Z][0-9][A-Z0-9](?:\.[A-Z0-9]{1,4})?", s, "ICD10:"
+    )
+
+
+def map_hpo(s):
+    """
+    Extract HPO (Human Phenotype Ontology) code from a string
+
+    See http://www.obofoundry.org/ontology/hp.html for details on HPO
+    """
+    return _get_match(r"HPO?", r"[0-9]{1,7}", s, "HP:", result_zeropad=7)
+
+
+def map_snomed(s):
+    """
+    Extract SNOMED CT code from a string
+
+    See https://bioportal.bioontology.org/ontologies/SNOMEDCT for details on
+    SNOMED
+    """
+    return _get_match(r"SNOMED", r"[0-9]+", s, "SNOMED:")
+
+
+def map_uberon(s):
+    """
+    Extract UBERON (Uber-anatomy Ontoogy) code from a string
+
+    See https://uberon.github.io/ for details on UBERON
+    """
+    return _get_match("UBERON", r"[0-9]{1,7}", s, "UBERON:", result_zeropad=7)
+
+
 def flexible_age(record, days_concept, generic_concept):
     age = record.get(days_concept)
     units = record.get(generic_concept.UNITS)
