@@ -19,7 +19,9 @@ def test_external_id_whole_ingest():
     output_dir = join(study_dir, "output")
     delete_dir(output_dir)
     runner.invoke(cli.test, study_dir)
-    with open(join(output_dir, "LoadStage", "SentMessages.json")) as sm:
+    with open(
+        join(output_dir, "LoadStage", "SentMessages_localhost_5000.json")
+    ) as sm:
         data = json.load(sm)
     gfs = [e for e in data if e["type"] == "genomic_file"]
     bsgfs = [e for e in data if e["type"] == "biospecimen_genomic_file"]
