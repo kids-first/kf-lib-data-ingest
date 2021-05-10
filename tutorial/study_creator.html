@@ -5,7 +5,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Source Data stored by the Kids First Data Tracker &mdash; Kids First Data Ingest Libraries  documentation</title>
@@ -21,6 +22,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
@@ -32,6 +34,8 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -181,7 +185,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="source-data-stored-by-the-kids-first-data-tracker">
+  <section id="source-data-stored-by-the-kids-first-data-tracker">
 <span id="tutorial-study-creator"></span><h1>Source Data stored by the Kids First Data Tracker<a class="headerlink" href="#source-data-stored-by-the-kids-first-data-tracker" title="Permalink to this headline">¶</a></h1>
 <p>If you are developing an ingest package for Kids First study data, then the
 source data files for the study will be managed by the
@@ -198,15 +202,15 @@ tutorial. Read the <a class="reference external" href="https://kids-first.github
 Tracker web app</a> to learn
 more about how to do that.</p>
 </div>
-<div class="section" id="get-your-developer-token">
+<section id="get-your-developer-token">
 <h2>Get Your Developer Token<a class="headerlink" href="#get-your-developer-token" title="Permalink to this headline">¶</a></h2>
 <p>All source data files in the Data Tracker are protected by some sort of
 authentication depending on the type of user trying to access them. As an
 ingest package developer, you will need a developer token to access files. The
 developer token grants authorization to download any source data file.</p>
 <p>To generate a token, go to <a class="reference external" href="https://kf-ui-data-tracker.kidsfirstdrc.org/tokens">https://kf-ui-data-tracker.kidsfirstdrc.org/tokens</a></p>
-</div>
-<div class="section" id="set-your-environment">
+</section>
+<section id="set-your-environment">
 <h2>Set Your Environment<a class="headerlink" href="#set-your-environment" title="Permalink to this headline">¶</a></h2>
 <p>Now that you have your token, you’re going to store it in your shell
 environment so that the ingest app can read it and use it when fetching files
@@ -216,8 +220,8 @@ through the Study Creator API.</p>
 </pre></div>
 </div>
 <p>Be careful with this token and make sure to keep it secret.</p>
-</div>
-<div class="section" id="update-your-extract-config-to-get-the-file-from-the-data-tracker">
+</section>
+<section id="update-your-extract-config-to-get-the-file-from-the-data-tracker">
 <h2>Update Your Extract Config to get the file from the Data Tracker<a class="headerlink" href="#update-your-extract-config-to-get-the-file-from-the-data-tracker" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">clinical.tsv</span></code> and <code class="docutils literal notranslate"><span class="pre">family_and_phenotype.tsv</span></code> source data files have
 already been uploaded to the <code class="docutils literal notranslate"><span class="pre">SD_ME0WME0W</span></code> study via the Data Tracker
@@ -232,8 +236,8 @@ download from that URL without the correct authorization headers.</p>
 <span class="n">source_data_url</span> <span class="o">=</span> <span class="s1">&#39;https://kf-study-creator.kidsfirstdrc.org/download/study/SD_ME0WME0W/file/SF_HH5PMCJX/version/FV_5H7MEHG2&#39;</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="try-it">
+</section>
+<section id="try-it">
 <h2>Try It<a class="headerlink" href="#try-it" title="Permalink to this headline">¶</a></h2>
 <p>If you try running ingest and the file was fetched successfully, you should see
 something like this in your log:</p>
@@ -243,8 +247,8 @@ something like this in your log:</p>
 </div>
 <p><strong>Don’t worry if your ingest package fails validation. You will learn how to
 fix this in a later section.</strong></p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

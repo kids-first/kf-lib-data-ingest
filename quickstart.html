@@ -5,7 +5,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Quickstart &mdash; Kids First Data Ingest Libraries  documentation</title>
@@ -21,6 +22,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
@@ -32,6 +34,8 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -169,14 +173,14 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="quickstart">
+  <section id="quickstart">
 <span id="id1"></span><h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
 <p>If you want to get up and running quickly with creating an ingest package
 and running it, then the quick start guide is the best place to start. It’s ok
 if you do not understand what each of the steps are doing. The tutorial
 section goes through the exact same demonstration, but it includes detailed
 explanations for each step.</p>
-<div class="section" id="generate-a-new-ingest-package">
+<section id="generate-a-new-ingest-package">
 <h2>Generate a new ingest package<a class="headerlink" href="#generate-a-new-ingest-package" title="Permalink to this headline">¶</a></h2>
 <p>Each study that needs to be ingested will have a single outer directory and one
 or more inner directories that each contain the configuration files needed by
@@ -346,8 +350,8 @@ target service. If you look inside it, it will look like this:</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="test">
+</section>
+<section id="test">
 <h2>Test<a class="headerlink" href="#test" title="Permalink to this headline">¶</a></h2>
 <p>We can make sure everything works with the <code class="docutils literal notranslate"><span class="pre">test</span></code> command:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ kidsfirst test my_study/ingest_package_1 --no_validate
@@ -364,8 +368,8 @@ target service. If you look inside it, it will look like this:</p>
 </div>
 <p>If you scroll up through the log output, you should see that it pretends to
 load families, participants, diagnoses, and biospecimens from clinical.tsv.</p>
-</div>
-<div class="section" id="add-another-extract-config">
+</section>
+<section id="add-another-extract-config">
 <h2>Add another extract config<a class="headerlink" href="#add-another-extract-config" title="Permalink to this headline">¶</a></h2>
 <p>We’re going to create a second extract config to extract data from the
 following source data (different from the file you already have and stored in
@@ -626,8 +630,8 @@ now the file should look like this:</p>
 </pre></div>
 </div>
 </div>
-</div>
-<div class="section" id="modify-the-transform-module">
+</section>
+<section id="modify-the-transform-module">
 <h2>Modify the Transform module<a class="headerlink" href="#modify-the-transform-module" title="Permalink to this headline">¶</a></h2>
 <p>Next we want to merge our extracted tables together to properly connect the
 data needed for generating complete target entities.</p>
@@ -718,8 +722,8 @@ this:</p>
 same new code in a Python comment. This now defines <code class="docutils literal notranslate"><span class="pre">df</span></code> as the combination
 of the two data files joined together according to the values in their
 biospecimen identifier columns.</p>
-</div>
-<div class="section" id="test-again">
+</section>
+<section id="test-again">
 <h2>Test Again<a class="headerlink" href="#test-again" title="Permalink to this headline">¶</a></h2>
 <p>Then again run</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ kidsfirst test my_study/ingest_package_1 --no_validate
@@ -727,8 +731,8 @@ biospecimen identifier columns.</p>
 </div>
 <p>Now you should see that it also pretends to load phenotypes from the new data
 in addition to the rest of the information.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

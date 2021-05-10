@@ -5,7 +5,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Logs &mdash; Kids First Data Ingest Libraries  documentation</title>
@@ -21,6 +22,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
@@ -32,6 +34,8 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -176,9 +180,9 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="logs">
+  <section id="logs">
 <h1>Logs<a class="headerlink" href="#logs" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="ingest-log">
+<section id="ingest-log">
 <h2>Ingest Log<a class="headerlink" href="#ingest-log" title="Permalink to this headline">¶</a></h2>
 <p>The ingest pipeline logs messages to the console and also writes the same
 messages to a log file. By default the log file is stored at:
@@ -192,13 +196,13 @@ called <code class="docutils literal notranslate"><span class="pre">ingest.log</
 runs. If <code class="docutils literal notranslate"><span class="pre">overwrite_log=False</span></code>, then a new log file will be written each time
 the ingest pipeline runs, and it will follow this naming pattern:
 <code class="docutils literal notranslate"><span class="pre">ingest_&lt;ISO</span> <span class="pre">8601</span> <span class="pre">timestamp&gt;.log</span></code></p>
-</div>
-<div class="section" id="stage-outputs">
+</section>
+<section id="stage-outputs">
 <h2>Stage Outputs<a class="headerlink" href="#stage-outputs" title="Permalink to this headline">¶</a></h2>
 <p>Ingest stages also write their own output to a directory that follows this path
 pattern: <code class="docutils literal notranslate"><span class="pre">&lt;ingest</span> <span class="pre">package</span> <span class="pre">dir&gt;/output/&lt;stage&gt;</span></code></p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

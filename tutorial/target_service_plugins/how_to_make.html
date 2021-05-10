@@ -5,7 +5,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Making a Target Service Plugin &mdash; Kids First Data Ingest Libraries  documentation</title>
@@ -21,6 +22,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
@@ -32,6 +34,8 @@
   
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -186,7 +190,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="making-a-target-service-plugin">
+  <section id="making-a-target-service-plugin">
 <span id="tutorial-make-target-service-plugin"></span><h1>Making a Target Service Plugin<a class="headerlink" href="#making-a-target-service-plugin" title="Permalink to this headline">¶</a></h1>
 <p>You have a bunch of extracted data that has been suitably merged together, and
 you have a server with a submission API, and now you want to put that data into
@@ -194,7 +198,7 @@ that server. You need a target service plugin module that will convert from
 your tabular extracted data into the appropriate form for sending to your
 target service and that will negotiate the submission according to the demands
 of the service.</p>
-<div class="section" id="existing-plugins-for-reference">
+<section id="existing-plugins-for-reference">
 <h2>Existing Plugins For Reference<a class="headerlink" href="#existing-plugins-for-reference" title="Permalink to this headline">¶</a></h2>
 <p>Here are two complete examples that work with the same input data for different
 target servers. Seeing what they look like in their entirety may be helpful in
@@ -211,8 +215,8 @@ understanding what we’re trying to make:</p>
 </div>
 </li>
 </ul>
-</div>
-<div class="section" id="the-parts-of-a-target-service-plugin">
+</section>
+<section id="the-parts-of-a-target-service-plugin">
 <h2>The Parts of a Target Service Plugin<a class="headerlink" href="#the-parts-of-a-target-service-plugin" title="Permalink to this headline">¶</a></h2>
 <p>The target service plugin API has gone through multiple revisions. This
 documentation only describes the latest version of the plugin API (currently
@@ -425,13 +429,13 @@ or updated on the target server:
         ...
 </pre></div>
 </div>
-</div>
-<div class="section" id="example">
+</section>
+<section id="example">
 <h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
 <p>Say that you have a hypothetical service with the following specification for
 submitting Participant data:</p>
 <img alt="HTTP POST API specification for submitting new participants" src="../../_images/example_target_api.png" />
-<div class="section" id="example-entity-builder-class">
+<section id="example-entity-builder-class">
 <h3>Example Entity Builder Class<a class="headerlink" href="#example-entity-builder-class" title="Permalink to this headline">¶</a></h3>
 <p>This class tells the Load stage how to build our hypothetical participants from
 extracted data:</p>
@@ -482,8 +486,8 @@ extracted data:</p>
             <span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="example-target-service-plugin">
+</section>
+<section id="example-target-service-plugin">
 <h3>Example Target Service Plugin<a class="headerlink" href="#example-target-service-plugin" title="Permalink to this headline">¶</a></h3>
 <p>In this example there’s only one entry in the <code class="docutils literal notranslate"><span class="pre">all_targets</span></code> list because
 we only defined a builder for participants, but you will probably have many.</p>
@@ -496,9 +500,9 @@ we only defined a builder for participants, but you will probably have many.</p>
 <span class="p">]</span>
 </pre></div>
 </div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
            </div>

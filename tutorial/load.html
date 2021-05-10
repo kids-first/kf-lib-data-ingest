@@ -5,7 +5,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Understanding the Load Stage &mdash; Kids First Data Ingest Libraries  documentation</title>
@@ -21,6 +22,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
@@ -32,6 +34,8 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -179,9 +183,9 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="understanding-the-load-stage">
+  <section id="understanding-the-load-stage">
 <span id="tutorial-load-stage"></span><h1>Understanding the Load Stage<a class="headerlink" href="#understanding-the-load-stage" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="what-the-load-stage-expects">
+<section id="what-the-load-stage-expects">
 <span id="tutorial-load-stage-expects"></span><h2>What the Load Stage Expects<a class="headerlink" href="#what-the-load-stage-expects" title="Permalink to this headline">¶</a></h2>
 <p>The Load stage expects to receive a dictionary of pandas DataFrames keyed by
 hints about which data can be found in the tables.</p>
@@ -202,8 +206,8 @@ its respective target service entity builder.</p>
 <p>In the above example, if building <code class="docutils literal notranslate"><span class="pre">&quot;phenotypes&quot;</span></code> requires knowing who is
 being described, what characteristic they have, and when the characteristic was
 observed, the attached DataFrame must therefore include those values.</p>
-</div>
-<div class="section" id="using-the-load-stage-on-its-own">
+</section>
+<section id="using-the-load-stage-on-its-own">
 <h2>Using The Load Stage On Its Own<a class="headerlink" href="#using-the-load-stage-on-its-own" title="Permalink to this headline">¶</a></h2>
 <p>If your data is already appropriately standardized, you don’t need to use the
 Extract and Transform stages in order to use the Load Stage. The Load stage can
@@ -234,8 +238,8 @@ be invoked on its own in Python like so:</p>
 <p>As mentioned, you may choose to do this if all of your incoming data is
 guaranteed to be in a strict standardized format that requires no special
 slicing, chopping, or blending.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

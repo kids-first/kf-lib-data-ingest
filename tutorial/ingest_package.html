@@ -5,7 +5,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>New Ingest Package Setup &mdash; Kids First Data Ingest Libraries  documentation</title>
@@ -21,6 +22,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
@@ -32,6 +34,8 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -178,7 +182,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="new-ingest-package-setup">
+  <section id="new-ingest-package-setup">
 <h1>New Ingest Package Setup<a class="headerlink" href="#new-ingest-package-setup" title="Permalink to this headline">¶</a></h1>
 <p>Each study that needs to be ingested will have a single outer directory and one
 or more inner directories that each contain the configuration files needed by
@@ -207,7 +211,7 @@ named <code class="docutils literal notranslate"><span class="pre">ingest_packag
         └── extract_config.py
 </pre></div>
 </div>
-<div class="section" id="ingest-package-components">
+<section id="ingest-package-components">
 <h2>Ingest Package Components<a class="headerlink" href="#ingest-package-components" title="Permalink to this headline">¶</a></h2>
 <p>Each ingest package contains three components:</p>
 <p>1. A top-level configuration file called <code class="docutils literal notranslate"><span class="pre">ingest_package_config.py</span></code>. This
@@ -230,8 +234,8 @@ provided by the investigator. These are described in the
 This is used by the transform stage and replaces automatic graph-based
 transformation with a predictable set of user-programmed operations. This
 is described in the <a class="reference internal" href="transform.html#tutorial-transform-stage"><span class="std std-ref">Transform Stage</span></a> section.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

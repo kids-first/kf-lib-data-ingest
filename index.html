@@ -5,7 +5,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Overview &mdash; Kids First Data Ingest Libraries  documentation</title>
@@ -21,6 +22,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
@@ -32,6 +34,8 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -164,12 +168,12 @@
   <img alt="Kids First Data Ingest Library" src="_images/logo.png" />
 <hr class="docutils" />
 <p>Library Code Repository: <a class="reference external" href="https://github.com/kids-first/kf-lib-data-ingest">https://github.com/kids-first/kf-lib-data-ingest</a></p>
-<div class="section" id="overview">
+<section id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
 <p>The Kids First Data Ingest Library is both an ETL (extract, transform, load)
 framework and a library that standardizes the ingestion of raw Kids First study
 data into target Kids First services.</p>
-<div class="section" id="framework-and-library">
+<section id="framework-and-library">
 <h2>Framework and Library<a class="headerlink" href="#framework-and-library" title="Permalink to this headline">¶</a></h2>
 <p>Since this is a library as well as a framework, there are components of the
 <code class="docutils literal notranslate"><span class="pre">kf_lib_data_ingest</span></code> package that can be used as standalone tools or
@@ -179,27 +183,29 @@ Anything in <code class="docutils literal notranslate"><span class="pre">kf_lib_
 <p>Additionally, there are a handful of helper functions in
 <code class="docutils literal notranslate"><span class="pre">kf_lib_data_ingest.common.pandas_utils</span></code> that could be used outside of the
 framework for data wrangling tasks. See &lt;TODO&gt; for details.</p>
-</div>
-<div class="section" id="ingest-app">
+</section>
+<section id="ingest-app">
 <h2>Ingest App<a class="headerlink" href="#ingest-app" title="Permalink to this headline">¶</a></h2>
 <p>The library comes with a built-in command-line-interface-based (CLI) app
 which is the primary user interface for executing the ingest pipeline.
 Most users will use this app to create new ingest packages, test packages,
 and ingest Kids First study datasets into the Kids First Data Service.</p>
-</div>
-<div class="section" id="ingest-packages">
+</section>
+<section id="ingest-packages">
 <h2>Ingest Packages<a class="headerlink" href="#ingest-packages" title="Permalink to this headline">¶</a></h2>
 <p>In order to use this library to ingest a study, users must create ingest
 packages which contain all of the necessary configuration defining basic ingest
 input parameters and also how to extract and transform data.</p>
-</div>
-<div class="section" id="ingest-pipeline">
+</section>
+<section id="ingest-pipeline">
 <h2>Ingest Pipeline<a class="headerlink" href="#ingest-pipeline" title="Permalink to this headline">¶</a></h2>
-<div class="figure align-default" id="id1">
+<figure class="align-default" id="id1">
 <a class="reference external image-reference" href="_images/ingest-pipeline.png"><img alt="Ingest Pipeline Overview" src="_images/ingest-pipeline.png" /></a>
-<p class="caption"><span class="caption-text">Overview of the ingest pipeline</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
-</div>
-<div class="section" id="users">
+<figcaption>
+<p><span class="caption-text">Overview of the ingest pipeline</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<section id="users">
 <h3>Users<a class="headerlink" href="#users" title="Permalink to this headline">¶</a></h3>
 <p>Users of the ingest system will likely fall into 3 categories:</p>
 <ol class="arabic simple">
@@ -226,8 +232,8 @@ and explored in existing target service plugins</p></li>
 </ul>
 </li>
 </ol>
-</div>
-<div class="section" id="inputs">
+</section>
+<section id="inputs">
 <h3>Inputs<a class="headerlink" href="#inputs" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><strong>Local or remote source data files</strong></p></li>
@@ -262,8 +268,8 @@ and explored in existing target service plugins</p></li>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="outputs">
+</section>
+<section id="outputs">
 <h3>Outputs<a class="headerlink" href="#outputs" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><strong>Ingest log</strong> - A log file containing runtime details of an executed ingest
@@ -271,8 +277,8 @@ job</p></li>
 <li><p><strong>Serialized stage output</strong> - The output of each stage execution in a
 serializable form written to disk</p></li>
 </ul>
-</div>
-<div class="section" id="extract-stage">
+</section>
+<section id="extract-stage">
 <h3>Extract Stage<a class="headerlink" href="#extract-stage" title="Permalink to this headline">¶</a></h3>
 <p>The extract stage does the following:</p>
 <ol class="arabic simple">
@@ -316,8 +322,8 @@ and <a class="reference external" href="https://github.com/kids-first/kf-lib-dat
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="transform-stage">
+</section>
+<section id="transform-stage">
 <h3>Transform Stage<a class="headerlink" href="#transform-stage" title="Permalink to this headline">¶</a></h3>
 <p>Using a user-defined transform function, the transform stage combines the
 individual tables created by the Extract Stage into a new set of “records”
@@ -331,8 +337,8 @@ ethnicity for your participants.</p>
 <p><strong>Example:</strong> If half of your specimens are recorded in one file, and the other
 half are recorded in another file, concatenate the extracted tables from those
 two files together to produce one unified specimen records table.</p>
-</div>
-<div class="section" id="load-stage">
+</section>
+<section id="load-stage">
 <h3>Load Stage<a class="headerlink" href="#load-stage" title="Permalink to this headline">¶</a></h3>
 <p>The Load Stage builds target entity payloads from the records emitted by the
 transform stage, determines whether each entity already exists in the target
@@ -381,9 +387,9 @@ entity payload to the target service.</p>
 <li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a></li>
 </ul>
 </div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
            </div>

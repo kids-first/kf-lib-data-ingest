@@ -5,7 +5,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Multiple Meltable Groups &mdash; Kids First Data Ingest Libraries  documentation</title>
@@ -21,6 +22,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/jquery.js"></script>
         <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/doctools.js"></script>
@@ -32,6 +34,8 @@
   
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
     
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -191,11 +195,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="multiple-meltable-groups">
+  <section id="multiple-meltable-groups">
 <h1>Multiple Meltable Groups<a class="headerlink" href="#multiple-meltable-groups" title="Permalink to this headline">¶</a></h1>
 <p>This can get tricky. There are many ways to deal with this, each with their
 own pros and cons.</p>
-<div class="section" id="scenario">
+<section id="scenario">
 <h2>Scenario<a class="headerlink" href="#scenario" title="Permalink to this headline">¶</a></h2>
 <p>You want to create KFDRC dataservice Participant and Phenotype entities from
 data that looks like this:</p>
@@ -240,8 +244,8 @@ data that looks like this:</p>
 </table>
 <p>Note that there two different groups of phenotype measurements recorded at
 different ages.</p>
-</div>
-<div class="section" id="correct-output">
+</section>
+<section id="correct-output">
 <h2>Correct Output<a class="headerlink" href="#correct-output" title="Permalink to this headline">¶</a></h2>
 <table class="docutils align-default">
 <colgroup>
@@ -298,8 +302,8 @@ different ages.</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="non-melting-solution">
+</section>
+<section id="non-melting-solution">
 <h2>Non-Melting Solution<a class="headerlink" href="#non-melting-solution" title="Permalink to this headline">¶</a></h2>
 <p>You can avoid melting and use basic <a class="reference internal" href="../index.html#column-stacking"><span class="std std-ref">Parallel Column Stacking</span></a> with a triplet of
 operations for each phenotype. Just be careful about operation order.</p>
@@ -374,8 +378,8 @@ operations for each phenotype. Just be careful about operation order.</p>
 should be correct. If, however, you were to swap the two value_map operations
 with each other, then you would be associating the wrong observation to each
 phenotype.</p>
-</div>
-<div class="section" id="melting-solution">
+</section>
+<section id="melting-solution">
 <h2>Melting Solution<a class="headerlink" href="#melting-solution" title="Permalink to this headline">¶</a></h2>
 <p>Use melt, and wrap the melt groups in <a class="reference internal" href="../index.html#nested-operation-sublists"><span class="std std-ref">Nested Operations Sublists</span></a> to
 safely navigate the column-length consequences of having multiple columns
@@ -437,8 +441,8 @@ lengthened by <a class="reference internal" href="../index.html#column-stacking"
 <p>Without nested sublists clustering the operations into groups, the result
 would be wrong.</p>
 </div>
-</div>
-<div class="section" id="melting-solution-with-multiple-smaller-extracts">
+</section>
+<section id="melting-solution-with-multiple-smaller-extracts">
 <h2>Melting Solution With Multiple Smaller Extracts<a class="headerlink" href="#melting-solution-with-multiple-smaller-extracts" title="Permalink to this headline">¶</a></h2>
 <p>Nothing says that you need to extract the whole file all at once. You can also
 choose to virtually divide the source data into simple chunks, which is another
@@ -573,8 +577,8 @@ way of dealing with the complex length stacking problem:</p>
 <span class="p">]</span>
 </pre></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
