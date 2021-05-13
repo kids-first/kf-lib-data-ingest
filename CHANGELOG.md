@@ -1,5 +1,18 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.6.0
+
+### Summary
+
+- Emojis: 🔧 x1, 🔊 x1
+- Categories: Additions x1, Other Changes x1
+
+### New features and changes
+
+- [#602](https://github.com/kids-first/kf-lib-data-ingest/pull/602) - 🔧 Fix Homo sapiens casing - [bec35656](https://github.com/kids-first/kf-lib-data-ingest/commit/bec356564a3181a0bfe69163824cc1e85c53e94c) by [liberaliscomputing](https://github.com/liberaliscomputing)
+- [#603](https://github.com/kids-first/kf-lib-data-ingest/pull/603) - 🔊 Rearrange target ID inquiry to improve load logging - [826b9ba2](https://github.com/kids-first/kf-lib-data-ingest/commit/826b9ba202e207a50902dca97b9c6047ec779464) by [fiendish](https://github.com/fiendish)
+
+
 ## Release 1.5.0
 
 ### Summary
