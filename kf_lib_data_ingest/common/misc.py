@@ -20,7 +20,9 @@ def flexible_age(record, days_concept, generic_concept):
     units = record.get(generic_concept.UNITS)
     value = record.get(generic_concept.VALUE)
 
-    if (age is None) and (units is not None) and (value is not None):
+    if age:
+        age = int(age)
+    elif (units is not None) and (value is not None):
         if units == constants.AGE.UNITS.DAYS:
             age = int(value)
         elif units == constants.AGE.UNITS.MONTHS:
