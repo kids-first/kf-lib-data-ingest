@@ -23,7 +23,7 @@ from kf_lib_data_ingest.common.misc import (
     upper_camel_case,
 )
 from kf_lib_data_ingest.network.utils import get_open_api_v2_schema
-from kf_utils.dataservice.scrape import yield_kfids
+from kf_utils.dataservice.scrape import yield_kfids, yield_entities
 from pandas import DataFrame
 from requests import RequestException
 
@@ -325,22 +325,47 @@ class Outcome:
     service_id_fields = {"kf_id", "participant_id"}
 
     @classmethod
+    def transform_records_list(cls, records_list):
+        # We no longer want multiple participant outcome entries, and we now
+        # always patch the latest one with whatever is in the record for
+        # existing dataservice compatibility, so sort the records so that the
+        # latest ones appear first (the others will then get skipped).
+        return sorted(
+            records_list,
+            reverse=True,
+            key=lambda r: (
+                flexible_age(
+                    r,
+                    CONCEPT.OUTCOME.EVENT_AGE_DAYS,
+                    CONCEPT.OUTCOME.EVENT_AGE,
+                )
+                or 0
+            ),
+        )
+
+    @classmethod
     def get_key_components(cls, record, get_target_id_from_record):
+        # Skip anything without a status, but don't consider it a key field.
+        not_none(record[CONCEPT.OUTCOME.VITAL_STATUS])
         return {
             "participant_id": not_none(
                 get_target_id_from_record(Participant, record)
-            ),
-            "age_at_event_days": flexible_age(
-                record,
-                CONCEPT.OUTCOME.EVENT_AGE_DAYS,
-                CONCEPT.OUTCOME.EVENT_AGE,
-            ),
-            "vital_status": not_none(record[CONCEPT.OUTCOME.VITAL_STATUS]),
+            )
         }
 
     @classmethod
     def query_target_ids(cls, host, key_components):
-        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+        # We no longer want multiple participant outcome entries.
+        # Patch whatever is latest for compatibility with existing dataservice
+        # entries.
+        pes = sorted(
+            yield_entities(host, cls.api_path, key_components),
+            key=lambda e: e.get("age_at_event_days", 0),
+        )
+        if pes:
+            return [pes[-1]["kf_id"]]
+        else:
+            return []
 
     @classmethod
     def build_entity(cls, record, get_target_id_from_record):
@@ -348,6 +373,12 @@ class Outcome:
             "kf_id": get_target_id_from_record(cls, record),
             "disease_related": record.get(CONCEPT.OUTCOME.DISEASE_RELATED),
             "visible": record.get(CONCEPT.OUTCOME.VISIBLE),
+            "age_at_event_days": flexible_age(
+                record,
+                CONCEPT.OUTCOME.EVENT_AGE_DAYS,
+                CONCEPT.OUTCOME.EVENT_AGE,
+            ),
+            "vital_status": not_none(record[CONCEPT.OUTCOME.VITAL_STATUS]),
         }
         return {
             **cls.get_key_components(record, get_target_id_from_record),
