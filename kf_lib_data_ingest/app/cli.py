@@ -286,8 +286,8 @@ def test(
     query_url,
 ):
     """
-    Run the Kids First data ingest pipeline in dry_run mode (--dry_run=True)
-    Used for testing ingest packages.
+    Run the Kids First data ingest pipeline with the --dry_run --no_warehouse
+    flags active. Used for testing ingest packages.
 
     \b
     Arguments:
@@ -296,8 +296,8 @@ def test(
         or a path to a directory which contains a file called
         'ingest_package_config_path.py'
 
-    :param ingest_package_config_path: the path to the data ingest config
-    file or a path to a directory which contains a file called
+    :param ingest_package_config_path: the path to the data ingest config file
+    or a path to a directory which contains a file called
     `ingest_package_config_path.py`
     """
     # Make kwargs from options
