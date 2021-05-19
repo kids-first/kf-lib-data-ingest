@@ -1,5 +1,19 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.7.0
+
+### Summary
+
+- Emojis: 💡 x1, ⬆️ x1, 💥 x1
+- Categories: Documentation x1, Ops x1, Other Changes x1
+
+### New features and changes
+
+- [#607](https://github.com/kids-first/kf-lib-data-ingest/pull/607) - 💡 Tweak test command docstring - [87e51f9b](https://github.com/kids-first/kf-lib-data-ingest/commit/87e51f9bc30abf8acebee8df88def13ccd678caa) by [fiendish](https://github.com/fiendish)
+- [#606](https://github.com/kids-first/kf-lib-data-ingest/pull/606) - ⬆️ Update moto to remove test warning - [d883114c](https://github.com/kids-first/kf-lib-data-ingest/commit/d883114c64f088379439fa94efcd660a1fc40d91) by [fiendish](https://github.com/fiendish)
+- [#605](https://github.com/kids-first/kf-lib-data-ingest/pull/605) - 💥 Only one outcome per patient now - [b3724f41](https://github.com/kids-first/kf-lib-data-ingest/commit/b3724f41615fe3306da80861aee2e7b1639b2539) by [fiendish](https://github.com/fiendish)
+
+
 ## Release 1.6.0
 
 ### Summary
