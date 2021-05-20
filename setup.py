@@ -12,6 +12,7 @@ setup(
     use_scm_version={
         "local_scheme": "dirty-tag",
         "version_scheme": "post-release",
+        "parentdir_prefix_version": "kf-lib-data-ingest-",
     },
     setup_requires=["setuptools_scm"],
     description="Kids First Data Ingest Library",
