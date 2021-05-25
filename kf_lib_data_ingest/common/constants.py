@@ -14,6 +14,7 @@ class COMMON:
     NOT_AVAILABLE = "Not Available"
     NOT_REPORTED = "Not Reported"
     NO_MATCH = "No Match"
+    NOT_ABLE_TO_PROVIDE = "Not Able to Provide"
     OTHER = "Other"
     UNKNOWN = "Reported Unknown"
     TRUE = "True"
