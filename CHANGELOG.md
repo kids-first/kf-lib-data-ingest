@@ -1,5 +1,17 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.8.0
+
+### Summary
+
+- Emojis: ✨ x1
+- Categories: Additions x1
+
+### New features and changes
+
+- [#597](https://github.com/kids-first/kf-lib-data-ingest/pull/597) - ✨ New functionality to support Data Tracker templates - [f9ad6833](https://github.com/kids-first/kf-lib-data-ingest/commit/f9ad6833f974f24dcdefc9e09b57eaa5a5884097) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.7.0
 
 ### Summary
