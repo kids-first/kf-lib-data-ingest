@@ -30,11 +30,11 @@ class AGE:
 
 class FILE:
     class HASH:
-        MD5 = "MD5"
-        SHA1 = "SHA-1"
-        SHA256 = "SHA-256"
-        SHA512 = "SHA-512"
-        S3_ETAG = "ETag"
+        MD5 = "md5"
+        SHA1 = "sha1"
+        SHA256 = "sha256"
+        SHA512 = "sha512"
+        S3_ETAG = "etag"
 
 
 class SPECIMEN:
