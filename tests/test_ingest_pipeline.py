@@ -112,7 +112,7 @@ def test_ingest_cmd_missing_required_args():
     runner = CliRunner()
     result = runner.invoke(cli.ingest, [])
 
-    assert "ingest_package_config_path".upper() in result.output
+    assert "ingest_package_path".upper() in result.output
     assert result.exit_code == COMMAND_LINE_ERROR_CODE
 
 
