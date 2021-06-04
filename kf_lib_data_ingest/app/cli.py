@@ -20,7 +20,10 @@ from kf_lib_data_ingest.etl.ingest_pipeline import (
     DataIngestPipeline,
 )
 
-CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
+CONTEXT_SETTINGS = {
+    "help_option_names": ["-h", "--help"],
+    "max_content_width": 9999,  # workaround for https://github.com/pallets/click/issues/486
+}
 DEFAULT_LOG_LEVEL_NAME = logging._levelToName.get(DEFAULT_LOG_LEVEL)
 DEFAULT_VALIDATION_MODE = ADVANCED_VALIDATION
 VALIDATION_MODE_OPT = {
@@ -51,9 +54,8 @@ def common_args_options(func):
     """
     Common click args and options
     """
-    # Ingest package config
-    func = click.argument(
-        "ingest_package_config_path",
+    func = click.argument(  # Path to the data ingest package directory
+        "ingest_package_path",
         type=click.Path(exists=True, file_okay=True, dir_okay=True),
     )(func)
 
@@ -79,14 +81,6 @@ def common_args_options(func):
             " where the target identifiers are stored (i.e. they've been"
             " temporarily erased from the target service)."
         ),
-    )(func)
-
-    # Disable warehousing
-    func = click.option(
-        "--no_warehouse",
-        default=False,
-        is_flag=True,
-        help="Skip sending data to the warehouse db.",
     )(func)
 
     # Resume loading from
@@ -145,7 +139,7 @@ def common_args_options(func):
             "which is specified by environment variable: "
             f"{settings.APP_MODE_ENV_VAR}. "
             "See kf_lib_data_ingest.app.settings for default settings "
-            "files"
+            "files."
         ),
     )(func)
 
@@ -153,8 +147,8 @@ def common_args_options(func):
     log_help_txt = (
         "Controls level of log messages to output. If not supplied via CLI, "
         "log_level from the ingest_package_config.py will be used. If not "
-        "supplied via config, the default log_level for the ingest lib will "
-        f"be used: {DEFAULT_LOG_LEVEL_NAME}"
+        "supplied via config, the default log_level for the ingest lib "
+        f"({DEFAULT_LOG_LEVEL_NAME}) will be used."
     )
     func = click.option(
         "--log_level",
@@ -170,7 +164,7 @@ def common_args_options(func):
         "--no_validate",
         default=False,
         is_flag=True,
-        help="A flag to skip data validation during ingestion",
+        help="Skip the data validation step.",
     )(func)
 
     # Validation mode
@@ -202,8 +196,14 @@ def cli():
     help="A flag specifying whether to only pretend to send data to "
     "the target service. Overrides the resume_from setting.",
 )
+@click.option(
+    "--no_warehouse",
+    default=False,
+    is_flag=True,
+    help="Skip sending data to the warehouse db.",
+)
 def ingest(
-    ingest_package_config_path,
+    ingest_package_path,
     app_settings_filepath,
     log_level_name,
     target_url,
@@ -223,13 +223,7 @@ def ingest(
     \b
     Arguments:
         \b
-        ingest_package_config_path - the path to the data ingest config file
-        or a path to a directory which contains a file called
-        'ingest_package_config.py'
-
-    :param ingest_package_config_path: the path to the data ingest config
-    file or a path to a directory which contains a file called
-    `ingest_package_config.py`
+        INGEST_PACKAGE_PATH - Path to the data ingest package directory
     """
 
     # Make kwargs from options
@@ -256,7 +250,7 @@ def ingest(
 
     # Run ingest
     pipeline = DataIngestPipeline(
-        ingest_package_config_path, app_settings.TARGET_API_CONFIG, **kwargs
+        ingest_package_path, app_settings.TARGET_API_CONFIG, **kwargs
     )
 
     pipeline.logger.info(
@@ -272,14 +266,13 @@ def ingest(
 @click.pass_context
 def test(
     ctx,
-    ingest_package_config_path,
+    ingest_package_path,
     app_settings_filepath,
     log_level_name,
     target_url,
     stages_to_run_str,
     use_async,
     resume_from,
-    no_warehouse,
     no_validate,
     validation_mode,
     clear_cache,
@@ -292,13 +285,7 @@ def test(
     \b
     Arguments:
         \b
-        ingest_package_config_path - the path to the data ingest config file
-        or a path to a directory which contains a file called
-        'ingest_package_config_path.py'
-
-    :param ingest_package_config_path: the path to the data ingest config file
-    or a path to a directory which contains a file called
-    `ingest_package_config_path.py`
+        INGEST_PACKAGE_PATH - Path to the data ingest package directory
     """
     # Make kwargs from options
     frame = inspect.currentframe()
@@ -320,8 +307,8 @@ def test(
 )
 def create_new_ingest(dest_dir=None):
     """
-    Create a new ingest package based on the template:
-    kf_lib_data_ingest.templates.my_ingest_package
+    Create a new ingest package based on the
+    `kf_lib_data_ingest.templates.my_ingest_package` template.
     """
     from kf_lib_data_ingest.factory.generate import new_ingest_pkg
 
@@ -337,12 +324,12 @@ def create_new_ingest(dest_dir=None):
 def validate(file_or_dir, validation_mode=DEFAULT_VALIDATION_MODE):
     """
     Validate files and write validation reports to
-    a subdirectory, `validation_results`, in the current working directory
+    a subdirectory, `validation_results`, in the current working directory.
 
     \b
     Arguments:
         \b
-        file_or_dir - the path to the file or directory of files to validate
+        FILE_OR_DIR - the path to the file or directory of files to validate
     """
     from kf_lib_data_ingest.common.io import path_to_file_list
     from kf_lib_data_ingest.validation.validation import Validator
