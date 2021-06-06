@@ -1,16 +1,13 @@
 """
-Version 2
-Module for loading the transform output into the dataservice. It converts the
-merged source data into complete message payloads according to a given API
-specification, and then sends those messages to the target server.
+For Version 2 Target Service Plugins
 """
 from pprint import pformat
 
 from kf_lib_data_ingest.common import constants
-from kf_lib_data_ingest.etl.load.load_v1 import LoadStage as LoadBase
+from kf_lib_data_ingest.etl.load.load_base import LoadStageBase
 
 
-class LoadStage(LoadBase):
+class LoadStage(LoadStageBase):
     def __init__(self, *args, query_url="", **kwargs):
         """
         :param query_url: Alternative API query URL instead of asking the load target
