@@ -82,6 +82,7 @@ class LoadStageBase(IngestStage):
         self.resume_from = resume_from
         self.project_id = project_id
         self.use_async = use_async
+        self._dry_id = 0
 
         self.uid_cache_filepath = os.path.join(
             self.stage_cache_dir,
@@ -306,7 +307,9 @@ class LoadStageBase(IngestStage):
         if self.dry_run:
             self.logger.debug(f"Request body preview:\n{pformat(body)}")
             msg = f"DRY RUN - {msg}"
-            target_id = f"({target_id})"
+            if not target_id:
+                self._dry_id += 1
+                target_id = f"DRY_{entity_class.class_name}_{self._dry_id}"
         else:
             # send to the target service
             target_id = self._do_target_submit(entity_class, body)
