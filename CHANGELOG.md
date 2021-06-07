@@ -1,5 +1,18 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.8.1
+
+### Summary
+
+- Emojis: 🚸 x1, ✏️ x1
+- Categories: Fixes x2
+
+### New features and changes
+
+- [#615](https://github.com/kids-first/kf-lib-data-ingest/pull/615) - 🚸 Improve CLI help availability - [34f3e0ec](https://github.com/kids-first/kf-lib-data-ingest/commit/34f3e0ec7ad6f0662906506e8a186cac2ea1f19c) by [fiendish](https://github.com/fiendish)
+- [#614](https://github.com/kids-first/kf-lib-data-ingest/pull/614) - ✏️ Make hash names lower case & no special characters - [19613c71](https://github.com/kids-first/kf-lib-data-ingest/commit/19613c710a8cbadb9de5cb8316576facf0b6dbc4) by [chris-s-friedman](https://github.com/chris-s-friedman)
+
+
 ## Release 1.8.0
 
 ### Summary
