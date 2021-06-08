@@ -1,5 +1,18 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.8.2
+
+### Summary
+
+- Emojis: 🐛 x1, ♻️ x1
+- Categories: Fixes x1, Other Changes x1
+
+### New features and changes
+
+- [#618](https://github.com/kids-first/kf-lib-data-ingest/pull/618) - 🐛 Assign IDs to new entities in dry_run mode that can be re-used during the run - [f1e304d3](https://github.com/kids-first/kf-lib-data-ingest/commit/f1e304d3b08d1a0d9eed183f7a4ba9d06de226c2) by [fiendish](https://github.com/fiendish)
+- [#616](https://github.com/kids-first/kf-lib-data-ingest/pull/616) - ♻️ Separate load base from v1/v2 for clarity - [d6451e92](https://github.com/kids-first/kf-lib-data-ingest/commit/d6451e92d8e8cf35076550c93663a7d7d01377f7) by [fiendish](https://github.com/fiendish)
+
+
 ## Release 1.8.1
 
 ### Summary
