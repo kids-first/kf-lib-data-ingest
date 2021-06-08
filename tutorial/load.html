@@ -213,7 +213,7 @@ observed, the attached DataFrame must therefore include those values.</p>
 Extract and Transform stages in order to use the Load Stage. The Load stage can
 be invoked on its own in Python like so:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.io</span> <span class="kn">import</span> <span class="n">read_df</span>
-<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.etl.load.load</span> <span class="kn">import</span> <span class="n">LoadStage</span>
+<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.etl.load.load_shim</span> <span class="kn">import</span> <span class="n">LoadStage</span>
 
 <span class="n">path_to_my_target_service_plugin</span> <span class="o">=</span> <span class="s2">&quot;foo/bar/my_plugin.py&quot;</span>
 <span class="n">target_service_base_url</span> <span class="o">=</span> <span class="s2">&quot;https://my_service:8080&quot;</span>
