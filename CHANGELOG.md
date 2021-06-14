@@ -1,5 +1,17 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.8.3
+
+### Summary
+
+- Emojis: ⬆️ x1
+- Categories: Ops x1
+
+### New features and changes
+
+- [#620](https://github.com/kids-first/kf-lib-data-ingest/pull/620) - ⬆️ Flex the pytest dep version pin and fix boundary specs - [8755cb80](https://github.com/kids-first/kf-lib-data-ingest/commit/8755cb80db3beeeabab87b083f43ea7ff3663a92) by [fiendish](https://github.com/fiendish)
+
+
 ## Release 1.8.2
 
 ### Summary
