@@ -8,7 +8,7 @@ openpyxl
 tabulate==0.8.7
 jsonpickle==1.4.1
 SQLAlchemy==1.3.20
-pytest==6.1.2
+pytest>=6.1.2<7
 cchardet>=2.1.6<3
 graph_theory==2020.11.4.41115
 Markdown==3.3.3
