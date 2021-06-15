@@ -197,10 +197,10 @@ def cli():
     "the target service. Overrides the resume_from setting.",
 )
 @click.option(
-    "--no_warehouse",
+    "--warehouse",
     default=False,
     is_flag=True,
-    help="Skip sending data to the warehouse db.",
+    help="Send data to the warehouse db.",
 )
 def ingest(
     ingest_package_path,
@@ -211,7 +211,7 @@ def ingest(
     use_async,
     dry_run,
     resume_from,
-    no_warehouse,
+    warehouse,
     no_validate,
     validation_mode,
     clear_cache,
@@ -238,7 +238,7 @@ def ingest(
     else:
         app_settings = settings.load()
 
-    if kwargs.pop("no_warehouse"):
+    if not kwargs.pop("warehouse"):
         os.environ[app_settings.SECRETS.WAREHOUSE_DB_URL] = ""
 
     if kwargs.pop("no_validate"):
@@ -279,8 +279,8 @@ def test(
     query_url,
 ):
     """
-    Run the Kids First data ingest pipeline with the --dry_run --no_warehouse
-    flags active. Used for testing ingest packages.
+    Run the Kids First data ingest pipeline with the --dry_run
+    flag active. Used for testing ingest packages.
 
     \b
     Arguments:
@@ -293,7 +293,6 @@ def test(
     kwargs = {arg: values[arg] for arg in args[1:]}
 
     kwargs["dry_run"] = True
-    kwargs["no_warehouse"] = True
     ctx.invoke(ingest, **kwargs)
 
 

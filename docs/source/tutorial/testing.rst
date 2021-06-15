@@ -32,15 +32,12 @@ alias for:
 
 .. code-block:: shell
 
-    $ kidsfirst ingest --dry_run --no_warehouse
+    $ kidsfirst ingest --dry_run
 
 The ``--dry_run`` flag says to process your ingest package without actually
 sending anything to the target service. This will help you determine whether
 your ingest package runs correctly before you try to load your study data into
 the target service.
-
-The ``--no_warehouse`` flag says to skip sending intermediate stage data to a
-remote warehouse database for storage and sharing.
 
 We'll use that ``test`` command throughout this section:
 

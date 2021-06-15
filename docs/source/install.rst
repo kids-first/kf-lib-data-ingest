@@ -10,8 +10,6 @@ to safely run::
 .. note::
     If you plan to ingest without :ref:`remote warehousing<Warehousing>`, then you won't need psycopg2.
 
-    See: :ref:`DisablingWarehousing`.
-
 If a precompiled binary for psycopg2 doesn't exist for your platform, or
 if you prefer not to use one, installation with pip may not be straightforward
 everywhere (see e.g.
