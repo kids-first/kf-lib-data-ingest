@@ -58,24 +58,17 @@ So we would set ``KF_WAREHOUSE_DB_URL`` in our shell environment::
     PostgreSQL requires all connections to go directly to a database regardless
     of what you're doing, so we use the default "postgres" database for this.
 
-If this variable is set, the ingest system will use the designated server as a
-central warehouse. If this environment variable is not set, then it will skip
-warehousing.
-
-.. _DisablingWarehousing:
-
-Temporarily Disabling Warehousing
+Enabling Warehousing
 =================================
 
-If for any reason you don't want to use the warehouse during a run (for example
-if you're just testing), the ``--no_warehouse`` command line argument will skip
-the warehousing steps.
+If you want to use the warehouse during a run, the ``--warehouse`` command line
+argument will activate the warehousing steps.
 
 Storage Layout
 ==============
 
-After ingesting a study, the warehouse server should have a database named
-after the study KFID.
+After warehousing a study, the warehouse server should have a database named
+after the study ID.
 
 .. image:: /_static/images/warehouse_db.png
 

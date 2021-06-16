@@ -208,15 +208,13 @@ package.</p>
 <p>The ingest application has a secondary <code class="docutils literal notranslate"><span class="pre">test</span></code> command in addition to the
 <code class="docutils literal notranslate"><span class="pre">ingest</span></code> command. Under the hood, the <code class="docutils literal notranslate"><span class="pre">test</span></code> command is really just an
 alias for:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ kidsfirst ingest --dry_run --no_warehouse
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ kidsfirst ingest --dry_run
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">--dry_run</span></code> flag says to process your ingest package without actually
 sending anything to the target service. This will help you determine whether
 your ingest package runs correctly before you try to load your study data into
 the target service.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">--no_warehouse</span></code> flag says to skip sending intermediate stage data to a
-remote warehouse database for storage and sharing.</p>
 <p>We’ll use that <code class="docutils literal notranslate"><span class="pre">test</span></code> command throughout this section:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ kidsfirst test &lt;ingest package&gt;
 </pre></div>

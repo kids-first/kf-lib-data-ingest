@@ -106,7 +106,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Remote Warehousing</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#warehouse-server-requirements">Warehouse Server Requirements</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#local-environment-configuration">Local Environment Configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#temporarily-disabling-warehousing">Temporarily Disabling Warehousing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#enabling-warehousing">Enabling Warehousing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#storage-layout">Storage Layout</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#lifecycle">Lifecycle</a></li>
 </ul>
@@ -237,20 +237,16 @@ username and password if needed, that can be used for calling <code class="docut
 <p>PostgreSQL requires all connections to go directly to a database regardless
 of what you’re doing, so we use the default “postgres” database for this.</p>
 </div>
-<p>If this variable is set, the ingest system will use the designated server as a
-central warehouse. If this environment variable is not set, then it will skip
-warehousing.</p>
 </section>
-<section id="temporarily-disabling-warehousing">
-<span id="disablingwarehousing"></span><h2>Temporarily Disabling Warehousing<a class="headerlink" href="#temporarily-disabling-warehousing" title="Permalink to this headline">¶</a></h2>
-<p>If for any reason you don’t want to use the warehouse during a run (for example
-if you’re just testing), the <code class="docutils literal notranslate"><span class="pre">--no_warehouse</span></code> command line argument will skip
-the warehousing steps.</p>
+<section id="enabling-warehousing">
+<h2>Enabling Warehousing<a class="headerlink" href="#enabling-warehousing" title="Permalink to this headline">¶</a></h2>
+<p>If you want to use the warehouse during a run, the <code class="docutils literal notranslate"><span class="pre">--warehouse</span></code> command line
+argument will activate the warehousing steps.</p>
 </section>
 <section id="storage-layout">
 <h2>Storage Layout<a class="headerlink" href="#storage-layout" title="Permalink to this headline">¶</a></h2>
-<p>After ingesting a study, the warehouse server should have a database named
-after the study KFID.</p>
+<p>After warehousing a study, the warehouse server should have a database named
+after the study ID.</p>
 <img alt="../_images/warehouse_db.png" src="../_images/warehouse_db.png" />
 <p>Inside that database you should find schemas for each of the warehoused stages
 prefixed by “Ingest:” and the name of the package. Each schema table will be
