@@ -1,5 +1,17 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.9.0
+
+### Summary
+
+- Emojis: 🚸 x1
+- Categories: Fixes x1
+
+### New features and changes
+
+- [#622](https://github.com/kids-first/kf-lib-data-ingest/pull/622) - 🚸 Warehousing is no longer default behavior - [ef3d4bba](https://github.com/kids-first/kf-lib-data-ingest/commit/ef3d4bba9ae78573e569626924a140e5931e6cda) by [fiendish](https://github.com/fiendish)
+
+
 ## Release 1.8.3
 
 ### Summary
