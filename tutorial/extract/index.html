@@ -36,6 +36,7 @@
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/other.css" type="text/css" />
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -93,7 +94,7 @@
               
             
             
-              <p class="caption"><span class="caption-text">Table of Contents</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
@@ -1761,6 +1762,15 @@ will be a dict, function, or constant value.</p>
 to <code class="docutils literal notranslate"><span class="pre">out_col</span></code>, where <cite>N</cite> is the number of rows in the source data table.</p>
 <p><code class="docutils literal notranslate"><span class="pre">constant_map</span></code> is a special case of <code class="docutils literal notranslate"><span class="pre">value_map</span></code> with <code class="docutils literal notranslate"><span class="pre">m=lambda</span> <span class="pre">x:</span> <span class="pre">&lt;some</span>
 <span class="pre">constant&gt;</span></code>.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>Only use <code class="docutils literal notranslate"><span class="pre">constant_map</span></code> for <span class="underline">columns that are not in the
+data</span>. Why? What if the column is 99% one value, so you think “I’ll just
+constant map to that value”, but then you change the other 1% of values
+accidentally because you never saw them? Or what if the next version of the
+data introduces a new value? Your error. Don’t do it. Use <code class="docutils literal notranslate"><span class="pre">value_map</span></code>
+instead for existing columns.</p>
+</div>
 <aside class="sidebar">
 <p class="sidebar-title">When to use value_map</p>
 <p>Your data uses 1/2/3/4 instead of Male/Female/Other/Unknown.</p>
@@ -1871,7 +1881,8 @@ you want to do with the other predefined operations. Take a whole DataFrame,
 perform some function <code class="docutils literal notranslate"><span class="pre">m</span></code> on it, and return a new DataFrame of the same size.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Needing to use <code class="docutils literal notranslate"><span class="pre">df_map</span></code> is a sign that the original data is poorly
+<p>You’ll probably never use <code class="docutils literal notranslate"><span class="pre">df_map</span></code>. That’s fine. It’s there for geometric
+completeness. Needing to use it is a sign that the original data is poorly
 constructed.</p>
 </div>
 </section>
