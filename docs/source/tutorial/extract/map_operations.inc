@@ -48,6 +48,18 @@ to ``out_col``, where `N` is the number of rows in the source data table.
 ``constant_map`` is a special case of ``value_map`` with ``m=lambda x: <some
 constant>``.
 
+.. role:: underline
+    :class: underline
+
+.. caution::
+
+    Only use ``constant_map`` for :underline:`columns that are not in the
+    data`. Why? What if the column is 99% one value, so you think "I'll just
+    constant map to that value", but then you change the other 1% of values
+    accidentally because you never saw them? Or what if the next version of the
+    data introduces a new value? Your error. Don't do it. Use ``value_map``
+    instead for existing columns.
+
 .. sidebar:: When to use value_map
 
     Your data uses 1/2/3/4 instead of Male/Female/Other/Unknown.
@@ -168,5 +180,6 @@ perform some function ``m`` on it, and return a new DataFrame of the same size.
 
 .. note::
 
-    Needing to use ``df_map`` is a sign that the original data is poorly
+    You'll probably never use ``df_map``. That's fine. It's there for geometric
+    completeness. Needing to use it is a sign that the original data is poorly
     constructed.

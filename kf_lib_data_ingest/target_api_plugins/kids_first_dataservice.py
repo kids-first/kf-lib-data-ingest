@@ -986,8 +986,13 @@ def submit(host, entity_class, body):
         resp = _POST(host, api_path, body)
 
     if resp.status_code in {200, 201}:
-        result = resp.json()["results"]
-        return result["kf_id"]
+        try:
+            return resp.json()["results"]["kf_id"]
+        except Exception as e:
+            raise RequestException(
+                f"Got status 200/201 from /{api_path} but response was not "
+                f"as expected:\nSent:\n{body}\nGot:\n{resp.text}"
+            ) from e
     elif (resp.status_code == 400) and (
         "already exists" in resp.json()["_status"]["message"]
     ):
