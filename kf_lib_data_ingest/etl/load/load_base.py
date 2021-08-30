@@ -279,7 +279,13 @@ class LoadStageBase(IngestStage):
         target_id = self._get_target_id_from_record(entity_class, record)
         method = "UPDATE" if target_id else "CREATE"
 
-        body = self._do_target_get_entity(entity_class, record, unique_key)
+        try:
+            body = self._do_target_get_entity(entity_class, record, unique_key)
+        except Exception:
+            self.logger.info(
+                f"Failed to build {entity_class.class_name} from record {record}"
+            )
+            raise
 
         if current_thread() is not main_thread():
             current_thread().name = f"{entity_class.class_name} {unique_key}"
