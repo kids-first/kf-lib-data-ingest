@@ -3,17 +3,18 @@ import os
 import pandas
 import pytest
 import requests_mock
-
-from conftest import TEST_DATA_DIR
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
 from kf_lib_data_ingest.common.misc import convert_to_downcasted_str
 from kf_lib_data_ingest.etl.configuration.base_config import (
     ConfigValidationError,
 )
-from kf_lib_data_ingest.etl.extract.utils import Extractor
 from kf_lib_data_ingest.etl.configuration.extract_config import ExtractConfig
 from kf_lib_data_ingest.etl.extract.extract import ExtractStage
 from kf_lib_data_ingest.etl.extract.operations import column_map
+from kf_lib_data_ingest.etl.extract.utils import Extractor
+from numpy import NaN
+
+from conftest import TEST_DATA_DIR
 
 TEST_FILE_PATH = os.path.join(TEST_DATA_DIR, "data.csv")
 
@@ -177,15 +178,16 @@ def test_no_load_return():
 def test_visibility():
     es = ExtractStage("", "")
 
-    a = [True, False, None]
-    b = [False, True, None]
+    a = [True, "True", False, "False", None, NaN]
+    clean_a = [True, True, False, False, None, None]
+    b = [False, False, True, True, None, None]
 
     df_a = pandas.DataFrame({CONCEPT.FAMILY.HIDDEN: a})
     es.extractor._obvert_visibility(df_a)
 
     assert CONCEPT.FAMILY.VISIBLE in df_a
     assert CONCEPT.FAMILY.HIDDEN in df_a
-    assert df_a[CONCEPT.FAMILY.HIDDEN].equals(pandas.Series(a))
+    assert df_a[CONCEPT.FAMILY.HIDDEN].equals(pandas.Series(clean_a))
     assert df_a[CONCEPT.FAMILY.VISIBLE].equals(pandas.Series(b))
 
     df_a = pandas.DataFrame({CONCEPT.FAMILY.VISIBLE: a})
@@ -194,7 +196,7 @@ def test_visibility():
     assert CONCEPT.FAMILY.VISIBLE in df_a
     assert CONCEPT.FAMILY.HIDDEN in df_a
     assert df_a[CONCEPT.FAMILY.HIDDEN].equals(pandas.Series(b))
-    assert df_a[CONCEPT.FAMILY.VISIBLE].equals(pandas.Series(a))
+    assert df_a[CONCEPT.FAMILY.VISIBLE].equals(pandas.Series(clean_a))
 
     df_a = pandas.DataFrame(
         {CONCEPT.FAMILY.HIDDEN: a, CONCEPT.FAMILY.VISIBLE: a}

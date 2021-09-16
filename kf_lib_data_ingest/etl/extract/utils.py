@@ -76,20 +76,60 @@ class Extractor(object):
         vice versa.
         """
 
+        def x_to_bool_or_none(x):
+            # Convert all obvious values to True/False/None and raise ValueError
+            # for any special cases, which are no longer allowed here.
+            if isinstance(x, bool):
+                return x
+            elif pandas.isna(x):
+                return None
+            elif isinstance(x, str):
+                lessx = x.strip().lower()
+                if not lessx:
+                    return None
+                elif lessx == "false":
+                    return False
+                elif lessx == "true":
+                    return True
+                else:
+                    raise ValueError(
+                        f'String must resolve to "false" or "true" or be empty. Got: "{x}"'
+                    )
+            else:
+                raise ValueError(
+                    "x_to_bool_or_none expects a bool, str, or pandas.isna(x)"
+                )
+
         def flip_col(in_col):
+            # Flip true/false for any non-null entries in this column
             out_col = in_col.copy()
-            out_col[out_col.notnull()] = (
-                ~in_col[in_col.notnull()].astype(bool)
-            ).astype(object)
+            out_col[out_col.notnull()] = ~(
+                in_col[in_col.notnull()].astype(bool)
+            )
             return out_col
 
         for concept in concept_set:
-            if concept.HIDDEN in df and concept.VISIBLE not in df:
-                df[concept.VISIBLE] = flip_col(df[concept.HIDDEN])
-            elif concept.VISIBLE in df and concept.HIDDEN not in df:
-                df[concept.HIDDEN] = flip_col(df[concept.VISIBLE])
-            elif concept.VISIBLE in df and concept.HIDDEN in df:
-                assert df[concept.HIDDEN].equals(flip_col(df[concept.VISIBLE]))
+            HID = concept.HIDDEN
+            VIS = concept.VISIBLE
+            if (HID not in df) and (VIS not in df):
+                continue
+
+            # Force concept.HIDDEN/VISIBLE columns to bools/Nones
+            if HID in df:
+                df[HID] = df[HID].apply(x_to_bool_or_none)
+            if VIS in df:
+                df[VIS] = df[VIS].apply(x_to_bool_or_none)
+
+            if VIS not in df:  # safe to just take the whole other column
+                df[VIS] = flip_col(df[HID])
+            elif HID not in df:  # safe to just take the whole other column
+                df[HID] = flip_col(df[VIS])
+            else:  # preserve non-na parts from both sides
+                df[HID] = df[HID].fillna(flip_col(df[VIS]))
+                df[VIS] = df[VIS].fillna(flip_col(df[HID]))
+
+            assert df[HID].equals(flip_col(df[VIS]))
+            assert df[VIS].equals(flip_col(df[HID]))
 
     def _chain_operations(self, df_in, operations, _nth=1, _is_nested=False):
         """
