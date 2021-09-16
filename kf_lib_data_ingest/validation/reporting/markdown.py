@@ -53,7 +53,7 @@ class MarkdownReportBuilder(AbstractReportBuilder):
         """
         super().__init__(output_dir=output_dir, setup_logger=setup_logger)
 
-    def _build(self, results, title=DEFAULT_REPORT_TITLE):
+    def _build(self, results, title=DEFAULT_REPORT_TITLE, exclude_tests=None):
         """
         Build markdown content for validation report
 
@@ -62,6 +62,7 @@ class MarkdownReportBuilder(AbstractReportBuilder):
         :param title: Report title
         :type title: str
         """
+        exclude_tests = exclude_tests or []
         self.counts = results["counts"]
         self.files_validated = results["files_validated"]
         self.results = results["validation"]
@@ -72,14 +73,13 @@ class MarkdownReportBuilder(AbstractReportBuilder):
         output.append(self._files_md(results))
         output.append("\n## #️⃣ Counts")
         output.append(self._counts_md(results))
-        output.append("\n## 🚦 Relationship Tests")
-        output.append(self._tests_section_md(results, REL_TEST))
-        output.append("\n## 🚦 Gap Tests")
-        output.append(self._tests_section_md(results, GAP_TEST))
-        output.append("\n## 🚦 Attribute Value Tests")
-        output.append(self._tests_section_md(results, ATTR_TEST))
-        output.append("\n## 🚦 Count Tests")
-        output.append(self._tests_section_md(results, "count"))
+
+        tests = [REL_TEST, GAP_TEST, ATTR_TEST, COUNT_TEST]
+        for test_type in tests:
+            if test_type in exclude_tests:
+                continue
+            output.append(f"\n## 🚦 {test_type.title()} Tests")
+            output.append(self._tests_section_md(results, test_type))
         output = "\n".join(output)
 
         return output
