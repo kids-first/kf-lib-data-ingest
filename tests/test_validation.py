@@ -15,6 +15,14 @@ from kf_lib_data_ingest.validation.data_validator import (
     NA,
     Validator as DataValidator,
 )
+from kf_lib_data_ingest.validation.reporting.markdown import (
+    MarkdownReportBuilder,
+    REL_TEST,
+    GAP_TEST,
+    ATTR_TEST,
+    COUNT_TEST,
+)
+
 from kf_lib_data_ingest.validation.default_hierarchy import DH
 from kf_lib_data_ingest.validation.validation import Validator
 from kf_lib_data_ingest.validation.reporting import sample_validation_results
@@ -142,13 +150,15 @@ def test_build_reports(tmpdir, info_caplog):
     """
     Test validation report building in kf_lib_data_ingest.validation.reporting
     """
+    results = sample_validation_results.results
+
     # Test format of validation results
     _validate_result_schema(sample_validation_results.results)
 
     # Test normal case with sample validation results
     path = tmpdir.mkdir("validation_results")
     report_paths = Validator(output_dir=path)._build_report(
-        sample_validation_results.results, formats={"tsv", "md", "foobar"}
+        results, formats={"tsv", "md", "foobar"}
     )
     # Unsupported report format
     assert "`foobar` not supported" in info_caplog.text
@@ -167,6 +177,19 @@ def test_build_reports(tmpdir, info_caplog):
             except Exception:
                 assert False
             assert (df is not None) and (not df.empty)
+
+    # Test exclude_tests kwarg
+    # Default - all tests
+    b = MarkdownReportBuilder()
+    report = b._build(results)
+    tests = [REL_TEST, GAP_TEST, ATTR_TEST, COUNT_TEST]
+    for t in tests:
+        assert t.title() + " Tests" in report
+
+    # Exclude some tests
+    report = b._build(results, exclude_tests=tests[1:])
+    for t in tests[1:]:
+        assert t.title() + " Tests" not in report
 
 
 def _validate_result_schema(results):
