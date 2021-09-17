@@ -1,5 +1,21 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.10.0
+
+### Summary
+
+- Emojis: 🐛 x2, ✨ x1, 🥅 x1, 📝 x1
+- Categories: Additions x1, Documentation x1, Fixes x3
+
+### New features and changes
+
+- [#635](https://github.com/kids-first/kf-lib-data-ingest/pull/635) - 🐛 Fix VISIBLE/HIDDEN obversion to work with strings as expected - [8ee33322](https://github.com/kids-first/kf-lib-data-ingest/commit/8ee3332256b568eeaa2c10e11a6dad3059623897) by [fiendish](https://github.com/fiendish)
+- [#637](https://github.com/kids-first/kf-lib-data-ingest/pull/637) - ✨ Optionally exclude tests from validation report - [042ebe97](https://github.com/kids-first/kf-lib-data-ingest/commit/042ebe972a8409824305b5cc8edceb854925152d) by [znatty22](https://github.com/znatty22)
+- [#633](https://github.com/kids-first/kf-lib-data-ingest/pull/633) - 🥅 Report more useful info for load value errors - [ddc2f3e9](https://github.com/kids-first/kf-lib-data-ingest/commit/ddc2f3e99ad40a56aa8af8141c96934d25fb7420) by [fiendish](https://github.com/fiendish)
+- [#631](https://github.com/kids-first/kf-lib-data-ingest/pull/631) - 🐛 Raise in KF target when response is bad with good status - [dbc8739b](https://github.com/kids-first/kf-lib-data-ingest/commit/dbc8739bead81b06bfc04f24acc88869fb863e6e) by [gsantia](https://github.com/gsantia)
+- [#624](https://github.com/kids-first/kf-lib-data-ingest/pull/624) - 📝 Add usage notes for constant and df map - [48b4bc8a](https://github.com/kids-first/kf-lib-data-ingest/commit/48b4bc8a3226afe7624d13d3bd00072034ed3e3b) by [fiendish](https://github.com/fiendish)
+
+
 ## Release 1.9.0
 
 ### Summary
