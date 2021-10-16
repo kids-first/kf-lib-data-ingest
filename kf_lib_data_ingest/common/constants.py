@@ -192,6 +192,10 @@ class SEQUENCING:
             NAME = "Complete Genomics"
             KF_ID = "SC_D30SEWS4"
 
+        class CSIR:
+            NAME = "CSIR - Institute of Genomics and Integrative Biology, Delhi, India"
+            KF_ID = "SC_MDY0AZMZ"
+
         class FELINE_DIAGNOSTICS:
             NAME = "Feline Diagnostics LLC"
             KF_ID = "SC_CATTVETT"
