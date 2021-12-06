@@ -224,6 +224,10 @@ class SEQUENCING:
             NAME = "National Cancer Institute, Khan Lab"
             KF_ID = "SC_F6RZ51K9"
 
+        class NIH:
+            NAME = "National Institutes of Health"
+            KF_ID = "SC_HEXD2E5R"
+
         class SICKKIDS:
             NAME = "SickKids"
             KF_ID = "SC_9WMJKQ1X"
@@ -266,6 +270,7 @@ class SEQUENCING:
 
     class STRATEGY:
         LINKED_WGS = "Linked-Read WGS (10x Chromium)"
+        METHYL = "Methylation"
         MRNA = "miRNA-Seq"
         RNA = "RNA-Seq"
         WGS = "WGS"
