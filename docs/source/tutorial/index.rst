@@ -32,7 +32,7 @@ In this tutorial we will cover (not necessarily in this order):
    extract/index.rst
    testing.rst
    extract/challenge_scenarios/index.rst
-   study_creator.rst
+   sourcing_data/index.rst
    transform.rst
    target_service_plugins/index.rst
    load.rst
