@@ -9,7 +9,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Using a Target Service Plugin &mdash; Kids First Data Ingest Libraries  documentation</title>
+  <title>Sourcing Data &mdash; Kids First Data Ingest Libraries  documentation</title>
   
 
   
@@ -40,8 +40,8 @@
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Understanding the Load Stage" href="../load.html" />
-    <link rel="prev" title="Making a Target Service Plugin" href="how_to_make.html" />
+    <link rel="next" title="Source Data stored by the Kids First Data Tracker" href="study_creator.html" />
+    <link rel="prev" title="Data That Only Makes Sense In Relation To Another File" href="../extract/challenge_scenarios/multifile_fusion.html" />
     <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
  
 </head>
@@ -106,13 +106,13 @@
 <li class="toctree-l2"><a class="reference internal" href="../extract/index.html">Extract Stage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../testing.html">Testing Your Ingest Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../extract/challenge_scenarios/index.html">Common Challenges when Extracting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sourcing_data/index.html">Sourcing Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../transform.html">Transform Stage</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="index.html">Target Service Plugins</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="how_to_make.html">Making a Target Service Plugin</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Using a Target Service Plugin</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Sourcing Data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="study_creator.html">Source Data stored by the Kids First Data Tracker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="query_sql.html">Source data stored in a PostgreSQL Database</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../transform.html">Transform Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../target_service_plugins/index.html">Target Service Plugins</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../load.html">Understanding the Load Stage</a></li>
 </ul>
 </li>
@@ -165,15 +165,13 @@
         
           <li><a href="../index.html">Tutorial</a> &raquo;</li>
         
-          <li><a href="index.html">Target Service Plugins</a> &raquo;</li>
-        
-      <li>Using a Target Service Plugin</li>
+      <li>Sourcing Data</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../../_sources/tutorial/target_service_plugins/how_to_use.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/tutorial/sourcing_data/index.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -186,32 +184,23 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <section id="using-a-target-service-plugin">
-<span id="tutorial-use-target-service-plugin"></span><h1>Using a Target Service Plugin<a class="headerlink" href="#using-a-target-service-plugin" title="Permalink to this headline">¶</a></h1>
-<p>To use your target service plugin currently you need to bundle it together with
-a new app settings file (described in <a class="reference internal" href="../app.html#tutorial-ingest-app"><span class="std std-ref">Kids First Ingest App</span></a>), like this:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>my_plugin_dir/
-├── my_app_settings.py
-├── my_plugin.py
-└⋯⋯ other needed files like individual entity class builders
-</pre></div>
-</div>
-<p>You will need to make your new app settings file reference your new target
-service plugin by setting <code class="docutils literal notranslate"><span class="pre">TARGET_API_CONFIG=&lt;file</span> <span class="pre">path</span> <span class="pre">of</span> <span class="pre">your</span> <span class="pre">plugin&gt;</span></code>.</p>
-<p>Here’s a simple example of what a new app settings file might look like:</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">kf_lib_data_ingest.app.settings.development</span> <span class="kn">import</span> <span class="o">*</span>
-
-<span class="n">TARGET_API_CONFIG</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;my_plugin.py&quot;</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-<p>Once your plugin and app settings files are bundled together, you will tell the
-ingest library to use your new app settings when ingesting your next study by
-running it with the <code class="docutils literal notranslate"><span class="pre">--app_settings</span></code> argument. Something like this:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>kidsfirst ingest --app_settings my_plugin_dir/my_app_settings.py ...
-</pre></div>
+  <section id="sourcing-data">
+<h1>Sourcing Data<a class="headerlink" href="#sourcing-data" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="study_creator.html">Source Data stored by the Kids First Data Tracker</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="study_creator.html#get-your-developer-token">Get Your Developer Token</a></li>
+<li class="toctree-l2"><a class="reference internal" href="study_creator.html#set-your-environment">Set Your Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="study_creator.html#update-your-extract-config-to-get-the-file-from-the-data-tracker">Update Your Extract Config to get the file from the Data Tracker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="study_creator.html#try-it">Try It</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="query_sql.html">Source data stored in a PostgreSQL Database</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="query_sql.html#scenario">Scenario</a></li>
+<li class="toctree-l2"><a class="reference internal" href="query_sql.html#sql-file-solution">.sql File Solution</a></li>
+</ul>
+</li>
+</ul>
 </div>
 </section>
 
@@ -223,10 +212,10 @@ running it with the <code class="docutils literal notranslate"><span class="pre"
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../load.html" class="btn btn-neutral float-right" title="Understanding the Load Stage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="study_creator.html" class="btn btn-neutral float-right" title="Source Data stored by the Kids First Data Tracker" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="how_to_make.html" class="btn btn-neutral float-left" title="Making a Target Service Plugin" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../extract/challenge_scenarios/multifile_fusion.html" class="btn btn-neutral float-left" title="Data That Only Makes Sense In Relation To Another File" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
