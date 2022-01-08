@@ -226,9 +226,9 @@ database and running your query inside of source_data_read_function.</p>
 <code class="docutils literal notranslate"><span class="pre">source_data_url</span></code>.</p>
 <p>As an example, say you save your query in the file at
 <code class="docutils literal notranslate"><span class="pre">my-ingest-package/data/my_query.sql</span></code>:</p>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="o">*</span>
-<span class="k">FROM</span> <span class="n">participant</span> <span class="n">p</span>
-<span class="k">WHERE</span> <span class="n">p</span><span class="p">.</span><span class="n">study_id</span> <span class="o">=</span> <span class="s1">&#39;SD_ME0WME0W&#39;</span>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"></span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">participant</span><span class="w"> </span><span class="n">p</span><span class="w"></span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">study_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;SD_ME0WME0W&#39;</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Your extract config to pull data from your database could then look like:</p>
