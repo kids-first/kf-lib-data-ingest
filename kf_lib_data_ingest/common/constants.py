@@ -244,6 +244,10 @@ class SEQUENCING:
             NAME = "TEMP"
             KF_ID = "SC_SJJ0B9GN"
 
+        class TEMPUS:
+            NAME = "Tempus"
+            KF_ID = "SC_TQ8HJWGE"
+
         class TGEN:
             NAME = "The Translational Genomics Research Institute"
             KF_ID = "SC_KQ9JZG3P"
