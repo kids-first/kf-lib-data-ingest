@@ -264,6 +264,7 @@ class Diagnosis:
             ),
             "diagnosis_category": record.get(CONCEPT.DIAGNOSIS.CATEGORY),
             "visible": record.get(CONCEPT.DIAGNOSIS.VISIBLE),
+            "external_id": record.get(CONCEPT.DIAGNOSIS.ID),
         }
         return {
             **cls.get_key_components(record, get_target_id_from_record),
@@ -307,6 +308,7 @@ class Phenotype:
             "hpo_id_phenotype": record.get(CONCEPT.PHENOTYPE.HPO_ID),
             "snomed_id_phenotype": record.get(CONCEPT.PHENOTYPE.SNOMED_ID),
             "visible": record.get(CONCEPT.PHENOTYPE.VISIBLE),
+            "external_id": record.get(CONCEPT.PHENOTYPE.ID),
         }
         return {
             **cls.get_key_components(record, get_target_id_from_record),
@@ -379,6 +381,7 @@ class Outcome:
                 CONCEPT.OUTCOME.EVENT_AGE,
             ),
             "vital_status": not_none(record[CONCEPT.OUTCOME.VITAL_STATUS]),
+            "external_id": record.get(CONCEPT.OUTCOME.ID),
         }
         return {
             **cls.get_key_components(record, get_target_id_from_record),
