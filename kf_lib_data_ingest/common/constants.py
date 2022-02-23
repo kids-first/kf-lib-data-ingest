@@ -343,6 +343,10 @@ class CONSENT_TYPE:
     # not-for-profit organizations.
     GRU = "GRU"
     # General Research Use
+    GRU_NPU = "GRU-NPU"
+    # General Research Use (NPU) (GRU-NPU) - Use of this data is
+    # limited to general research use. Use of the data is limited to
+    # not-for-profit organizations.
 
 
 class AUTHORITY:

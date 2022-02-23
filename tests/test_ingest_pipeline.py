@@ -99,7 +99,7 @@ def test_invalid_ingest_subset_stages(
         cli_cmd, [simple_study_cfg, "--stages", stages_to_run_str]
     )
     assert result.exit_code == COMMAND_LINE_ERROR_CODE
-    assert "invalid choice" in result.output
+    assert "Invalid value" in result.output
 
 
 def test_ingest_cmd_missing_required_args():
