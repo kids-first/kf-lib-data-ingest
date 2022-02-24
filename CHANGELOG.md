@@ -1,5 +1,22 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.11.0
+
+### Summary
+
+- Emojis: ? x3, ✨ x3
+- Categories: Additions x3, Other Changes x3
+
+### New features and changes
+
+- [#645](https://github.com/kids-first/kf-lib-data-ingest/pull/645) -  add gru-npu consent group - [1da6dd79](https://github.com/kids-first/kf-lib-data-ingest/commit/1da6dd79478674495e60fe22ccd0d95b71892fb4) by [chris-s-friedman](https://github.com/chris-s-friedman)
+- [#644](https://github.com/kids-first/kf-lib-data-ingest/pull/644) -  :sparkles: specify external IDs for clinical markers - [c1f6c1c2](https://github.com/kids-first/kf-lib-data-ingest/commit/c1f6c1c220b5f4457f4a406be51d037697624dab) by [chris-s-friedman](https://github.com/chris-s-friedman)
+- [#643](https://github.com/kids-first/kf-lib-data-ingest/pull/643) - ✨ Add new sequencing center Tempus - [87f5cdfb](https://github.com/kids-first/kf-lib-data-ingest/commit/87f5cdfbc09fd46e1261b6f5591d9e5f5a0ce9e4) by [youngnm](https://github.com/youngnm)
+- [#642](https://github.com/kids-first/kf-lib-data-ingest/pull/642) -  Sql query tutorial - [92889efe](https://github.com/kids-first/kf-lib-data-ingest/commit/92889efef082c64744a00a9c110d778da7383959) by [chris-s-friedman](https://github.com/chris-s-friedman)
+- [#641](https://github.com/kids-first/kf-lib-data-ingest/pull/641) - ✨ Add NIH and Methylation constants - [6a1e70b6](https://github.com/kids-first/kf-lib-data-ingest/commit/6a1e70b67d7beca15aa3e4429b871e81544f0a79) by [youngnm](https://github.com/youngnm)
+- [#639](https://github.com/kids-first/kf-lib-data-ingest/pull/639) - ✨ add CSIR sequencing Center - [81e57529](https://github.com/kids-first/kf-lib-data-ingest/commit/81e5752993fa29851efebba8149f5dc1bc85912e) by [chris-s-friedman](https://github.com/chris-s-friedman)
+
+
 ## Release 1.10.0
 
 ### Summary
