@@ -1,5 +1,17 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.12.0
+
+### Summary
+
+- Emojis: ✨ x1
+- Categories: Additions x1
+
+### New features and changes
+
+- [#647](https://github.com/kids-first/kf-lib-data-ingest/pull/647) - ✨ Add Uberon - [aa5c807e](https://github.com/kids-first/kf-lib-data-ingest/commit/aa5c807eab5a98308e91d4277ae0702f95292f0b) by [liberaliscomputing](https://github.com/liberaliscomputing)
+
+
 ## Release 1.11.0
 
 ### Summary
