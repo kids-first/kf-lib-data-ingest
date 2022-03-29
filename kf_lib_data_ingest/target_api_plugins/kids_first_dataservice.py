@@ -445,6 +445,9 @@ class Biospecimen:
             "ncit_id_anatomical_site": record.get(
                 CONCEPT.BIOSPECIMEN.NCIT_ANATOMY_SITE_ID
             ),
+            "uberon_id_anatomical_site": record.get(
+                CONCEPT.BIOSPECIMEN.UBERON_ANATOMY_SITE_ID
+            ),
             "spatial_descriptor": record.get(
                 CONCEPT.BIOSPECIMEN.SPATIAL_DESCRIPTOR
             ),
