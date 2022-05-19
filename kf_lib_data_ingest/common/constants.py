@@ -79,26 +79,41 @@ class GENOMIC_FILE:
         COLD_STORAGE = "Cold Storage"
 
     class DATA_TYPE:
-        ALIGNED_READS = "Aligned Reads"
-        ALIGNED_READS_INDEX = "Aligned Reads Index"
+        ALIGNED_READ = "Aligned Read"
+        ALIGNED_READ_INDEX = "Aligned Read Index"
         EXPRESSION = "Expression"
         GVCF = "gVCF"
         GVCF_INDEX = "gVCF Index"
-        HISTOLOGY_IMAGES = "Histology Images"
-        NUCLEOTIDE_VARIATION = "Simple Nucleotide Variations"
-        OPERATION_REPORTS = "Operation Reports"
-        PATHOLOGY_REPORTS = "Pathology Reports"
-        RADIOLOGY_IMAGES = "Radiology Images"
-        RADIOLOGY_REPORTS = "Radiology Reports"
-        UNALIGNED_READS = "Unaligned Reads"
-        VARIANT_CALLS = "Variant Calls"
-        VARIANT_CALLS_INDEX = "Variant Calls Index"
-        ANNOTATED_SOMATIC_MUTATIONS = "Annotated Somatic Mutations"
+        HISTOLOGY_IMAGE = "Histology Image"
+        NUCLEOTIDE_VARIATION = "Simple Nucleotide Variation"
+        OPERATION_REPORT = "Operation Report"
+        PATHOLOGY_REPORT = "Pathology Report"
+        RADIOLOGY_IMAGE = "Radiology Image"
+        RADIOLOGY_REPORT = "Radiology Report"
+        UNALIGNED_READ = "Unaligned Read"
+        VARIANT_CALL = "Variant Call"
+        VARIANT_CALL_INDEX = "Variant Call Index"
+        ANNOTATED_SOMATIC_MUTATION = "Annotated Somatic Mutation"
         GENE_EXPRESSION = "Gene Expression"
-        GENE_FUSIONS = "Gene Fusions"
+        GENE_FUSION = "Gene Fusion"
         ISOFORM_EXPRESSION = "Isoform Expression"
-        SOMATIC_COPY_NUMBER_VARIATIONS = "Somatic Copy Number Variations"
-        SOMATIC_STRUCTURAL_VARIATIONS = "Somatic Structural Variations"
+        SOMATIC_COPY_NUMBER_VARIATION = "Somatic Copy Number Variation"
+        SOMATIC_STRUCTURAL_VARIATION = "Somatic Structural Variation"
+        # For Backwards Compatibility
+        ALIGNED_READS = ALIGNED_READ
+        ALIGNED_READS_INDEX = ALIGNED_READ_INDEX
+        HISTOLOGY_IMAGES = HISTOLOGY_IMAGE
+        OPERATION_REPORTS = OPERATION_REPORT
+        PATHOLOGY_REPORTS = PATHOLOGY_REPORT
+        RADIOLOGY_IMAGES = RADIOLOGY_IMAGE
+        RADIOLOGY_REPORTS = RADIOLOGY_REPORT
+        UNALIGNED_READS = UNALIGNED_READ
+        VARIANT_CALLS = VARIANT_CALL
+        VARIANT_CALLS_INDEX = VARIANT_CALL_INDEX
+        ANNOTATED_SOMATIC_MUTATIONS = ANNOTATED_SOMATIC_MUTATION
+        GENE_FUSIONS = GENE_FUSION
+        SOMATIC_COPY_NUMBER_VARIATIONS = SOMATIC_COPY_NUMBER_VARIATION
+        SOMATIC_STRUCTURAL_VARIATIONS = SOMATIC_STRUCTURAL_VARIATION
 
     class FORMAT:
         BAI = "bai"
