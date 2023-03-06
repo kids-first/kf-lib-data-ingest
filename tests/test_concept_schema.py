@@ -27,6 +27,7 @@ def test_set_cls_attrs():
     """
     Test method _set_cls_attrs
     """
+
     # Create a class hierarchy
     class Mixin(object):
         COMMON = None
