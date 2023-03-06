@@ -5,7 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -25,7 +25,9 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -175,14 +177,14 @@
            <div itemprop="articleBody">
             
   <section id="quickstart">
-<span id="id1"></span><h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
+<span id="id1"></span><h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this heading">¶</a></h1>
 <p>If you want to get up and running quickly with creating an ingest package
 and running it, then the quick start guide is the best place to start. It’s ok
 if you do not understand what each of the steps are doing. The tutorial
 section goes through the exact same demonstration, but it includes detailed
 explanations for each step.</p>
 <section id="generate-a-new-ingest-package">
-<h2>Generate a new ingest package<a class="headerlink" href="#generate-a-new-ingest-package" title="Permalink to this headline">¶</a></h2>
+<h2>Generate a new ingest package<a class="headerlink" href="#generate-a-new-ingest-package" title="Permalink to this heading">¶</a></h2>
 <p>Each study that needs to be ingested will have a single outer directory and one
 or more inner directories that each contain the configuration files needed by
 the ingest pipeline to extract, transform, and load parts of the study into a
@@ -219,14 +221,6 @@ target service. If you look inside it, it will look like this:</p>
 <p>And the included test data looks like</p>
 <table class="docutils align-default" id="id2">
 <caption><span class="caption-text">my_study/ingest_package_1/data/clinical.tsv</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
-<colgroup>
-<col style="width: 17%" />
-<col style="width: 17%" />
-<col style="width: 17%" />
-<col style="width: 17%" />
-<col style="width: 17%" />
-<col style="width: 17%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>family</p></th>
 <th class="head"><p>subject</p></th>
@@ -353,7 +347,7 @@ target service. If you look inside it, it will look like this:</p>
 </table>
 </section>
 <section id="test">
-<h2>Test<a class="headerlink" href="#test" title="Permalink to this headline">¶</a></h2>
+<h2>Test<a class="headerlink" href="#test" title="Permalink to this heading">¶</a></h2>
 <p>We can make sure everything works with the <code class="docutils literal notranslate"><span class="pre">test</span></code> command:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ kidsfirst test my_study/ingest_package_1 --no_validate
 </pre></div>
@@ -371,25 +365,12 @@ target service. If you look inside it, it will look like this:</p>
 load families, participants, diagnoses, and biospecimens from clinical.tsv.</p>
 </section>
 <section id="add-another-extract-config">
-<h2>Add another extract config<a class="headerlink" href="#add-another-extract-config" title="Permalink to this headline">¶</a></h2>
+<h2>Add another extract config<a class="headerlink" href="#add-another-extract-config" title="Permalink to this heading">¶</a></h2>
 <p>We’re going to create a second extract config to extract data from the
 following source data (different from the file you already have and stored in
 the cloud):</p>
 <table class="docutils align-default" id="id3">
 <caption><span class="caption-text">family_and_phenotype.tsv</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
-<colgroup>
-<col style="width: 9%" />
-<col style="width: 9%" />
-<col style="width: 9%" />
-<col style="width: 9%" />
-<col style="width: 9%" />
-<col style="width: 9%" />
-<col style="width: 9%" />
-<col style="width: 9%" />
-<col style="width: 9%" />
-<col style="width: 9%" />
-<col style="width: 9%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>[ignore]</p></th>
 <th class="head"><p>[ignore]</p></th>
@@ -633,7 +614,7 @@ now the file should look like this:</p>
 </div>
 </section>
 <section id="modify-the-transform-module">
-<h2>Modify the Transform module<a class="headerlink" href="#modify-the-transform-module" title="Permalink to this headline">¶</a></h2>
+<h2>Modify the Transform module<a class="headerlink" href="#modify-the-transform-module" title="Permalink to this heading">¶</a></h2>
 <p>Next we want to merge our extracted tables together to properly connect the
 data needed for generating complete target entities.</p>
 <p>For the quickstart, this will be performed by
@@ -662,7 +643,7 @@ this:</p>
 
 
 <span class="k">def</span> <span class="nf">transform_function</span><span class="p">(</span><span class="n">mapped_df_dict</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Merge DataFrames in mapped_df_dict into 1 DataFrame if possible.</span>
 
 <span class="sd">    Return a dict that looks like this:</span>
@@ -725,7 +706,7 @@ of the two data files joined together according to the values in their
 biospecimen identifier columns.</p>
 </section>
 <section id="test-again">
-<h2>Test Again<a class="headerlink" href="#test-again" title="Permalink to this headline">¶</a></h2>
+<h2>Test Again<a class="headerlink" href="#test-again" title="Permalink to this heading">¶</a></h2>
 <p>Then again run</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ kidsfirst test my_study/ingest_package_1 --no_validate
 </pre></div>

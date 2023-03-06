@@ -5,7 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -25,7 +25,9 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -182,7 +184,7 @@
            <div itemprop="articleBody">
             
   <section id="value-principles">
-<span id="id1"></span><h1>Value Principles<a class="headerlink" href="#value-principles" title="Permalink to this headline">¶</a></h1>
+<span id="id1"></span><h1>Value Principles<a class="headerlink" href="#value-principles" title="Permalink to this heading">¶</a></h1>
 <p>The ingest library operates on a few key principles:</p>
 <ul class="simple">
 <li><p>All data can be unambiguously represented as a set of tables where values in
@@ -197,7 +199,7 @@ different identified things are unambiguous.</p></li>
 same thing.</p></li>
 </ul>
 <section id="practical-implications">
-<h2>Practical Implications<a class="headerlink" href="#practical-implications" title="Permalink to this headline">¶</a></h2>
+<h2>Practical Implications<a class="headerlink" href="#practical-implications" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Relationships between values may transitively span across multiple tables.</p></li>
 <li><p>Attributes of a thing need not be in the same table as the identifier(s) of
@@ -214,7 +216,7 @@ denormalization may not be possible or practical.</p></li>
 </ul>
 </section>
 <section id="the-analyst-s-challenge">
-<h2>The Analyst’s Challenge<a class="headerlink" href="#the-analyst-s-challenge" title="Permalink to this headline">¶</a></h2>
+<h2>The Analyst’s Challenge<a class="headerlink" href="#the-analyst-s-challenge" title="Permalink to this heading">¶</a></h2>
 <p>Sometimes raw documents from investigators will appear to violate the
 principles until their contents are repartitioned into multiple overlapping
 tables. Sometimes raw document violations of the principles cannot be rectified

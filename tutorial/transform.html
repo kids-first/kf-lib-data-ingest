@@ -5,7 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -25,7 +25,9 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -191,14 +193,14 @@
            <div itemprop="articleBody">
             
   <section id="transform-stage">
-<span id="tutorial-transform-stage"></span><h1>Transform Stage<a class="headerlink" href="#transform-stage" title="Permalink to this headline">¶</a></h1>
+<span id="tutorial-transform-stage"></span><h1>Transform Stage<a class="headerlink" href="#transform-stage" title="Permalink to this heading">¶</a></h1>
 <p>The transform stage does one major thing:</p>
 <ol class="arabic simple">
 <li><p>Merge extracted tables together so that the data needed for generating
 complete target entities from the extracted data is properly connected.</p></li>
 </ol>
 <section id="guided-transform-module">
-<h2>Guided Transform Module<a class="headerlink" href="#guided-transform-module" title="Permalink to this headline">¶</a></h2>
+<h2>Guided Transform Module<a class="headerlink" href="#guided-transform-module" title="Permalink to this heading">¶</a></h2>
 <p>This is a Python module in your ingest package which must include a method
 called <code class="docutils literal notranslate"><span class="pre">transform_function</span></code>. This method will merge the extract stage’s
 output Pandas DataFrames into one or more composite DataFrame(s) and then
@@ -230,7 +232,7 @@ code, and return type for <code class="docutils literal notranslate"><span class
 
 
 <span class="k">def</span> <span class="nf">transform_function</span><span class="p">(</span><span class="n">mapped_df_dict</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Merge DataFrames in mapped_df_dict into 1 DataFrame if possible.</span>
 
 <span class="sd">    Return a dict that looks like this:</span>
@@ -293,14 +295,14 @@ itself</p></li>
 <li><p>We do <strong>not</strong> use the <code class="docutils literal notranslate"><span class="pre">Pandas.merge</span></code> method to merge the DataFrames</p></li>
 </ol>
 <section id="merge-strategy">
-<h3>Merge Strategy<a class="headerlink" href="#merge-strategy" title="Permalink to this headline">¶</a></h3>
+<h3>Merge Strategy<a class="headerlink" href="#merge-strategy" title="Permalink to this heading">¶</a></h3>
 <p>You will likely never want to inner merge/join your DataFrames since this will
 result in a DataFrame with records that only match in both DataFrames. This may
 cause you to lose records. You may sometimes want to left/right join, however,
 depending on circumstances.</p>
 </section>
 <section id="use-concept-schema-to-reference-columns">
-<h3>Use concept schema to reference columns<a class="headerlink" href="#use-concept-schema-to-reference-columns" title="Permalink to this headline">¶</a></h3>
+<h3>Use concept schema to reference columns<a class="headerlink" href="#use-concept-schema-to-reference-columns" title="Permalink to this heading">¶</a></h3>
 <p>The value of <code class="docutils literal notranslate"><span class="pre">CONCEPT.PARTICIPANT.ID</span></code> equates to “PARTICIPANT|ID”, a string
 representing the participant concept’s identifier.</p>
 <p>You should always use the <code class="docutils literal notranslate"><span class="pre">CONCEPT</span></code> class from concept schema and not strings
@@ -308,7 +310,7 @@ to reference join columns. This way, if the value of the concept attribute
 changes (to say, “PARTICIPANT.IDENTIFIER”), your code won’t break silently.</p>
 </section>
 <section id="avoid-pandas-merge-use-ingest-library-s-pandas-utils-py">
-<h3>Avoid Pandas.merge - use ingest library’s pandas_utils.py<a class="headerlink" href="#avoid-pandas-merge-use-ingest-library-s-pandas-utils-py" title="Permalink to this headline">¶</a></h3>
+<h3>Avoid Pandas.merge - use ingest library’s pandas_utils.py<a class="headerlink" href="#avoid-pandas-merge-use-ingest-library-s-pandas-utils-py" title="Permalink to this heading">¶</a></h3>
 <p>You <cite>may</cite> use the Pandas.merge method if you want, but the ingest library
 provides merge functions that add useful functionality on top of Pandas.merge.</p>
 <p><code class="docutils literal notranslate"><span class="pre">outer_merge</span></code> automatically fills some of the data holes that will naturally
@@ -327,7 +329,7 @@ behavior.</p>
 <p>See <code class="docutils literal notranslate"><span class="pre">kf_lib_data_ingest.common.pandas_utils</span></code> for details.</p>
 </section>
 <section id="optional-return-more-than-1-dataframe">
-<h3>Optional - Return more than 1 DataFrame<a class="headerlink" href="#optional-return-more-than-1-dataframe" title="Permalink to this headline">¶</a></h3>
+<h3>Optional - Return more than 1 DataFrame<a class="headerlink" href="#optional-return-more-than-1-dataframe" title="Permalink to this heading">¶</a></h3>
 <p>Sometimes it isn’t possible to cleanly merge all of your extracted data into
 one monolithic DataFrame. In this case, you might merge subsets of your data
 into less-than-everything DataFrames which you only use to build instances of
@@ -374,7 +376,7 @@ participant, biospecimen, genomic_file)</p>
 </section>
 </section>
 <section id="test-your-package">
-<h2>Test Your Package<a class="headerlink" href="#test-your-package" title="Permalink to this headline">¶</a></h2>
+<h2>Test Your Package<a class="headerlink" href="#test-your-package" title="Permalink to this heading">¶</a></h2>
 <p>If you run your ingest package now with <code class="docutils literal notranslate"><span class="pre">kidsfirst</span> <span class="pre">test</span></code> and everything goes
 well, your log should indicate that the transform function was applied and
 that the GuidedTransformStage began and ended.</p>

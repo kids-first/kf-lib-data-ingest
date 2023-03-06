@@ -5,7 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -25,7 +25,9 @@
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
@@ -216,7 +218,7 @@
            <div itemprop="articleBody">
             
   <section id="extract-stage">
-<span id="tutorial-extract-stage"></span><h1>Extract Stage<a class="headerlink" href="#extract-stage" title="Permalink to this headline">¶</a></h1>
+<span id="tutorial-extract-stage"></span><h1>Extract Stage<a class="headerlink" href="#extract-stage" title="Permalink to this heading">¶</a></h1>
 <p>The extract stage does 3 main things:</p>
 <ol class="arabic simple">
 <li><p>Select the desired subset of data from the source data files</p></li>
@@ -227,29 +229,16 @@ and acceptable values.</p></li>
 <p>The extract configuration files instruct the extract stage how to accomplish
 the above.</p>
 <section id="example-extract-configuration">
-<span id="extract-example"></span><h2>Example Extract Configuration<a class="headerlink" href="#example-extract-configuration" title="Permalink to this headline">¶</a></h2>
+<span id="extract-example"></span><h2>Example Extract Configuration<a class="headerlink" href="#example-extract-configuration" title="Permalink to this heading">¶</a></h2>
 <p>Every data file provided by the investigator will require at least one extract
 configuration file. The reasons why will hopefully become clear after reading
 this section.</p>
 <p>We will step through how to write an extract configuration file for a source
 data file.</p>
 <section id="here-s-an-example-source-data-file">
-<h3>Here’s an example source data file:<a class="headerlink" href="#here-s-an-example-source-data-file" title="Permalink to this headline">¶</a></h3>
+<h3>Here’s an example source data file:<a class="headerlink" href="#here-s-an-example-source-data-file" title="Permalink to this heading">¶</a></h3>
 <table class="docutils align-default" id="id3">
 <caption><span class="caption-text">family_and_phenotype.tsv</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
-<colgroup>
-<col style="width: 9%" />
-<col style="width: 9%" />
-<col style="width: 9%" />
-<col style="width: 9%" />
-<col style="width: 9%" />
-<col style="width: 9%" />
-<col style="width: 9%" />
-<col style="width: 9%" />
-<col style="width: 9%" />
-<col style="width: 9%" />
-<col style="width: 9%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>[ignore]</p></th>
 <th class="head"><p>[ignore]</p></th>
@@ -389,7 +378,7 @@ data file.</p>
 </table>
 </section>
 <section id="in-order-to-ingest-this-data-into-the-kids-first-ecosystem-we-will-need-to">
-<h3>In order to ingest this data into the Kids First ecosystem, we will need to:<a class="headerlink" href="#in-order-to-ingest-this-data-into-the-kids-first-ecosystem-we-will-need-to" title="Permalink to this headline">¶</a></h3>
+<h3>In order to ingest this data into the Kids First ecosystem, we will need to:<a class="headerlink" href="#in-order-to-ingest-this-data-into-the-kids-first-ecosystem-we-will-need-to" title="Permalink to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Ignore everything marked with [ignore], meaning our table actually starts at
 the second row and second column</p></li>
@@ -409,7 +398,7 @@ events</p></li>
 </ul>
 </section>
 <section id="the-following-extract-configuration-file-accomplishes-all-of-those-needs">
-<h3>The following extract configuration file accomplishes all of those needs<a class="headerlink" href="#the-following-extract-configuration-file-accomplishes-all-of-those-needs" title="Permalink to this headline">¶</a></h3>
+<h3>The following extract configuration file accomplishes all of those needs<a class="headerlink" href="#the-following-extract-configuration-file-accomplishes-all-of-those-needs" title="Permalink to this heading">¶</a></h3>
 <p>(We will explain how each piece works after showing the whole thing)</p>
 <div class="literal-block-wrapper docutils container" id="id4">
 <div class="code-block-caption"><span class="caption-text">family_and_phenotype.py</span><a class="headerlink" href="#id4" title="Permalink to this code">¶</a></div>
@@ -515,7 +504,7 @@ and put it in the extract_configs directory like this:</p>
 <p>Now let’s break down how it works…</p>
 </section>
 <section id="imports">
-<h3>Imports!<a class="headerlink" href="#imports" title="Permalink to this headline">¶</a></h3>
+<h3>Imports!<a class="headerlink" href="#imports" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common</span> <span class="kn">import</span> <span class="n">constants</span>
 <span class="kn">from</span> <span class="nn">kf_lib_data_ingest.common.concept_schema</span> <span class="kn">import</span> <span class="n">CONCEPT</span>
@@ -528,7 +517,7 @@ predefined constants and functions and use arbitrarily complex function code to
 process our data.</p>
 </section>
 <section id="fetching-the-data">
-<span id="id1"></span><h3>Fetching the data<a class="headerlink" href="#fetching-the-data" title="Permalink to this headline">¶</a></h3>
+<span id="id1"></span><h3>Fetching the data<a class="headerlink" href="#fetching-the-data" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">source_data_url</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/master/docs/data/family_and_phenotype.tsv&quot;</span>
 </pre></div>
 </div>
@@ -546,7 +535,7 @@ of from a remote server, you would use:</p>
 </div>
 </section>
 <section id="reading-the-file">
-<h3>Reading the file<a class="headerlink" href="#reading-the-file" title="Permalink to this headline">¶</a></h3>
+<h3>Reading the file<a class="headerlink" href="#reading-the-file" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">source_data_read_params</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
     <span class="s2">&quot;usecols&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">!=</span> <span class="s2">&quot;[ignore]&quot;</span>
@@ -568,9 +557,9 @@ row, etc), then it would get loaded correctly by default without needing any
 parameters here, but with complex arrangements we have to configure the reader.</p>
 </section>
 <section id="extract-operations">
-<h3>Extract operations<a class="headerlink" href="#extract-operations" title="Permalink to this headline">¶</a></h3>
+<h3>Extract operations<a class="headerlink" href="#extract-operations" title="Permalink to this heading">¶</a></h3>
 <section id="the-operations-list">
-<h4>The operations list<a class="headerlink" href="#the-operations-list" title="Permalink to this headline">¶</a></h4>
+<h4>The operations list<a class="headerlink" href="#the-operations-list" title="Permalink to this heading">¶</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">operations</span> <span class="o">=</span> <span class="p">[</span>
     <span class="o">...</span>
 <span class="p">]</span>
@@ -584,7 +573,7 @@ you. You just have to invoke them appropriately.</p>
 <a class="reference internal" href="#map-operations"><span class="std std-ref">Predefined Mapping Operations</span></a>.</p>
 </section>
 <section id="a-value-map-operation-with-functional-replacements">
-<h4>A value map operation with functional replacements<a class="headerlink" href="#a-value-map-operation-with-functional-replacements" title="Permalink to this headline">¶</a></h4>
+<h4>A value map operation with functional replacements<a class="headerlink" href="#a-value-map-operation-with-functional-replacements" title="Permalink to this heading">¶</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">value_map</span><span class="p">(</span>
     <span class="n">in_col</span><span class="o">=</span><span class="s2">&quot;participant&quot;</span><span class="p">,</span>
     <span class="n">m</span><span class="o">=</span><span class="p">{</span>
@@ -601,10 +590,6 @@ through the function <code class="docutils literal notranslate"><span class="pre
 standard concept column for the participant ID.”</p>
 <p>The resulting intermediate output will look like:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>index</p></th>
 <th class="head"><p>&lt;CONCEPT.PARTICIPANT.ID&gt;</p></th>
@@ -649,7 +634,7 @@ from the investigators about their preferences, it doesn’t really make a
 difference which way we choose.</p>
 </section>
 <section id="a-keep-the-original-values-map-operation">
-<h4>A keep-the-original-values map operation<a class="headerlink" href="#a-keep-the-original-values-map-operation" title="Permalink to this headline">¶</a></h4>
+<h4>A keep-the-original-values map operation<a class="headerlink" href="#a-keep-the-original-values-map-operation" title="Permalink to this heading">¶</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">keep_map</span><span class="p">(</span>
     <span class="n">in_col</span><span class="o">=</span><span class="s2">&quot;mother&quot;</span><span class="p">,</span>
     <span class="n">out_col</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PARTICIPANT</span><span class="o">.</span><span class="n">MOTHER_ID</span>
@@ -662,10 +647,6 @@ values the same.” <code class="docutils literal notranslate"><span class="pre"
 is mapped to itself.</p>
 <p>The resulting intermediate output will look like:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>index</p></th>
 <th class="head"><p>&lt;CONCEPT.PARTICIPANT.MOTHER_ID&gt;</p></th>
@@ -703,7 +684,7 @@ is mapped to itself.</p>
 </table>
 </section>
 <section id="a-value-map-operation-with-variable-replacements">
-<h4>A value map operation with variable replacements<a class="headerlink" href="#a-value-map-operation-with-variable-replacements" title="Permalink to this headline">¶</a></h4>
+<h4>A value map operation with variable replacements<a class="headerlink" href="#a-value-map-operation-with-variable-replacements" title="Permalink to this heading">¶</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">value_map</span><span class="p">(</span>
     <span class="n">in_col</span><span class="o">=</span><span class="s2">&quot;gender&quot;</span><span class="p">,</span>
     <span class="n">m</span><span class="o">=</span><span class="p">{</span>
@@ -720,10 +701,6 @@ replace everything that matches <code class="docutils literal notranslate"><span
 then output the result to a standard concept column for participant gender.”</p>
 <p>The resulting intermediate output will look like:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>index</p></th>
 <th class="head"><p>&lt;CONCEPT.PARTICIPANT.ID&gt;</p></th>
@@ -761,7 +738,7 @@ then output the result to a standard concept column for participant gender.”</
 </table>
 </section>
 <section id="a-value-map-that-splits-cells-apart">
-<h4>A value map that splits cells apart<a class="headerlink" href="#a-value-map-that-splits-cells-apart" title="Permalink to this headline">¶</a></h4>
+<h4>A value map that splits cells apart<a class="headerlink" href="#a-value-map-that-splits-cells-apart" title="Permalink to this heading">¶</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">value_map</span><span class="p">(</span>
     <span class="n">in_col</span><span class="o">=</span><span class="s2">&quot;specimens&quot;</span><span class="p">,</span>
     <span class="n">m</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">Split</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;[,;]&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)),</span>
@@ -780,10 +757,6 @@ contained items apart. Read <a class="reference internal" href="#splitting-cells
 </div>
 <p>The resulting intermediate output will look like:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>index</p></th>
 <th class="head"><p>&lt;CONCEPT.BIOSPECIMEN.ID&gt;</p></th>
@@ -938,7 +911,7 @@ contained items apart. Read <a class="reference internal" href="#splitting-cells
 </table>
 </section>
 <section id="a-melt-map-operation">
-<h4>A melt map operation<a class="headerlink" href="#a-melt-map-operation" title="Permalink to this headline">¶</a></h4>
+<h4>A melt map operation<a class="headerlink" href="#a-melt-map-operation" title="Permalink to this heading">¶</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">melt_map</span><span class="p">(</span>
     <span class="n">var_name</span><span class="o">=</span><span class="n">CONCEPT</span><span class="o">.</span><span class="n">PHENOTYPE</span><span class="o">.</span><span class="n">NAME</span><span class="p">,</span>
     <span class="n">map_for_vars</span><span class="o">=</span><span class="p">{</span>
@@ -958,11 +931,6 @@ and <code class="docutils literal notranslate"><span class="pre">Cleft</span> <s
 through the included <code class="docutils literal notranslate"><span class="pre">observed_yes_no</span></code> function.”</p>
 <p>The resulting intermediate output will look like:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>index</p></th>
 <th class="head"><p>&lt;CONCEPT.PHENOTYPE.NAME&gt;</p></th>
@@ -1046,7 +1014,7 @@ through the included <code class="docutils literal notranslate"><span class="pre
 </table>
 </section>
 <section id="a-nested-operation-sub-list">
-<h4>A nested operation sub-list<a class="headerlink" href="#a-nested-operation-sub-list" title="Permalink to this headline">¶</a></h4>
+<h4>A nested operation sub-list<a class="headerlink" href="#a-nested-operation-sub-list" title="Permalink to this heading">¶</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
     <span class="n">value_map</span><span class="p">(</span>
         <span class="n">in_col</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>  <span class="c1"># age (hrs) (first)</span>
@@ -1074,12 +1042,6 @@ separate extract configuration file for those operations.</p>
 <p>The resulting intermediate output for both of these operations together will
 look like:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>index</p></th>
 <th class="head"><p>&lt;CONCEPT.PHENOTYPE.EVENT_AGE_DAYS&gt;</p></th>
@@ -1183,21 +1145,10 @@ look like:</p>
 </section>
 </section>
 <section id="the-final-extraction-product">
-<h3>The final Extraction product<a class="headerlink" href="#the-final-extraction-product" title="Permalink to this headline">¶</a></h3>
+<h3>The final Extraction product<a class="headerlink" href="#the-final-extraction-product" title="Permalink to this heading">¶</a></h3>
 <p>Once all of the operations are complete and the extract stage has done its
 magic, the final extracted result given the data and our configuration is:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 11%" />
-<col style="width: 11%" />
-<col style="width: 11%" />
-<col style="width: 11%" />
-<col style="width: 11%" />
-<col style="width: 11%" />
-<col style="width: 11%" />
-<col style="width: 11%" />
-<col style="width: 11%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>index</p></th>
 <th class="head"><p>&lt;CONCEPT.PARTICIPANT.ID&gt;</p></th>
@@ -1696,7 +1647,7 @@ magic, the final extracted result given the data and our configuration is:</p>
 </section>
 </section>
 <section id="preprocessing-before-the-operations-list">
-<span id="extract-preprocessing"></span><h2>Preprocessing Before the Operations List<a class="headerlink" href="#preprocessing-before-the-operations-list" title="Permalink to this headline">¶</a></h2>
+<span id="extract-preprocessing"></span><h2>Preprocessing Before the Operations List<a class="headerlink" href="#preprocessing-before-the-operations-list" title="Permalink to this heading">¶</a></h2>
 <p>Source data can’t always be mapped right away, or perhaps your preferred
 mapping operations require an initial pre-processing step, like e.g.
 transposing the table to turn rows into columns.</p>
@@ -1710,7 +1661,7 @@ optionally define in your extract configuration file like this:</p>
 </div>
 </section>
 <section id="files-that-need-custom-readers">
-<span id="extract-custom-reader"></span><h2>Files That Need Custom Readers<a class="headerlink" href="#files-that-need-custom-readers" title="Permalink to this headline">¶</a></h2>
+<span id="extract-custom-reader"></span><h2>Files That Need Custom Readers<a class="headerlink" href="#files-that-need-custom-readers" title="Permalink to this heading">¶</a></h2>
 <p>Source data can’t always be read automatically by the default tabular read
 functions. We provide readers for CSV/TSV/Excel sheets, but maybe the data you
 need is embedded in a PDF or PowerPoint file.</p>
@@ -1725,7 +1676,7 @@ pandas DataFrame:</p>
 </div>
 </section>
 <section id="predefined-mapping-operations">
-<span id="map-operations"></span><h2>Predefined Mapping Operations<a class="headerlink" href="#predefined-mapping-operations" title="Permalink to this headline">¶</a></h2>
+<span id="map-operations"></span><h2>Predefined Mapping Operations<a class="headerlink" href="#predefined-mapping-operations" title="Permalink to this heading">¶</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Mapping operations share common input parameters <code class="docutils literal notranslate"><span class="pre">m</span></code>, <code class="docutils literal notranslate"><span class="pre">in_col</span></code>, and
@@ -1741,7 +1692,7 @@ will be a dict, function, or constant value.</p>
 <p>You have a column of file names that you want to preserve exactly.</p>
 </aside>
 <section id="keep-map">
-<h3>Keep Map<a class="headerlink" href="#keep-map" title="Permalink to this headline">¶</a></h3>
+<h3>Keep Map<a class="headerlink" href="#keep-map" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">keep_map</span><span class="p">(</span><span class="n">in_col</span><span class="p">,</span> <span class="n">out_col</span><span class="p">):</span>
 </pre></div>
 </div>
@@ -1754,7 +1705,7 @@ will be a dict, function, or constant value.</p>
 </aside>
 </section>
 <section id="constant-map">
-<h3>Constant Map<a class="headerlink" href="#constant-map" title="Permalink to this headline">¶</a></h3>
+<h3>Constant Map<a class="headerlink" href="#constant-map" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">constant_map</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">out_col</span><span class="p">):</span>
 </pre></div>
 </div>
@@ -1777,7 +1728,7 @@ instead for existing columns.</p>
 </aside>
 </section>
 <section id="value-map">
-<h3>Value Map<a class="headerlink" href="#value-map" title="Permalink to this headline">¶</a></h3>
+<h3>Value Map<a class="headerlink" href="#value-map" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">value_map</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">in_col</span><span class="p">,</span> <span class="n">out_col</span><span class="p">):</span>
 </pre></div>
 </div>
@@ -1813,7 +1764,7 @@ a column that combines both into a full file path.</p>
 </aside>
 </section>
 <section id="row-map">
-<h3>Row Map<a class="headerlink" href="#row-map" title="Permalink to this headline">¶</a></h3>
+<h3>Row Map<a class="headerlink" href="#row-map" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">row_map</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">out_col</span><span class="p">):</span>
 </pre></div>
 </div>
@@ -1828,7 +1779,7 @@ you need to propagate values from the cells above.</p>
 </aside>
 </section>
 <section id="column-map">
-<h3>Column Map<a class="headerlink" href="#column-map" title="Permalink to this headline">¶</a></h3>
+<h3>Column Map<a class="headerlink" href="#column-map" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">column_map</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">in_col</span><span class="p">,</span> <span class="n">out_col</span><span class="p">):</span>
 </pre></div>
 </div>
@@ -1848,7 +1799,7 @@ one column with Yes/No values.</p>
 </aside>
 </section>
 <section id="melt-map">
-<h3>Melt Map<a class="headerlink" href="#melt-map" title="Permalink to this headline">¶</a></h3>
+<h3>Melt Map<a class="headerlink" href="#melt-map" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">melt_map</span><span class="p">(</span><span class="n">var_name</span><span class="p">,</span> <span class="n">map_for_vars</span><span class="p">,</span> <span class="n">value_name</span><span class="p">,</span> <span class="n">map_for_values</span><span class="p">):</span>
 </pre></div>
 </div>
@@ -1872,7 +1823,7 @@ with appropriate column stacking.</p>
 </aside>
 </section>
 <section id="df-map">
-<h3>DF Map<a class="headerlink" href="#df-map" title="Permalink to this headline">¶</a></h3>
+<h3>DF Map<a class="headerlink" href="#df-map" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">df_map</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
 </pre></div>
 </div>
@@ -1888,27 +1839,20 @@ constructed.</p>
 </section>
 </section>
 <section id="important-strategic-details">
-<span id="strategic-mapping-details"></span><h2>Important Strategic Details<a class="headerlink" href="#important-strategic-details" title="Permalink to this headline">¶</a></h2>
+<span id="strategic-mapping-details"></span><h2>Important Strategic Details<a class="headerlink" href="#important-strategic-details" title="Permalink to this heading">¶</a></h2>
 <section id="avoid-hard-coded-strings">
-<h3>Avoid Hard-coded Strings<a class="headerlink" href="#avoid-hard-coded-strings" title="Permalink to this headline">¶</a></h3>
+<h3>Avoid Hard-coded Strings<a class="headerlink" href="#avoid-hard-coded-strings" title="Permalink to this heading">¶</a></h3>
 <p>Avoid using hard-coded strings for output column headers and values. As much as
 possible, favor variables in <code class="docutils literal notranslate"><span class="pre">common.constants</span></code> for cell values and variables
 in <code class="docutils literal notranslate"><span class="pre">common.concept_schema.CONCEPT</span></code> for <code class="docutils literal notranslate"><span class="pre">out_col</span></code> assignment. That way
 everyone has the chance to use the same shared set of values.</p>
 </section>
 <section id="repeated-information">
-<h3>Repeated Information<a class="headerlink" href="#repeated-information" title="Permalink to this headline">¶</a></h3>
+<h3>Repeated Information<a class="headerlink" href="#repeated-information" title="Permalink to this heading">¶</a></h3>
 <p>Multiple identical declarations don’t add new information and therefore don’t
 matter. They also don’t hurt anything. This table means exactly the same thing
 as if it had only one row:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 20%" />
-<col style="width: 20%" />
-<col style="width: 20%" />
-<col style="width: 20%" />
-<col style="width: 20%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Participant ID</p></th>
 <th class="head"><p>Specimen ID</p></th>
@@ -1934,19 +1878,19 @@ as if it had only one row:</p>
 </table>
 </section>
 <section id="you-don-t-need-to-extract-the-whole-document-all-at-once">
-<span id="normalized-denormalized"></span><h3>You Don’t Need To Extract The Whole Document All At Once<a class="headerlink" href="#you-don-t-need-to-extract-the-whole-document-all-at-once" title="Permalink to this headline">¶</a></h3>
+<span id="normalized-denormalized"></span><h3>You Don’t Need To Extract The Whole Document All At Once<a class="headerlink" href="#you-don-t-need-to-extract-the-whole-document-all-at-once" title="Permalink to this heading">¶</a></h3>
 <p>If creating multiple extraction configurations for a single source data file to
 generate multiple smaller tables during Extract that can be manipulated in a
 Transform function is easier for you than making one complex table for the
 whole data file, then do it. If not, that’s fine too.</p>
 </section>
 <section id="parallel-column-stacking">
-<span id="column-stacking"></span><h3>Parallel Column Stacking<a class="headerlink" href="#parallel-column-stacking" title="Permalink to this headline">¶</a></h3>
+<span id="column-stacking"></span><h3>Parallel Column Stacking<a class="headerlink" href="#parallel-column-stacking" title="Permalink to this heading">¶</a></h3>
 <p>If the same <code class="docutils literal notranslate"><span class="pre">out_col</span></code> is used multiple times, the column output from
 successive operations will be vertically concatenated.</p>
 <img alt="../../_images/columns.svg" src="../../_images/columns.svg" /></section>
 <section id="length-rectification">
-<h3>Length Rectification<a class="headerlink" href="#length-rectification" title="Permalink to this headline">¶</a></h3>
+<h3>Length Rectification<a class="headerlink" href="#length-rectification" title="Permalink to this heading">¶</a></h3>
 <p>The length disparity between output columns produced by <a class="reference internal" href="#parallel-column-stacking">Parallel Column
 Stacking</a> is then rectified by least-common-multiple repetition of output
 columns which gives a final result that preserves row colinearity from the
@@ -1959,15 +1903,11 @@ source data length. If they aren’t, the library will raise an error.</p>
 </div>
 </section>
 <section id="splitting-cells">
-<span id="id2"></span><h3>Splitting Cells<a class="headerlink" href="#splitting-cells" title="Permalink to this headline">¶</a></h3>
+<span id="id2"></span><h3>Splitting Cells<a class="headerlink" href="#splitting-cells" title="Permalink to this heading">¶</a></h3>
 <p>Sometimes you will have source documents that lump multiple distinct values
 into the same table cell. For instance, study participants might have multiple
 specimens reported together as follows:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Participant</p></th>
 <th class="head"><p>Specimens</p></th>
@@ -1991,7 +1931,7 @@ you need to separate the “/”-delimited specimen values into separate entries
 Replacing each of the Specimens cells with the appropriate <code class="docutils literal notranslate"><span class="pre">Split</span></code> object
 will tell the Extract Stage to do the right thing.</p>
 <section id="the-split-object">
-<h4>The Split Object<a class="headerlink" href="#the-split-object" title="Permalink to this headline">¶</a></h4>
+<h4>The Split Object<a class="headerlink" href="#the-split-object" title="Permalink to this heading">¶</a></h4>
 <p>The <code class="docutils literal notranslate"><span class="pre">Split</span></code> object (<code class="docutils literal notranslate"><span class="pre">common.pandas_utils.Split</span></code>) is instantiated with a
 list of values and optionally a group ID. After all of the extract mapping
 operations are finished, any Split objects found in your output will trigger a
@@ -1999,11 +1939,6 @@ operations are finished, any Split objects found in your output will trigger a
 with a different value from among the Split members.</p>
 <p>For instance, from:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>A</p></th>
 <th class="head"><p>B</p></th>
@@ -2019,11 +1954,6 @@ with a different value from among the Split members.</p>
 </table>
 <p>to:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>A</p></th>
 <th class="head"><p>B</p></th>
@@ -2075,11 +2005,6 @@ assigned a group value, then Splits on the same row in the same group will be
 linked to each other so that they do not form a cartesian product with each
 other.</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>A</p></th>
 <th class="head"><p>B</p></th>
@@ -2095,11 +2020,6 @@ other.</p>
 </table>
 <p>to:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>A</p></th>
 <th class="head"><p>B</p></th>
@@ -2123,11 +2043,6 @@ other.</p>
 </table>
 <p>And if you combine both of these forms together, you go from:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>A</p></th>
 <th class="head"><p>B</p></th>
@@ -2143,11 +2058,6 @@ other.</p>
 </table>
 <p>to:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>A</p></th>
 <th class="head"><p>B</p></th>
@@ -2199,7 +2109,7 @@ the length-multiple restriction cautioned in <a class="reference internal" href=
 </section>
 </section>
 <section id="nested-operations-sublists">
-<span id="nested-operation-sublists"></span><h3>Nested Operations Sublists<a class="headerlink" href="#nested-operations-sublists" title="Permalink to this headline">¶</a></h3>
+<span id="nested-operation-sublists"></span><h3>Nested Operations Sublists<a class="headerlink" href="#nested-operations-sublists" title="Permalink to this heading">¶</a></h3>
 <p>You can nest groups of operations inside of sublists to do length rectification
 on just the group before joining it with the rest of the operations output.</p>
 <p>It looks like this:</p>
@@ -2219,15 +2129,6 @@ mismatch problems in scenarios where several columns form logical groups with
 each other and the mapping operations don’t all produce the same length output.</p>
 <p>Consider the situation of extracting KFDRC phenotypes from:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Participant</p></th>
 <th class="head"><p>Age</p></th>

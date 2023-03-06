@@ -5,7 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -25,7 +25,9 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -184,7 +186,7 @@
            <div itemprop="articleBody">
             
   <section id="new-ingest-package-setup">
-<h1>New Ingest Package Setup<a class="headerlink" href="#new-ingest-package-setup" title="Permalink to this headline">¶</a></h1>
+<h1>New Ingest Package Setup<a class="headerlink" href="#new-ingest-package-setup" title="Permalink to this heading">¶</a></h1>
 <p>Each study that needs to be ingested will have a single outer directory and one
 or more inner directories that each contain the configuration files needed by
 the ingest pipeline to extract, transform, and load parts of the study into a
@@ -213,7 +215,7 @@ named <code class="docutils literal notranslate"><span class="pre">ingest_packag
 </pre></div>
 </div>
 <section id="ingest-package-components">
-<h2>Ingest Package Components<a class="headerlink" href="#ingest-package-components" title="Permalink to this headline">¶</a></h2>
+<h2>Ingest Package Components<a class="headerlink" href="#ingest-package-components" title="Permalink to this heading">¶</a></h2>
 <p>Each ingest package contains three components:</p>
 <p>1. A top-level configuration file called <code class="docutils literal notranslate"><span class="pre">ingest_package_config.py</span></code>. This
 defines study metadata such as the study’s target ID as well as paths to the

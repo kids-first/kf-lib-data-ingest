@@ -5,7 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -25,7 +25,9 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -188,7 +190,7 @@
            <div itemprop="articleBody">
             
   <section id="kids-first-ingest-app">
-<span id="tutorial-ingest-app"></span><h1>Kids First Ingest App<a class="headerlink" href="#kids-first-ingest-app" title="Permalink to this headline">¶</a></h1>
+<span id="tutorial-ingest-app"></span><h1>Kids First Ingest App<a class="headerlink" href="#kids-first-ingest-app" title="Permalink to this heading">¶</a></h1>
 <p>While the ingest library aims to be fairly generic, the built-in ingest app
 is an example of how the library can be used to support specific project(s) or
 scenarios. This section will explain what app settings are and how they help
@@ -197,7 +199,7 @@ us tailor usage of the library for specific projects.</p>
 then this section will also explain where source data files should live
 (not on your computer!) and how to access them.</p>
 <section id="app-settings">
-<span id="tutorial-app-settings"></span><h2>App Settings<a class="headerlink" href="#app-settings" title="Permalink to this headline">¶</a></h2>
+<span id="tutorial-app-settings"></span><h2>App Settings<a class="headerlink" href="#app-settings" title="Permalink to this heading">¶</a></h2>
 <p>App settings include configuration that applies to a group of ingest packages
 which are all part of the same project.</p>
 <p>Each app settings file is a Python module, and all app settings files live in
@@ -249,12 +251,12 @@ when fetching remote source data files that require authentication.</p></li>
 </div>
 </div>
 <section id="authorization-configs">
-<span id="tutorial-authorization-configs"></span><h3>Authorization Configs<a class="headerlink" href="#authorization-configs" title="Permalink to this headline">¶</a></h3>
+<span id="tutorial-authorization-configs"></span><h3>Authorization Configs<a class="headerlink" href="#authorization-configs" title="Permalink to this heading">¶</a></h3>
 <p>TODO</p>
 <img alt="../_images/construction_small.gif" src="../_images/construction_small.gif" />
 </section>
 <section id="ingest-app-deployment-mode">
-<h3>Ingest App Deployment Mode<a class="headerlink" href="#ingest-app-deployment-mode" title="Permalink to this headline">¶</a></h3>
+<h3>Ingest App Deployment Mode<a class="headerlink" href="#ingest-app-deployment-mode" title="Permalink to this heading">¶</a></h3>
 <p>There are 2 app settings files, each pertaining to a different mode of
 deployment. The deployment mode can be controlled by the <code class="docutils literal notranslate"><span class="pre">KF_INGEST_APP_MODE</span></code>
 environment variable.</p>
@@ -263,7 +265,7 @@ environment variable.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">KF_INGEST_APP_MODE=development</span></code> -&gt; loads settings from <code class="docutils literal notranslate"><span class="pre">development.py</span></code></p></li>
 </ul>
 <section id="development-mode">
-<h4>Development Mode<a class="headerlink" href="#development-mode" title="Permalink to this headline">¶</a></h4>
+<h4>Development Mode<a class="headerlink" href="#development-mode" title="Permalink to this heading">¶</a></h4>
 <p>As a Kids First ingest package developer, you will want to make sure your
 environment has the following set: <code class="docutils literal notranslate"><span class="pre">KF_INGEST_APP_MODE=development</span></code></p>
 <p>This will instruct the ingest app to load the development settings, which
@@ -272,14 +274,14 @@ Study Creator API, the single source of truth for source data files within the
 Kids First ecosystem.</p>
 </section>
 <section id="production-mode">
-<h4>Production Mode<a class="headerlink" href="#production-mode" title="Permalink to this headline">¶</a></h4>
+<h4>Production Mode<a class="headerlink" href="#production-mode" title="Permalink to this heading">¶</a></h4>
 <p>This mode is used when the ingest/test commands are run as part of a CI/CD
 process. It contains authentication configuration that is only used in a CI/CD
 scenario.</p>
 <p>An ingest package developer should never use this mode.</p>
 </section>
 <section id="cli-option-override">
-<h4>CLI Option Override<a class="headerlink" href="#cli-option-override" title="Permalink to this headline">¶</a></h4>
+<h4>CLI Option Override<a class="headerlink" href="#cli-option-override" title="Permalink to this heading">¶</a></h4>
 <p>As an ingest package developer you should never need to worry about changing
 app level settings. However, if you do need to, you can supply your own
 settings file via the <code class="docutils literal notranslate"><span class="pre">--app_settings</span></code> CLI option. See <code class="docutils literal notranslate"><span class="pre">kidsfirst</span> <span class="pre">ingest</span>

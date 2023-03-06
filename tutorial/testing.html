@@ -5,7 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -25,7 +25,9 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -186,7 +188,7 @@
            <div itemprop="articleBody">
             
   <section id="testing-your-ingest-package">
-<span id="tutorial-package-testing"></span><h1>Testing Your Ingest Package<a class="headerlink" href="#testing-your-ingest-package" title="Permalink to this headline">¶</a></h1>
+<span id="tutorial-package-testing"></span><h1>Testing Your Ingest Package<a class="headerlink" href="#testing-your-ingest-package" title="Permalink to this heading">¶</a></h1>
 <p>At this point, your ingest package should have the source data file and extract
 config that came with the package template along with the additional extract
 configuration family_and_phenotype.py from <a class="reference internal" href="extract/index.html#extract-example"><span class="std std-ref">Example Extract Configuration</span></a>.</p>
@@ -205,11 +207,11 @@ configuration family_and_phenotype.py from <a class="reference internal" href="e
 <p>Before we go any further in the tutorial, let’s explore how to test your ingest
 package.</p>
 <section id="the-test-cli-command">
-<h2>The <code class="docutils literal notranslate"><span class="pre">test</span></code> CLI Command<a class="headerlink" href="#the-test-cli-command" title="Permalink to this headline">¶</a></h2>
+<h2>The <code class="docutils literal notranslate"><span class="pre">test</span></code> CLI Command<a class="headerlink" href="#the-test-cli-command" title="Permalink to this heading">¶</a></h2>
 <p>The ingest application has a secondary <code class="docutils literal notranslate"><span class="pre">test</span></code> command in addition to the
 <code class="docutils literal notranslate"><span class="pre">ingest</span></code> command. Under the hood, the <code class="docutils literal notranslate"><span class="pre">test</span></code> command is really just an
 alias for:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ kidsfirst ingest --dry_run
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>kidsfirst<span class="w"> </span>ingest<span class="w"> </span>--dry_run
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">--dry_run</span></code> flag says to process your ingest package without actually
@@ -222,7 +224,7 @@ the target service.</p>
 </div>
 </section>
 <section id="data-validation">
-<h2>Data Validation<a class="headerlink" href="#data-validation" title="Permalink to this headline">¶</a></h2>
+<h2>Data Validation<a class="headerlink" href="#data-validation" title="Permalink to this heading">¶</a></h2>
 <p>Whenever you run an ingest package, data validation tests will automatically
 determine whether the output of each stage matches a predefined set of
 relationship and value expectations.</p>
@@ -295,7 +297,7 @@ indicated data file.</p>
 value test for biospecimen analytes is no longer failing.</p>
 </section>
 <section id="run-subsets-of-the-pipeline">
-<h2>Run Subsets of the Pipeline<a class="headerlink" href="#run-subsets-of-the-pipeline" title="Permalink to this headline">¶</a></h2>
+<h2>Run Subsets of the Pipeline<a class="headerlink" href="#run-subsets-of-the-pipeline" title="Permalink to this heading">¶</a></h2>
 <p>As you develop your ingest package, you will likely run into scenarios where
 you don’t want to run the entire ingest pipeline.</p>
 <p>The CLI allows you to run a subset of the ingest stages to make development

@@ -5,7 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -25,7 +25,9 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -185,7 +187,7 @@
            <div itemprop="articleBody">
             
   <section id="remote-warehousing">
-<span id="warehousing"></span><h1>Remote Warehousing<a class="headerlink" href="#remote-warehousing" title="Permalink to this headline">¶</a></h1>
+<span id="warehousing"></span><h1>Remote Warehousing<a class="headerlink" href="#remote-warehousing" title="Permalink to this heading">¶</a></h1>
 <p>Sharing is caring, so storing ingest debugging data only on your own computer
 is bad news bears. With minimal configuration, the ingest system can connect to
 a remote warehousing database to centrally store your package’s intermediate
@@ -193,7 +195,7 @@ Extract and Transform results as well as the KFID lookup cache for the study.
 This makes it easier for others to assist in replicating, validating, and
 modifying the results of an ingest.</p>
 <section id="warehouse-server-requirements">
-<h2>Warehouse Server Requirements<a class="headerlink" href="#warehouse-server-requirements" title="Permalink to this headline">¶</a></h2>
+<h2>Warehouse Server Requirements<a class="headerlink" href="#warehouse-server-requirements" title="Permalink to this heading">¶</a></h2>
 <p>The technical requirements for warehousing are:</p>
 <ol class="arabic simple">
 <li><p>A database server that supports namespace schemas (ask your group
@@ -215,7 +217,7 @@ can be found at <a class="reference external" href="https://github.com/d3b-cente
 </div>
 </section>
 <section id="local-environment-configuration">
-<h2>Local Environment Configuration<a class="headerlink" href="#local-environment-configuration" title="Permalink to this headline">¶</a></h2>
+<h2>Local Environment Configuration<a class="headerlink" href="#local-environment-configuration" title="Permalink to this heading">¶</a></h2>
 <p>In your local environment, set a variable named according to the definition of
 <code class="docutils literal notranslate"><span class="pre">SECRETS.WAREHOUSE_DB_URL</span></code> in the <a class="reference internal" href="../tutorial/app.html#tutorial-app-settings"><span class="std std-ref">application settings
 configuration</span></a> to equal a complete login URL, including
@@ -240,12 +242,12 @@ of what you’re doing, so we use the default “postgres” database for this.<
 </div>
 </section>
 <section id="enabling-warehousing">
-<h2>Enabling Warehousing<a class="headerlink" href="#enabling-warehousing" title="Permalink to this headline">¶</a></h2>
+<h2>Enabling Warehousing<a class="headerlink" href="#enabling-warehousing" title="Permalink to this heading">¶</a></h2>
 <p>If you want to use the warehouse during a run, the <code class="docutils literal notranslate"><span class="pre">--warehouse</span></code> command line
 argument will activate the warehousing steps.</p>
 </section>
 <section id="storage-layout">
-<h2>Storage Layout<a class="headerlink" href="#storage-layout" title="Permalink to this headline">¶</a></h2>
+<h2>Storage Layout<a class="headerlink" href="#storage-layout" title="Permalink to this heading">¶</a></h2>
 <p>After warehousing a study, the warehouse server should have a database named
 after the study ID.</p>
 <img alt="../_images/warehouse_db.png" src="../_images/warehouse_db.png" />
@@ -255,7 +257,7 @@ one of that stage’s returned DataFrames.</p>
 <img alt="../_images/warehouse_inside_db.png" src="../_images/warehouse_inside_db.png" />
 </section>
 <section id="lifecycle">
-<h2>Lifecycle<a class="headerlink" href="#lifecycle" title="Permalink to this headline">¶</a></h2>
+<h2>Lifecycle<a class="headerlink" href="#lifecycle" title="Permalink to this heading">¶</a></h2>
 <p>Whenever you ingest a package, that package’s prior existing schemas will be
 replaced.</p>
 </section>

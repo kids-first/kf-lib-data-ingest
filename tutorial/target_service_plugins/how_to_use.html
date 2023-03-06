@@ -5,7 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -25,7 +25,9 @@
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
@@ -187,7 +189,7 @@
            <div itemprop="articleBody">
             
   <section id="using-a-target-service-plugin">
-<span id="tutorial-use-target-service-plugin"></span><h1>Using a Target Service Plugin<a class="headerlink" href="#using-a-target-service-plugin" title="Permalink to this headline">¶</a></h1>
+<span id="tutorial-use-target-service-plugin"></span><h1>Using a Target Service Plugin<a class="headerlink" href="#using-a-target-service-plugin" title="Permalink to this heading">¶</a></h1>
 <p>To use your target service plugin currently you need to bundle it together with
 a new app settings file (described in <a class="reference internal" href="../app.html#tutorial-ingest-app"><span class="std std-ref">Kids First Ingest App</span></a>), like this:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>my_plugin_dir/
@@ -210,7 +212,7 @@ service plugin by setting <code class="docutils literal notranslate"><span class
 <p>Once your plugin and app settings files are bundled together, you will tell the
 ingest library to use your new app settings when ingesting your next study by
 running it with the <code class="docutils literal notranslate"><span class="pre">--app_settings</span></code> argument. Something like this:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>kidsfirst ingest --app_settings my_plugin_dir/my_app_settings.py ...
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>kidsfirst<span class="w"> </span>ingest<span class="w"> </span>--app_settings<span class="w"> </span>my_plugin_dir/my_app_settings.py<span class="w"> </span>...
 </pre></div>
 </div>
 </section>
