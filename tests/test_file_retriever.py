@@ -234,7 +234,6 @@ def test_get_web(
 def test_get_web_w_auth(
     caplog, tmpdir, auth_configs, url, auth_type, expected_log
 ):
-
     caplog.set_level(logging.INFO)
     with open(TEST_FILE_PATH, "rb") as tf:
         with requests_mock.Mocker() as m:
@@ -317,7 +316,6 @@ def test_get_web_w_auth(
     ],
 )
 def test_validate_auth_configs(auth_config, expected_exc):
-
     fr = FileRetriever(cleanup_at_exit=True)
     if expected_exc:
         with pytest.raises(expected_exc):

@@ -98,7 +98,7 @@ def test_bad_token_response(info_caplog):
         TEST_AUTH0_AUD,
         TEST_CLIENT_ID,
         TEST_CLIENT_SECRET,
-        **mock_kwargs
+        **mock_kwargs,
     )
     assert not token
     assert "Unexpected response content" in info_caplog.text

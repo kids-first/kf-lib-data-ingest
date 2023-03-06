@@ -22,7 +22,6 @@ class OAuth2Mocker(object):
         client_secret=TEST_CLIENT_SECRET,
         **mock_kwargs,
     ):
-
         with requests_mock.Mocker() as m:
             self.create_service_token_mock(
                 m,
@@ -50,7 +49,6 @@ class OAuth2Mocker(object):
         client_secret=TEST_CLIENT_SECRET,
         **mock_kwargs,
     ):
-
         with requests_mock.Mocker() as m:
             token_kwargs = {
                 "provider_domain": provider_domain,
@@ -79,7 +77,6 @@ class OAuth2Mocker(object):
         client_secret=TEST_CLIENT_SECRET,
         **mock_kwargs,
     ):
-
         self.create_service_token_mock(
             m,
             provider_domain,
@@ -99,7 +96,6 @@ class OAuth2Mocker(object):
         client_secret=TEST_CLIENT_SECRET,
         **mock_kwargs,
     ):
-
         if not mock_kwargs.get("json"):
             expected_status = mock_kwargs.get("status_code", 200)
             if expected_status == 200:
