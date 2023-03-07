@@ -1,5 +1,19 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.13.0
+
+### Summary
+
+- Emojis: 🔧 x1, 📝 x1, 👷‍♀️ x1
+- Categories: Documentation x1, Ops x1, Other Changes x1
+
+### New features and changes
+
+- [#655](https://github.com/kids-first/kf-lib-data-ingest/pull/655) - 🔧 Add sequencing_experiment fields to target api config and add library_prep and selection to constants - [856b3e6b](https://github.com/kids-first/kf-lib-data-ingest/commit/856b3e6b6ce1671ee7e682267b9e8a9aed9f0325) by [chris-s-friedman](https://github.com/chris-s-friedman)
+- [#653](https://github.com/kids-first/kf-lib-data-ingest/pull/653) - 📝 add documentation on adding custom logs - [002f65bc](https://github.com/kids-first/kf-lib-data-ingest/commit/002f65bc8da603492ed8aa33a91a8dcaca55647f) by [chris-s-friedman](https://github.com/chris-s-friedman)
+- [#654](https://github.com/kids-first/kf-lib-data-ingest/pull/654) - 👷‍♀️ Fix CI Errors - [e4a4107d](https://github.com/kids-first/kf-lib-data-ingest/commit/e4a4107df2f7f143de2395be0cc14c73ad22b191) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.12.0
 
 ### Summary
