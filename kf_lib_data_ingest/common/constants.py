@@ -289,6 +289,20 @@ class SEQUENCING:
         RNA = "RNA"
         VIRTUAL = "Virtual"
 
+    class LIBRARY:
+        class SELECTION:
+            HYBRID = "Hybrid Selection"
+            PCR = "PCR"
+            AFFINITY_ENRICHMENT = "Affinity Enrichment"
+            POLYT_ENRICHMENT = "Poly-T Enrichment"
+            RANDOM = "Random"
+            RNA_DEPLETION = "rRNA Depletion"
+            MRNA_SIZE_FRACTIONATION = "miRNA Size Fractionation"
+
+        class PREP:
+            POLYA = "polyA"
+            TOTALRNASEQ = "totalRNAseq"
+
 
 class STUDY:
     CANCER = "Cancer"
