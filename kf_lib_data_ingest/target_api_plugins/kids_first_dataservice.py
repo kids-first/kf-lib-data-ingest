@@ -604,6 +604,10 @@ class SequencingExperiment:
             "experiment_date": record.get(CONCEPT.SEQUENCING.DATE),
             "experiment_strategy": record.get(CONCEPT.SEQUENCING.STRATEGY),
             "library_strand": record.get(CONCEPT.SEQUENCING.LIBRARY_STRAND),
+            "library_prep": record.get(CONCEPT.SEQUENCING.LIBRARY_PREP),
+            "library_selection": record.get(
+                CONCEPT.SEQUENCING.LIBRARY_SELECTION
+            ),
             "is_paired_end": record.get(CONCEPT.SEQUENCING.PAIRED_END),
             "platform": record.get(CONCEPT.SEQUENCING.PLATFORM),
             "instrument_model": record.get(CONCEPT.SEQUENCING.INSTRUMENT),
