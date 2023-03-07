@@ -141,6 +141,7 @@ class SEQUENCING:
         LS454 = "LS454"
         PACBIO = "PacBio"
         SOLID = "SOLiD"
+        ONT = "ONT"
 
     class INSTRUMENT:
         HISEQ_X_v2_5 = "HiSeq X v2.5"
@@ -149,6 +150,7 @@ class SEQUENCING:
     class STRAND:
         FIRST = "First Stranded"
         SECOND = "Second Stranded"
+        STRANDED = "Stranded"
         UNSTRANDED = "Unstranded"
 
     class CENTER:
@@ -280,11 +282,26 @@ class SEQUENCING:
         WGS = "WGS"
         WXS = "WXS"
         TARGETED = "Targeted Sequencing"
+        PANEL = "Panel"
 
     class ANALYTE:
         DNA = "DNA"
         RNA = "RNA"
         VIRTUAL = "Virtual"
+
+    class LIBRARY:
+        class SELECTION:
+            HYBRID = "Hybrid Selection"
+            PCR = "PCR"
+            AFFINITY_ENRICHMENT = "Affinity Enrichment"
+            POLYT_ENRICHMENT = "Poly-T Enrichment"
+            RANDOM = "Random"
+            RNA_DEPLETION = "rRNA Depletion"
+            MRNA_SIZE_FRACTIONATION = "miRNA Size Fractionation"
+
+        class PREP:
+            POLYA = "polyA"
+            TOTALRNASEQ = "totalRNAseq"
 
 
 class STUDY:
