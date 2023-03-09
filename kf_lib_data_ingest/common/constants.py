@@ -39,6 +39,7 @@ class FILE:
 
 class SPECIMEN:
     class COMPOSITION:
+        AMNIOCYTE = "Amniocyte"
         BLOOD = "Peripheral Whole Blood"
         BONE = "Bone"
         BONE_MARROW = "Bone Marrow"
