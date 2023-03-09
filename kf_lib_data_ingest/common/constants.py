@@ -39,6 +39,7 @@ class FILE:
 
 class SPECIMEN:
     class COMPOSITION:
+        AMNIOCYTE = "Amniocyte"
         BLOOD = "Peripheral Whole Blood"
         BONE = "Bone"
         BONE_MARROW = "Bone Marrow"
@@ -57,13 +58,20 @@ class SPECIMEN:
         AUTOPSY = "Autopsy"
         BIOPSY = "Biopsy"
         BLOOD_DRAW = "Blood Draw"
+        SALIVA_KIT = "Saliva Kit"
         SUBTOTAL_RESECTION = "Subtotal Resection"
         TOTAL_RESECTION = "Gross Total Resection"
         BONE_MARROW_ASPIRATION = "Bone Marrow Aspiration"
 
     class ANATOMY_SITE:
+        ABDOMINAL_SKIN = "Abdominal Skin"
+        ARM = "Arm"
         BONE_MARROW = "Bone Marrow"
+        DIAPHRAGM = "Diaphragm"
+        FIBROBLASTS = "Fibroblasts"
         HAIR = "Hair"
+        MOUTH = "Mouth"
+        SKELETAL_MUSCLE = "Skeletal Muscle"
         SKULL = "Skull"
         CNS = "Central Nervous System"
 
@@ -388,21 +396,29 @@ class OUTCOME:
 
 class RELATIONSHIP:
     PROBAND = "Proband"
+    # PARTNERS:
     HUSBAND = "Husband"
     WIFE = "Wife"
     SPOUSE = "Spouse"
+    # PARENTS:
     MOTHER = "Mother"
     FATHER = "Father"
     PARENT = "Parent"
+    # CHILDREN:
+    DAUGHTER = "Daughter"
+    SON = "Son"
+    CHILD = "Child"
+    # SIBLINGS:
     BROTHER = "Brother"
     SISTER = "Sister"
     TWIN_BROTHER = "Twin Brother"
     TWIN_SISTER = "Twin Sister"
     TWIN = "Twin"
+    HALF_BROTHER = "Half-Brother"
+    HALF_SISTER = "Half-Sister"
+    HALF_SIBLING = "Half-Sibling"
     SIBLING = "Sibling"
-    DAUGHTER = "Daughter"
-    SON = "Son"
-    CHILD = "Child"
+    # GRANDPARENTS:
     MATERNAL_GRANDMOTHER = "Maternal Grandmother"
     MATERNAL_GRANDFATHER = "Maternal Grandfather"
     MATERNAL_GRANDPARENT = "Maternal Grandparent"
@@ -412,6 +428,7 @@ class RELATIONSHIP:
     GRANDMOTHER = "Grandmother"
     GRANDFATHER = "Grandfather"
     GRANDPARENT = "Grandparent"
+    # GRANDCHILDREN:
     MATERNAL_GRANDDAUGHTER = "Maternal Granddaughter"
     MATERNAL_GRANDSON = "Maternal Grandson"
     MATERNAL_GRANDCHILD = "Maternal Grandchild"
@@ -421,6 +438,64 @@ class RELATIONSHIP:
     GRANDDAUGHTER = "Granddaughter"
     GRANDSON = "Grandson"
     GRANDCHILD = "Grandchild"
+    # GREAT GRANDPARENTS:
+    MATERNAL_GREAT_GRANDMOTHER = "Maternal Great-Grandmother"
+    MATERNAL_GREAT_GRANDFATHER = "Maternal Great-Grandfather"
+    MATERNAL_GREAT_GRANDPARENT = "Maternal Great-Grandparent"
+    PATERNAL_GREAT_GRANDMOTHER = "Paternal Great-Grandmother"
+    PATERNAL_GREAT_GRANDFATHER = "Paternal Great-Grandfather"
+    PATERNAL_GREAT_GRANDPARENT = "Paternal Great-Grandparent"
+    GREAT_GRANDMOTHER = "Great-Grandmother"
+    GREAT_GRANDFATHER = "Great-Grandfather"
+    GREAT_GRANDPARENT = "Great-Grandparent"
+    # GREAT GRANDCHILDREN:
+    MATERNAL_GREAT_GRANDDAUGHTER = "Maternal Great-Granddaughter"
+    MATERNAL_GREAT_GRANDSON = "Maternal Great-Grandson"
+    MATERNAL_GREAT_GRANDCHILD = "Maternal Great-Grandchild"
+    PATERNAL_GREAT_GRANDDAUGHTER = "Paternal Great-Granddaughter"
+    PATERNAL_GREAT_GRANDSON = "Paternal Great-Grandson"
+    PATERNAL_GREAT_GRANDCHILD = "Paternal Great-Grandchild"
+    GREAT_GRANDDAUGHTER = "Great-Granddaughter"
+    GREAT_GRANDSON = "Great-Grandson"
+    GREAT_GRANDCHILD = "Great-Grandchild"
+    # AUNTS/UNCLES:
+    MATERNAL_AUNT = "Maternal Aunt"
+    MATERNAL_UNCLE = "Maternal Uncle"
+    PATERNAL_AUNT = "Paternal Aunt"
+    PATERNAL_UNCLE = "Paternal Uncle"
+    AUNT = "Aunt"
+    UNCLE = "Uncle"
+    # GREAT AUNTS/UNCLES:
+    MATERNAL_GREAT_AUNT = "Maternal Great Aunt"
+    MATERNAL_GREAT_UNCLE = "Maternal Great Uncle"
+    PATERNAL_GREAT_AUNT = "Paternal Great Aunt"
+    PATERNAL_GREAT_UNCLE = "Paternal Great Uncle"
+    GREAT_AUNT = "Great Aunt"
+    GREAT_UNCLE = "Great Uncle"
+    # NEPHEWS/NIECES:
+    MATERNAL_NEPHEW = "Maternal Nephew"
+    MATERNAL_NIECE = "Maternal Niece"
+    PATERNAL_NEPHEW = "Paternal Nephew"
+    PATERNAL_NIECE = "Paternal Niece"
+    NEPHEW = "Nephew"
+    NIECE = "Niece"
+    # GREAT NEPHEWS/NIECES:
+    MATERNAL_GREAT_NEPHEW = "Maternal Great Nephew"
+    MATERNAL_GREAT_NIECE = "Maternal Great Niece"
+    PATERNAL_GREAT_NEPHEW = "Paternal Great Nephew"
+    PATERNAL_GREAT_NIECE = "Paternal Great Niece"
+    GREAT_NEPHEW = "Great Nephew"
+    GREAT_NIECE = "Great Niece"
+    # COUSINS:
+    MATERNAL_FIRST_COUSIN = "Maternal First Cousin"
+    PATERNAL_FIRST_COUSIN = "Paternal First Cousin"
+    FIRST_COUSIN = "First Cousin"
+    MATERNAL_SECOND_COUSIN = "Maternal Second Cousin"
+    PATERNAL_SECOND_COUSIN = "Paternal Second Cousin"
+    SECOND_COUSIN = "Second Cousin"
+    MATERNAL_COUSIN = "Maternal Cousin"
+    PATERNAL_COUSIN = "Paternal Cousin"
+    COUSIN = "Cousin"
 
 
 R = RELATIONSHIP
