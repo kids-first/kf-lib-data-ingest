@@ -63,8 +63,10 @@ class SPECIMEN:
         BONE_MARROW_ASPIRATION = "Bone Marrow Aspiration"
 
     class ANATOMY_SITE:
+        ARM = "Arm"
         BONE_MARROW = "Bone Marrow"
         HAIR = "Hair"
+        MOUTH = "Mouth"
         SKULL = "Skull"
         CNS = "Central Nervous System"
 
