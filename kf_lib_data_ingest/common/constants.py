@@ -46,6 +46,7 @@ class SPECIMEN:
         EBVI = "Epstein-Barr Virus Immortalized Cells"
         FIBROBLASTS = "Fibroblasts"
         LINE = "Derived Cell Line"
+        LYMPHOBLASTOID_CELL_LINES = "Lymphoblastoid Cell Lines"
         LYMPHOCYTES = "Lymphocytes"
         MNC = "Mononuclear Cells"
         PLASMA = "Plasma"
@@ -364,6 +365,10 @@ class CONSENT_TYPE:
     # General Research Use (NPU) (GRU-NPU) - Use of this data is
     # limited to general research use. Use of the data is limited to
     # not-for-profit organizations.
+    HMB_GSO = "HMB-GSO"
+    # Health/Medical/Biomedical (GSO) (HMB-GSO) Genetic studies only.
+    # Use of the data is limited to genetic studies only
+    # (i.e., no “phenotype-only” research).
 
 
 class AUTHORITY:
