@@ -57,6 +57,7 @@ class SPECIMEN:
         AUTOPSY = "Autopsy"
         BIOPSY = "Biopsy"
         BLOOD_DRAW = "Blood Draw"
+        SALIVA_KIT = "Saliva Kit"
         SUBTOTAL_RESECTION = "Subtotal Resection"
         TOTAL_RESECTION = "Gross Total Resection"
         BONE_MARROW_ASPIRATION = "Bone Marrow Aspiration"
