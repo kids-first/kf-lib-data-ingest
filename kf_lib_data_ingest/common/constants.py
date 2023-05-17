@@ -227,6 +227,10 @@ class SEQUENCING:
             NAME = "Novogene"
             KF_ID = "SC_2ZBAMKK0"
 
+        class NYGC:
+            NAME = "New York Genome Center"
+            KF_ID = "SC_BJW95TMY"
+
         class NCI:
             NAME = "National Cancer Institute, Khan Lab"
             KF_ID = "SC_F6RZ51K9"
@@ -288,6 +292,7 @@ class SEQUENCING:
         WXS = "WXS"
         TARGETED = "Targeted Sequencing"
         PANEL = "Panel"
+        SCRNA = "Single Cell RNA-Seq"
 
     class ANALYTE:
         DNA = "DNA"
