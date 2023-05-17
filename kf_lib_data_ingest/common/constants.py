@@ -228,8 +228,8 @@ class SEQUENCING:
             KF_ID = "SC_2ZBAMKK0"
         
         class NYGC:
-            NAME= 'New York Genome Center'
-            KF_ID = 'SC_BJW95TMY'
+            NAME= "New York Genome Center"
+            KF_ID = "SC_BJW95TMY"
 
         class NCI:
             NAME = "National Cancer Institute, Khan Lab"
