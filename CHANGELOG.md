@@ -1,5 +1,19 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.14.0
+
+### Summary
+
+- Emojis: 🔧 x1, ✨ x2
+- Categories: Additions x2, Ops x1
+
+### New features and changes
+
+- [#661](https://github.com/kids-first/kf-lib-data-ingest/pull/661) - 🔧 add nygc to sequencing centers and scRNA seq experiment strategy - [f40da348](https://github.com/kids-first/kf-lib-data-ingest/commit/f40da3482e789140139c461a36a145064a92e8c7) by [calkinsh](https://github.com/calkinsh)
+- [#658](https://github.com/kids-first/kf-lib-data-ingest/pull/658) - ✨ Add Krantz-CDL-FY21-RNA constants to kflib - [b487540d](https://github.com/kids-first/kf-lib-data-ingest/commit/b487540d132bd7da94dc5823951a4f2860383b5e) by [r3m0chop](https://github.com/r3m0chop)
+- [#657](https://github.com/kids-first/kf-lib-data-ingest/pull/657) - ✨ Add Letra-MNC-FY21 constants to kflib - [326163fb](https://github.com/kids-first/kf-lib-data-ingest/commit/326163fb3eb58968b19fec4be4c68da73a36a806) by [r3m0chop](https://github.com/r3m0chop)
+
+
 ## Release 1.13.0
 
 ### Summary
