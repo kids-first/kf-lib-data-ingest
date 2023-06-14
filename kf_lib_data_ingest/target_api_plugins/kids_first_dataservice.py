@@ -563,7 +563,8 @@ class GenomicFile:
             "hashes": hashes(record),
             "size": size(record),
             "urls": str_to_obj(record.get(CONCEPT.GENOMIC_FILE.URL_LIST)),
-            "acl": str_to_obj(record.get(CONCEPT.GENOMIC_FILE.ACL)),
+            "acl": [],
+            "authz": str_to_obj(record.get(CONCEPT.GENOMIC_FILE.ACL)),
             "reference_genome": record.get(
                 CONCEPT.GENOMIC_FILE.REFERENCE_GENOME
             ),

@@ -945,6 +945,12 @@
                     },
                     "type":"array"
                 },
+                "authz":{
+                    "items":{
+                        "type":"string"
+                    },
+                    "type":"array"
+                },
                 "availability":{
                     "description":"Indicates whether a file is available for immediate download, or is in cold storage",
                     "enum":[
