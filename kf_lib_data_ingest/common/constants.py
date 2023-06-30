@@ -20,6 +20,13 @@ class COMMON:
     TRUE = "True"
     FALSE = "False"
 
+    class VISIBILITY_REASON:
+        READY = "Ready For Release"
+        PRE_RELEASE = "Pre-Release"
+        SAMPLE_ISSUE = "Sample Issue"
+        CONSENT_HOLD = "Consent Hold"
+        SEQUENCING_QUALITY = "Sequencing Quality Issue"
+
 
 class AGE:
     class UNITS:
