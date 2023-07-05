@@ -1,5 +1,17 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.15.0
+
+### Summary
+
+- Emojis: ? x1
+- Categories: Other Changes x1
+
+### New features and changes
+
+- [#665](https://github.com/kids-first/kf-lib-data-ingest/pull/665) -  :sparkles: add snRNAseq experiment strategy - [ab6d7baf](https://github.com/kids-first/kf-lib-data-ingest/commit/ab6d7bafb345be670350d1e569e66656f33e1f9f) by [calkinsh](https://github.com/calkinsh)
+
+
 ## Release 1.14.0
 
 ### Summary
