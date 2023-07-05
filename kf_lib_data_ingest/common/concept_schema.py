@@ -28,6 +28,8 @@ class PropertyMixin(object):
     TARGET_SERVICE_ID = None
     HIDDEN = None  # obverse of VISIBLE
     VISIBLE = None  # obverse of HIDDEN
+    VISIBILTIY_REASON = None
+    VISIBILITY_COMMENT = None
 
 
 class CONCEPT:
