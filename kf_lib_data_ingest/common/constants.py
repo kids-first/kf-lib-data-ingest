@@ -299,7 +299,8 @@ class SEQUENCING:
         WXS = "WXS"
         TARGETED = "Targeted Sequencing"
         PANEL = "Panel"
-        SCRNA = "Single Cell RNA-Seq"
+        SCRNA = "scRNA-Seq"
+        SNRNA = "snRNA-Seq"
 
     class ANALYTE:
         DNA = "DNA"
