@@ -316,6 +316,8 @@ class SEQUENCING:
             RANDOM = "Random"
             RNA_DEPLETION = "rRNA Depletion"
             MRNA_SIZE_FRACTIONATION = "miRNA Size Fractionation"
+            CLR = "Continuous Long Reads"
+            CCS = "Circular Consensus Sequencing"
 
         class PREP:
             POLYA = "polyA"
