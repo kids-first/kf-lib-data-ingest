@@ -301,6 +301,11 @@ class SEQUENCING:
         PANEL = "Panel"
         SCRNA = "scRNA-Seq"
         SNRNA = "snRNA-Seq"
+        CCS_WGS = "Circular Consensus Sequencing WGS"
+        CCS_RNA = "Circular Consensus Sequencing RNA-Seq"
+        CLR_WGS = "Continuous Long Reads WGS"
+        CLR_RNA = "Continuous Long Reads RNA-Seq"
+        ONT_WGS = "ONT WGS"
 
     class ANALYTE:
         DNA = "DNA"
@@ -316,8 +321,6 @@ class SEQUENCING:
             RANDOM = "Random"
             RNA_DEPLETION = "rRNA Depletion"
             MRNA_SIZE_FRACTIONATION = "miRNA Size Fractionation"
-            CLR = "Continuous Long Reads"
-            CCS = "Circular Consensus Sequencing"
 
         class PREP:
             POLYA = "polyA"
