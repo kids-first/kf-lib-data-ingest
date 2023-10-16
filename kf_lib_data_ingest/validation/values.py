@@ -211,6 +211,10 @@ INPUT_VALIDATION = {
         constants.SEQUENCING.STRATEGY.RNA,
         constants.SEQUENCING.STRATEGY.MRNA,
         constants.SEQUENCING.STRATEGY.LINKED_WGS,
+        constants.SEQUENCING.STRATEGY.CCS_RNA,
+        constants.SEQUENCING.STRATEGY.CCS_WGS,
+        constants.SEQUENCING.STRATEGY.CLR_RNA,
+        constants.SEQUENCING.STRATEGY.CLR_WGS,
         constants.COMMON.OTHER,
     },
     # CONCEPT.SEQUENCING.LIBRARY_PREP - there is no concept for this
