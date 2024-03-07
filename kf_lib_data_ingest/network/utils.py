@@ -1,6 +1,7 @@
 """
 Common network (HTTP, TCP, whatever) related functionality
 """
+
 import cgi
 import logging
 import os

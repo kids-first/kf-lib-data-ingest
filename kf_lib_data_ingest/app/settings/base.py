@@ -1,6 +1,7 @@
 """
 Base settings for Kids First Ingest App
 """
+
 import os
 
 from kf_lib_data_ingest.config import ROOT_DIR

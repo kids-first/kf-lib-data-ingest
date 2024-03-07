@@ -1,6 +1,7 @@
 """
 Abstract base class for validation report builders
 """
+
 import logging
 import os
 from abc import ABC, abstractmethod

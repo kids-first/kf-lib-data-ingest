@@ -230,6 +230,10 @@ class IngestStage(ABC):
             report_kwargs=report_kwargs,
         )
         if self.validation_success:
-            self.logger.info(f"✅ {self.stage_type.__name__} passed validation!")
+            self.logger.info(
+                f"✅ {self.stage_type.__name__} passed validation!"
+            )
         else:
-            self.logger.info(f"❌ {self.stage_type.__name__} failed validation!")
+            self.logger.info(
+                f"❌ {self.stage_type.__name__} failed validation!"
+            )

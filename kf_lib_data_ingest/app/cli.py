@@ -1,6 +1,7 @@
 """
 Entry point for the Kids First Data Ingest Client
 """
+
 import inspect
 import logging
 import os

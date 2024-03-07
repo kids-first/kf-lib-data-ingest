@@ -1,6 +1,7 @@
 """
 Module for transforming source data DataFrames to the standard model.
 """
+
 import os
 from abc import abstractmethod
 from pprint import pformat

@@ -4,6 +4,7 @@ Produces a human friendly markdown based validation report
 
 Extends kf_lib_data_ingest.validation.reporting.base.AbstractReportBuilder
 """
+
 import os
 import re
 from collections import defaultdict

@@ -1,4 +1,5 @@
 """Control shim for differentiating load plugin versions."""
+
 from kf_lib_data_ingest.etl.configuration.target_api_config import (
     TargetAPIConfig,
 )

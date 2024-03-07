@@ -7,6 +7,7 @@ See documentation at
 https://kids-first.github.io/kf-lib-data-ingest/ for information on
 implementing transform_function.
 """
+
 from kf_lib_data_ingest.config import DEFAULT_KEY
 
 
