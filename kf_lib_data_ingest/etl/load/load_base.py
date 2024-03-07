@@ -3,6 +3,7 @@ Module for loading the transform output into the dataservice. It converts the
 merged source data into complete message payloads according to a given API
 specification, and then sends those messages to the target server.
 """
+
 import concurrent.futures
 import json
 import os

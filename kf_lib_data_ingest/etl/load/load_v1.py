@@ -1,6 +1,7 @@
 """
 For Version 1 Target Service Plugins
 """
+
 from kf_lib_data_ingest.common import constants
 from kf_lib_data_ingest.etl.load.load_base import LoadStageBase
 

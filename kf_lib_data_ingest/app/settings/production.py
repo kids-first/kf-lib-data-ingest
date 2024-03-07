@@ -1,6 +1,7 @@
 """
 Production settings for Kids First Ingest App
 """
+
 import os
 
 from kf_lib_data_ingest.app.settings.base import (

@@ -1,4 +1,5 @@
 """ Dataset Ingest Config """
+
 # The list of entities that will be loaded into the target service
 target_service_entities = [
     "genomic_file",

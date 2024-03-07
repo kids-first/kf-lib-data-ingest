@@ -4,6 +4,7 @@ a user supplied transform function which specifies how the mapped
 source data tables should be merged into a single table containing all of the
 mapped source data
 """
+
 import os
 
 import pandas

@@ -11,6 +11,7 @@ a little bit less nested and verbose
 
 Extends kf_lib_data_ingest.validation.reporting.base.AbstractReportBuilder
 """
+
 import os
 from collections import defaultdict
 

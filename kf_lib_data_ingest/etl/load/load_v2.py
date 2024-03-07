@@ -1,6 +1,7 @@
 """
 For Version 2 Target Service Plugins
 """
+
 from pprint import pformat
 
 from kf_lib_data_ingest.common import constants

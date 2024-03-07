@@ -18,9 +18,9 @@ VERBOTEN_PATTERNS = {
 }
 
 VERBOTEN_PATTERNS['"access_token":".+"'] = '"access_token":"<ACCESS_TOKEN>"'
-VERBOTEN_PATTERNS[
-    "'Authorization': '.+'"
-] = "'Authorization': '<AUTHORIZATION>'"
+VERBOTEN_PATTERNS["'Authorization': '.+'"] = (
+    "'Authorization': '<AUTHORIZATION>'"
+)
 
 
 class NoTokenFormatter(logging.Formatter):

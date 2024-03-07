@@ -1,4 +1,5 @@
 """ Ingest Package Config """
+
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
 
 # The list of entities that will be loaded into the target service
