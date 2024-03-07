@@ -1,5 +1,20 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.17.0
+
+### Summary
+
+- Emojis: ✨ x1, ? x3
+- Categories: Additions x1, Other Changes x3
+
+### New features and changes
+
+- [#671](https://github.com/kids-first/kf-lib-data-ingest/pull/671) - ✨ Add genedx sequencing center - [ad2f5322](https://github.com/kids-first/kf-lib-data-ingest/commit/ad2f53228cb7f19d0575790157ae52e032f62637) by [chris-s-friedman](https://github.com/chris-s-friedman)
+- [#670](https://github.com/kids-first/kf-lib-data-ingest/pull/670) -  :heavy_plus_sign: adding ONT strategy - [799684c1](https://github.com/kids-first/kf-lib-data-ingest/commit/799684c1f8ae6fb1eed4fe3f6a7c139c59060601) by [aw3334](https://github.com/aw3334)
+- [#669](https://github.com/kids-first/kf-lib-data-ingest/pull/669) -  :heavy_plus_sign: adding values to validation - [0f291514](https://github.com/kids-first/kf-lib-data-ingest/commit/0f291514ab40298727d89701778d7a5888151c3f) by [aw3334](https://github.com/aw3334)
+- [#668](https://github.com/kids-first/kf-lib-data-ingest/pull/668) -  :heavy_plus_sign: add new constants for LRs - [44473a3f](https://github.com/kids-first/kf-lib-data-ingest/commit/44473a3fa16969cbad3be5af50a90dd2339269b3) by [aw3334](https://github.com/aw3334)
+
+
 ## Release 1.16.0
 
 ### Summary
