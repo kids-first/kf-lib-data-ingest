@@ -218,6 +218,10 @@ class SEQUENCING:
             NAME = "fg"
             KF_ID = "SC_XXXXXXX2"
 
+        class GENEDX:
+            NAME = "GeneDx"
+            KF_ID = "SC_5EDC0A25"
+
         class HGT:
             NAME = "Humangenetik Tübingen"
             KF_ID = "SC_75KENA7A"
