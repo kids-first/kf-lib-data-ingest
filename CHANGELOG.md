@@ -1,5 +1,17 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.18.0
+
+### Summary
+
+- Emojis: ? x1
+- Categories: Other Changes x1
+
+### New features and changes
+
+- [#674](https://github.com/kids-first/kf-lib-data-ingest/pull/674) -  :bug: Don't leave out visibility info in family relationships load - [7268dab8](https://github.com/kids-first/kf-lib-data-ingest/commit/7268dab8f87c6919384f909672bd423f6a58f6f0) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.17.0
 
 ### Summary
