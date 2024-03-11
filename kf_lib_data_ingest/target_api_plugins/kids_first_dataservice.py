@@ -14,7 +14,7 @@ from threading import Lock
 
 from d3b_utils.requests_retry import Session
 from kf_utils.dataservice.scrape import yield_entities, yield_kfids
-from pandas import DataFrame
+from pandas import DataFrame, merge
 from requests import RequestException
 
 from kf_lib_data_ingest.common import constants
@@ -695,9 +695,19 @@ class FamilyRelationship:
 
     @classmethod
     def transform_records_list(cls, records_list):
+        FR = CONCEPT.FAMILY_RELATIONSHIP
+        original = DataFrame(records_list)
+
+        # Convert participant, mother, father to generic family relationships
         df = convert_relationships_to_p1p2(
-            DataFrame(records_list), infer_genders=True, bidirect=True
+            original, infer_genders=True, bidirect=True
         )
+        # Add back in the visibility info from original df
+        vis_df = original[
+            [FR.PERSON1.ID, FR.VISIBILTIY_REASON, FR.VISIBILITY_COMMENT]
+        ]
+        df = merge(df, vis_df, how="left", on=FR.PERSON1.ID)
+
         return df.to_dict("records")
 
     @classmethod
