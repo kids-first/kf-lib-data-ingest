@@ -250,6 +250,10 @@ class SEQUENCING:
             NAME = "National Institutes of Health"
             KF_ID = "SC_HEXD2E5R"
 
+        class PRINCESS_MAXIMA:
+            NAME = "Princess Maxima Center"
+            KF_ID = "SC_V4CCQ3WE"
+
         class SICKKIDS:
             NAME = "SickKids"
             KF_ID = "SC_9WMJKQ1X"
