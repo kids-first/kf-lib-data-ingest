@@ -1,5 +1,17 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.19.0
+
+### Summary
+
+- Emojis: ? x1
+- Categories: Other Changes x1
+
+### New features and changes
+
+- [#676](https://github.com/kids-first/kf-lib-data-ingest/pull/676) -  :sparkles: add princess maxima center - [93b5901e](https://github.com/kids-first/kf-lib-data-ingest/commit/93b5901e7bea8337a6c6ef7134cf87e7adf7148c) by [HuangXiaoyan0106](https://github.com/HuangXiaoyan0106)
+
+
 ## Release 1.18.0
 
 ### Summary
