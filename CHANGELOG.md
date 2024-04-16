@@ -1,5 +1,17 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.20.0
+
+### Summary
+
+- Emojis: ✨ x1
+- Categories: Additions x1
+
+### New features and changes
+
+- [#678](https://github.com/kids-first/kf-lib-data-ingest/pull/678) - ✨ Add new SE, GF fields to KF Target API Plugin - [f31fa54c](https://github.com/kids-first/kf-lib-data-ingest/commit/f31fa54cf2ed44fd433dcc3f3fdfa4026f3f87e0) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.19.0
 
 ### Summary
