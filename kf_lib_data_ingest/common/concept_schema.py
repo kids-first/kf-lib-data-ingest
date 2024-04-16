@@ -46,7 +46,7 @@ class CONCEPT:
         NAME = None
         SHORT_NAME = None
         ATTRIBUTION = None
-        RELEASE_STATUS = None
+        FILE_VERSION_DESCRIPTOR = None
         CATEGORY = None
 
     class STUDY_FILE(PropertyMixin, FileMixin):
@@ -184,7 +184,7 @@ class CONCEPT:
         WORKFLOW_TOOL = None
         WORKFLOW_TYPE = None
         WORKFLOW_VERSION = None
-        RELEASE_STATUS = None
+        FILE_VERSION_DESCRIPTOR = None
         DATA_CATEGORY = None
 
     class READ_GROUP(PropertyMixin):

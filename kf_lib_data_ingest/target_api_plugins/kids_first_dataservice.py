@@ -134,7 +134,9 @@ class Study:
             "name": record.get(CONCEPT.STUDY.NAME),
             "short_name": record.get(CONCEPT.STUDY.SHORT_NAME),
             "version": record.get(CONCEPT.STUDY.VERSION),
-            "release_status": record.get(CONCEPT.STUDY.RELEASE_STATUS),
+            "file_version_descriptor": record.get(
+                CONCEPT.STUDY.FILE_VERSION_DESCRIPTOR
+            ),
             "attribution": record.get(CONCEPT.STUDY.ATTRIBUTION),
             "category": record.get(CONCEPT.STUDY.CATEGORY),
             "visible": record.get(CONCEPT.STUDY.VISIBLE),
@@ -575,7 +577,9 @@ class GenomicFile:
                 CONCEPT.GENOMIC_FILE.WORKFLOW_VERSION
             ),
             "data_category": record.get(CONCEPT.GENOMIC_FILE.DATA_CATEGORY),
-            "release_status": record.get(CONCEPT.GENOMIC_FILE.RELEASE_STATUS),
+            "file_version_descriptor": record.get(
+                CONCEPT.GENOMIC_FILE.FILE_VERSION_DESCRIPTOR
+            ),
             "visible": record.get(CONCEPT.GENOMIC_FILE.VISIBLE),
             "visibility_comment": record.get(
                 CONCEPT.GENOMIC_FILE.VISIBILITY_COMMENT
