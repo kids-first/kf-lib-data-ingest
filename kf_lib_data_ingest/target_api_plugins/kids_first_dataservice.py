@@ -134,7 +134,9 @@ class Study:
             "name": record.get(CONCEPT.STUDY.NAME),
             "short_name": record.get(CONCEPT.STUDY.SHORT_NAME),
             "version": record.get(CONCEPT.STUDY.VERSION),
-            "release_status": record.get(CONCEPT.STUDY.RELEASE_STATUS),
+            "file_version_descriptor": record.get(
+                CONCEPT.STUDY.FILE_VERSION_DESCRIPTOR
+            ),
             "attribution": record.get(CONCEPT.STUDY.ATTRIBUTION),
             "category": record.get(CONCEPT.STUDY.CATEGORY),
             "visible": record.get(CONCEPT.STUDY.VISIBLE),
@@ -569,6 +571,15 @@ class GenomicFile:
             "reference_genome": record.get(
                 CONCEPT.GENOMIC_FILE.REFERENCE_GENOME
             ),
+            "worflow_type": record.get(CONCEPT.GENOMIC_FILE.WORKFLOW_TYPE),
+            "worflow_tool": record.get(CONCEPT.GENOMIC_FILE.WORKFLOW_TOOL),
+            "workflow_version": record.get(
+                CONCEPT.GENOMIC_FILE.WORKFLOW_VERSION
+            ),
+            "data_category": record.get(CONCEPT.GENOMIC_FILE.DATA_CATEGORY),
+            "file_version_descriptor": record.get(
+                CONCEPT.GENOMIC_FILE.FILE_VERSION_DESCRIPTOR
+            ),
             "visible": record.get(CONCEPT.GENOMIC_FILE.VISIBLE),
             "visibility_comment": record.get(
                 CONCEPT.GENOMIC_FILE.VISIBILITY_COMMENT
@@ -669,6 +680,16 @@ class SequencingExperiment:
             "mean_depth": record.get(CONCEPT.SEQUENCING.MEAN_DEPTH),
             "total_reads": record.get(CONCEPT.SEQUENCING.TOTAL_READS),
             "mean_read_length": record.get(CONCEPT.SEQUENCING.MEAN_READ_LENGTH),
+            "target_capture_kit": record.get(
+                CONCEPT.SEQUENCING.TARGET_CAPTURE_KIT
+            ),
+            "read_pair_number": record.get(CONCEPT.SEQUENCING.READ_PAIR_NUMBER),
+            "is_adapter_trimmed": record.get(
+                CONCEPT.SEQUENCING.IS_ADAPTER_TRIMMED
+            ),
+            "adapter_sequencing": record.get(
+                CONCEPT.SEQUENCING.ADAPTER_SEQUENCING
+            ),
             "visible": record.get(CONCEPT.SEQUENCING.VISIBLE),
             "visibility_comment": record.get(
                 CONCEPT.SEQUENCING.VISIBILITY_COMMENT

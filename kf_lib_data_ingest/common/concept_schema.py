@@ -46,7 +46,7 @@ class CONCEPT:
         NAME = None
         SHORT_NAME = None
         ATTRIBUTION = None
-        RELEASE_STATUS = None
+        FILE_VERSION_DESCRIPTOR = None
         CATEGORY = None
 
     class STUDY_FILE(PropertyMixin, FileMixin):
@@ -181,6 +181,11 @@ class CONCEPT:
         HARMONIZED = None
         SOURCE_FILE = None
         REFERENCE_GENOME = None
+        WORKFLOW_TOOL = None
+        WORKFLOW_TYPE = None
+        WORKFLOW_VERSION = None
+        FILE_VERSION_DESCRIPTOR = None
+        DATA_CATEGORY = None
 
     class READ_GROUP(PropertyMixin):
         PAIRED_END = None
@@ -205,6 +210,10 @@ class CONCEPT:
         MEAN_DEPTH = None
         TOTAL_READS = None
         MEAN_READ_LENGTH = None
+        TARGET_CAPTURE_KIT = None
+        IS_ADAPTER_TRIMMED = None
+        ADAPTER_SEQUENCING = None
+        READ_PAIR_NUMBER = None
 
         class CENTER(PropertyMixin):
             NAME = None
