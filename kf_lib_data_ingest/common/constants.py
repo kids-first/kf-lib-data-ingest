@@ -282,6 +282,10 @@ class SEQUENCING:
             NAME = "UNKNOWN:CHRIS_JONES"
             KF_ID = "SC_5A2B1T4K"
 
+        class VARIANTYX:
+            NAME = "Variantyx"
+            KF_ID = "SC_T2A19FHX"
+
         class VIRTUAL:
             NAME = "Virtual"
             KF_ID = "SC_BATJDPHB"
