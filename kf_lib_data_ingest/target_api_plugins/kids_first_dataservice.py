@@ -77,7 +77,9 @@ class Investigator:
 
     @classmethod
     def query_target_ids(cls, host, key_components):
-        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+        filters = drop_none(key_components)
+        filters["limit"] = 2
+        return list(yield_kfids(host, cls.api_path, filters))
 
     @classmethod
     def build_entity(cls, record, get_target_id_from_record):
@@ -123,9 +125,9 @@ class Study:
         if kfid:
             return [kfid]
         else:
-            return list(
-                yield_kfids(host, cls.api_path, drop_none(key_components))
-            )
+            filters = drop_none(key_components)
+            filters["limit"] = 2
+            return list(yield_kfids(host, cls.api_path, filters))
 
     @classmethod
     def build_entity(cls, record, get_target_id_from_record):
@@ -168,7 +170,9 @@ class Family:
 
     @classmethod
     def query_target_ids(cls, host, key_components):
-        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+        filters = drop_none(key_components)
+        filters["limit"] = 2
+        return list(yield_kfids(host, cls.api_path, filters))
 
     @classmethod
     def build_entity(cls, record, get_target_id_from_record):
@@ -264,7 +268,9 @@ class Diagnosis:
 
     @classmethod
     def query_target_ids(cls, host, key_components):
-        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+        filters = drop_none(key_components)
+        filters["limit"] = 2
+        return list(yield_kfids(host, cls.api_path, filters))
 
     @classmethod
     def build_entity(cls, record, get_target_id_from_record):
@@ -325,7 +331,9 @@ class Phenotype:
 
     @classmethod
     def query_target_ids(cls, host, key_components):
-        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+        filters = drop_none(key_components)
+        filters["limit"] = 2
+        return list(yield_kfids(host, cls.api_path, filters))
 
     @classmethod
     def build_entity(cls, record, get_target_id_from_record):
@@ -392,6 +400,7 @@ class Outcome:
         # We no longer want multiple participant outcome entries.
         # Patch whatever is latest for compatibility with existing dataservice
         # entries.
+        key_components["limit"] = 2
         pes = sorted(
             yield_entities(host, cls.api_path, key_components),
             key=lambda e: e.get("age_at_event_days", 0),
@@ -444,7 +453,9 @@ class Biospecimen:
 
     @classmethod
     def query_target_ids(cls, host, key_components):
-        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+        filters = drop_none(key_components)
+        filters["limit"] = 2
+        return list(yield_kfids(host, cls.api_path, filters))
 
     @classmethod
     def build_entity(cls, record, get_target_id_from_record):
@@ -535,7 +546,9 @@ class GenomicFile:
 
     @classmethod
     def query_target_ids(cls, host, key_components):
-        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+        filters = drop_none(key_components)
+        filters["limit"] = 2
+        return list(yield_kfids(host, cls.api_path, filters))
 
     @classmethod
     def build_entity(cls, record, get_target_id_from_record):
@@ -615,7 +628,9 @@ class ReadGroup:
 
     @classmethod
     def query_target_ids(cls, host, key_components):
-        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+        filters = drop_none(key_components)
+        filters["limit"] = 2
+        return list(yield_kfids(host, cls.api_path, filters))
 
     @classmethod
     def build_entity(cls, record, get_target_id_from_record):
@@ -658,7 +673,9 @@ class SequencingExperiment:
 
     @classmethod
     def query_target_ids(cls, host, key_components):
-        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+        filters = drop_none(key_components)
+        filters["limit"] = 2
+        return list(yield_kfids(host, cls.api_path, filters))
 
     @classmethod
     def build_entity(cls, record, get_target_id_from_record):
@@ -760,7 +777,9 @@ class FamilyRelationship:
 
     @classmethod
     def query_target_ids(cls, host, key_components):
-        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+        filters = drop_none(key_components)
+        filters["limit"] = 2
+        return list(yield_kfids(host, cls.api_path, filters))
 
     @classmethod
     def build_entity(cls, record, get_target_id_from_record):
@@ -806,7 +825,9 @@ class BiospecimenGenomicFile:
 
     @classmethod
     def query_target_ids(cls, host, key_components):
-        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+        filters = drop_none(key_components)
+        filters["limit"] = 2
+        return list(yield_kfids(host, cls.api_path, filters))
 
     @classmethod
     def build_entity(cls, record, get_target_id_from_record):
@@ -852,7 +873,9 @@ class BiospecimenDiagnosis:
 
     @classmethod
     def query_target_ids(cls, host, key_components):
-        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+        filters = drop_none(key_components)
+        filters["limit"] = 2
+        return list(yield_kfids(host, cls.api_path, filters))
 
     @classmethod
     def build_entity(cls, record, get_target_id_from_record):
@@ -898,7 +921,9 @@ class ReadGroupGenomicFile:
 
     @classmethod
     def query_target_ids(cls, host, key_components):
-        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+        filters = drop_none(key_components)
+        filters["limit"] = 2
+        return list(yield_kfids(host, cls.api_path, filters))
 
     @classmethod
     def build_entity(cls, record, get_target_id_from_record):
@@ -944,7 +969,9 @@ class SequencingExperimentGenomicFile:
 
     @classmethod
     def query_target_ids(cls, host, key_components):
-        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+        filters = drop_none(key_components)
+        filters["limit"] = 2
+        return list(yield_kfids(host, cls.api_path, filters))
 
     @classmethod
     def build_entity(cls, record, get_target_id_from_record):
