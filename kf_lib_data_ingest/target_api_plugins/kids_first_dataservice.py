@@ -540,7 +540,7 @@ class GenomicFile:
     def get_key_components(cls, record, get_target_id_from_record):
         # FIXME: Temporary until KFDRC file hashes are reliably stable
         return {
-            "study_id": get_target_id_from_record(Study, record),
+            # "study_id": get_target_id_from_record(Study, record),
             "external_id": not_none(record[CONCEPT.GENOMIC_FILE.ID]),
         }
 
