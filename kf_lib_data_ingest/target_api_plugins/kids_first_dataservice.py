@@ -537,6 +537,7 @@ class Biospecimen:
                 CONCEPT.BIOSPECIMEN.DBGAP_STYLE_CONSENT_CODE
             ),
             "consent_type": record.get(CONCEPT.BIOSPECIMEN.CONSENT_SHORT_NAME),
+            "sample_id": get_target_id_from_record(BiospecimenGroup, record),
         }
         return {
             **cls.get_key_components(record, get_target_id_from_record),
