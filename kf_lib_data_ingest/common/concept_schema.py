@@ -146,7 +146,24 @@ class CONCEPT:
             pass
 
     class BIOSPECIMEN_GROUP(PropertyMixin):
-        pass
+        TISSUE_TYPE = None
+        NCIT_TISSUE_TYPE_ID = None
+        ANATOMY_SITE = None
+        NCIT_ANATOMY_SITE_ID = None
+        UBERON_ANATOMY_SITE_ID = None
+        COMPOSITION = None
+        EVENT_ID = None
+        EVENT_AGE_DAYS = None
+
+        class EVENT_AGE(QuantityMixin):
+            pass
+
+        class VOLUME(QuantityMixin):
+            pass
+
+        VOLUME_UL = None
+        SAMPLE_PROCUREMENT = None
+        PRESERVATION_METHOD = None
 
     class BIOSPECIMEN(PropertyMixin):
         TISSUE_TYPE = None
@@ -247,18 +264,14 @@ def compile_schema():
 
     property_path = []
     property_paths = set()
-    _set_cls_attrs(
-        CONCEPT, None, property_path, property_paths, include_root=False
-    )
+    _set_cls_attrs(CONCEPT, None, property_path, property_paths, include_root=False)
     return property_paths
 
 
 str_to_CONCEPT = {}
 
 
-def _set_cls_attrs(
-    node, prev_node, property_path, property_paths, include_root=False
-):
+def _set_cls_attrs(node, prev_node, property_path, property_paths, include_root=False):
     """
     Recursive method to traverse a class hierarchy and set class attributes
     equal to a string which represents a path in the hierarchy to reach the
