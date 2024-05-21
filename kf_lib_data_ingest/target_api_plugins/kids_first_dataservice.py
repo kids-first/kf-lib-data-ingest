@@ -395,7 +395,7 @@ class Outcome:
         return submit(host, cls, body)
 
 
-class BiospecimenGroup:
+class Sample:
     class_name = "sample"
     api_path = "samples"
     target_id_concept = CONCEPT.BIOSPECIMEN_GROUP.TARGET_SERVICE_ID
@@ -537,7 +537,7 @@ class Biospecimen:
                 CONCEPT.BIOSPECIMEN.DBGAP_STYLE_CONSENT_CODE
             ),
             "consent_type": record.get(CONCEPT.BIOSPECIMEN.CONSENT_SHORT_NAME),
-            "sample_id": get_target_id_from_record(BiospecimenGroup, record),
+            "sample_id": get_target_id_from_record(Sample, record),
         }
         return {
             **cls.get_key_components(record, get_target_id_from_record),
@@ -991,6 +991,7 @@ all_targets = [
     Diagnosis,
     Phenotype,
     Outcome,
+    Sample,
     Biospecimen,
     GenomicFile,
     ReadGroup,
