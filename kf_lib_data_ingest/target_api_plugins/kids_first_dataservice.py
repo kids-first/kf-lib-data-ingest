@@ -84,8 +84,12 @@ class Investigator:
         secondary_components = {
             "kf_id": get_target_id_from_record(cls, record),
             "visible": record.get(CONCEPT.INVESTIGATOR.VISIBLE),
-            "visibility_comment": record.get(CONCEPT.INVESTIGATOR.VISIBILITY_COMMENT),
-            "visibility_reason": record.get(CONCEPT.INVESTIGATOR.VISIBILTIY_REASON),
+            "visibility_comment": record.get(
+                CONCEPT.INVESTIGATOR.VISIBILITY_COMMENT
+            ),
+            "visibility_reason": record.get(
+                CONCEPT.INVESTIGATOR.VISIBILTIY_REASON
+            ),
         }
         return {
             **cls.get_key_components(record, get_target_id_from_record),
@@ -105,7 +109,9 @@ class Study:
 
     @classmethod
     def get_key_components(cls, record, get_target_id_from_record):
-        kfid = record.get(cls.target_id_concept) or record.get(CONCEPT.PROJECT.ID)
+        kfid = record.get(cls.target_id_concept) or record.get(
+            CONCEPT.PROJECT.ID
+        )
         au = record.get(CONCEPT.STUDY.AUTHORITY)
         id = record.get(CONCEPT.STUDY.ID)
         assert (au and id) or kfid
@@ -117,7 +123,9 @@ class Study:
         if kfid:
             return [kfid]
         else:
-            return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+            return list(
+                yield_kfids(host, cls.api_path, drop_none(key_components))
+            )
 
     @classmethod
     def build_entity(cls, record, get_target_id_from_record):
@@ -212,11 +220,17 @@ class Participant:
             "ethnicity": record.get(CONCEPT.PARTICIPANT.ETHNICITY),
             "gender": record.get(CONCEPT.PARTICIPANT.GENDER),
             "race": record.get(CONCEPT.PARTICIPANT.RACE),
-            "affected_status": record.get(CONCEPT.PARTICIPANT.IS_AFFECTED_UNDER_STUDY),
+            "affected_status": record.get(
+                CONCEPT.PARTICIPANT.IS_AFFECTED_UNDER_STUDY
+            ),
             "species": record.get(CONCEPT.PARTICIPANT.SPECIES),
             "visible": record.get(CONCEPT.PARTICIPANT.VISIBLE),
-            "visibility_comment": record.get(CONCEPT.PARTICIPANT.VISIBILITY_COMMENT),
-            "visibility_reason": record.get(CONCEPT.PARTICIPANT.VISIBILTIY_REASON),
+            "visibility_comment": record.get(
+                CONCEPT.PARTICIPANT.VISIBILITY_COMMENT
+            ),
+            "visibility_reason": record.get(
+                CONCEPT.PARTICIPANT.VISIBILTIY_REASON
+            ),
         }
         return {
             **cls.get_key_components(record, get_target_id_from_record),
@@ -237,7 +251,9 @@ class Diagnosis:
     @classmethod
     def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "participant_id": not_none(get_target_id_from_record(Participant, record)),
+            "participant_id": not_none(
+                get_target_id_from_record(Participant, record)
+            ),
             "source_text_diagnosis": not_none(record[CONCEPT.DIAGNOSIS.NAME]),
             "age_at_event_days": flexible_age(
                 record,
@@ -254,18 +270,26 @@ class Diagnosis:
     def build_entity(cls, record, get_target_id_from_record):
         secondary_components = {
             "kf_id": get_target_id_from_record(cls, record),
-            "source_text_tumor_location": record.get(CONCEPT.DIAGNOSIS.TUMOR_LOCATION),
+            "source_text_tumor_location": record.get(
+                CONCEPT.DIAGNOSIS.TUMOR_LOCATION
+            ),
             "mondo_id_diagnosis": record.get(CONCEPT.DIAGNOSIS.MONDO_ID),
             "icd_id_diagnosis": record.get(CONCEPT.DIAGNOSIS.ICD_ID),
             "uberon_id_tumor_location": record.get(
                 CONCEPT.DIAGNOSIS.UBERON_TUMOR_LOCATION_ID
             ),
             "ncit_id_diagnosis": record.get(CONCEPT.DIAGNOSIS.NCIT_ID),
-            "spatial_descriptor": record.get(CONCEPT.DIAGNOSIS.SPATIAL_DESCRIPTOR),
+            "spatial_descriptor": record.get(
+                CONCEPT.DIAGNOSIS.SPATIAL_DESCRIPTOR
+            ),
             "diagnosis_category": record.get(CONCEPT.DIAGNOSIS.CATEGORY),
             "visible": record.get(CONCEPT.DIAGNOSIS.VISIBLE),
-            "visibility_comment": record.get(CONCEPT.DIAGNOSIS.VISIBILITY_COMMENT),
-            "visibility_reason": record.get(CONCEPT.DIAGNOSIS.VISIBILTIY_REASON),
+            "visibility_comment": record.get(
+                CONCEPT.DIAGNOSIS.VISIBILITY_COMMENT
+            ),
+            "visibility_reason": record.get(
+                CONCEPT.DIAGNOSIS.VISIBILTIY_REASON
+            ),
             "external_id": record.get(CONCEPT.DIAGNOSIS.ID),
         }
         return {
@@ -287,7 +311,9 @@ class Phenotype:
     @classmethod
     def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "participant_id": not_none(get_target_id_from_record(Participant, record)),
+            "participant_id": not_none(
+                get_target_id_from_record(Participant, record)
+            ),
             "source_text_phenotype": not_none(record[CONCEPT.PHENOTYPE.NAME]),
             "observed": not_none(record[CONCEPT.PHENOTYPE.OBSERVED]),
             "age_at_event_days": flexible_age(
@@ -308,8 +334,12 @@ class Phenotype:
             "hpo_id_phenotype": record.get(CONCEPT.PHENOTYPE.HPO_ID),
             "snomed_id_phenotype": record.get(CONCEPT.PHENOTYPE.SNOMED_ID),
             "visible": record.get(CONCEPT.PHENOTYPE.VISIBLE),
-            "visibility_comment": record.get(CONCEPT.PHENOTYPE.VISIBILITY_COMMENT),
-            "visibility_reason": record.get(CONCEPT.PHENOTYPE.VISIBILTIY_REASON),
+            "visibility_comment": record.get(
+                CONCEPT.PHENOTYPE.VISIBILITY_COMMENT
+            ),
+            "visibility_reason": record.get(
+                CONCEPT.PHENOTYPE.VISIBILTIY_REASON
+            ),
             "external_id": record.get(CONCEPT.PHENOTYPE.ID),
         }
         return {
@@ -352,7 +382,9 @@ class Outcome:
         # Skip anything without a status, but don't consider it a key field.
         not_none(record[CONCEPT.OUTCOME.VITAL_STATUS])
         return {
-            "participant_id": not_none(get_target_id_from_record(Participant, record))
+            "participant_id": not_none(
+                get_target_id_from_record(Participant, record)
+            )
         }
 
     @classmethod
@@ -375,7 +407,9 @@ class Outcome:
             "kf_id": get_target_id_from_record(cls, record),
             "disease_related": record.get(CONCEPT.OUTCOME.DISEASE_RELATED),
             "visible": record.get(CONCEPT.OUTCOME.VISIBLE),
-            "visibility_comment": record.get(CONCEPT.OUTCOME.VISIBILITY_COMMENT),
+            "visibility_comment": record.get(
+                CONCEPT.OUTCOME.VISIBILITY_COMMENT
+            ),
             "visibility_reason": record.get(CONCEPT.OUTCOME.VISIBILTIY_REASON),
             "age_at_event_days": flexible_age(
                 record,
@@ -399,7 +433,8 @@ class Sample:
     class_name = "sample"
     api_path = "samples"
     target_id_concept = (
-        CONCEPT.SAMPLE.TARGET_SERVICE_ID or CONCEPT.BIOSPECIMEN_GROUP.TARGET_SERVICE_ID
+        CONCEPT.SAMPLE.TARGET_SERVICE_ID
+        or CONCEPT.BIOSPECIMEN_GROUP.TARGET_SERVICE_ID
     )
     service_id_fields = {"kf_id", "participant_id"}
 
@@ -438,8 +473,12 @@ class Sample:
                 record.get(CONCEPT.SAMPLE.SAMPLE_PROCUREMENT)
                 or record.get(CONCEPT.BIOSPECIMEN.SAMPLE_PROCUREMENT)
             ),
-            "participant_id": not_none(get_target_id_from_record(Participant, record)),
-            "preservation_method": record.get(CONCEPT.SAMPLE.PRESERVATION_METHOD),
+            "participant_id": not_none(
+                get_target_id_from_record(Participant, record)
+            ),
+            "preservation_method": record.get(
+                CONCEPT.SAMPLE.PRESERVATION_METHOD
+            ),
             "sample_event_key": record.get(CONCEPT.SAMPLE.EVENT_ID),
             "sample_type": (
                 record.get(CONCEPT.SAMPLE.COMPOSITION)
@@ -491,7 +530,9 @@ class Biospecimen:
             "sequencing_center_id": record.get(
                 CONCEPT.SEQUENCING.CENTER.TARGET_SERVICE_ID
             ),
-            "participant_id": not_none(get_target_id_from_record(Participant, record)),
+            "participant_id": not_none(
+                get_target_id_from_record(Participant, record)
+            ),
             "external_sample_id": (
                 record.get(CONCEPT.SAMPLE.ID)
                 or record.get(CONCEPT.BIOSPECIMEN_GROUP.ID)
@@ -558,8 +599,12 @@ class Biospecimen:
                 or record.get(CONCEPT.BIOSPECIMEN.VOLUME_UL)
             ),
             "visible": record.get(CONCEPT.BIOSPECIMEN.VISIBLE),
-            "visibility_comment": record.get(CONCEPT.BIOSPECIMEN.VISIBILITY_COMMENT),
-            "visibility_reason": record.get(CONCEPT.BIOSPECIMEN.VISIBILTIY_REASON),
+            "visibility_comment": record.get(
+                CONCEPT.BIOSPECIMEN.VISIBILITY_COMMENT
+            ),
+            "visibility_reason": record.get(
+                CONCEPT.BIOSPECIMEN.VISIBILTIY_REASON
+            ),
             "method_of_sample_procurement": (
                 record.get(CONCEPT.SAMPLE.SAMPLE_PROCUREMENT)
                 or record.get(CONCEPT.BIOSPECIMEN.SAMPLE_PROCUREMENT)
@@ -629,17 +674,25 @@ class GenomicFile:
             "urls": str_to_obj(record.get(CONCEPT.GENOMIC_FILE.URL_LIST)),
             "acl": [],
             "authz": str_to_obj(record.get(CONCEPT.GENOMIC_FILE.ACL)),
-            "reference_genome": record.get(CONCEPT.GENOMIC_FILE.REFERENCE_GENOME),
+            "reference_genome": record.get(
+                CONCEPT.GENOMIC_FILE.REFERENCE_GENOME
+            ),
             "worflow_type": record.get(CONCEPT.GENOMIC_FILE.WORKFLOW_TYPE),
             "worflow_tool": record.get(CONCEPT.GENOMIC_FILE.WORKFLOW_TOOL),
-            "workflow_version": record.get(CONCEPT.GENOMIC_FILE.WORKFLOW_VERSION),
+            "workflow_version": record.get(
+                CONCEPT.GENOMIC_FILE.WORKFLOW_VERSION
+            ),
             "data_category": record.get(CONCEPT.GENOMIC_FILE.DATA_CATEGORY),
             "file_version_descriptor": record.get(
                 CONCEPT.GENOMIC_FILE.FILE_VERSION_DESCRIPTOR
             ),
             "visible": record.get(CONCEPT.GENOMIC_FILE.VISIBLE),
-            "visibility_comment": record.get(CONCEPT.GENOMIC_FILE.VISIBILITY_COMMENT),
-            "visibility_reason": record.get(CONCEPT.GENOMIC_FILE.VISIBILTIY_REASON),
+            "visibility_comment": record.get(
+                CONCEPT.GENOMIC_FILE.VISIBILITY_COMMENT
+            ),
+            "visibility_reason": record.get(
+                CONCEPT.GENOMIC_FILE.VISIBILTIY_REASON
+            ),
         }
         return {
             **cls.get_key_components(record, get_target_id_from_record),
@@ -676,8 +729,12 @@ class ReadGroup:
             "kf_id": get_target_id_from_record(cls, record),
             "quality_scale": record.get(CONCEPT.READ_GROUP.QUALITY_SCALE),
             "visible": record.get(CONCEPT.READ_GROUP.VISIBLE),
-            "visibility_comment": record.get(CONCEPT.READ_GROUP.VISIBILITY_COMMENT),
-            "visibility_reason": record.get(CONCEPT.READ_GROUP.VISIBILTIY_REASON),
+            "visibility_comment": record.get(
+                CONCEPT.READ_GROUP.VISIBILITY_COMMENT
+            ),
+            "visibility_reason": record.get(
+                CONCEPT.READ_GROUP.VISIBILTIY_REASON
+            ),
         }
         return {
             **cls.get_key_components(record, get_target_id_from_record),
@@ -718,7 +775,9 @@ class SequencingExperiment:
             "experiment_strategy": record.get(CONCEPT.SEQUENCING.STRATEGY),
             "library_strand": record.get(CONCEPT.SEQUENCING.LIBRARY_STRAND),
             "library_prep": record.get(CONCEPT.SEQUENCING.LIBRARY_PREP),
-            "library_selection": record.get(CONCEPT.SEQUENCING.LIBRARY_SELECTION),
+            "library_selection": record.get(
+                CONCEPT.SEQUENCING.LIBRARY_SELECTION
+            ),
             "is_paired_end": record.get(CONCEPT.SEQUENCING.PAIRED_END),
             "platform": record.get(CONCEPT.SEQUENCING.PLATFORM),
             "instrument_model": record.get(CONCEPT.SEQUENCING.INSTRUMENT),
@@ -727,13 +786,23 @@ class SequencingExperiment:
             "mean_depth": record.get(CONCEPT.SEQUENCING.MEAN_DEPTH),
             "total_reads": record.get(CONCEPT.SEQUENCING.TOTAL_READS),
             "mean_read_length": record.get(CONCEPT.SEQUENCING.MEAN_READ_LENGTH),
-            "target_capture_kit": record.get(CONCEPT.SEQUENCING.TARGET_CAPTURE_KIT),
+            "target_capture_kit": record.get(
+                CONCEPT.SEQUENCING.TARGET_CAPTURE_KIT
+            ),
             "read_pair_number": record.get(CONCEPT.SEQUENCING.READ_PAIR_NUMBER),
-            "is_adapter_trimmed": record.get(CONCEPT.SEQUENCING.IS_ADAPTER_TRIMMED),
-            "adapter_sequencing": record.get(CONCEPT.SEQUENCING.ADAPTER_SEQUENCING),
+            "is_adapter_trimmed": record.get(
+                CONCEPT.SEQUENCING.IS_ADAPTER_TRIMMED
+            ),
+            "adapter_sequencing": record.get(
+                CONCEPT.SEQUENCING.ADAPTER_SEQUENCING
+            ),
             "visible": record.get(CONCEPT.SEQUENCING.VISIBLE),
-            "visibility_comment": record.get(CONCEPT.SEQUENCING.VISIBILITY_COMMENT),
-            "visibility_reason": record.get(CONCEPT.SEQUENCING.VISIBILTIY_REASON),
+            "visibility_comment": record.get(
+                CONCEPT.SEQUENCING.VISIBILITY_COMMENT
+            ),
+            "visibility_reason": record.get(
+                CONCEPT.SEQUENCING.VISIBILTIY_REASON
+            ),
         }
         return {
             **cls.get_key_components(record, get_target_id_from_record),
@@ -757,9 +826,13 @@ class FamilyRelationship:
         original = DataFrame(records_list)
 
         # Convert participant, mother, father to generic family relationships
-        df = convert_relationships_to_p1p2(original, infer_genders=True, bidirect=True)
+        df = convert_relationships_to_p1p2(
+            original, infer_genders=True, bidirect=True
+        )
         # Add back in the visibility info from original df
-        vis_df = original[[FR.PERSON1.ID, FR.VISIBILTIY_REASON, FR.VISIBILITY_COMMENT]]
+        vis_df = original[
+            [FR.PERSON1.ID, FR.VISIBILTIY_REASON, FR.VISIBILITY_COMMENT]
+        ]
         df = merge(df, vis_df, how="left", on=FR.PERSON1.ID)
 
         return df.to_dict("records")
@@ -829,8 +902,12 @@ class BiospecimenGenomicFile:
     @classmethod
     def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "biospecimen_id": not_none(get_target_id_from_record(Biospecimen, record)),
-            "genomic_file_id": not_none(get_target_id_from_record(GenomicFile, record)),
+            "biospecimen_id": not_none(
+                get_target_id_from_record(Biospecimen, record)
+            ),
+            "genomic_file_id": not_none(
+                get_target_id_from_record(GenomicFile, record)
+            ),
         }
 
     @classmethod
@@ -871,8 +948,12 @@ class BiospecimenDiagnosis:
     @classmethod
     def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "biospecimen_id": not_none(get_target_id_from_record(Biospecimen, record)),
-            "diagnosis_id": not_none(get_target_id_from_record(Diagnosis, record)),
+            "biospecimen_id": not_none(
+                get_target_id_from_record(Biospecimen, record)
+            ),
+            "diagnosis_id": not_none(
+                get_target_id_from_record(Diagnosis, record)
+            ),
         }
 
     @classmethod
@@ -913,8 +994,12 @@ class ReadGroupGenomicFile:
     @classmethod
     def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "read_group_id": not_none(get_target_id_from_record(ReadGroup, record)),
-            "genomic_file_id": not_none(get_target_id_from_record(GenomicFile, record)),
+            "read_group_id": not_none(
+                get_target_id_from_record(ReadGroup, record)
+            ),
+            "genomic_file_id": not_none(
+                get_target_id_from_record(GenomicFile, record)
+            ),
         }
 
     @classmethod
@@ -958,7 +1043,9 @@ class SequencingExperimentGenomicFile:
             "sequencing_experiment_id": not_none(
                 get_target_id_from_record(SequencingExperiment, record)
             ),
-            "genomic_file_id": not_none(get_target_id_from_record(GenomicFile, record)),
+            "genomic_file_id": not_none(
+                get_target_id_from_record(GenomicFile, record)
+            ),
         }
 
     @classmethod
@@ -1087,7 +1174,9 @@ def coerce_types(host, entity_class, body):
                     seen_overmax_int[entity_class.class_name] = set()
                 if k not in seen_overmax_int[entity_class.class_name]:
                     try:
-                        max_value = (2 ** (int(properties[k]["format"][-2:]) - 1)) - 1
+                        max_value = (
+                            2 ** (int(properties[k]["format"][-2:]) - 1)
+                        ) - 1
                         if v > max_value:
                             logger.info(
                                 f"The server indicates that {entity_class.class_name}"
@@ -1151,8 +1240,12 @@ def submit(host, entity_class, body):
         resp = _GET(host, api_path, body)
         result = resp.json()["results"][0]
         if extid != result["external_id"]:
-            resp = _PATCH(host, api_path, result["kf_id"], {"external_id": extid})
+            resp = _PATCH(
+                host, api_path, result["kf_id"], {"external_id": extid}
+            )
             result = resp.json()["results"]
         return result["kf_id"]
     else:
-        raise RequestException(f"Sent to /{api_path}:\n{body}\nGot:\n{resp.text}")
+        raise RequestException(
+            f"Sent to /{api_path}:\n{body}\nGot:\n{resp.text}"
+        )

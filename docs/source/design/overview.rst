@@ -40,6 +40,7 @@ described.
    :maxdepth: 1
 
    value_principles
+   concepts/index.rst
    extract_mapping
    transform
    load
