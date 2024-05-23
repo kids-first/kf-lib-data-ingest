@@ -146,12 +146,16 @@ class CONCEPT:
             pass
 
     class BIOSPECIMEN_GROUP(PropertyMixin):
+        pass
+
+    class SAMPLE(PropertyMixin):
         TISSUE_TYPE = None
         NCIT_TISSUE_TYPE_ID = None
         ANATOMY_SITE = None
         NCIT_ANATOMY_SITE_ID = None
         UBERON_ANATOMY_SITE_ID = None
         COMPOSITION = None
+        TUMOR_DESCRIPTOR = None
         EVENT_ID = None
         EVENT_AGE_DAYS = None
 
@@ -161,36 +165,22 @@ class CONCEPT:
         class VOLUME(QuantityMixin):
             pass
 
+        SPATIAL_DESCRIPTOR = None
+        SHIPMENT_ORIGIN = None
+        SHIPMENT_DATE = None
         VOLUME_UL = None
         SAMPLE_PROCUREMENT = None
         PRESERVATION_METHOD = None
 
-    class BIOSPECIMEN(PropertyMixin):
-        TISSUE_TYPE = None
-        NCIT_TISSUE_TYPE_ID = None
-        ANATOMY_SITE = None
-        NCIT_ANATOMY_SITE_ID = None
-        UBERON_ANATOMY_SITE_ID = None
-        TUMOR_DESCRIPTOR = None
-        COMPOSITION = None
-        EVENT_AGE_DAYS = None
-
-        class EVENT_AGE(QuantityMixin):
-            pass
-
+    class BIOSPECIMEN(SAMPLE):
         class QUANTITY(QuantityMixin):
             pass
 
         class CONCENTRATION(QuantityMixin):
             pass
 
-        SPATIAL_DESCRIPTOR = None
-        SHIPMENT_ORIGIN = None
-        SHIPMENT_DATE = None
         ANALYTE = None
         CONCENTRATION_MG_PER_ML = None
-        VOLUME_UL = None
-        SAMPLE_PROCUREMENT = None
         DBGAP_STYLE_CONSENT_CODE = None
         CONSENT_SHORT_NAME = None
 
@@ -264,14 +254,18 @@ def compile_schema():
 
     property_path = []
     property_paths = set()
-    _set_cls_attrs(CONCEPT, None, property_path, property_paths, include_root=False)
+    _set_cls_attrs(
+        CONCEPT, None, property_path, property_paths, include_root=False
+    )
     return property_paths
 
 
 str_to_CONCEPT = {}
 
 
-def _set_cls_attrs(node, prev_node, property_path, property_paths, include_root=False):
+def _set_cls_attrs(
+    node, prev_node, property_path, property_paths, include_root=False
+):
     """
     Recursive method to traverse a class hierarchy and set class attributes
     equal to a string which represents a path in the hierarchy to reach the
@@ -355,6 +349,7 @@ concept_set = {
     CONCEPT.FAMILY_RELATIONSHIP.PERSON2,
     CONCEPT.BIOSPECIMEN_GROUP,
     CONCEPT.BIOSPECIMEN,
+    CONCEPT.SAMPLE,
     CONCEPT.DIAGNOSIS,
     CONCEPT.PHENOTYPE,
     CONCEPT.DIAGNOSIS,
