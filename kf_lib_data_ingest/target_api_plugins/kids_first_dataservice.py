@@ -433,12 +433,8 @@ class Sample:
     class_name = "sample"
     api_path = "samples"
     target_id_concept = (
-<<<<<<< HEAD
         CONCEPT.SAMPLE.TARGET_SERVICE_ID
         or CONCEPT.BIOSPECIMEN_GROUP.TARGET_SERVICE_ID
-=======
-        CONCEPT.SAMPLE.TARGET_SERVICE_ID or CONCEPT.BIOSPECIMEN_GROUP.TARGET_SERVICE_ID
->>>>>>> 77c5cde (♻️ Make sample its own concept and allow sample or biospecimen)
     )
     service_id_fields = {"kf_id", "participant_id"}
 
@@ -476,7 +472,6 @@ class Sample:
             "method_of_sample_procurement": (
                 record.get(CONCEPT.SAMPLE.SAMPLE_PROCUREMENT)
                 or record.get(CONCEPT.BIOSPECIMEN.SAMPLE_PROCUREMENT)
-<<<<<<< HEAD
             ),
             "participant_id": not_none(
                 get_target_id_from_record(Participant, record)
@@ -493,20 +488,6 @@ class Sample:
                 record.get(CONCEPT.SAMPLE.TISSUE_TYPE)
                 or record.get(CONCEPT.BIOSPECIMEN.TISSUE_TYPE)
             ),
-=======
-            ),
-            "participant_id": not_none(get_target_id_from_record(Participant, record)),
-            "preservation_method": record.get(CONCEPT.SAMPLE.PRESERVATION_METHOD),
-            "sample_event_key": record.get(CONCEPT.SAMPLE.EVENT_ID),
-            "sample_type": (
-                record.get(CONCEPT.SAMPLE.COMPOSITION)
-                or record.get(CONCEPT.BIOSPECIMEN.COMPOSITION)
-            ),
-            "tissue_type": (
-                record.get(CONCEPT.SAMPLE.TISSUE_TYPE)
-                or record.get(CONCEPT.BIOSPECIMEN.TISSUE_TYPE)
-            ),
->>>>>>> 77c5cde (♻️ Make sample its own concept and allow sample or biospecimen)
             "visible": record.get(CONCEPT.SAMPLE.VISIBLE),
             "visibility_comment": record.get(CONCEPT.SAMPLE.VISIBILITY_COMMENT),
             "visibility_reason": record.get(CONCEPT.SAMPLE.VISIBILTIY_REASON),
