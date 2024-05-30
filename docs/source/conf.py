@@ -20,7 +20,7 @@
 # -- Project information -----------------------------------------------------
 
 project = "Kids First Data Ingest Libraries"
-copyright = "2019, Kids First"
+copyright = "2024, Kids First"
 author = "Kids First"
 
 # The short X.Y version
