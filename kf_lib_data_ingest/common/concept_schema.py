@@ -148,32 +148,49 @@ class CONCEPT:
     class BIOSPECIMEN_GROUP(PropertyMixin):
         pass
 
-    class BIOSPECIMEN(PropertyMixin):
+    class SAMPLE(PropertyMixin):
+        """Sample
+
+        `BIOSPECIMEN_GROUP` is previously existing concept used in the ingest
+        library. It is being replaced by `SAMPLE` to better reflect that
+        BIOSPECIMENS can be organized within multiple hierarchical groups with
+        relationships to one another. The `BIOSPECIMEN_GROUP` is still in the
+        ingest library to support historical ingest packages. It is recommended
+        to use `SAMPLE` for new ingest packages.
+        """
+
         TISSUE_TYPE = None
         NCIT_TISSUE_TYPE_ID = None
         ANATOMY_SITE = None
         NCIT_ANATOMY_SITE_ID = None
         UBERON_ANATOMY_SITE_ID = None
-        TUMOR_DESCRIPTOR = None
         COMPOSITION = None
+        TUMOR_DESCRIPTOR = None
+        EVENT_ID = None
         EVENT_AGE_DAYS = None
 
         class EVENT_AGE(QuantityMixin):
             pass
 
+        class VOLUME(QuantityMixin):
+            pass
+
+        SPATIAL_DESCRIPTOR = None
+        SHIPMENT_ORIGIN = None
+        SHIPMENT_DATE = None
+        VOLUME_UL = None
+        SAMPLE_PROCUREMENT = None
+        PRESERVATION_METHOD = None
+
+    class BIOSPECIMEN(SAMPLE):
         class QUANTITY(QuantityMixin):
             pass
 
         class CONCENTRATION(QuantityMixin):
             pass
 
-        SPATIAL_DESCRIPTOR = None
-        SHIPMENT_ORIGIN = None
-        SHIPMENT_DATE = None
         ANALYTE = None
         CONCENTRATION_MG_PER_ML = None
-        VOLUME_UL = None
-        SAMPLE_PROCUREMENT = None
         DBGAP_STYLE_CONSENT_CODE = None
         CONSENT_SHORT_NAME = None
 
@@ -342,6 +359,7 @@ concept_set = {
     CONCEPT.FAMILY_RELATIONSHIP.PERSON2,
     CONCEPT.BIOSPECIMEN_GROUP,
     CONCEPT.BIOSPECIMEN,
+    CONCEPT.SAMPLE,
     CONCEPT.DIAGNOSIS,
     CONCEPT.PHENOTYPE,
     CONCEPT.DIAGNOSIS,

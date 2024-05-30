@@ -429,6 +429,83 @@ class Outcome:
         return submit(host, cls, body)
 
 
+class Sample:
+    class_name = "sample"
+    api_path = "samples"
+    target_id_concept = (
+        CONCEPT.SAMPLE.TARGET_SERVICE_ID
+        or CONCEPT.BIOSPECIMEN_GROUP.TARGET_SERVICE_ID
+    )
+    service_id_fields = {"kf_id", "participant_id"}
+
+    @classmethod
+    def get_key_components(cls, record, get_target_id_from_record):
+        return {
+            "study_id": get_target_id_from_record(Study, record),
+            "external_id": not_none(record[CONCEPT.SAMPLE.ID]),
+        }
+
+    @classmethod
+    def query_target_ids(cls, host, key_components):
+        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+
+    @classmethod
+    def build_entity(cls, record, get_target_id_from_record):
+        secondary_components = {
+            "kf_id": get_target_id_from_record(cls, record),
+            "age_at_event_days": (
+                flexible_age(
+                    record,
+                    CONCEPT.SAMPLE.EVENT_AGE_DAYS,
+                    CONCEPT.SAMPLE.EVENT_AGE,
+                )
+                or flexible_age(
+                    record,
+                    CONCEPT.BIOSPECIMEN.EVENT_AGE_DAYS,
+                    CONCEPT.BIOSPECIMEN.EVENT_AGE,
+                )
+            ),
+            "anatomical_location": (
+                record.get(CONCEPT.SAMPLE.ANATOMY_SITE)
+                or record.get(CONCEPT.BIOSPECIMEN.ANATOMY_SITE)
+            ),
+            "method_of_sample_procurement": (
+                record.get(CONCEPT.SAMPLE.SAMPLE_PROCUREMENT)
+                or record.get(CONCEPT.BIOSPECIMEN.SAMPLE_PROCUREMENT)
+            ),
+            "participant_id": not_none(
+                get_target_id_from_record(Participant, record)
+            ),
+            "preservation_method": record.get(
+                CONCEPT.SAMPLE.PRESERVATION_METHOD
+            ),
+            "sample_event_key": record.get(CONCEPT.SAMPLE.EVENT_ID),
+            "sample_type": (
+                record.get(CONCEPT.SAMPLE.COMPOSITION)
+                or record.get(CONCEPT.BIOSPECIMEN.COMPOSITION)
+            ),
+            "tissue_type": (
+                record.get(CONCEPT.SAMPLE.TISSUE_TYPE)
+                or record.get(CONCEPT.BIOSPECIMEN.TISSUE_TYPE)
+            ),
+            "visible": record.get(CONCEPT.SAMPLE.VISIBLE),
+            "visibility_comment": record.get(CONCEPT.SAMPLE.VISIBILITY_COMMENT),
+            "visibility_reason": record.get(CONCEPT.SAMPLE.VISIBILTIY_REASON),
+            "volume_ul": (
+                record.get(CONCEPT.SAMPLE.VOLUME_UL)
+                or record.get(CONCEPT.BIOSPECIMEN.VOLUME_UL)
+            ),
+        }
+        return {
+            **cls.get_key_components(record, get_target_id_from_record),
+            **secondary_components,
+        }
+
+    @classmethod
+    def submit(cls, host, body):
+        return submit(host, cls, body)
+
+
 class Biospecimen:
     class_name = "biospecimen"
     api_path = "biospecimens"
@@ -457,43 +534,70 @@ class Biospecimen:
                 get_target_id_from_record(Participant, record)
             ),
             "external_sample_id": (
-                record.get(CONCEPT.BIOSPECIMEN_GROUP.ID)
+                record.get(CONCEPT.SAMPLE.ID)
+                or record.get(CONCEPT.BIOSPECIMEN_GROUP.ID)
                 or not_none(record[CONCEPT.BIOSPECIMEN.ID])
             ),
-            "source_text_tissue_type": record.get(
-                CONCEPT.BIOSPECIMEN.TISSUE_TYPE
+            "source_text_tissue_type": (
+                record.get(CONCEPT.SAMPLE.TISSUE_TYPE)
+                or record.get(CONCEPT.BIOSPECIMEN.TISSUE_TYPE)
             ),
-            "composition": record.get(CONCEPT.BIOSPECIMEN.COMPOSITION),
-            "source_text_anatomical_site": record.get(
-                CONCEPT.BIOSPECIMEN.ANATOMY_SITE
+            "composition": (
+                record.get(CONCEPT.SAMPLE.COMPOSITION)
+                or record.get(CONCEPT.BIOSPECIMEN.COMPOSITION)
             ),
-            "age_at_event_days": flexible_age(
-                record,
-                CONCEPT.BIOSPECIMEN.EVENT_AGE_DAYS,
-                CONCEPT.BIOSPECIMEN.EVENT_AGE,
+            "source_text_anatomical_site": (
+                record.get(CONCEPT.SAMPLE.ANATOMY_SITE)
+                or record.get(CONCEPT.BIOSPECIMEN.ANATOMY_SITE)
             ),
-            "source_text_tumor_descriptor": record.get(
-                CONCEPT.BIOSPECIMEN.TUMOR_DESCRIPTOR
+            "age_at_event_days": (
+                flexible_age(
+                    record,
+                    CONCEPT.SAMPLE.EVENT_AGE_DAYS,
+                    CONCEPT.SAMPLE.EVENT_AGE,
+                )
+                or flexible_age(
+                    record,
+                    CONCEPT.BIOSPECIMEN.EVENT_AGE_DAYS,
+                    CONCEPT.BIOSPECIMEN.EVENT_AGE,
+                )
             ),
-            "ncit_id_tissue_type": record.get(
-                CONCEPT.BIOSPECIMEN.NCIT_TISSUE_TYPE_ID
+            "source_text_tumor_descriptor": (
+                record.get(CONCEPT.SAMPLE.TUMOR_DESCRIPTOR)
+                or record.get(CONCEPT.BIOSPECIMEN.TUMOR_DESCRIPTOR)
             ),
-            "ncit_id_anatomical_site": record.get(
-                CONCEPT.BIOSPECIMEN.NCIT_ANATOMY_SITE_ID
+            "ncit_id_tissue_type": (
+                record.get(CONCEPT.SAMPLE.NCIT_TISSUE_TYPE_ID)
+                or record.get(CONCEPT.BIOSPECIMEN.NCIT_TISSUE_TYPE_ID)
             ),
-            "uberon_id_anatomical_site": record.get(
-                CONCEPT.BIOSPECIMEN.UBERON_ANATOMY_SITE_ID
+            "ncit_id_anatomical_site": (
+                record.get(CONCEPT.SAMPLE.NCIT_ANATOMY_SITE_ID)
+                or record.get(CONCEPT.BIOSPECIMEN.NCIT_ANATOMY_SITE_ID)
             ),
-            "spatial_descriptor": record.get(
-                CONCEPT.BIOSPECIMEN.SPATIAL_DESCRIPTOR
+            "uberon_id_anatomical_site": (
+                record.get(CONCEPT.SAMPLE.UBERON_ANATOMY_SITE_ID)
+                or record.get(CONCEPT.BIOSPECIMEN.UBERON_ANATOMY_SITE_ID)
             ),
-            "shipment_origin": record.get(CONCEPT.BIOSPECIMEN.SHIPMENT_ORIGIN),
-            "shipment_date": record.get(CONCEPT.BIOSPECIMEN.SHIPMENT_DATE),
+            "spatial_descriptor": (
+                record.get(CONCEPT.SAMPLE.SPATIAL_DESCRIPTOR)
+                or record.get(CONCEPT.BIOSPECIMEN.SPATIAL_DESCRIPTOR)
+            ),
+            "shipment_origin": (
+                record.get(CONCEPT.SAMPLE.SHIPMENT_ORIGIN)
+                or record.get(CONCEPT.BIOSPECIMEN.SHIPMENT_ORIGIN)
+            ),
+            "shipment_date": (
+                record.get(CONCEPT.SAMPLE.SHIPMENT_DATE)
+                or record.get(CONCEPT.BIOSPECIMEN.SHIPMENT_DATE)
+            ),
             "analyte_type": record.get(CONCEPT.BIOSPECIMEN.ANALYTE),
             "concentration_mg_per_ml": record.get(
                 CONCEPT.BIOSPECIMEN.CONCENTRATION_MG_PER_ML
             ),
-            "volume_ul": record.get(CONCEPT.BIOSPECIMEN.VOLUME_UL),
+            "volume_ul": (
+                record.get(CONCEPT.SAMPLE.VOLUME_UL)
+                or record.get(CONCEPT.BIOSPECIMEN.VOLUME_UL)
+            ),
             "visible": record.get(CONCEPT.BIOSPECIMEN.VISIBLE),
             "visibility_comment": record.get(
                 CONCEPT.BIOSPECIMEN.VISIBILITY_COMMENT
@@ -501,13 +605,15 @@ class Biospecimen:
             "visibility_reason": record.get(
                 CONCEPT.BIOSPECIMEN.VISIBILTIY_REASON
             ),
-            "method_of_sample_procurement": record.get(
-                CONCEPT.BIOSPECIMEN.SAMPLE_PROCUREMENT
+            "method_of_sample_procurement": (
+                record.get(CONCEPT.SAMPLE.SAMPLE_PROCUREMENT)
+                or record.get(CONCEPT.BIOSPECIMEN.SAMPLE_PROCUREMENT)
             ),
             "dbgap_consent_code": record.get(
                 CONCEPT.BIOSPECIMEN.DBGAP_STYLE_CONSENT_CODE
             ),
             "consent_type": record.get(CONCEPT.BIOSPECIMEN.CONSENT_SHORT_NAME),
+            "sample_id": get_target_id_from_record(Sample, record),
         }
         return {
             **cls.get_key_components(record, get_target_id_from_record),
@@ -1003,6 +1109,7 @@ all_targets = [
     Diagnosis,
     Phenotype,
     Outcome,
+    Sample,
     Biospecimen,
     GenomicFile,
     ReadGroup,
