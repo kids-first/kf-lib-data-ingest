@@ -506,6 +506,70 @@ class Sample:
         return submit(host, cls, body)
 
 
+class SampleRelationship:
+    class_name = "sample_relationship"
+    api_path = "sample-relationships"
+    target_id_concept = CONCEPT.SAMPLE_RELATIONSHIP.TARGET_SERVICE_ID
+    service_id_fields = {"kf_id", "parent_id", "child_id"}
+
+    @classmethod
+    def get_key_components(cls, record, get_target_id_from_record):
+        return {
+            "parent_id": not_none(
+                get_target_id_from_record(
+                    Sample,
+                    {
+                        CONCEPT.SAMPLE.ID: record[
+                            CONCEPT.SAMPLE_RELATIONSHIP.PARENT_SAMPLE
+                        ]
+                    },
+                )
+            ),
+            "child_id": not_none(
+                get_target_id_from_record(
+                    Sample,
+                    {
+                        CONCEPT.SAMPLE.ID: record[
+                            CONCEPT.SAMPLE_RELATIONSHIP.CHILD_SAMPLE
+                        ]
+                    },
+                )
+            ),
+        }
+
+    @classmethod
+    def query_target_ids(cls, host, key_components):
+        return list(yield_kfids(host, cls.api_path, drop_none(key_components)))
+
+    @classmethod
+    def build_entity(cls, record, get_target_id_from_record):
+        secondary_components = {
+            "kf_id": get_target_id_from_record(cls, record),
+            "external_parent_id": record.get(
+                CONCEPT.SAMPLE_RELATIONSHIP.PARENT_SAMPLE.ID
+            ),
+            "external_child_id": record.get(
+                CONCEPT.SAMPLE_RELATIONSHIP.CHILD_SAMPLE.ID
+            ),
+            "notes": record.get(CONCEPT.SAMPLE_RELATIONSHIP.NOTES),
+            "visible": record.get(CONCEPT.SAMPLE_RELATIONSHIP.VISIBLE),
+            "visibility_comment": record.get(
+                CONCEPT.SAMPLE_RELATIONSHIP.VISIBILITY_COMMENT
+            ),
+            "visibility_reason": record.get(
+                CONCEPT.SAMPLE_RELATIONSHIP.VISIBILTIY_REASON
+            ),
+        }
+        return {
+            **cls.get_key_components(record, get_target_id_from_record),
+            **secondary_components,
+        }
+
+    @classmethod
+    def submit(cls, host, body):
+        return submit(host, cls, body)
+
+
 class Biospecimen:
     class_name = "biospecimen"
     api_path = "biospecimens"
@@ -1110,6 +1174,7 @@ all_targets = [
     Phenotype,
     Outcome,
     Sample,
+    SampleRelationship,
     Biospecimen,
     GenomicFile,
     ReadGroup,
