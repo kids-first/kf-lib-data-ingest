@@ -282,6 +282,10 @@ class SEQUENCING:
             NAME = "UNKNOWN:CHRIS_JONES"
             KF_ID = "SC_5A2B1T4K"
 
+        class UCSF_CAT:
+            NAME = "UCSF CAT"
+            KF_ID = "SC_MSQP04K7"
+
         class VARIANTYX:
             NAME = "Variantyx"
             KF_ID = "SC_T2A19FHX"
