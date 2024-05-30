@@ -149,6 +149,16 @@ class CONCEPT:
         pass
 
     class SAMPLE(PropertyMixin):
+        """Sample
+
+        `BIOSPECIMEN_GROUP` is previously existing concept used in the ingest
+        library. It is being replaced by `SAMPLE` to better reflect that
+        BIOSPECIMENS can be organized within multiple hierarchical groups with
+        relationships to one another. The `BIOSPECIMEN_GROUP` is still in the
+        ingest library to support historical ingest packages. It is recommended
+        to use `SAMPLE` for new ingest packages.
+        """
+
         TISSUE_TYPE = None
         NCIT_TISSUE_TYPE_ID = None
         ANATOMY_SITE = None
