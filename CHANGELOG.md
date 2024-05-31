@@ -1,5 +1,20 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.21.0
+
+### Summary
+
+- Emojis: ✨ x2, ? x2
+- Categories: Additions x2, Other Changes x2
+
+### New features and changes
+
+- [#686](https://github.com/kids-first/kf-lib-data-ingest/pull/686) - ✨ D3B-586 sample relationship - [7cb601c3](https://github.com/kids-first/kf-lib-data-ingest/commit/7cb601c345e2e430887f7d1603ee7c2ae36bf74d) by [chris-s-friedman](https://github.com/chris-s-friedman)
+- [#683](https://github.com/kids-first/kf-lib-data-ingest/pull/683) - ✨ Add Sample Concept - [026ed61c](https://github.com/kids-first/kf-lib-data-ingest/commit/026ed61c0708c25b9af418dbc1f013c4615bd8f7) by [chris-s-friedman](https://github.com/chris-s-friedman)
+- [#684](https://github.com/kids-first/kf-lib-data-ingest/pull/684) -  :wrench: add ucsf center - [469d0974](https://github.com/kids-first/kf-lib-data-ingest/commit/469d097490aafea14dbd4f81d47fc8d6c6a6ca49) by [HuangXiaoyan0106](https://github.com/HuangXiaoyan0106)
+- [#680](https://github.com/kids-first/kf-lib-data-ingest/pull/680) -  :memo: add Variantyx sequencer - [8ccf9ec2](https://github.com/kids-first/kf-lib-data-ingest/commit/8ccf9ec202afc57dfc303d8bac63294b333a06a3) by [HuangXiaoyan0106](https://github.com/HuangXiaoyan0106)
+
+
 ## Release 1.20.0
 
 ### Summary
