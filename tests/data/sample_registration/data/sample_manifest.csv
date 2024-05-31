@@ -1,0 +1,13 @@
+﻿sample_id,aliquot_id,participant,tissue_type,composition,age_at_collection,analyte,parent_sample
+s001,a001,p01,tumor,tissue,32,DNA,na
+s001,a002,p01,tumor,tissue,32,DNA,na
+s001,a003,p01,tumor,tissue,32,DNA,na
+s001,a004,p01,tumor,tissue,32,RNA,na
+s002,a005,p01,normal,blood,42,DNA,na
+s002,a006,p01,normal,blood,42,DNA,na
+s003,a007,p01,tumor,tissue,32,RNA,s001
+s003,a008,p01,tumor,tissue,32,DNA,s001
+s004,na,p01,tumor,tissue,32,na,s003
+s005,a009,p02,tumor,bone,56,DNA,na
+s006,a010,p02,normal,blood,58,DNA,na
+s007,na,p03,tumor,tissue,61,NA,na
