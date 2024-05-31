@@ -194,6 +194,16 @@ class CONCEPT:
         DBGAP_STYLE_CONSENT_CODE = None
         CONSENT_SHORT_NAME = None
 
+    class SAMPLE_RELATIONSHIP(PropertyMixin):
+
+        class PARENT_SAMPLE(PropertyMixin):
+            pass
+
+        class CHILD_SAMPLE(PropertyMixin):
+            pass
+
+        NOTES = None
+
     class GENOMIC_FILE(PropertyMixin, FileMixin):
         HARMONIZED = None
         SOURCE_FILE = None
@@ -360,6 +370,9 @@ concept_set = {
     CONCEPT.BIOSPECIMEN_GROUP,
     CONCEPT.BIOSPECIMEN,
     CONCEPT.SAMPLE,
+    CONCEPT.SAMPLE_RELATIONSHIP,
+    CONCEPT.SAMPLE_RELATIONSHIP.PARENT_SAMPLE,
+    CONCEPT.SAMPLE_RELATIONSHIP.CHILD_SAMPLE,
     CONCEPT.DIAGNOSIS,
     CONCEPT.PHENOTYPE,
     CONCEPT.DIAGNOSIS,
