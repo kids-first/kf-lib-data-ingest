@@ -17,3 +17,4 @@ schema that is used to create the tables in the target API.
     :maxdepth: 2
 
     samples_and_specimens.rst
+    sample_relationship

@@ -9,7 +9,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Samples and Biospecimens &mdash; Kids First Data Ingest Libraries  documentation</title>
+  <title>Sample Relationship &mdash; Kids First Data Ingest Libraries  documentation</title>
   
 
   
@@ -42,8 +42,8 @@
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Sample Relationship" href="sample_relationship.html" />
-    <link rel="prev" title="Concept Schema" href="index.html" />
+    <link rel="next" title="Extract Mapping" href="../extract_mapping.html" />
+    <link rel="prev" title="Samples and Biospecimens" href="samples_and_specimens.html" />
     <link rel="stylesheet" href="https://kids-first.github.io/kf-sphinx-docs-theme/sphinx_kidsfirst_theme/static/css/kidsfirst.css" type="text/css" />
  
 </head>
@@ -104,8 +104,8 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../overview.html">Design Overview</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../value_principles.html">Value Principles</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Concept Schema</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Samples and Biospecimens</a></li>
-<li class="toctree-l3"><a class="reference internal" href="sample_relationship.html">Sample Relationship</a></li>
+<li class="toctree-l3"><a class="reference internal" href="samples_and_specimens.html">Samples and Biospecimens</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Sample Relationship</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../extract_mapping.html">Extract Mapping</a></li>
@@ -167,13 +167,13 @@
         
           <li><a href="index.html">Concept Schema</a> &raquo;</li>
         
-      <li>Samples and Biospecimens</li>
+      <li>Sample Relationship</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../../_sources/design/concepts/samples_and_specimens.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/design/concepts/sample_relationship.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -186,54 +186,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <section id="samples-and-biospecimens">
-<span id="samples-and-specimens"></span><h1>Samples and Biospecimens<a class="headerlink" href="#samples-and-biospecimens" title="Permalink to this heading">¶</a></h1>
-<p>Although similarly named, samples and biospecimens refer to different concepts:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>A <strong>sample</strong> represents a physical piece of tissue, blood, or other
-biologically distinct material taken from a patient.</p></li>
-<li><p>A <strong>biospecimen</strong> is represents a portion or a part of that sample, e.g.
-an aliquot of a sample.</p></li>
-</ul>
-</div></blockquote>
-<p>While samples and biospecimens are distinct concepts, they share much in
-common. In fact, when the ingest library was first written, its primary target
-API, the Kids First Data Service, only had a table for biospecimens. As a
-result, the ingest library’s architecture provides for a biospecimen to share
-<em>all</em> the qualities of a sample. In fact, biospecimen is a child class of
-sample!</p>
-<p>This architecture allows the ingest library to be used against target APIs
-that, like the older versions of the Kids First Data Service, only have a table
-for biospecimens.</p>
-<p>A sample has qualities:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>A sample may have information about itself, such as the type of tissue it
-is, the type of tumor it comes from, when the sample was collected from
-the participant, its volume, etc.</p></li>
-<li><p>A sample may have information about shipping, such as the date it was
-shipped and shipment origin</p></li>
-</ul>
-</div></blockquote>
-<p>As discussed above, a biospecimen is a child class of sample, so biospecimens
-may have all of the same qualities of a sample*. In addition:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>a biospecimen may have information about its concentration</p></li>
-<li><p>a biospecimen may have information about its analyte type (e.g. DNA vs
-RNA)</p></li>
-<li><p>a biospecimen may have information about the consent under which it was
-collected.</p></li>
-</ul>
-</div></blockquote>
-<p>Biospecimen is designed as a child class of sample to provide for
-backwards-compatibility with older ingest packages that existed before the
-sample concept.</p>
-<p>Moving forward, it is advised to use the sample class when
-extracting information that is most related to the sample and use biospecimen
-only when extracting information that is specific to the biospecimen
-(such as concentration, analyte, and consent information).</p>
+  <section id="sample-relationship">
+<span id="id1"></span><h1>Sample Relationship<a class="headerlink" href="#sample-relationship" title="Permalink to this heading">¶</a></h1>
+<p>Samples can be related to one another in a one-to-many relationship.
+Specifically a sample can have one or more child samples. A child sample
+can be the parent of another sample.</p>
 </section>
 
 
@@ -244,10 +201,10 @@ only when extracting information that is specific to the biospecimen
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="sample_relationship.html" class="btn btn-neutral float-right" title="Sample Relationship" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../extract_mapping.html" class="btn btn-neutral float-right" title="Extract Mapping" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral float-left" title="Concept Schema" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="samples_and_specimens.html" class="btn btn-neutral float-left" title="Samples and Biospecimens" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
