@@ -196,7 +196,6 @@ class CONCEPT:
         CONSENT_SHORT_NAME = None
 
     class SAMPLE_RELATIONSHIP(PropertyMixin):
-
         class PARENT_SAMPLE(PropertyMixin):
             pass
 

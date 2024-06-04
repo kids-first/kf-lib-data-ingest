@@ -575,7 +575,10 @@ class Biospecimen:
     api_path = "biospecimens"
     target_id_concept = CONCEPT.BIOSPECIMEN.TARGET_SERVICE_ID
     service_id_fields = {
-        "kf_id", "participant_id", "sample_id", "sequencing_center_id"
+        "kf_id",
+        "participant_id",
+        "sample_id",
+        "sequencing_center_id",
     }
 
     @classmethod
@@ -670,9 +673,7 @@ class Biospecimen:
                 record.get(CONCEPT.SAMPLE.VOLUME_UL)
                 or record.get(CONCEPT.BIOSPECIMEN.VOLUME_UL)
             ),
-            "specimen_status": (
-                record.get(CONCEPT.BIOSPECIMEN.STATUS)
-            ),
+            "specimen_status": (record.get(CONCEPT.BIOSPECIMEN.STATUS)),
             "visible": record.get(CONCEPT.BIOSPECIMEN.VISIBLE),
             "visibility_comment": record.get(
                 CONCEPT.BIOSPECIMEN.VISIBILITY_COMMENT
@@ -1110,8 +1111,7 @@ class SequencingExperimentGenomicFile:
     class_name = "sequencing_experiment_genomic_file"
     api_path = "sequencing-experiment-genomic-files"
     target_id_concept = CONCEPT.SEQUENCING_GENOMIC_FILE.TARGET_SERVICE_ID
-    service_id_fields = {
-        "kf_id", "sequencing_experiment_id", "genomic_file_id"}
+    service_id_fields = {"kf_id", "sequencing_experiment_id", "genomic_file_id"}
 
     @classmethod
     def get_key_components(cls, record, get_target_id_from_record):
