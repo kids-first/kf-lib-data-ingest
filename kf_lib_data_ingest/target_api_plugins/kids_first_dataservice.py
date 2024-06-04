@@ -668,6 +668,9 @@ class Biospecimen:
                 record.get(CONCEPT.SAMPLE.VOLUME_UL)
                 or record.get(CONCEPT.BIOSPECIMEN.VOLUME_UL)
             ),
+            "specimen_status": (
+                record.get(CONCEPT.BIOSPECIMEN.STATUS)
+            ),
             "visible": record.get(CONCEPT.BIOSPECIMEN.VISIBLE),
             "visibility_comment": record.get(
                 CONCEPT.BIOSPECIMEN.VISIBILITY_COMMENT

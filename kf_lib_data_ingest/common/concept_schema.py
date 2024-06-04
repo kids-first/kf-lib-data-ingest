@@ -168,6 +168,7 @@ class CONCEPT:
         TUMOR_DESCRIPTOR = None
         EVENT_ID = None
         EVENT_AGE_DAYS = None
+        STATUS = None
 
         class EVENT_AGE(QuantityMixin):
             pass
