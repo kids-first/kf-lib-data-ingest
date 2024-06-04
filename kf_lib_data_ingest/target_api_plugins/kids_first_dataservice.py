@@ -574,7 +574,9 @@ class Biospecimen:
     class_name = "biospecimen"
     api_path = "biospecimens"
     target_id_concept = CONCEPT.BIOSPECIMEN.TARGET_SERVICE_ID
-    service_id_fields = {"kf_id", "participant_id", "sample_id"}
+    service_id_fields = {
+        "kf_id", "participant_id", "sample_id", "sequencing_center_id"
+    }
 
     @classmethod
     def get_key_components(cls, record, get_target_id_from_record):
