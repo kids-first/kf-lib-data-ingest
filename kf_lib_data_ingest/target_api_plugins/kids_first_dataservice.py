@@ -574,7 +574,12 @@ class Biospecimen:
     class_name = "biospecimen"
     api_path = "biospecimens"
     target_id_concept = CONCEPT.BIOSPECIMEN.TARGET_SERVICE_ID
-    service_id_fields = {"kf_id", "participant_id"}
+    service_id_fields = {
+        "kf_id",
+        "participant_id",
+        "sample_id",
+        "sequencing_center_id",
+    }
 
     @classmethod
     def get_key_components(cls, record, get_target_id_from_record):
@@ -589,6 +594,12 @@ class Biospecimen:
 
     @classmethod
     def build_entity(cls, record, get_target_id_from_record):
+        # sample foreign key is optional
+        try:
+            sample_id = get_target_id_from_record(Sample, record)
+        except Exception:
+            sample_id = None
+
         secondary_components = {
             "kf_id": get_target_id_from_record(cls, record),
             "sequencing_center_id": record.get(
@@ -662,6 +673,7 @@ class Biospecimen:
                 record.get(CONCEPT.SAMPLE.VOLUME_UL)
                 or record.get(CONCEPT.BIOSPECIMEN.VOLUME_UL)
             ),
+            "specimen_status": (record.get(CONCEPT.BIOSPECIMEN.STATUS)),
             "visible": record.get(CONCEPT.BIOSPECIMEN.VISIBLE),
             "visibility_comment": record.get(
                 CONCEPT.BIOSPECIMEN.VISIBILITY_COMMENT
@@ -677,7 +689,7 @@ class Biospecimen:
                 CONCEPT.BIOSPECIMEN.DBGAP_STYLE_CONSENT_CODE
             ),
             "consent_type": record.get(CONCEPT.BIOSPECIMEN.CONSENT_SHORT_NAME),
-            "sample_id": get_target_id_from_record(Sample, record),
+            "sample_id": sample_id,
         }
         return {
             **cls.get_key_components(record, get_target_id_from_record),

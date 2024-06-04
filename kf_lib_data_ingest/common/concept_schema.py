@@ -168,6 +168,7 @@ class CONCEPT:
         TUMOR_DESCRIPTOR = None
         EVENT_ID = None
         EVENT_AGE_DAYS = None
+        STATUS = None
 
         class EVENT_AGE(QuantityMixin):
             pass
@@ -195,7 +196,6 @@ class CONCEPT:
         CONSENT_SHORT_NAME = None
 
     class SAMPLE_RELATIONSHIP(PropertyMixin):
-
         class PARENT_SAMPLE(PropertyMixin):
             pass
 
