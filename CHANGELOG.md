@@ -1,5 +1,17 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.22.0
+
+### Summary
+
+- Emojis: ? x1
+- Categories: Other Changes x1
+
+### New features and changes
+
+- [#687](https://github.com/kids-first/kf-lib-data-ingest/pull/687) -  :bug: Don't assume sample_id exists, since fk is optional on BS - [d020d455](https://github.com/kids-first/kf-lib-data-ingest/commit/d020d455aa5c147f94aa6c1a7b838f1655ac1e6f) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.21.0
 
 ### Summary
