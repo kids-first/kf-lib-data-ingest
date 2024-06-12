@@ -254,8 +254,10 @@ class LoadStageBase(IngestStage):
         """
         try:
             key_components = self._do_target_get_key(entity_class, record)
-        except Exception:
+        except Exception as e:
             # no new key, no new entity
+            if isinstance(e, KeyError):
+                self.logger.warning(f"❌ Key {str(e)} not found")
             key_components = None
 
         if not key_components:

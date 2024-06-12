@@ -519,9 +519,12 @@ class SampleRelationship:
                 get_target_id_from_record(
                     Sample,
                     {
-                        CONCEPT.SAMPLE.ID: record[
-                            CONCEPT.SAMPLE_RELATIONSHIP.PARENT_SAMPLE
-                        ]
+                        CONCEPT.SAMPLE.ID: record.get(
+                            CONCEPT.SAMPLE_RELATIONSHIP.PARENT_SAMPLE.ID
+                        ),
+                        CONCEPT.SAMPLE.TARGET_SERVICE_ID: record.get(
+                            CONCEPT.SAMPLE_RELATIONSHIP.PARENT_SAMPLE.TARGET_SERVICE_ID
+                        ),
                     },
                 )
             ),
@@ -529,9 +532,12 @@ class SampleRelationship:
                 get_target_id_from_record(
                     Sample,
                     {
-                        CONCEPT.SAMPLE.ID: record[
-                            CONCEPT.SAMPLE_RELATIONSHIP.CHILD_SAMPLE
-                        ]
+                        CONCEPT.SAMPLE.ID: record.get(
+                            CONCEPT.SAMPLE_RELATIONSHIP.CHILD_SAMPLE.ID
+                        ),
+                        CONCEPT.SAMPLE.TARGET_SERVICE_ID: record.get(
+                            CONCEPT.SAMPLE_RELATIONSHIP.CHILD_SAMPLE.TARGET_SERVICE_ID
+                        ),
                     },
                 )
             ),
