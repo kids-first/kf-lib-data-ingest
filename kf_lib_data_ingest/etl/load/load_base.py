@@ -254,8 +254,10 @@ class LoadStageBase(IngestStage):
         """
         try:
             key_components = self._do_target_get_key(entity_class, record)
-        except Exception:
+        except Exception as e:
             # no new key, no new entity
+            if isinstance(e, KeyError):
+                self.logger.warning(f"❌ Key {str(e)} not found")
             key_components = None
 
         if not key_components:
@@ -388,7 +390,8 @@ class LoadStageBase(IngestStage):
                     t_key = "default"
 
                 # convert df to list of dicts
-                transformed_records = transform_output[t_key].to_dict("records")
+                transformed_records = transform_output[t_key].to_dict(
+                    "records")
 
                 if hasattr(entity_class, "transform_records_list"):
                     transformed_records = entity_class.transform_records_list(
