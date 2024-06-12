@@ -519,9 +519,13 @@ class SampleRelationship:
                 get_target_id_from_record(
                     Sample,
                     {
-                        CONCEPT.SAMPLE.ID: record[
-                            CONCEPT.SAMPLE_RELATIONSHIP.PARENT_SAMPLE
-                        ]
+                        CONCEPT.SAMPLE.ID: record.get(
+                            CONCEPT.SAMPLE_RELATIONSHIP.PARENT_SAMPLE.ID
+                        ),
+                        CONCEPT.SAMPLE.TARGET_SERVICE_ID: record.get(
+                            CONCEPT.SAMPLE_RELATIONSHIP.PARENT_SAMPLE.TARGET_SERVICE_ID
+                        ),
+
                     },
                 )
             ),
@@ -529,9 +533,13 @@ class SampleRelationship:
                 get_target_id_from_record(
                     Sample,
                     {
-                        CONCEPT.SAMPLE.ID: record[
-                            CONCEPT.SAMPLE_RELATIONSHIP.CHILD_SAMPLE
-                        ]
+                        CONCEPT.SAMPLE.ID: record.get(
+                            CONCEPT.SAMPLE_RELATIONSHIP.CHILD_SAMPLE.ID
+                        ),
+                        CONCEPT.SAMPLE.TARGET_SERVICE_ID: record.get(
+                            CONCEPT.SAMPLE_RELATIONSHIP.CHILD_SAMPLE.TARGET_SERVICE_ID
+                        ),
+
                     },
                 )
             ),
@@ -1111,7 +1119,8 @@ class SequencingExperimentGenomicFile:
     class_name = "sequencing_experiment_genomic_file"
     api_path = "sequencing-experiment-genomic-files"
     target_id_concept = CONCEPT.SEQUENCING_GENOMIC_FILE.TARGET_SERVICE_ID
-    service_id_fields = {"kf_id", "sequencing_experiment_id", "genomic_file_id"}
+    service_id_fields = {
+        "kf_id", "sequencing_experiment_id", "genomic_file_id"}
 
     @classmethod
     def get_key_components(cls, record, get_target_id_from_record):
