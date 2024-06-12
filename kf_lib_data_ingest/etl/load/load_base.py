@@ -390,8 +390,7 @@ class LoadStageBase(IngestStage):
                     t_key = "default"
 
                 # convert df to list of dicts
-                transformed_records = transform_output[t_key].to_dict(
-                    "records")
+                transformed_records = transform_output[t_key].to_dict("records")
 
                 if hasattr(entity_class, "transform_records_list"):
                     transformed_records = entity_class.transform_records_list(
