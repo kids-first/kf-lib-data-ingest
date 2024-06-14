@@ -1,5 +1,18 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.23.0
+
+### Summary
+
+- Emojis: 🐛 x1, ? x1
+- Categories: Fixes x1, Other Changes x1
+
+### New features and changes
+
+- [#690](https://github.com/kids-first/kf-lib-data-ingest/pull/690) - 🐛 Round 2 - fix sample relationship loading - [70c738f6](https://github.com/kids-first/kf-lib-data-ingest/commit/70c738f6d57e80db04be5cf5abad20a93dc5d7e9) by [znatty22](https://github.com/znatty22)
+- [#689](https://github.com/kids-first/kf-lib-data-ingest/pull/689) -  :bug: Fix SampleRelationship target ID lookup - [7cdcef2c](https://github.com/kids-first/kf-lib-data-ingest/commit/7cdcef2c6421a27805316ba6c1a9ab8e563431d5) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.22.0
 
 ### Summary
