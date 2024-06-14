@@ -515,18 +515,16 @@ class SampleRelationship:
     @classmethod
     def get_key_components(cls, record, get_target_id_from_record):
         return {
-            "parent_id": not_none(
-                get_target_id_from_record(
-                    Sample,
-                    {
-                        CONCEPT.SAMPLE.ID: record.get(
-                            CONCEPT.SAMPLE_RELATIONSHIP.PARENT_SAMPLE.ID
-                        ),
-                        CONCEPT.SAMPLE.TARGET_SERVICE_ID: record.get(
-                            CONCEPT.SAMPLE_RELATIONSHIP.PARENT_SAMPLE.TARGET_SERVICE_ID
-                        ),
-                    },
-                )
+            "parent_id": get_target_id_from_record(
+                Sample,
+                {
+                    CONCEPT.SAMPLE.ID: record.get(
+                        CONCEPT.SAMPLE_RELATIONSHIP.PARENT_SAMPLE.ID
+                    ),
+                    CONCEPT.SAMPLE.TARGET_SERVICE_ID: record.get(
+                        CONCEPT.SAMPLE_RELATIONSHIP.PARENT_SAMPLE.TARGET_SERVICE_ID
+                    ),
+                },
             ),
             "child_id": not_none(
                 get_target_id_from_record(

@@ -258,11 +258,18 @@ class LoadStageBase(IngestStage):
             # no new key, no new entity
             if isinstance(e, KeyError):
                 self.logger.warning(f"❌ Key {str(e)} not found")
+            elif isinstance(e, ValueError) and "Missing required" in str(e):
+                self.logger.warning(
+                    "❌ One or more of the required key components for looking"
+                    f" up {entity_class.class_name} is null. Check out"
+                    f" {entity_class.class_name} definition in the target API"
+                    " plugin to see what is required"
+                )
             key_components = None
 
         if not key_components:
-            self.logger.debug(
-                f"Skip {entity_class.class_name}. Missing key components. "
+            self.logger.warning(
+                f"⚠️  Skip {entity_class.class_name}. Missing key components. "
                 f"Failed to construct unique key from record:"
                 f"\n{pformat(record)}"
             )
