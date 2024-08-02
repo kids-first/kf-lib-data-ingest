@@ -757,8 +757,8 @@ class GenomicFile:
             "reference_genome": record.get(
                 CONCEPT.GENOMIC_FILE.REFERENCE_GENOME
             ),
-            "worflow_type": record.get(CONCEPT.GENOMIC_FILE.WORKFLOW_TYPE),
-            "worflow_tool": record.get(CONCEPT.GENOMIC_FILE.WORKFLOW_TOOL),
+            "workflow_type": record.get(CONCEPT.GENOMIC_FILE.WORKFLOW_TYPE),
+            "workflow_tool": record.get(CONCEPT.GENOMIC_FILE.WORKFLOW_TOOL),
             "workflow_version": record.get(
                 CONCEPT.GENOMIC_FILE.WORKFLOW_VERSION
             ),
