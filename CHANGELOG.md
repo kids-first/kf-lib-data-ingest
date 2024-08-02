@@ -1,5 +1,18 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.23.1
+
+### Summary
+
+- Emojis: 🚑️ x1, 📌 x1
+- Categories: Ops x1, Other Changes x1
+
+### New features and changes
+
+- [#692](https://github.com/kids-first/kf-lib-data-ingest/pull/692) - 🚑️ Fix typo in kf target_api_plugin - [6b7fc637](https://github.com/kids-first/kf-lib-data-ingest/commit/6b7fc63794fee1ab9d2203ce48c8477656e9d680) by [chris-s-friedman](https://github.com/chris-s-friedman)
+- [#693](https://github.com/kids-first/kf-lib-data-ingest/pull/693) - 📌 Pin numpy to 1.x to prevent python 3.9 issues - [e05591af](https://github.com/kids-first/kf-lib-data-ingest/commit/e05591af394e72164ed8d92168ac0eb81fb884f6) by [chris-s-friedman](https://github.com/chris-s-friedman)
+
+
 ## Release 1.23.0
 
 ### Summary
