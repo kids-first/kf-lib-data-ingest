@@ -173,7 +173,11 @@ class CONCEPT:
         class EVENT_AGE(QuantityMixin):
             pass
 
+        class QUANTITY(QuantityMixin):
+            pass
+
         class VOLUME(QuantityMixin):
+            # Keeping for backwards compatability. Use QUANTITY instead.
             pass
 
         SPATIAL_DESCRIPTOR = None
@@ -184,8 +188,6 @@ class CONCEPT:
         PRESERVATION_METHOD = None
 
     class BIOSPECIMEN(SAMPLE):
-        class QUANTITY(QuantityMixin):
-            pass
 
         class CONCENTRATION(QuantityMixin):
             pass
