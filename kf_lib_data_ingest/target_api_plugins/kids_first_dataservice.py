@@ -488,6 +488,14 @@ class Sample:
                 record.get(CONCEPT.SAMPLE.TISSUE_TYPE)
                 or record.get(CONCEPT.BIOSPECIMEN.TISSUE_TYPE)
             ),
+            "has_matched_normal_sample": (
+                record.get(CONCEPT.SAMPLE.HAS_MATCHED_NORMAL_SAMPLE)
+                or record.get(CONCEPT.BIOSPECIMEN.HAS_MATCHED_NORMAL_SAMPLE)
+            ),
+            "external_collection_id": (
+                record.get(CONCEPT.SAMPLE.EXTERNAL_COLLECTION_ID)
+                or record.get(CONCEPT.BIOSPECIMEN.EXTERNAL_COLLECTION_ID)
+            ),
             "visible": record.get(CONCEPT.SAMPLE.VISIBLE),
             "visibility_comment": record.get(CONCEPT.SAMPLE.VISIBILITY_COMMENT),
             "visibility_reason": record.get(CONCEPT.SAMPLE.VISIBILTIY_REASON),
@@ -672,6 +680,10 @@ class Biospecimen:
             "analyte_type": record.get(CONCEPT.BIOSPECIMEN.ANALYTE),
             "concentration_mg_per_ml": record.get(
                 CONCEPT.BIOSPECIMEN.CONCENTRATION_MG_PER_ML
+            ),
+            "has_matched_normal_sample": (
+                record.get(CONCEPT.SAMPLE.HAS_MATCHED_NORMAL_SAMPLE)
+                or record.get(CONCEPT.BIOSPECIMEN.HAS_MATCHED_NORMAL_SAMPLE)
             ),
             "volume_ul": (
                 record.get(CONCEPT.SAMPLE.VOLUME_UL)
