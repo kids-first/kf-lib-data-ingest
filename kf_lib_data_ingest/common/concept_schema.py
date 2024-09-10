@@ -182,6 +182,8 @@ class CONCEPT:
         VOLUME_UL = None
         SAMPLE_PROCUREMENT = None
         PRESERVATION_METHOD = None
+        HAS_MATCHED_NORMAL_SAMPLE = None
+        EXTERNAL_COLLECTION_ID = None
 
     class BIOSPECIMEN(SAMPLE):
         class QUANTITY(QuantityMixin):
