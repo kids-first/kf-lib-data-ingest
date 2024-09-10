@@ -488,6 +488,14 @@ class Sample:
                 record.get(CONCEPT.SAMPLE.TISSUE_TYPE)
                 or record.get(CONCEPT.BIOSPECIMEN.TISSUE_TYPE)
             ),
+            "has_matched_normal_sample": (
+                record.get(CONCEPT.SAMPLE.HAS_MATCHED_NORMAL_SAMPLE)
+                or record.get(CONCEPT.BIOSPECIMEN.HAS_MATCHED_NORMAL_SAMPLE)
+            ),
+            "external_collection_id": (
+                record.get(CONCEPT.SAMPLE.EXTERNAL_COLLECTION_ID)
+                or record.get(CONCEPT.BIOSPECIMEN.EXTERNAL_COLLECTION_ID)
+            ),
             "visible": record.get(CONCEPT.SAMPLE.VISIBLE),
             "visibility_comment": record.get(CONCEPT.SAMPLE.VISIBILITY_COMMENT),
             "visibility_reason": record.get(CONCEPT.SAMPLE.VISIBILTIY_REASON),
@@ -681,6 +689,10 @@ class Biospecimen:
             "concentration_mg_per_ml": record.get(
                 CONCEPT.BIOSPECIMEN.CONCENTRATION_MG_PER_ML
             ),
+            "has_matched_normal_sample": (
+                record.get(CONCEPT.SAMPLE.HAS_MATCHED_NORMAL_SAMPLE)
+                or record.get(CONCEPT.BIOSPECIMEN.HAS_MATCHED_NORMAL_SAMPLE)
+            ),
             "volume_ul": (
                 record.get(CONCEPT.SAMPLE.VOLUME_UL)
                 or record.get(CONCEPT.BIOSPECIMEN.VOLUME_UL)
@@ -772,6 +784,13 @@ class GenomicFile:
             "authz": str_to_obj(record.get(CONCEPT.GENOMIC_FILE.ACL)),
             "reference_genome": record.get(
                 CONCEPT.GENOMIC_FILE.REFERENCE_GENOME
+            ),
+            "cavatica_file_id": record.get(
+                CONCEPT.GENOMIC_FILE.CAVATICA_FILE_ID
+            ),
+            "cavatica_volume": record.get(CONCEPT.GENOMIC_FILE.CAVATICA_VOLUME),
+            "workflow_endpoint": record.get(
+                CONCEPT.GENOMIC_FILE.WORKFLOW_ENDPOINT
             ),
             "workflow_type": record.get(CONCEPT.GENOMIC_FILE.WORKFLOW_TYPE),
             "workflow_tool": record.get(CONCEPT.GENOMIC_FILE.WORKFLOW_TOOL),
