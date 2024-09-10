@@ -1,5 +1,19 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.24.0
+
+### Summary
+
+- Emojis: ✨ x3
+- Categories: Additions x3
+
+### New features and changes
+
+- [#695](https://github.com/kids-first/kf-lib-data-ingest/pull/695) - ✨ AD-2303 add amount and amount units to sample and bs and kf target - [159b4cca](https://github.com/kids-first/kf-lib-data-ingest/commit/159b4ccaf5f94990ff71d7b1f259c1677172c0e4) by [chris-s-friedman](https://github.com/chris-s-friedman)
+- [#696](https://github.com/kids-first/kf-lib-data-ingest/pull/696) - ✨ D3B-725 add has_match_normal and external_collection_id - [2abcf8b4](https://github.com/kids-first/kf-lib-data-ingest/commit/2abcf8b42cdbe5a7de6293ea59be9dd2d2343a2b) by [chris-s-friedman](https://github.com/chris-s-friedman)
+- [#697](https://github.com/kids-first/kf-lib-data-ingest/pull/697) - ✨ D3B-674 add new CAVATICA gf fields - [54bece5a](https://github.com/kids-first/kf-lib-data-ingest/commit/54bece5af3f6cd5897fc7bd195759ff30e7d6533) by [chris-s-friedman](https://github.com/chris-s-friedman)
+
+
 ## Release 1.23.1
 
 ### Summary
