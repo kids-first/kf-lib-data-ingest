@@ -213,8 +213,11 @@ class CONCEPT:
         WORKFLOW_TOOL = None
         WORKFLOW_TYPE = None
         WORKFLOW_VERSION = None
+        WORKFLOW_ENDPOINT = None
         FILE_VERSION_DESCRIPTOR = None
         DATA_CATEGORY = None
+        CAVATICA_FILE_ID = None
+        CAVATICA_VOLUME = None
 
     class READ_GROUP(PropertyMixin):
         PAIRED_END = None
