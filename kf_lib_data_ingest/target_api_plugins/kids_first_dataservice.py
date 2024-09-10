@@ -503,6 +503,14 @@ class Sample:
                 record.get(CONCEPT.SAMPLE.VOLUME_UL)
                 or record.get(CONCEPT.BIOSPECIMEN.VOLUME_UL)
             ),
+            "amount": (
+                record.get(CONCEPT.SAMPLE.QUANTITY.VALUE)
+                or record.get(CONCEPT.BIOSPECIMEN.QUANTITY.VALUE)
+            ),
+            "amount_units": (
+                record.get(CONCEPT.SAMPLE.QUANTITY.UNITS)
+                or record.get(CONCEPT.BIOSPECIMEN.QUANTITY.UNITS)
+            ),
         }
         return {
             **cls.get_key_components(record, get_target_id_from_record),
@@ -688,6 +696,14 @@ class Biospecimen:
             "volume_ul": (
                 record.get(CONCEPT.SAMPLE.VOLUME_UL)
                 or record.get(CONCEPT.BIOSPECIMEN.VOLUME_UL)
+            ),
+            "amount": (
+                record.get(CONCEPT.SAMPLE.QUANTITY.VALUE)
+                or record.get(CONCEPT.BIOSPECIMEN.QUANTITY.VALUE)
+            ),
+            "amount_units": (
+                record.get(CONCEPT.SAMPLE.QUANTITY.UNITS)
+                or record.get(CONCEPT.BIOSPECIMEN.QUANTITY.UNITS)
             ),
             "specimen_status": (record.get(CONCEPT.BIOSPECIMEN.STATUS)),
             "visible": record.get(CONCEPT.BIOSPECIMEN.VISIBLE),
