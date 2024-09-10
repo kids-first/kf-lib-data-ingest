@@ -757,6 +757,13 @@ class GenomicFile:
             "reference_genome": record.get(
                 CONCEPT.GENOMIC_FILE.REFERENCE_GENOME
             ),
+            "cavatica_file_id": record.get(
+                CONCEPT.GENOMIC_FILE.CAVATICA_FILE_ID
+            ),
+            "cavatica_volume": record.get(CONCEPT.GENOMIC_FILE.CAVATICA_VOLUME),
+            "workflow_endpoint": record.get(
+                CONCEPT.GENOMIC_FILE.WORKFLOW_ENDPOINT
+            ),
             "workflow_type": record.get(CONCEPT.GENOMIC_FILE.WORKFLOW_TYPE),
             "workflow_tool": record.get(CONCEPT.GENOMIC_FILE.WORKFLOW_TOOL),
             "workflow_version": record.get(
