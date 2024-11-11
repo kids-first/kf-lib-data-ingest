@@ -287,7 +287,7 @@ class SEQUENCING:
             KF_ID = "SC_MSQP04K7"
 
         class UPENN:
-            NAME = "University of Penn"
+            NAME = "University of Pennsylvania"
             KF_ID = "SC_K20D8V6F"
 
         class VARIANTYX:
