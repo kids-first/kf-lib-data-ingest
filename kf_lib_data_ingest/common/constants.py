@@ -286,6 +286,10 @@ class SEQUENCING:
             NAME = "UCSF CAT"
             KF_ID = "SC_MSQP04K7"
 
+        class UPENN:
+            NAME = "University of Pennsylvania"
+            KF_ID = "SC_K20D8V6F"
+
         class VARIANTYX:
             NAME = "Variantyx"
             KF_ID = "SC_T2A19FHX"
