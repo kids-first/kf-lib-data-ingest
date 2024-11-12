@@ -1,5 +1,16 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.25.0
+
+### Summary
+
+- Emojis: 👔 x1
+- Categories: Additions x1
+
+### New features and changes
+
+- [#699](https://github.com/kids-first/kf-lib-data-ingest/pull/699) -  👔add upenn - [16263096](https://github.com/kids-first/kf-lib-data-ingest/commit/16263096c28bbd835708ae199e2c705bc6c6185f) by [HuangXiaoyan0106](https://github.com/HuangXiaoyan0106)
+
 ## Release 1.24.0
 
 ### Summary
