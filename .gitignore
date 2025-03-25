@@ -83,5 +83,7 @@ test_graph.gml
 # dot files and folders
 .*
 
+!.github/
+
 # validation results
 validation_results/
