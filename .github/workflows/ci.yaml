@@ -2,7 +2,7 @@ name: ✅ CI
 
 on:
   pull_request:
-    types: [opened, reopened, edited, synchronize, closed]
+    types: [opened, reopened, synchronize, closed]
 
 concurrency:
   group: ci-${{ github.event.pull_request.number || github.ref }}
