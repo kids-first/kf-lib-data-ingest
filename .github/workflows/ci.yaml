@@ -24,12 +24,10 @@ jobs:
 
       - name: 📦 Install deps
         run: |
-          cd kf-lib-data-ingest
-          pip install black==25.1.0
+          pip install black==23.3.0
 
       - name: 🚨 Lint code
         run: |
-          cd kf-lib-data-ingest
           black --check --line-length 80 tests kf_lib_data_ingest
 
   test:
@@ -54,7 +52,6 @@ jobs:
 
       - name: 📦 Install deps
         run: |
-          cd kf-lib-data-ingest
           pip install --upgrade virtualenv
           virtualenv -p python3 venv
           source venv/bin/activate
@@ -65,7 +62,6 @@ jobs:
 
       - name: ✅ Unit Test
         run: |
-          cd kf-lib-data-ingest
           source venv/bin/activate
           pytest  ./tests/unit
 
