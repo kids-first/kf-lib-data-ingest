@@ -63,5 +63,5 @@ jobs:
       - name: ✅ Unit Test
         run: |
           source venv/bin/activate
-          pytest  ./tests/unit
+          pytest  ./tests
 
