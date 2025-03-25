@@ -1,4 +1,4 @@
-""" Dataset Ingest Config """
+"""Dataset Ingest Config"""
 
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
 

@@ -1,4 +1,4 @@
-""" Ingest Package Config """
+"""Ingest Package Config"""
 
 from kf_lib_data_ingest.common.concept_schema import CONCEPT
 
