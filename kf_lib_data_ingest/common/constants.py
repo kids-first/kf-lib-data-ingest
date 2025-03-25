@@ -111,6 +111,13 @@ class GENOMIC_FILE:
         ISOFORM_EXPRESSION = "Isoform Expression"
         SOMATIC_COPY_NUMBER_VARIATIONS = "Somatic Copy Number Variations"
         SOMATIC_STRUCTURAL_VARIATIONS = "Somatic Structural Variations"
+        #single cell data types
+        QC_METRICS = "QC Metrics"
+        SPLICE_JUNCTION = "Splice Junction"
+        EXPRESSION_COUNTS = "Expression Counts"
+        STAR_SINGLE_CELL_COUNTS = "STAR Single Cell Counts"
+        STAR_CELL_RANGER_COUNTS = "STAR Cell Ranger Counts"
+        SINGLE_CELL_QC_METRICS = "Single Cell QC Metrics"
 
     class FORMAT:
         BAI = "bai"
