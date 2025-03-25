@@ -1,0 +1,70 @@
+name: ✅ CI
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: 🚨 Lint code
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - name: 👩‍💻 Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.7"
+
+      - name: 📦 Install deps
+        run: |
+          pip install black==23.3.0
+
+      - name: 🚨 Lint code
+        run: |
+          black --check --line-length 80 tests kf_lib_data_ingest
+
+  test:
+    name: ✅ Unit test
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        python-version: [3.7]
+    steps:
+      - name: 👩‍💻 Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🐍 Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: 🔐 Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GH_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      - name: 📦 Install deps
+        run: |
+          pip install --upgrade virtualenv
+          virtualenv -p python3 venv
+          source venv/bin/activate
+          pip uninstall -y setuptools
+          pip install setuptools>61
+          pip install -e .
+          pip install -r dev-requirements.txt 
+
+      - name: ✅ Unit Test
+        run: |
+          source venv/bin/activate
+          pytest  ./tests
+

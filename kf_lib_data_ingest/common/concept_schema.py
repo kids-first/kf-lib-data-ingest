@@ -190,7 +190,6 @@ class CONCEPT:
         EXTERNAL_COLLECTION_ID = None
 
     class BIOSPECIMEN(SAMPLE):
-
         class CONCENTRATION(QuantityMixin):
             pass
 

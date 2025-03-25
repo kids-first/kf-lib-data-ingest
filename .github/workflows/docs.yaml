@@ -1,0 +1,46 @@
+name: 🛠️ Doc site
+
+on:
+  push:
+    branches: 
+      - master
+
+concurrency:
+  group: docs-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docs:
+    name: 📝 Build docs site
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - name: 👩‍💻 Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.7"
+
+      - name: 📦 Install deps
+        run: |
+          cd kf-lib-data-ingest
+          pip install --upgrade virtualenv
+          virtualenv -p python3 venv
+          source venv/bin/activate
+          pip uninstall -y setuptools
+          pip install setuptools>61
+          pip install -r doc-requirements.txt 
+
+      - name: 👷 Build site
+        run: |
+          source venv/bin/activate
+          doc8 docs/source
+          make -C docs html
+
+      - name: 🚀 Deploy to github pages
+        run: |
+          source venv/bin/activate
+          ./scripts/deploy-ghpages.sh
+
