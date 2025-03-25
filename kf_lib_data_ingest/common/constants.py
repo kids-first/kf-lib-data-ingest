@@ -111,7 +111,7 @@ class GENOMIC_FILE:
         ISOFORM_EXPRESSION = "Isoform Expression"
         SOMATIC_COPY_NUMBER_VARIATIONS = "Somatic Copy Number Variations"
         SOMATIC_STRUCTURAL_VARIATIONS = "Somatic Structural Variations"
-        #single cell data types
+        # single cell data types
         QC_METRICS = "QC Metrics"
         SPLICE_JUNCTION = "Splice Junction"
         EXPRESSION_COUNTS = "Expression Counts"

@@ -1,4 +1,4 @@
-""" Ingest Package Config """
+"""Ingest Package Config"""
 
 # The list of entities that will be loaded into the target service. These
 # should be class_name values of your target API config's target entity
