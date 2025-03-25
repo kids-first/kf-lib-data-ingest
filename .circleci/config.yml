@@ -8,6 +8,8 @@ test: &test
   steps:
     - checkout
     - run: |
+        pip uninstall -y setuptools
+        pip install setuptools>61
         pip install -r dev-requirements.txt
         pip install .
         pytest tests --junit-xml test_output/junit.xml
