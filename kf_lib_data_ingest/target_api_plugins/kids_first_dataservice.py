@@ -496,6 +496,10 @@ class Sample:
                 record.get(CONCEPT.SAMPLE.EXTERNAL_COLLECTION_ID)
                 or record.get(CONCEPT.BIOSPECIMEN.EXTERNAL_COLLECTION_ID)
             ),
+            "cell_entity": (
+                record.get(CONCEPT.SAMPLE.CELL_ENTITY)
+                or record.get(CONCEPT.BIOSPECIMEN.CELL_ENTITY)
+            ),
             "visible": record.get(CONCEPT.SAMPLE.VISIBLE),
             "visibility_comment": record.get(CONCEPT.SAMPLE.VISIBILITY_COMMENT),
             "visibility_reason": record.get(CONCEPT.SAMPLE.VISIBILTIY_REASON),
@@ -911,6 +915,59 @@ class SequencingExperiment:
             "adapter_sequencing": record.get(
                 CONCEPT.SEQUENCING.ADAPTER_SEQUENCING
             ),
+            "sequencing_mode": record.get(CONCEPT.SEQUENCING.SEQUENCING_MODE),
+            "end_bias": record.get(CONCEPT.SEQUENCING.END_BIAS),
+            "library_construction": record.get(
+                CONCEPT.SEQUENCING.LIBRARY_CONSTRUCTION
+            ),
+            "umi_barcode_read": record.get(CONCEPT.SEQUENCING.UMI_BARCODE_READ),
+            "umi_barcode_offset": record.get(
+                CONCEPT.SEQUENCING.UMI_BARCODE_OFFSET
+            ),
+            "umi_barcode_size": record.get(CONCEPT.SEQUENCING.UMI_BARCODE_SIZE),
+            "cell_barcode_read": record.get(
+                CONCEPT.SEQUENCING.CELL_BARCODE_READ
+            ),
+            "cell_barcode_offset": record.get(
+                CONCEPT.SEQUENCING.CELL_BARCODE_OFFSET
+            ),
+            "cell_barcode_size": record.get(
+                CONCEPT.SEQUENCING.CELL_BARCODE_SIZE
+            ),
+            "cdna_read": record.get(CONCEPT.SEQUENCING.CDNA_READ),
+            "cdna_read_offset": record.get(CONCEPT.SEQUENCING.CDNA_READ_OFFSET),
+            "target_cell_number": record.get(
+                CONCEPT.SEQUENCING.TARGET_CELL_NUMBER
+            ),
+            "proteomics_experiment": record.get(
+                CONCEPT.SEQUENCING.PROTEOMICS_EXPERIMENT
+            ),
+            "mass_spec_rawfile_conversion": record.get(
+                CONCEPT.SEQUENCING.MASS_SPEC_RAWFILE_CONVERSION
+            ),
+            "acquisition_type": record.get(CONCEPT.SEQUENCING.ACQUISITION_TYPE),
+            "ion_fragmentation": record.get(
+                CONCEPT.SEQUENCING.ION_FRAGMENTATION
+            ),
+            "enrichment_approach": record.get(
+                CONCEPT.SEQUENCING.ENRICHMENT_APPROACH
+            ),
+            "quantification_technique": record.get(
+                CONCEPT.SEQUENCING.QUANTIFICATION_TECHNIQUE
+            ),
+            "quantification_labeling_method": record.get(
+                CONCEPT.SEQUENCING.QUANTIFICATION_LABELING_METHOD
+            ),
+            "quantification_label_id": record.get(
+                CONCEPT.SEQUENCING.QUANTIFICATION_LABEL_ID
+            ),
+            "chromatography_approach": record.get(
+                CONCEPT.SEQUENCING.CHROMATOGRAPHY_APPROACH
+            ),
+            "fractionation_approach": record.get(
+                CONCEPT.SEQUENCING.FRACTIONATION_APPROACH
+            ),
+            "fraction_number": record.get(CONCEPT.SEQUENCING.FRACTION_NUMBER),
             "visible": record.get(CONCEPT.SEQUENCING.VISIBLE),
             "visibility_comment": record.get(
                 CONCEPT.SEQUENCING.VISIBILITY_COMMENT

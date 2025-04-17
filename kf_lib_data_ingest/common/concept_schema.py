@@ -188,6 +188,7 @@ class CONCEPT:
         PRESERVATION_METHOD = None
         HAS_MATCHED_NORMAL_SAMPLE = None
         EXTERNAL_COLLECTION_ID = None
+        CELL_ENTITY = None
 
     class BIOSPECIMEN(SAMPLE):
         class CONCENTRATION(QuantityMixin):
@@ -247,6 +248,29 @@ class CONCEPT:
         IS_ADAPTER_TRIMMED = None
         ADAPTER_SEQUENCING = None
         READ_PAIR_NUMBER = None
+        SEQUENCING_MODE = None
+        END_BIAS = None
+        LIBRARY_CONSTRUCTION = None
+        UMI_BARCODE_READ = None
+        UMI_BARCODE_OFFSET = None
+        UMI_BARCODE_SIZE = None
+        CELL_BARCODE_READ = None
+        CELL_BARCODE_OFFSET = None
+        CELL_BARCODE_SIZE = None
+        CDNA_READ = None
+        CDNA_READ_OFFSET = None
+        TARGET_CELL_NUMBER = None
+        PROTEOMICS_EXPERIMENT = None
+        MASS_SPEC_RAWFILE_CONVERSION = None
+        ACQUISITION_TYPE = None
+        ION_FRAGMENTATION = None
+        ENRICHMENT_APPROACH = None
+        QUANTIFICATION_TECHNIQUE = None
+        QUANTIFICATION_LABELING_METHOD = None
+        QUANTIFICATION_LABEL_ID = None
+        CHROMATOGRAPHY_APPROACH = None
+        FRACTIONATION_APPROACH = None
+        FRACTION_NUMBER = None
 
         class CENTER(PropertyMixin):
             NAME = None

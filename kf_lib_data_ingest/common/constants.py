@@ -333,6 +333,7 @@ class SEQUENCING:
         CLR_WGS = "Continuous Long Reads WGS"
         CLR_RNA = "Continuous Long Reads RNA-Seq"
         ONT_WGS = "ONT WGS"
+        PROTEOMICS = "Proteomics"
 
     class ANALYTE:
         DNA = "DNA"
@@ -352,6 +353,25 @@ class SEQUENCING:
         class PREP:
             POLYA = "polyA"
             TOTALRNASEQ = "totalRNAseq"
+
+    class SEQUENCING_MODE:
+        CLR = "CLR"
+        CCS = "CCS"
+
+    class END_BIAS:
+        END_3 = "3-end"
+        END_5 = "5-end"
+        FULL_LENGTH = "full-length"
+
+    class READ_ENUM:
+        INDEX1 = "index1"
+        INDEX2 = "index2"
+        READ1 = "read1"
+        READ2 = "read2"
+
+    class ACQUISITION_TYPE:
+        DDA = "DDA"
+        DIA = "DIA"
 
 
 class STUDY:
