@@ -12,7 +12,6 @@ from kf_lib_data_ingest.config import DEFAULT_KEY
 
 
 def transform_function(mapped_df_dict):
-
     df = mapped_df_dict["proteomics_genomic_file.py"]
 
     return {DEFAULT_KEY: df}
