@@ -5,7 +5,7 @@ target_service_entities = [
     "sequencing_experiment",
     "genomic_file",
     "biospecimen_genomic_file",
-    "sequencing_experiment_genomic_file"
+    "sequencing_experiment_genomic_file",
 ]
 
 # All paths are relative to the directory this file is in
