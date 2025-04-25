@@ -156,16 +156,19 @@ operations = [
     keep_map("fraction_number", out_col=CONCEPT.SEQUENCING.FRACTION_NUMBER),
     # visiable
     # sequencing
-    keep_map(in_col="visible", out_col=CONCEPT.SEQUENCING.VISIBLE),
+    constant_map(m=constants.COMMON.FALSE, out_col=CONCEPT.SEQUENCING.VISIBLE),
     constant_map(m="Other", out_col=CONCEPT.SEQUENCING.VISIBILTIY_REASON),
     constant_map(m="Other", out_col=CONCEPT.SEQUENCING.VISIBILITY_COMMENT),
     # genomic_file
-    keep_map(in_col="visible", out_col=CONCEPT.GENOMIC_FILE.VISIBLE),
+    constant_map(
+        m=constants.COMMON.FALSE, out_col=CONCEPT.GENOMIC_FILE.VISIBLE
+    ),
     constant_map(m="Other", out_col=CONCEPT.GENOMIC_FILE.VISIBILTIY_REASON),
     constant_map(m="Other", out_col=CONCEPT.GENOMIC_FILE.VISIBILITY_COMMENT),
     # biospecimen_genomic_file
-    keep_map(
-        in_col="visible", out_col=CONCEPT.BIOSPECIMEN_GENOMIC_FILE.VISIBLE
+    constant_map(
+        m=constants.COMMON.FALSE,
+        out_col=CONCEPT.BIOSPECIMEN_GENOMIC_FILE.VISIBLE,
     ),
     constant_map(
         m="Other", out_col=CONCEPT.BIOSPECIMEN_GENOMIC_FILE.VISIBILTIY_REASON
@@ -174,7 +177,10 @@ operations = [
         m="Other", out_col=CONCEPT.BIOSPECIMEN_GENOMIC_FILE.VISIBILITY_COMMENT
     ),
     # sequencing_genomic_file
-    keep_map(in_col="visible", out_col=CONCEPT.SEQUENCING_GENOMIC_FILE.VISIBLE),
+    constant_map(
+        m=constants.COMMON.FALSE,
+        out_col=CONCEPT.SEQUENCING_GENOMIC_FILE.VISIBLE,
+    ),
     constant_map(
         m="Other", out_col=CONCEPT.SEQUENCING_GENOMIC_FILE.VISIBILTIY_REASON
     ),
