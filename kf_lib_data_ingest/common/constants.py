@@ -120,16 +120,28 @@ class GENOMIC_FILE:
         SINGLE_CELL_QC_METRICS = "Single Cell QC Metrics"
         # ICA Processing Data Types
         RAW_FAMILY_COPY_NUMBER_VARIANTS = "Raw Family Copy Number Variants"
-        RAW_FAMILY_COPY_NUMBER_VARIANTS_INDEX = "Raw Family Copy Number Variants Index"
+        RAW_FAMILY_COPY_NUMBER_VARIANTS_INDEX = (
+            "Raw Family Copy Number Variants Index"
+        )
         RAW_FAMILY_STRUCTURAL_VARIANTS = "Raw Family Structural Variants"
-        RAW_FAMILY_STRUCTURAL_VARIANTS_INDEX = "Raw Family Structural Variants Index"
-        RAW_GERMLINE_COPY_NUMBER_STRUCTURAL_VARIANTS = "Raw Germline Copy Number Structural Variants"
-        RAW_GERMLINE_COPY_NUMBER_STRUCTURAL_VARIANTS_INDEX = "Raw Germline Copy Number Structural Variants Index"
+        RAW_FAMILY_STRUCTURAL_VARIANTS_INDEX = (
+            "Raw Family Structural Variants Index"
+        )
+        RAW_GERMLINE_COPY_NUMBER_STRUCTURAL_VARIANTS = (
+            "Raw Germline Copy Number Structural Variants"
+        )
+        RAW_GERMLINE_COPY_NUMBER_STRUCTURAL_VARIANTS_INDEX = (
+            "Raw Germline Copy Number Structural Variants Index"
+        )
         RAW_GERMLINE_COPY_NUMBER_VARIANTS = "Raw Germline Copy Number Variants"
-        RAW_GERMLINE_COPY_NUMBER_VARIANTS_INDEX = "Raw Germline Copy Number Variants Index"
+        RAW_GERMLINE_COPY_NUMBER_VARIANTS_INDEX = (
+            "Raw Germline Copy Number Variants Index"
+        )
         RAW_GERMLINE_STRUCTURAL_VARIANTS = "Raw Germline Structural Variants"
-        RAW_GERMLINE_STRUCTURAL_VARIANTS_INDEX = "Raw Germline Structural Variants Index"
-        
+        RAW_GERMLINE_STRUCTURAL_VARIANTS_INDEX = (
+            "Raw Germline Structural Variants Index"
+        )
+
     class FORMAT:
         BAI = "bai"
         BAM = "bam"

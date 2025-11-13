@@ -1,5 +1,4 @@
-
-def plotly_concept_graph(G, file_name='concept_graph', notebook_mode=False):
+def plotly_concept_graph(G, file_name="concept_graph", notebook_mode=False):
     """
     Create an interactive network graph using plotly.
     Very useful for dev and debugging graph type things
@@ -30,21 +29,30 @@ def plotly_concept_graph(G, file_name='concept_graph', notebook_mode=False):
     edge_trace = go.Scatter(
         x=[],
         y=[],
-        line=dict(width=0.5, color='#888'),
-        hoverinfo='none',
-        mode='lines')
+        line=dict(width=0.5, color="#888"),
+        hoverinfo="none",
+        mode="lines",
+    )
 
     arrow_annotations = []
     for edge in G.edges():
-        concept_node = G.node[edge[0]]['object']
+        concept_node = G.node[edge[0]]["object"]
         x0, y0 = pos[concept_node.key]
-        concept_node = G.node[edge[1]]['object']
+        concept_node = G.node[edge[1]]["object"]
         x1, y1 = pos[concept_node.key]
-        edge_trace['x'] += tuple([x0, x1, None])
-        edge_trace['y'] += tuple([y0, y1, None])
+        edge_trace["x"] += tuple([x0, x1, None])
+        edge_trace["y"] += tuple([y0, y1, None])
         arrow_annotations.append(
-            dict(ax=x0, ay=y0, axref='x', ayref='y',
-                 x=x1, y=y1, xref='x', yref='y')
+            dict(
+                ax=x0,
+                ay=y0,
+                axref="x",
+                ayref="y",
+                x=x1,
+                y=y1,
+                xref="x",
+                yref="y",
+            )
         )
 
     # Generate node markers
@@ -52,48 +60,52 @@ def plotly_concept_graph(G, file_name='concept_graph', notebook_mode=False):
         x=[],
         y=[],
         text=[],
-        textposition='top center',
-        mode='markers+text',
-        hoverinfo='text',
+        textposition="top center",
+        mode="markers+text",
+        hoverinfo="text",
         marker=dict(
             showscale=True,
             # colorscale options
             #'Greys' | 'YlGnBu' | 'Greens' | 'YlOrRd' | 'Bluered' | 'RdBu' |
             #'Reds' | 'Blues' | 'Picnic' | 'Rainbow' | 'Portland' | 'Jet' |
             #'Hot' | 'Blackbody' | 'Earth' | 'Electric' | 'Viridis' |
-            colorscale='Viridis',
+            colorscale="Viridis",
             reversescale=True,
             color=[],
             size=20,
             colorbar=dict(
                 thickness=15,
-                title='Node Connections',
-                xanchor='left',
-                titleside='right'
+                title="Node Connections",
+                xanchor="left",
+                titleside="right",
             ),
-            line=dict(width=2)))
+            line=dict(width=2),
+        ),
+    )
 
     # Add hover labels, color nodes
     for node in G.nodes():
         x, y = pos[node]
-        node_trace['x'] += tuple([x])
-        node_trace['y'] += tuple([y])
+        node_trace["x"] += tuple([x])
+        node_trace["y"] += tuple([y])
         degree = nx.degree(G, node)
-        node_trace['marker']['color'] += tuple([degree])
-        node_trace['text'] += tuple([node.split('CONCEPT|')[-1]])
+        node_trace["marker"]["color"] += tuple([degree])
+        node_trace["text"] += tuple([node.split("CONCEPT|")[-1]])
 
     # Generate iplot
-    fig = go.Figure(data=[edge_trace, node_trace],
-                    layout=go.Layout(title='<br>Concept Graph',
-                                     titlefont=dict(size=16),
-                                     showlegend=False,
-                                     hovermode='closest',
-                                     margin=dict(b=20, l=5, r=5, t=40),
-                                     xaxis=dict(showgrid=False, zeroline=False,
-                                                showticklabels=False),
-                                     yaxis=dict(showgrid=False, zeroline=False,
-                                                showticklabels=False),
-                                     annotations=arrow_annotations))
+    fig = go.Figure(
+        data=[edge_trace, node_trace],
+        layout=go.Layout(
+            title="<br>Concept Graph",
+            titlefont=dict(size=16),
+            showlegend=False,
+            hovermode="closest",
+            margin=dict(b=20, l=5, r=5, t=40),
+            xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+            annotations=arrow_annotations,
+        ),
+    )
 
     if notebook_mode:
         plotly.offline.iplot(fig, filename=file_name)
