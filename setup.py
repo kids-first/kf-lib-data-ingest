@@ -17,7 +17,9 @@ setup(
     description="Kids First Data Ingest Library",
     packages=find_packages(),
     entry_points={
-        "console_scripts": ["kidsfirst=kf_lib_data_ingest.app.cli:cli",],
+        "console_scripts": [
+            "kidsfirst=kf_lib_data_ingest.app.cli:cli",
+        ],
     },
     package_data={"templates": ["*.tsv"]},
     include_package_data=True,

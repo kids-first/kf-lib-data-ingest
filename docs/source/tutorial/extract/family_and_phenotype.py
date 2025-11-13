@@ -6,10 +6,7 @@ from kf_lib_data_ingest.etl.extract.operations import *
 
 source_data_url = "https://raw.githubusercontent.com/kids-first/kf-lib-data-ingest/master/docs/data/family_and_phenotype.tsv"
 
-source_data_read_params = {
-    "header": 1,
-    "usecols": lambda x: x != "[ignore]"
-}
+source_data_read_params = {"header": 1, "usecols": lambda x: x != "[ignore]"}
 
 
 def observed_yes_no(x):
@@ -29,60 +26,46 @@ operations = [
         m={
             r"PID(\d+)": lambda x: int(x),  # strip PID and 0-padding
         },
-        out_col=CONCEPT.PARTICIPANT.ID
+        out_col=CONCEPT.PARTICIPANT.ID,
     ),
-    keep_map(
-        in_col="mother",
-        out_col=CONCEPT.PARTICIPANT.MOTHER_ID
-    ),
-    keep_map(
-        in_col="father",
-        out_col=CONCEPT.PARTICIPANT.FATHER_ID
-    ),
+    keep_map(in_col="mother", out_col=CONCEPT.PARTICIPANT.MOTHER_ID),
+    keep_map(in_col="father", out_col=CONCEPT.PARTICIPANT.FATHER_ID),
     value_map(
         in_col="gender",
         # Don't worry about mother/father gender here.
         # We can create them in a later phase.
-        m={
-            "F": constants.GENDER.FEMALE,
-            "M": constants.GENDER.MALE
-        },
-        out_col=CONCEPT.PARTICIPANT.GENDER
+        m={"F": constants.GENDER.FEMALE, "M": constants.GENDER.MALE},
+        out_col=CONCEPT.PARTICIPANT.GENDER,
     ),
     value_map(
         in_col="specimens",
         m=lambda x: Split(re.split("[,;]", x)),
-        out_col=CONCEPT.BIOSPECIMEN.ID
+        out_col=CONCEPT.BIOSPECIMEN.ID,
     ),
     [
         value_map(
             in_col=6,  # age (hrs) (first)
             m=lambda x: int(x) / 24,
-            out_col=CONCEPT.PHENOTYPE.EVENT_AGE_DAYS
+            out_col=CONCEPT.PHENOTYPE.EVENT_AGE_DAYS,
         ),
         melt_map(
             var_name=CONCEPT.PHENOTYPE.NAME,
-            map_for_vars={
-                "CLEFT_EGO": "Cleft ego",
-                "CLEFT_ID": "Cleft id"
-            },
+            map_for_vars={"CLEFT_EGO": "Cleft ego", "CLEFT_ID": "Cleft id"},
             value_name=CONCEPT.PHENOTYPE.OBSERVED,
-            map_for_values=observed_yes_no
-        )
+            map_for_values=observed_yes_no,
+        ),
     ],
     [
         value_map(
             in_col=9,  # age (hrs) (second)
             m=lambda x: int(x) / 24,
-            out_col=CONCEPT.PHENOTYPE.EVENT_AGE_DAYS
+            out_col=CONCEPT.PHENOTYPE.EVENT_AGE_DAYS,
         ),
         melt_map(
             var_name=CONCEPT.PHENOTYPE.NAME,
-            map_for_vars={
-                "EXTRA_EARDRUM": "Extra eardrum"
-            },
+            map_for_vars={"EXTRA_EARDRUM": "Extra eardrum"},
             value_name=CONCEPT.PHENOTYPE.OBSERVED,
-            map_for_values=observed_yes_no
-        )
-    ]
+            map_for_values=observed_yes_no,
+        ),
+    ],
 ]
