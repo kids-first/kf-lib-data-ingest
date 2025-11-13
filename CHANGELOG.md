@@ -1,5 +1,20 @@
 # Kids First Data Ingest Library Change History
 
+## Release 1.26.0
+
+### Summary
+
+- Emojis: ? x3, ✨ x1
+- Categories: Additions x1, Other Changes x3
+
+### New features and changes
+
+- [#705](https://github.com/kids-first/kf-lib-data-ingest/pull/705) -  Add ICA processing datatypes - [66935e82](https://github.com/kids-first/kf-lib-data-ingest/commit/66935e82055e694aac4761cfcfcfeef45336ad31) by [awarkow](https://github.com/awarkow)
+- [#704](https://github.com/kids-first/kf-lib-data-ingest/pull/704) - ✨ Add new fields - [0248b903](https://github.com/kids-first/kf-lib-data-ingest/commit/0248b90385e3df43cf78a1f2054f0d17bb7a870f) by [HuangXiaoyan0106](https://github.com/HuangXiaoyan0106)
+- [#701](https://github.com/kids-first/kf-lib-data-ingest/pull/701) -  Add new single cell datatypes - [41c5298e](https://github.com/kids-first/kf-lib-data-ingest/commit/41c5298e7fc781f5a2f1db6ac52bd2e55ca2106e) by [awarkow](https://github.com/awarkow)
+- [#702](https://github.com/kids-first/kf-lib-data-ingest/pull/702) -  :construction_worker: Replace circleci with Github workflows - [3438b2bb](https://github.com/kids-first/kf-lib-data-ingest/commit/3438b2bb3068400af53d05798806109d6919dc1d) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.25.0
 
 ### Summary
