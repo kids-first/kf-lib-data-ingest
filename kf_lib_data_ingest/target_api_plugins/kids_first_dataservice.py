@@ -88,7 +88,7 @@ class Investigator:
                 CONCEPT.INVESTIGATOR.VISIBILITY_COMMENT
             ),
             "visibility_reason": record.get(
-                CONCEPT.INVESTIGATOR.VISIBILTIY_REASON
+                CONCEPT.INVESTIGATOR.VISIBILITY_REASON
             ),
         }
         return {
@@ -141,7 +141,7 @@ class Study:
             "category": record.get(CONCEPT.STUDY.CATEGORY),
             "visible": record.get(CONCEPT.STUDY.VISIBLE),
             "visibility_comment": record.get(CONCEPT.STUDY.VISIBILITY_COMMENT),
-            "visibility_reason": record.get(CONCEPT.STUDY.VISIBILTIY_REASON),
+            "visibility_reason": record.get(CONCEPT.STUDY.VISIBILITY_REASON),
         }
         return {
             **cls.get_key_components(record, get_target_id_from_record),
@@ -176,7 +176,7 @@ class Family:
             "kf_id": get_target_id_from_record(cls, record),
             "visible": record.get(CONCEPT.FAMILY.VISIBLE),
             "visibility_comment": record.get(CONCEPT.FAMILY.VISIBILITY_COMMENT),
-            "visibility_reason": record.get(CONCEPT.FAMILY.VISIBILTIY_REASON),
+            "visibility_reason": record.get(CONCEPT.FAMILY.VISIBILITY_REASON),
         }
         return {
             **cls.get_key_components(record, get_target_id_from_record),
@@ -229,7 +229,7 @@ class Participant:
                 CONCEPT.PARTICIPANT.VISIBILITY_COMMENT
             ),
             "visibility_reason": record.get(
-                CONCEPT.PARTICIPANT.VISIBILTIY_REASON
+                CONCEPT.PARTICIPANT.VISIBILITY_REASON
             ),
         }
         return {
@@ -288,7 +288,7 @@ class Diagnosis:
                 CONCEPT.DIAGNOSIS.VISIBILITY_COMMENT
             ),
             "visibility_reason": record.get(
-                CONCEPT.DIAGNOSIS.VISIBILTIY_REASON
+                CONCEPT.DIAGNOSIS.VISIBILITY_REASON
             ),
             "external_id": record.get(CONCEPT.DIAGNOSIS.ID),
         }
@@ -338,7 +338,7 @@ class Phenotype:
                 CONCEPT.PHENOTYPE.VISIBILITY_COMMENT
             ),
             "visibility_reason": record.get(
-                CONCEPT.PHENOTYPE.VISIBILTIY_REASON
+                CONCEPT.PHENOTYPE.VISIBILITY_REASON
             ),
             "external_id": record.get(CONCEPT.PHENOTYPE.ID),
         }
@@ -410,7 +410,7 @@ class Outcome:
             "visibility_comment": record.get(
                 CONCEPT.OUTCOME.VISIBILITY_COMMENT
             ),
-            "visibility_reason": record.get(CONCEPT.OUTCOME.VISIBILTIY_REASON),
+            "visibility_reason": record.get(CONCEPT.OUTCOME.VISIBILITY_REASON),
             "age_at_event_days": flexible_age(
                 record,
                 CONCEPT.OUTCOME.EVENT_AGE_DAYS,
@@ -502,7 +502,7 @@ class Sample:
             ),
             "visible": record.get(CONCEPT.SAMPLE.VISIBLE),
             "visibility_comment": record.get(CONCEPT.SAMPLE.VISIBILITY_COMMENT),
-            "visibility_reason": record.get(CONCEPT.SAMPLE.VISIBILTIY_REASON),
+            "visibility_reason": record.get(CONCEPT.SAMPLE.VISIBILITY_REASON),
             "volume_ul": (
                 record.get(CONCEPT.SAMPLE.VOLUME_UL)
                 or record.get(CONCEPT.BIOSPECIMEN.VOLUME_UL)
@@ -581,7 +581,7 @@ class SampleRelationship:
                 CONCEPT.SAMPLE_RELATIONSHIP.VISIBILITY_COMMENT
             ),
             "visibility_reason": record.get(
-                CONCEPT.SAMPLE_RELATIONSHIP.VISIBILTIY_REASON
+                CONCEPT.SAMPLE_RELATIONSHIP.VISIBILITY_REASON
             ),
         }
         return {
@@ -715,7 +715,7 @@ class Biospecimen:
                 CONCEPT.BIOSPECIMEN.VISIBILITY_COMMENT
             ),
             "visibility_reason": record.get(
-                CONCEPT.BIOSPECIMEN.VISIBILTIY_REASON
+                CONCEPT.BIOSPECIMEN.VISIBILITY_REASON
             ),
             "method_of_sample_procurement": (
                 record.get(CONCEPT.SAMPLE.SAMPLE_PROCUREMENT)
@@ -810,7 +810,7 @@ class GenomicFile:
                 CONCEPT.GENOMIC_FILE.VISIBILITY_COMMENT
             ),
             "visibility_reason": record.get(
-                CONCEPT.GENOMIC_FILE.VISIBILTIY_REASON
+                CONCEPT.GENOMIC_FILE.VISIBILITY_REASON
             ),
         }
         return {
@@ -852,7 +852,7 @@ class ReadGroup:
                 CONCEPT.READ_GROUP.VISIBILITY_COMMENT
             ),
             "visibility_reason": record.get(
-                CONCEPT.READ_GROUP.VISIBILTIY_REASON
+                CONCEPT.READ_GROUP.VISIBILITY_REASON
             ),
         }
         return {
@@ -973,7 +973,7 @@ class SequencingExperiment:
                 CONCEPT.SEQUENCING.VISIBILITY_COMMENT
             ),
             "visibility_reason": record.get(
-                CONCEPT.SEQUENCING.VISIBILTIY_REASON
+                CONCEPT.SEQUENCING.VISIBILITY_REASON
             ),
         }
         return {
@@ -1003,7 +1003,7 @@ class FamilyRelationship:
         )
         # Add back in the visibility info from original df
         vis_df = original[
-            [FR.PERSON1.ID, FR.VISIBILTIY_REASON, FR.VISIBILITY_COMMENT]
+            [FR.PERSON1.ID, FR.VISIBILITY_REASON, FR.VISIBILITY_COMMENT]
         ]
         df = merge(df, vis_df, how="left", on=FR.PERSON1.ID)
 
@@ -1052,7 +1052,7 @@ class FamilyRelationship:
                 CONCEPT.FAMILY_RELATIONSHIP.VISIBILITY_COMMENT
             ),
             "visibility_reason": record.get(
-                CONCEPT.FAMILY_RELATIONSHIP.VISIBILTIY_REASON
+                CONCEPT.FAMILY_RELATIONSHIP.VISIBILITY_REASON
             ),
         }
         return {
@@ -1095,7 +1095,7 @@ class BiospecimenGenomicFile:
                 CONCEPT.BIOSPECIMEN_GENOMIC_FILE.VISIBILITY_COMMENT
             ),
             "visibility_reason": record.get(
-                CONCEPT.BIOSPECIMEN_GENOMIC_FILE.VISIBILTIY_REASON
+                CONCEPT.BIOSPECIMEN_GENOMIC_FILE.VISIBILITY_REASON
             ),
             "external_id": external_id(
                 [Biospecimen, GenomicFile], record, get_target_id_from_record
@@ -1141,7 +1141,7 @@ class BiospecimenDiagnosis:
                 CONCEPT.BIOSPECIMEN_DIAGNOSIS.VISIBILITY_COMMENT
             ),
             "visibility_reason": record.get(
-                CONCEPT.BIOSPECIMEN_DIAGNOSIS.VISIBILTIY_REASON
+                CONCEPT.BIOSPECIMEN_DIAGNOSIS.VISIBILITY_REASON
             ),
             "external_id": external_id(
                 [Biospecimen, Diagnosis], record, get_target_id_from_record
@@ -1187,7 +1187,7 @@ class ReadGroupGenomicFile:
                 CONCEPT.READ_GROUP_GENOMIC_FILE.VISIBILITY_COMMENT
             ),
             "visibility_reason": record.get(
-                CONCEPT.READ_GROUP_GENOMIC_FILE.VISIBILTIY_REASON
+                CONCEPT.READ_GROUP_GENOMIC_FILE.VISIBILITY_REASON
             ),
             "external_id": external_id(
                 [ReadGroup, GenomicFile], record, get_target_id_from_record
@@ -1233,7 +1233,7 @@ class SequencingExperimentGenomicFile:
                 CONCEPT.SEQUENCING_GENOMIC_FILE.VISIBILITY_COMMENT
             ),
             "visibility_reason": record.get(
-                CONCEPT.SEQUENCING_GENOMIC_FILE.VISIBILTIY_REASON
+                CONCEPT.SEQUENCING_GENOMIC_FILE.VISIBILITY_REASON
             ),
             "external_id": external_id(
                 [SequencingExperiment, GenomicFile],
