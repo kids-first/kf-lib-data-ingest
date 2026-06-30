@@ -60,6 +60,93 @@ def test_safe_pandas_replace_no_cascade():
     ).equals(pandas.Series(["2", "3", "4"]))
 
 
+def test_safe_pandas_replace_non_cascade_on_created_values():
+    # A value created by an earlier mapping must not be re-mapped by a later
+    # one. Mapping "1" -> "2" creates a "2", but the later "2" -> "9" mapping
+    # should only touch the *original* "2".
+    assert pandas_utils.safe_pandas_replace(
+        pandas.Series(["1", "2"]), {"1": "2", "2": "9"}
+    ).equals(pandas.Series(["2", "9"]))
+
+
+def test_safe_pandas_replace_identity_mapping_survives_catchall():
+    # Regression test: an identity mapping (original == replacement) must
+    # still "claim" the cells it matches so that a later catch-all does not
+    # silently override them. Previously the function decided which cells a
+    # mapping had claimed by checking whether the value *changed*, so an
+    # identity mapping claimed nothing and the catch-all clobbered it.
+    mappings = {
+        "A": "A",  # identity mapping -- value does not change
+        r".*": "X",  # catch-all applied to whatever is left
+    }
+    # on a series
+    assert pandas_utils.safe_pandas_replace(
+        pandas.Series(["A", "B"]), mappings, regex=True
+    ).equals(pandas.Series(["A", "X"]))
+
+    # multiple identity mappings followed by a catch-all (the shape that
+    # corrupted race / ethnicity / tissue-type fields in SD_2Z0N3FB6)
+    multi = {
+        "White": "White",
+        "Asian": "Asian",
+        r".*": "Not Reported",
+    }
+    assert pandas_utils.safe_pandas_replace(
+        pandas.Series(["White", "Asian", "Other", "White"]), multi, regex=True
+    ).equals(pandas.Series(["White", "Asian", "Not Reported", "White"]))
+
+
+def test_safe_pandas_replace_identity_mapping_dataframe_column_map():
+    # Same regression, exercised through the DataFrame / column-specific path.
+    df = pandas.DataFrame({"race": ["White", "Black", "Other"]})
+    mappings = {
+        "race": {
+            "White": "White",
+            "Black": "Black",
+            r".*": "Not Reported",
+        }
+    }
+    assert pandas_utils.safe_pandas_replace(df, mappings, regex=True).equals(
+        pandas.DataFrame({"race": ["White", "Black", "Not Reported"]})
+    )
+
+
+def test_safe_pandas_replace_non_identity_still_cascades_into_catchall():
+    # Guard the converse: a genuinely-changed value is claimed by its mapping,
+    # and only truly unmatched cells fall through to the catch-all.
+    assert pandas_utils.safe_pandas_replace(
+        pandas.Series(["A", "B"]), {"A": "Z", r".*": "X"}, regex=True
+    ).equals(pandas.Series(["Z", "X"]))
+
+
+def test_safe_pandas_replace_callable():
+    # A callable replacement receives the regex capture(s) and its result
+    # replaces the matched cell.
+    assert pandas_utils.safe_pandas_replace(
+        pandas.Series(["x1", "x2"]), {r"x(\d)": lambda d: "n" + d}, regex=True
+    ).equals(pandas.Series(["n1", "n2"]))
+
+
+def test_safe_pandas_replace_callable_identity_survives_catchall():
+    # The same identity-mapping bug existed in the callable branch: a callable
+    # that returns the original value produced no change and so was dropped,
+    # letting the catch-all override it.
+    assert pandas_utils.safe_pandas_replace(
+        pandas.Series(["keep", "drop"]),
+        {r"keep": lambda m: "keep", r".*": "X"},
+        regex=True,
+    ).equals(pandas.Series(["keep", "X"]))
+
+
+def test_safe_pandas_replace_catchall_first_claims_everything():
+    # Documented non-cascade behavior is order-sensitive: a catch-all placed
+    # first claims every cell, so a later literal never gets a turn. This is
+    # intentional and must remain stable.
+    assert pandas_utils.safe_pandas_replace(
+        pandas.Series(["A", "B"]), {r".*": "X", "A": "A"}, regex=True
+    ).equals(pandas.Series(["X", "X"]))
+
+
 def test_merge_wo_duplicates(info_caplog, dfs):
     df1 = dfs[0]
     df2 = dfs[0].copy()
