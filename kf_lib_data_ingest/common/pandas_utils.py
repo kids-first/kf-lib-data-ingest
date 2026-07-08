@@ -260,16 +260,29 @@ def safe_pandas_replace(data, mappings, regex=False):
                     k = "^(" + k[1:-1] + ")$"
                     matches = data.str.extract(k)
 
+                # A cell matched this pattern iff str.extract produced a
+                # non-null capture for it.
+                matched = pandas.notnull(matches[0])
+
                 new = data.copy()
                 # create new values using the returns from the function calls
-                new[pandas.notnull(matches[0])] = matches.astype(str).apply(
+                new[matched] = matches.astype(str).apply(
                     lambda row: v(*row), axis=1
                 )
             else:  # basic replacement
                 new = data.replace({k: v}, regex=True)
+                # A cell matched this pattern iff the (anchored) pattern
+                # matches the cell's string value.
+                matched = data.astype(str).str.match(k)
 
-            # Fill only the remaining holes with new values
-            output[holes] = new[new.astype(str) != data.astype(str)][holes]
+            # Claim every still-empty hole that this pattern matched, even
+            # when the replacement value equals the original value (an
+            # identity mapping such as "White" -> "White"). Keying off "the
+            # pattern matched" rather than "the value changed" is what stops
+            # a later mapping (e.g. a catch-all r".*") from silently
+            # overriding a literal match whose value happened to be unchanged.
+            fill = holes & matched.fillna(False)
+            output[fill] = new[fill]
 
         # Fill any remaining holes with original values
         holes = output.apply(lambda x: x is numpy.nan)
