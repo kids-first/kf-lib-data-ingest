@@ -11,7 +11,7 @@ SQLAlchemy==1.3.20
 pytest>=6.1.2,<7
 cchardet>=2.1.6,<3
 graph_theory==2020.11.4.41115
-Markdown==3.3.3
+Markdown==3.8.1
 d3b_utils @ git+https://github.com/d3b-center/d3b-utils-python.git
 kf_utils @ git+https://github.com/kids-first/kf-utils-python.git
 numpy<2.0.0
